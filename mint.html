@@ -111,7 +111,7 @@ button:disabled {
   <div class="subtitle">Genesis Mint Access</div>
 
   <div class="info">
-    Minted: <strong><span id="minted">–</span></strong>
+    Minted: <strong><span id="minted">– / –</span></strong>
   </div>
 
   <div class="info">
@@ -177,6 +177,12 @@ function updateTotal() {
 }
 qtyInput.addEventListener("input", updateTotal);
 
+async function getContract() {
+  const network = await provider.getNetwork();
+  if (network.chainId !== 8453) return null;
+  return contract.connect(provider.getSigner());
+}
+
 connectBtn.onclick = async () => {
   if (!window.ethereum) { alert("Please install MetaMask"); return; }
   try {
@@ -192,8 +198,7 @@ connectBtn.onclick = async () => {
     } catch (e) {
       if (e.code === 4902) {
         await window.ethereum.request({ method: "wallet_addEthereumChain", params: [BASE_CHAIN] });
-        statusEl.innerText += " | Base added ✅";
-      } else { statusEl.innerText += " | Chain switch failed ❌"; }
+      }
     }
   } catch (err) {
     console.error(err);
@@ -205,13 +210,11 @@ mintBtn.onclick = async () => {
   if (!window.ethereum) { alert("Please install MetaMask"); return; }
 
   const qty = Number(qtyInput.value);
+  const network = await provider.getNetwork();
+  if (network.chainId !== 8453) { alert("Please switch to Base network to mint"); return; }
 
   try {
     const signer = provider.getSigner();
-    
-    const network = await provider.getNetwork();
-    if (network.chainId !== 0x2105) { alert("Please switch to Base network to mint"); return; }
-
     const contractWithSigner = contract.connect(signer);
     const pricePerNFT = ethers.utils.parseEther("0.005");
     const totalPrice = pricePerNFT.mul(qty);
@@ -229,16 +232,20 @@ mintBtn.onclick = async () => {
 };
 
 async function updateMinted() {
+  const c = await getContract();
+  if (!c) { mintedEl.innerText = "Switch to Base"; return; }
   try {
-    const minted = await contract.totalMinted();
-    const max = await contract.MAX_SUPPLY();
-    mintedEl.innerText = minted.toString() + " / " + max.toString();
+    const minted = await c.totalMinted();
+    const max = await c.MAX_SUPPLY();
+    mintedEl.innerText = `${minted.toString()} / ${max.toString()}`;
   } catch (err) { console.error(err); }
 }
 
 async function updateMintTime() {
+  const c = await getContract();
+  if (!c) { mintTimeEl.innerText = "Switch to Base"; return; }
   try {
-    const endTimestamp = await contract.mintEnd();
+    const endTimestamp = await c.mintEnd();
     const now = Math.floor(Date.now() / 1000);
     let remaining = endTimestamp.toNumber() - now;
     if (remaining <= 0) {
