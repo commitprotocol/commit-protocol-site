@@ -167,8 +167,9 @@ const abi = [
   "function mintEnd() view returns (uint256)"
 ];
 
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const contract = new ethers.Contract(contractAddress, abi, provider);
+let provider;
+let signer;
+let contract;
 
 function updateTotal() {
   const qty = Number(qtyInput.value);
@@ -177,79 +178,91 @@ function updateTotal() {
 }
 qtyInput.addEventListener("input", updateTotal);
 
+async function initProvider() {
+  if (!window.ethereum) return null;
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  signer = provider.getSigner();
+  contract = new ethers.Contract(contractAddress, abi, provider);
+  return { provider, signer, contract };
+}
+
 async function getContract() {
+  if (!provider) return null;
   const network = await provider.getNetwork();
   if (network.chainId !== 8453) return null;
-  return contract.connect(provider.getSigner());
+  return contract.connect(signer);
 }
 
 connectBtn.onclick = async () => {
   if (!window.ethereum) {
-    statusEl.innerText = "MetaMask não encontrada! Por favor, instale a MetaMask para continuar.";
-    alert("MetaMask não encontrada! Instale a MetaMask para poder conectar a carteira.");
+    alert("MetaMask não encontrada! Instale a MetaMask para continuar.");
+    statusEl.innerText = "MetaMask não encontrada ❌";
     return;
   }
+
+  await initProvider();
 
   try {
     statusEl.innerText = "Conectando a carteira…";
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    const addr = accounts[0];
-    walletText.innerText = "Connected: " + addr.slice(0,6) + "…" + addr.slice(-4);
+    walletText.innerText = "Connected: " + accounts[0].slice(0,6) + "…" + accounts[0].slice(-4);
     statusEl.innerText = "Conectado ✅";
     mintBtn.disabled = false;
 
-    try {
-      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x2105" }]});
-    } catch (e) {
-      if (e.code === 4902) {
-        await window.ethereum.request({ method: "wallet_addEthereumChain", params: [BASE_CHAIN] });
-        statusEl.innerText += " | Base adicionada ✅";
-      } else { 
-        statusEl.innerText += " | Falha ao trocar rede ❌"; 
+    const network = await provider.getNetwork();
+    if (network.chainId !== 8453) {
+      try {
+        await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x2105" }]});
+        statusEl.innerText += " | Rede Base selecionada ✅";
+      } catch (e) {
+        if (e.code === 4902) {
+          await window.ethereum.request({ method: "wallet_addEthereumChain", params: [BASE_CHAIN] });
+          statusEl.innerText += " | Base adicionada ✅";
+        } else {
+          alert("Por favor, mude manualmente para a rede Base.");
+          statusEl.innerText += " | Falha ao trocar rede ❌";
+        }
       }
     }
-  } catch (err) {
+
+  } catch(err) {
     console.error(err);
     statusEl.innerText = "Falha ao conectar carteira ❌";
   }
 };
 
-mintBtn.onclick = async () => {
-  if (!window.ethereum) { 
-    alert("Please install MetaMask"); 
-    return; 
-  }
+if (window.ethereum) {
+  window.ethereum.on("chainChanged", () => location.reload());
+  window.ethereum.on("accountsChanged", () => location.reload());
+}
 
+mintBtn.onclick = async () => {
+  if (!window.ethereum) { alert("MetaMask não encontrada!"); return; }
   const qty = Number(qtyInput.value);
+  const c = await getContract();
+  if (!c) { alert("Por favor, conecte à rede Base."); return; }
 
   try {
-    const signer = provider.getSigner();
-    const network = await provider.getNetwork();
-    if (network.chainId !== 0x2105) { 
-      alert("Please switch to Base network to mint"); 
-      return; 
-    }
-
-    const contractWithSigner = contract.connect(signer);
     const pricePerNFT = ethers.utils.parseEther("0.005");
     const totalPrice = pricePerNFT.mul(qty);
 
-    statusEl.innerText = `Minting ${qty} NFT(s)…`;
-
-    const tx = await contractWithSigner.mint(qty, { value: totalPrice });
-    statusEl.innerText = "Transaction sent. Waiting for confirmation…";
-    await tx.wait();
-    statusEl.innerText = "Mint successful ✅";
-    updateMinted();
-
-  } catch (err) {
-    console.error(err);
-
-  if (err.code === -32003 || err.message.toLowerCase().includes("insufficient funds")) {
-      statusEl.innerText = "Insufficient balance ❌";
-    } else {
-      statusEl.innerText = "Mint failed ❌";
+    const balance = await signer.getBalance();
+    if (balance.lt(totalPrice)) {
+      statusEl.innerText = "Saldo insuficiente ❌";
+      alert("Saldo insuficiente para realizar o mint.");
+      return;
     }
+
+    statusEl.innerText = `Minting ${qty} NFT(s)…`;
+    const tx = await c.mint(qty, { value: totalPrice });
+    statusEl.innerText = "Transação enviada. Aguardando confirmação…";
+    await tx.wait();
+    statusEl.innerText = "Mint realizado ✅";
+    updateMinted();
+  } catch(err) {
+    console.error(err);
+    statusEl.innerText = "Mint falhou ❌";
+    alert("Ocorreu um erro ao tentar mintar.");
   }
 };
 
@@ -260,7 +273,7 @@ async function updateMinted() {
     const minted = await c.totalMinted();
     const max = await c.MAX_SUPPLY();
     mintedEl.innerText = `${minted.toString()} / ${max.toString()}`;
-  } catch (err) { console.error(err); }
+  } catch(err) { console.error(err); }
 }
 
 async function updateMintTime() {
@@ -278,7 +291,7 @@ async function updateMintTime() {
     const hours = Math.floor(remaining / 3600);
     const minutes = Math.floor((remaining % 3600) / 60);
     mintTimeEl.innerText = `${hours}h ${minutes}m`;
-  } catch (err) { console.error(err); }
+  } catch(err) { console.error(err); }
 }
 
 setInterval(() => {
