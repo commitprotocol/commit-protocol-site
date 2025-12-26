@@ -258,7 +258,7 @@ connectBtn.onclick = async () => {
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     const addr = accounts[0];
 
-    connectBtn.innerText = "Connected ✅";
+    connectBtn.innerText = "Connected";
     connectBtn.disabled = true;
 
     walletText.innerText = addr;
