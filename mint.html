@@ -100,6 +100,33 @@ button:disabled {
   font-size: 14px;
   color: #8b949e;
 }
+
+/* POPUP */
+#popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #161b22;
+  color: #fff;
+  padding: 20px 28px;
+  border-radius: 18px;
+  border: 1px solid #30363d;
+  box-shadow: 0 0 50px rgba(0,0,0,.8);
+  display: none;
+  z-index: 1000;
+  text-align: center;
+}
+
+#popup button {
+  margin-top: 12px;
+  background: #ffffff;
+  color: #000;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+#popup.show { display: block; }
 </style>
 </head>
 
@@ -139,6 +166,12 @@ button:disabled {
   <div id="status"></div>
 </div>
 
+<!-- POPUP -->
+<div id="popup">
+  <div id="popupMessage"></div>
+  <button onclick="hidePopup()">Close</button>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
 <script>
@@ -150,6 +183,17 @@ const qtyInput = document.getElementById("qty");
 const totalPriceEl = document.getElementById("totalPrice");
 const mintedEl = document.getElementById("minted");
 const mintTimeEl = document.getElementById("mintTime");
+const popup = document.getElementById("popup");
+const popupMessage = document.getElementById("popupMessage");
+
+function showPopup(msg) {
+  popupMessage.innerText = msg;
+  popup.classList.add("show");
+}
+
+function hidePopup() {
+  popup.classList.remove("show");
+}
 
 const BASE_CHAIN = {
   chainId: "0x2105",
@@ -177,7 +221,7 @@ function updateTotal() {
 }
 qtyInput.addEventListener("input", updateTotal);
 
-// Verifica se a rede está certa e troca se necessário
+// Verifica rede e troca
 async function switchNetworkIfNeeded() {
   if (!window.ethereum) return false;
   const network = await provider.getNetwork();
@@ -194,10 +238,12 @@ async function switchNetworkIfNeeded() {
         statusEl.innerText = "Base network added ✅";
         return true;
       } catch (err) {
+        showPopup("Failed to add Base network ❌");
         statusEl.innerText = "Failed to add Base network ❌";
         return false;
       }
     } else {
+      showPopup("Failed to switch network ❌");
       statusEl.innerText = "Failed to switch network ❌";
       return false;
     }
@@ -207,7 +253,7 @@ async function switchNetworkIfNeeded() {
 // Conectar carteira
 connectBtn.onclick = async () => {
   if (!window.ethereum) {
-    alert("MetaMask não encontrada! Instale a MetaMask.");
+    showPopup("MetaMask não encontrada! Instale a MetaMask.");
     statusEl.innerText = "MetaMask não encontrada ❌";
     return;
   }
@@ -221,6 +267,7 @@ connectBtn.onclick = async () => {
     mintBtn.disabled = false;
   } catch (err) {
     console.error(err);
+    showPopup("Falha ao conectar carteira ❌");
     statusEl.innerText = "Falha ao conectar carteira ❌";
   }
 };
@@ -228,7 +275,7 @@ connectBtn.onclick = async () => {
 // Mint
 mintBtn.onclick = async () => {
   if (!window.ethereum) {
-    alert("Please install MetaMask");
+    showPopup("Please install MetaMask");
     return;
   }
 
@@ -237,7 +284,7 @@ mintBtn.onclick = async () => {
 
   const qty = Number(qtyInput.value);
   if (qty < 1 || qty > 5) {
-    alert("Quantity must be between 1 and 5");
+    showPopup("Quantity must be between 1 and 5");
     return;
   }
 
@@ -252,14 +299,17 @@ mintBtn.onclick = async () => {
     statusEl.innerText = "Transaction sent. Waiting for confirmation…";
     await tx.wait();
     statusEl.innerText = "Mint successful ✅";
+    showPopup("Mint successful ✅");
     await updateMinted();
     await updateMintTime();
   } catch (err) {
     console.error(err);
     if (err.code === -32003 || (err.message && err.message.toLowerCase().includes("insufficient funds"))) {
       statusEl.innerText = "Insufficient balance ❌";
+      showPopup("Insufficient balance ❌");
     } else {
       statusEl.innerText = "Mint failed ❌";
+      showPopup("Mint failed ❌");
     }
   }
 };
