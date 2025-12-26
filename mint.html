@@ -168,9 +168,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
 <script>
-/* ================= CONFIG ================= */
 
-const BASE_CHAIN_ID = "0x2105"; // Base
+const BASE_CHAIN_ID = "0x2105";
 const BASE_CHAIN_DEC = 8453;
 
 const BASE_CHAIN = {
@@ -192,14 +191,10 @@ const ABI = [
 
 const PRICE_PER_NFT = "0.005";
 
-/* ================= STATE ================= */
-
 let provider = null;
 let signer = null;
 let contract = null;
 let currentAccount = null;
-
-/* ================= ELEMENTS ================= */
 
 const connectBtn = document.getElementById("connect");
 const mintBtn = document.getElementById("mint");
@@ -211,8 +206,6 @@ const mintedEl = document.getElementById("minted");
 const mintTimeEl = document.getElementById("mintTime");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
-
-/* ================= UI ================= */
 
 function showPopup(msg) {
   popupMessage.innerText = msg;
@@ -229,8 +222,6 @@ function updateTotal() {
 }
 
 qtyInput.addEventListener("input", updateTotal);
-
-/* ================= WALLET ================= */
 
 async function initProvider() {
   provider = new ethers.providers.Web3Provider(window.ethereum, "any");
@@ -290,12 +281,10 @@ connectBtn.onclick = async () => {
   }
 };
 
-/* ================= MINT ================= */
-
 mintBtn.onclick = async () => {
   try {
     await ensureBaseNetwork();
-    await initProvider(); // 🔥 recria após troca de rede
+    await initProvider();
 
     const qty = Number(qtyInput.value);
     if (qty < 1 || qty > 5) {
@@ -333,8 +322,6 @@ mintBtn.onclick = async () => {
   }
 };
 
-/* ================= DATA ================= */
-
 async function refreshData() {
   try {
     const minted = await contract.totalMinted();
@@ -359,8 +346,6 @@ async function refreshData() {
     console.error(e);
   }
 }
-
-/* ================= EVENTS ================= */
 
 if (window.ethereum) {
   window.ethereum.on("accountsChanged", () => location.reload());
