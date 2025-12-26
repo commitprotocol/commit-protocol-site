@@ -266,11 +266,10 @@ connectBtn.onclick = async () => {
     await initProvider();
     await ensureBaseNetwork();
 
-    connectBtn.innerText = "Connected";
+    connectBtn.innerText = "Wallet Connected";
     connectBtn.disabled = true;
 
     walletText.innerText = currentAccount;
-    statusEl.innerText = "Wallet connected ✅";
 
     mintBtn.disabled = false;
 
@@ -300,14 +299,16 @@ mintBtn.onclick = async () => {
     statusEl.innerText = "Minting…";
 
     const tx = await contract.mint(qty, { value: totalValue });
-    await tx.wait();
+await tx.wait();
 
-    const txLink = `https://basescan.org/tx/${tx.hash}`;
+const txLink = `https://basescan.org/tx/${tx.hash}`;
 
-    statusEl.innerText = "Mint successful ✅";
-     showPopup(
-  `Mint successful ✅\n\nView transaction:\n${txLink}`
-);
+statusEl.innerHTML = `
+  <span style="color:#3fb950;">Mint successful</span><br>
+  <a href="${txLink}" target="_blank" style="color:#58a6ff;text-decoration:none;">
+    View transaction on BaseScan ↗
+  </a>
+`;
 
     await refreshData();
 
