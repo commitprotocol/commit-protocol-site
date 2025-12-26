@@ -79,9 +79,7 @@ button {
   transition: all 0.2s;
 }
 
-button:hover {
-  background: #f0f0f0;
-}
+button:hover { background: #f0f0f0; }
 
 button.secondary {
   background: #ffffff;
@@ -89,10 +87,7 @@ button.secondary {
   color: #000000;
 }
 
-button:disabled {
-  opacity: .45;
-  cursor: not-allowed;
-}
+button:disabled { opacity: .45; cursor: not-allowed; }
 
 #status {
   margin-top: 14px;
@@ -189,9 +184,7 @@ function showPopup(msg) {
   popup.classList.add("show");
 }
 
-function hidePopup() {
-  popup.classList.remove("show");
-}
+function hidePopup() { popup.classList.remove("show"); }
 
 const BASE_CHAIN = {
   chainId: "0x2105",
@@ -219,13 +212,17 @@ function updateTotal() {
 }
 qtyInput.addEventListener("input", updateTotal);
 
+function getContractWithSigner() {
+  return contract.connect(provider.getSigner());
+}
+
 async function switchNetworkIfNeeded() {
   if (!window.ethereum) return false;
   const network = await provider.getNetwork();
-  if (network.chainId === 0x2105) return true;
+  if (network.chainId === parseInt(BASE_CHAIN.chainId, 16)) return true;
 
   try {
-    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x2105" }] });
+    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BASE_CHAIN.chainId }] });
     statusEl.innerText = "Switched to Base network ✅";
     return true;
   } catch (e) {
@@ -249,7 +246,7 @@ async function switchNetworkIfNeeded() {
 
 connectBtn.onclick = async () => {
   if (!window.ethereum) {
-    alert("MetaMask not found! Please install MetaMask to connect your wallet.");
+    showPopup("MetaMask not found! Install MetaMask to connect your wallet.");
     return;
   }
 
@@ -262,49 +259,33 @@ connectBtn.onclick = async () => {
     connectBtn.disabled = true;
 
     walletText.innerText = addr;
-
     statusEl.innerText = "Wallet connected ✅";
 
-    try {
-      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x2105" }]});
-    } catch (e) {
-      if (e.code === 4902) {
-        await window.ethereum.request({ method: "wallet_addEthereumChain", params: [BASE_CHAIN] });
-        statusEl.innerText += " | Base network added ✅";
-      } else {
-        statusEl.innerText += " | Network switch failed ❌";
-      }
-    }
+    await switchNetworkIfNeeded();
 
   } catch (err) {
     console.error(err);
+    showPopup("Failed to connect wallet ❌");
     statusEl.innerText = "Failed to connect wallet ❌";
   }
 };
 
 mintBtn.onclick = async () => {
-  if (!window.ethereum) {
-    showPopup("Please install MetaMask");
-    return;
-  }
+  if (!window.ethereum) { showPopup("Please install MetaMask"); return; }
 
   const networkOk = await switchNetworkIfNeeded();
   if (!networkOk) return;
 
   const qty = Number(qtyInput.value);
-  if (qty < 1 || qty > 5) {
-    showPopup("Quantity must be between 1 and 5");
-    return;
-  }
+  if (qty < 1 || qty > 5) { showPopup("Quantity must be between 1 and 5"); return; }
 
   try {
-    const signer = provider.getSigner();
-    const contractWithSigner = contract.connect(signer);
+    const signerContract = getContractWithSigner();
     const pricePerNFT = ethers.utils.parseEther("0.005");
     const totalPrice = pricePerNFT.mul(qty);
 
     statusEl.innerText = `Minting ${qty} NFT(s)…`;
-    const tx = await contractWithSigner.mint(qty, { value: totalPrice });
+    const tx = await signerContract.mint(qty, { value: totalPrice });
     statusEl.innerText = "Transaction sent. Waiting for confirmation…";
     await tx.wait();
     statusEl.innerText = "Mint successful ✅";
@@ -326,8 +307,8 @@ mintBtn.onclick = async () => {
 async function updateMinted() {
   try {
     const network = await provider.getNetwork();
-    if (network.chainId !== 0x2105) { mintedEl.innerText = "Switch to Base"; return; }
-    const c = contract.connect(provider.getSigner());
+    if (network.chainId !== parseInt(BASE_CHAIN.chainId, 16)) { mintedEl.innerText = "Switch to Base"; return; }
+    const c = getContractWithSigner();
     const minted = await c.totalMinted();
     const max = await c.MAX_SUPPLY();
     mintedEl.innerText = `${minted.toString()} / ${max.toString()}`;
@@ -337,8 +318,8 @@ async function updateMinted() {
 async function updateMintTime() {
   try {
     const network = await provider.getNetwork();
-    if (network.chainId !== 0x2105) { mintTimeEl.innerText = "Switch to Base"; return; }
-    const c = contract.connect(provider.getSigner());
+    if (network.chainId !== parseInt(BASE_CHAIN.chainId, 16)) { mintTimeEl.innerText = "Switch to Base"; return; }
+    const c = getContractWithSigner();
     const endTimestamp = await c.mintEnd();
     const now = Math.floor(Date.now() / 1000);
     let remaining = endTimestamp.toNumber() - now;
@@ -353,10 +334,7 @@ async function updateMintTime() {
   } catch (err) { console.error(err); }
 }
 
-setInterval(() => {
-  updateMinted();
-  updateMintTime();
-}, 10000);
+setInterval(() => { updateMinted(); updateMintTime(); }, 10000);
 
 updateMinted();
 updateMintTime();
