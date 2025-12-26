@@ -218,11 +218,17 @@ function getContractWithSigner() {
 
 async function switchNetworkIfNeeded() {
   if (!window.ethereum) return false;
+
   const network = await provider.getNetwork();
-  if (network.chainId === parseInt(BASE_CHAIN.chainId, 16)) return true;
+  console.log("Current chainId:", network.chainId);
+
+  if (network.chainId === 8453) return true;
 
   try {
-    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BASE_CHAIN.chainId }] });
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x2105" }]
+    });
     statusEl.innerText = "Switched to Base network ✅";
     return true;
   } catch (e) {
@@ -255,18 +261,24 @@ connectBtn.onclick = async () => {
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     const addr = accounts[0];
 
-    connectBtn.innerText = "Connected";
-    connectBtn.disabled = true;
-
     walletText.innerText = addr;
-    statusEl.innerText = "Wallet connected ✅";
 
-    await switchNetworkIfNeeded();
+    const networkOk = await switchNetworkIfNeeded();
+
+    if (networkOk) {
+      connectBtn.innerText = "Connected";
+      connectBtn.disabled = true;
+      mintBtn.disabled = false;
+      statusEl.innerText = "Wallet connected ✅";
+    } else {
+      mintBtn.disabled = true;
+    }
 
   } catch (err) {
     console.error(err);
     showPopup("Failed to connect wallet ❌");
     statusEl.innerText = "Failed to connect wallet ❌";
+    mintBtn.disabled = true;
   }
 };
 
