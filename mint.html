@@ -184,13 +184,18 @@ async function getContract() {
 }
 
 connectBtn.onclick = async () => {
-  if (!window.ethereum) { alert("Please install MetaMask"); return; }
+  if (!window.ethereum) {
+    statusEl.innerText = "MetaMask não encontrada! Por favor, instale a MetaMask para continuar.";
+    alert("MetaMask não encontrada! Instale a MetaMask para poder conectar a carteira.");
+    return;
+  }
+
   try {
-    statusEl.innerText = "Connecting wallet…";
+    statusEl.innerText = "Conectando a carteira…";
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     const addr = accounts[0];
     walletText.innerText = "Connected: " + addr.slice(0,6) + "…" + addr.slice(-4);
-    statusEl.innerText = "Connected ✅";
+    statusEl.innerText = "Conectado ✅";
     mintBtn.disabled = false;
 
     try {
@@ -198,11 +203,14 @@ connectBtn.onclick = async () => {
     } catch (e) {
       if (e.code === 4902) {
         await window.ethereum.request({ method: "wallet_addEthereumChain", params: [BASE_CHAIN] });
+        statusEl.innerText += " | Base adicionada ✅";
+      } else { 
+        statusEl.innerText += " | Falha ao trocar rede ❌"; 
       }
     }
   } catch (err) {
     console.error(err);
-    statusEl.innerText = "Connection failed ❌";
+    statusEl.innerText = "Falha ao conectar carteira ❌";
   }
 };
 
