@@ -285,6 +285,12 @@ connectBtn.onclick = async () => {
 mintBtn.onclick = async () => {
   if (!window.ethereum) { showPopup("Please install MetaMask"); return; }
 
+  const network = await provider.getNetwork();
+  if (network.chainId !== 8453) { // 8453 = Base
+    showPopup("Please switch to Base network to mint!"); // Seu popup
+    return;
+  }
+
   const networkOk = await switchNetworkIfNeeded();
   if (!networkOk) return;
 
