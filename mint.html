@@ -98,18 +98,19 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
 #popup {
   position: fixed;
-  top: 50%;
+  top: 20px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   background: #161b22;
   color: #fff;
-  padding: 20px 28px;
-  border-radius: 18px;
+  padding: 16px 24px;
+  border-radius: 14px;
   border: 1px solid #30363d;
-  box-shadow: 0 0 50px rgba(0,0,0,.8);
+  box-shadow: 0 10px 40px rgba(0,0,0,.8);
   display: none;
   z-index: 1000;
   text-align: center;
+  max-width: 90%;
 }
 
 #popup button {
