@@ -207,27 +207,41 @@ connectBtn.onclick = async () => {
 };
 
 mintBtn.onclick = async () => {
-  if (!window.ethereum) { alert("Please install MetaMask"); return; }
+  if (!window.ethereum) { 
+    alert("Please install MetaMask"); 
+    return; 
+  }
 
   const qty = Number(qtyInput.value);
-  const network = await provider.getNetwork();
-  if (network.chainId !== 8453) { alert("Please switch to Base network to mint"); return; }
 
   try {
     const signer = provider.getSigner();
+    const network = await provider.getNetwork();
+    if (network.chainId !== 0x2105) { 
+      alert("Please switch to Base network to mint"); 
+      return; 
+    }
+
     const contractWithSigner = contract.connect(signer);
     const pricePerNFT = ethers.utils.parseEther("0.005");
     const totalPrice = pricePerNFT.mul(qty);
 
     statusEl.innerText = `Minting ${qty} NFT(s)…`;
+
     const tx = await contractWithSigner.mint(qty, { value: totalPrice });
     statusEl.innerText = "Transaction sent. Waiting for confirmation…";
     await tx.wait();
     statusEl.innerText = "Mint successful ✅";
     updateMinted();
+
   } catch (err) {
     console.error(err);
-    statusEl.innerText = "Mint failed ❌";
+
+  if (err.code === -32003 || err.message.toLowerCase().includes("insufficient funds")) {
+      statusEl.innerText = "Insufficient balance ❌";
+    } else {
+      statusEl.innerText = "Mint failed ❌";
+    }
   }
 };
 
