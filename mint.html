@@ -302,8 +302,12 @@ mintBtn.onclick = async () => {
     const tx = await contract.mint(qty, { value: totalValue });
     await tx.wait();
 
+    const txLink = `https://basescan.org/tx/${tx.hash}`;
+
     statusEl.innerText = "Mint successful ✅";
-    showPopup("Mint successful ✅");
+     showPopup(
+  `Mint successful ✅\n\nView transaction:\n${txLink}`
+);
 
     await refreshData();
 
