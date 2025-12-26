@@ -168,6 +168,39 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
 <script>
+/* ================= CONFIG ================= */
+
+const BASE_CHAIN_ID = "0x2105"; // Base
+const BASE_CHAIN_DEC = 8453;
+
+const BASE_CHAIN = {
+  chainId: BASE_CHAIN_ID,
+  chainName: "Base",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: ["https://mainnet.base.org"],
+  blockExplorerUrls: ["https://basescan.org"]
+};
+
+const CONTRACT_ADDRESS = "0xc4970B784Bd929F880aE486637d8E5087306dd6a";
+
+const ABI = [
+  "function mint(uint256 amount) public payable",
+  "function totalMinted() view returns (uint256)",
+  "function MAX_SUPPLY() view returns (uint256)",
+  "function mintEnd() view returns (uint256)"
+];
+
+const PRICE_PER_NFT = "0.005";
+
+/* ================= STATE ================= */
+
+let provider = null;
+let signer = null;
+let contract = null;
+let currentAccount = null;
+
+/* ================= ELEMENTS ================= */
+
 const connectBtn = document.getElementById("connect");
 const mintBtn = document.getElementById("mint");
 const walletText = document.getElementById("wallet");
@@ -179,183 +212,161 @@ const mintTimeEl = document.getElementById("mintTime");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
 
+/* ================= UI ================= */
+
 function showPopup(msg) {
   popupMessage.innerText = msg;
   popup.classList.add("show");
 }
 
-function hidePopup() { popup.classList.remove("show"); }
-
-const BASE_CHAIN = {
-  chainId: "0x2105",
-  chainName: "Base",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: ["https://mainnet.base.org"],
-  blockExplorerUrls: ["https://basescan.org"]
-};
-
-const contractAddress = "0xc4970B784Bd929F880aE486637d8E5087306dd6a";
-const abi = [
-  "function mint(uint256 amount) public payable",
-  "function totalMinted() view returns (uint256)",
-  "function MAX_SUPPLY() view returns (uint256)",
-  "function mintEnd() view returns (uint256)"
-];
-
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const contract = new ethers.Contract(contractAddress, abi, provider);
+function hidePopup() {
+  popup.classList.remove("show");
+}
 
 function updateTotal() {
   const qty = Number(qtyInput.value);
-  const price = 0.005;
-  totalPriceEl.innerText = (qty * price).toFixed(3);
+  totalPriceEl.innerText = (qty * Number(PRICE_PER_NFT)).toFixed(3);
 }
+
 qtyInput.addEventListener("input", updateTotal);
 
-function getContractWithSigner() {
-  return contract.connect(provider.getSigner());
+/* ================= WALLET ================= */
+
+async function initProvider() {
+  provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+  signer = provider.getSigner();
+  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 }
 
-async function switchNetworkIfNeeded() {
-  if (!window.ethereum) return false;
-
+async function ensureBaseNetwork() {
   const network = await provider.getNetwork();
-  console.log("Current chainId:", network.chainId);
-
-  if (network.chainId === 8453) return true;
+  if (network.chainId === BASE_CHAIN_DEC) return;
 
   try {
     await window.ethereum.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x2105" }]
+      params: [{ chainId: BASE_CHAIN_ID }]
     });
-    statusEl.innerText = "Switched to Base network ✅";
-    return true;
-  } catch (e) {
-    if (e.code === 4902) {
-      try {
-        await window.ethereum.request({ method: "wallet_addEthereumChain", params: [BASE_CHAIN] });
-        statusEl.innerText = "Base network added ✅";
-        return true;
-      } catch (err) {
-        showPopup("Failed to add Base network ❌");
-        statusEl.innerText = "Failed to add Base network ❌";
-        return false;
-      }
+  } catch (err) {
+    if (err.code === 4902) {
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [BASE_CHAIN]
+      });
     } else {
-      showPopup("Failed to switch network ❌");
-      statusEl.innerText = "Failed to switch network ❌";
-      return false;
+      throw err;
     }
   }
 }
 
 connectBtn.onclick = async () => {
   if (!window.ethereum) {
-    showPopup("MetaMask not found! Install MetaMask to connect your wallet.");
+    showPopup("MetaMask not found. Please install MetaMask.");
     return;
   }
 
   try {
-    statusEl.innerText = "Connecting wallet…";
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    const addr = accounts[0];
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
 
-    walletText.innerText = addr;
+    currentAccount = accounts[0];
+    await initProvider();
+    await ensureBaseNetwork();
 
-    const networkOk = await switchNetworkIfNeeded();
+    connectBtn.innerText = "Connected";
+    connectBtn.disabled = true;
 
-    if (networkOk) {
-      connectBtn.innerText = "Connected";
-      connectBtn.disabled = true;
-      mintBtn.disabled = false;
-      statusEl.innerText = "Wallet connected ✅";
-    } else {
-      mintBtn.disabled = true;
-    }
+    walletText.innerText = currentAccount;
+    statusEl.innerText = "Wallet connected ✅";
+
+    mintBtn.disabled = false;
+
+    await refreshData();
 
   } catch (err) {
     console.error(err);
-    showPopup("Failed to connect wallet ❌");
-    statusEl.innerText = "Failed to connect wallet ❌";
-    mintBtn.disabled = true;
+    showPopup("Wallet connection failed");
   }
 };
+
+/* ================= MINT ================= */
 
 mintBtn.onclick = async () => {
-  if (!window.ethereum) { showPopup("Please install MetaMask"); return; }
-
-  const network = await provider.getNetwork();
-  if (network.chainId !== 8453) { // 8453 = Base
-    showPopup("Please switch to Base network to mint!"); // Seu popup
-    return;
-  }
-
-  const networkOk = await switchNetworkIfNeeded();
-  if (!networkOk) return;
-
-  const qty = Number(qtyInput.value);
-  if (qty < 1 || qty > 5) { showPopup("Quantity must be between 1 and 5"); return; }
-
   try {
-    const signerContract = getContractWithSigner();
-    const pricePerNFT = ethers.utils.parseEther("0.005");
-    const totalPrice = pricePerNFT.mul(qty);
+    await ensureBaseNetwork();
+    await initProvider(); // 🔥 recria após troca de rede
 
-    statusEl.innerText = `Minting ${qty} NFT(s)…`;
-    const tx = await signerContract.mint(qty, { value: totalPrice });
-    statusEl.innerText = "Transaction sent. Waiting for confirmation…";
+    const qty = Number(qtyInput.value);
+    if (qty < 1 || qty > 5) {
+      showPopup("Quantity must be between 1 and 5");
+      return;
+    }
+
+    const totalValue = ethers.utils.parseEther(
+      (qty * Number(PRICE_PER_NFT)).toString()
+    );
+
+    statusEl.innerText = "Minting…";
+
+    const tx = await contract.mint(qty, { value: totalValue });
     await tx.wait();
+
     statusEl.innerText = "Mint successful ✅";
     showPopup("Mint successful ✅");
-    await updateMinted();
-    await updateMintTime();
+
+    await refreshData();
+
   } catch (err) {
     console.error(err);
-    if (err.code === -32003 || (err.message && err.message.toLowerCase().includes("insufficient funds"))) {
-      statusEl.innerText = "Insufficient balance ❌";
-      showPopup("Insufficient balance ❌");
+
+    if (err.code === 4001) {
+      showPopup("Transaction rejected");
+    } else if (
+      err.message &&
+      err.message.toLowerCase().includes("insufficient")
+    ) {
+      showPopup("Insufficient balance");
     } else {
-      statusEl.innerText = "Mint failed ❌";
-      showPopup("Mint failed ❌");
+      showPopup("Mint failed");
     }
   }
 };
 
-async function updateMinted() {
-  try {
-    const network = await provider.getNetwork();
-    if (network.chainId !== parseInt(BASE_CHAIN.chainId, 16)) { mintedEl.innerText = "Switch to Base"; return; }
-    const c = getContractWithSigner();
-    const minted = await c.totalMinted();
-    const max = await c.MAX_SUPPLY();
-    mintedEl.innerText = `${minted.toString()} / ${max.toString()}`;
-  } catch (err) { console.error(err); }
-}
+/* ================= DATA ================= */
 
-async function updateMintTime() {
+async function refreshData() {
   try {
-    const network = await provider.getNetwork();
-    if (network.chainId !== parseInt(BASE_CHAIN.chainId, 16)) { mintTimeEl.innerText = "Switch to Base"; return; }
-    const c = getContractWithSigner();
-    const endTimestamp = await c.mintEnd();
+    const minted = await contract.totalMinted();
+    const max = await contract.MAX_SUPPLY();
+    mintedEl.innerText = `${minted} / ${max}`;
+
+    const end = await contract.mintEnd();
     const now = Math.floor(Date.now() / 1000);
-    let remaining = endTimestamp.toNumber() - now;
+    const remaining = end - now;
+
     if (remaining <= 0) {
       mintTimeEl.innerText = "Mint ended";
       mintBtn.disabled = true;
       return;
     }
-    const hours = Math.floor(remaining / 3600);
-    const minutes = Math.floor((remaining % 3600) / 60);
-    mintTimeEl.innerText = `${hours}h ${minutes}m`;
-  } catch (err) { console.error(err); }
+
+    const h = Math.floor(remaining / 3600);
+    const m = Math.floor((remaining % 3600) / 60);
+    mintTimeEl.innerText = `${h}h ${m}m`;
+
+  } catch (e) {
+    console.error(e);
+  }
 }
 
-setInterval(() => { updateMinted(); updateMintTime(); }, 10000);
+/* ================= EVENTS ================= */
 
-updateMinted();
-updateMintTime();
+if (window.ethereum) {
+  window.ethereum.on("accountsChanged", () => location.reload());
+  window.ethereum.on("chainChanged", () => location.reload());
+}
+
 updateTotal();
 </script>
 </body>
