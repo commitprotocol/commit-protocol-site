@@ -101,7 +101,6 @@ button:disabled {
   color: #8b949e;
 }
 
-/* POPUP */
 #popup {
   position: fixed;
   top: 50%;
@@ -166,7 +165,6 @@ button:disabled {
   <div id="status"></div>
 </div>
 
-<!-- POPUP -->
 <div id="popup">
   <div id="popupMessage"></div>
   <button onclick="hidePopup()">Close</button>
@@ -221,7 +219,6 @@ function updateTotal() {
 }
 qtyInput.addEventListener("input", updateTotal);
 
-// Verifica rede e troca
 async function switchNetworkIfNeeded() {
   if (!window.ethereum) return false;
   const network = await provider.getNetwork();
@@ -250,29 +247,41 @@ async function switchNetworkIfNeeded() {
   }
 }
 
-// Conectar carteira
 connectBtn.onclick = async () => {
   if (!window.ethereum) {
-    showPopup("MetaMask não encontrada! Instale a MetaMask.");
-    statusEl.innerText = "MetaMask não encontrada ❌";
+    alert("MetaMask not found! Please install MetaMask to connect your wallet.");
     return;
   }
 
   try {
-    statusEl.innerText = "Conectando a carteira…";
+    statusEl.innerText = "Connecting wallet…";
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     const addr = accounts[0];
-    walletText.innerText = "Connected: " + addr.slice(0,6) + "…" + addr.slice(-4);
-    statusEl.innerText = "Conectado ✅";
-    mintBtn.disabled = false;
+
+    connectBtn.innerText = "Connected ✅";
+    connectBtn.disabled = true;
+
+    walletText.innerText = addr;
+
+    statusEl.innerText = "Wallet connected ✅";
+
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x2105" }]});
+    } catch (e) {
+      if (e.code === 4902) {
+        await window.ethereum.request({ method: "wallet_addEthereumChain", params: [BASE_CHAIN] });
+        statusEl.innerText += " | Base network added ✅";
+      } else {
+        statusEl.innerText += " | Network switch failed ❌";
+      }
+    }
+
   } catch (err) {
     console.error(err);
-    showPopup("Falha ao conectar carteira ❌");
-    statusEl.innerText = "Falha ao conectar carteira ❌";
+    statusEl.innerText = "Failed to connect wallet ❌";
   }
 };
 
-// Mint
 mintBtn.onclick = async () => {
   if (!window.ethereum) {
     showPopup("Please install MetaMask");
@@ -314,7 +323,6 @@ mintBtn.onclick = async () => {
   }
 };
 
-// Atualizar minted
 async function updateMinted() {
   try {
     const network = await provider.getNetwork();
@@ -326,7 +334,6 @@ async function updateMinted() {
   } catch (err) { console.error(err); }
 }
 
-// Atualizar tempo restante
 async function updateMintTime() {
   try {
     const network = await provider.getNetwork();
