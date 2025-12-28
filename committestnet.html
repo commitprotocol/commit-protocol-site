@@ -22,6 +22,7 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 #popup { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#161b22; color:#fff; padding:16px 24px; border-radius:14px; border:1px solid #30363d; box-shadow:0 10px 40px rgba(0,0,0,.8); display:none; z-index:1000; text-align:center; max-width:90%; }
 #popup button { margin-top:12px; background:#ffffff; color:#000; border:1px solid #ccc; cursor:pointer; }
 #popup.show { display:block; }
+.line-info { font-size:12px; opacity:.7; margin-top:4px; }
 </style>
 </head>
 <body>
@@ -30,7 +31,8 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   <h1>Commit Protocol</h1>
   <div class="subtitle">Make your commit</div>
 
-  <textarea id="commitMessage" placeholder="Write your commit message (max 1029 chars)"></textarea>
+  <textarea id="commitMessage" placeholder="Write your commit message (max 1029 chars, 49 per line)"></textarea>
+  <div class="line-info">Lines: <span id="lineCount">0</span> / 21 | Chars: <span id="charCount">0</span> / 1029</div>
 
   <button id="connect">Connect Wallet</button>
   <button id="commit" disabled>Commit</button>
@@ -46,22 +48,15 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
-const SEPOLIA_CHAIN_ID = "0xaa36a7"; // Sepolia chainId in hex
-const SEPOLIA_CHAIN_DEC = 11155111;   // Sepolia chainId decimal
-const SEPOLIA_CHAIN = {
-  chainId: SEPOLIA_CHAIN_ID,
-  chainName: "Sepolia Testnet",
-  nativeCurrency: { name:"Ether", symbol:"ETH", decimals:18 },
-  rpcUrls: ["https://rpc.sepolia.org"],
-  blockExplorerUrls: ["https://sepolia.etherscan.io"]
-};
+const BASE_CHAIN_ID = "0x5"; // Sepolia
+const BASE_CHAIN_DEC = 11155111;
 
 const CONTRACT_ADDRESS = "0x025E778D50cA6e0C196cC8Ff642831d29E95ABef";
 
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function commitCount() view returns(uint256)",
-  "function COMMIT_FEE() view returns(uint256)"
+  "uint256 COMMIT_FEE"
 ];
 
 let provider, signer, contract, currentAccount;
@@ -72,9 +67,33 @@ const statusEl = document.getElementById("status");
 const messageInput = document.getElementById("commitMessage");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
+const lineCountEl = document.getElementById("lineCount");
+const charCountEl = document.getElementById("charCount");
+
+const maxCharsTotal = 1029;
+const maxCharsPerLine = 49;
+const maxLines = 21;
 
 function showPopup(msg){ popupMessage.innerText=msg; popup.classList.add("show"); }
 function hidePopup(){ popup.classList.remove("show"); }
+
+messageInput.addEventListener("input", () => {
+  let text = messageInput.value;
+
+  if(text.length > maxCharsTotal) text = text.slice(0,maxCharsTotal);
+
+  const lines = [];
+  let start=0;
+  while(start<text.length && lines.length<maxLines){
+    lines.push(text.slice(start,start+maxCharsPerLine));
+    start+=maxCharsPerLine;
+  }
+
+  messageInput.value = lines.join("\n");
+
+  lineCountEl.innerText = lines.length;
+  charCountEl.innerText = messageInput.value.replace(/\n/g,'').length;
+});
 
 async function initProvider(){
   provider = new ethers.providers.Web3Provider(window.ethereum,"any");
@@ -84,12 +103,12 @@ async function initProvider(){
 
 async function ensureSepoliaNetwork(){
   const network = await provider.getNetwork();
-  if(network.chainId === SEPOLIA_CHAIN_DEC) return;
+  if(network.chainId === BASE_CHAIN_DEC) return;
   try {
-    await window.ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId:SEPOLIA_CHAIN_ID }]});
+    await window.ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId:BASE_CHAIN_ID }]});
   } catch(err){
-    if(err.code===4902) await window.ethereum.request({ method:"wallet_addEthereumChain", params:[SEPOLIA_CHAIN] });
-    else throw err;
+    showPopup("Please switch to Sepolia network in your wallet.");
+    throw err;
   }
 }
 
@@ -113,7 +132,7 @@ commitBtn.onclick = async ()=>{
     await initProvider();
     const message = messageInput.value.trim();
     if(!message){ showPopup("Message cannot be empty"); return; }
-    if(message.length > 1029){ showPopup("Message too long (max 1029 chars)"); return; }
+    if(message.length > maxCharsTotal){ showPopup("Message too long"); return; }
 
     const fee = await contract.COMMIT_FEE();
     statusEl.innerText = "Committing…";
@@ -124,6 +143,8 @@ commitBtn.onclick = async ()=>{
     statusEl.innerHTML = `<span style="color:#3fb950;">Commit successful</span><br>
       <a href="${txLink}" target="_blank" style="color:#58a6ff;text-decoration:none;">View transaction ↗</a>`;
     messageInput.value = "";
+    lineCountEl.innerText = 0;
+    charCountEl.innerText = 0;
   }catch(err){
     console.error(err);
     if(err.code===4001) showPopup("Transaction rejected");
