@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Commit Protocol — Genesis Commit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+body { margin:0; min-height:100vh; font-family:'Inter', system-ui; background:#0d1117; color:#c9d1d9; display:flex; align-items:center; justify-content:center; padding:24px; }
+.card { width:100%; max-width:500px; background:#161b22; border-radius:22px; padding:28px; border:1px solid #30363d; box-shadow:0 0 60px rgba(0,0,0,.6); text-align:center; }
+.logo { width:72px; margin-bottom:14px; }
+h1 { margin:0; font-size:22px; color:#c9d1d9; }
+.subtitle { font-size:14px; opacity:.8; margin-bottom:18px; color:#8b949e; }
+.info { font-size:14px; margin-bottom:10px; color:#c9d1d9; }
+.wallet { font-size:13px; opacity:.85; margin-bottom:14px; word-break:break-all; color:#8b949e; }
+textarea { width:100%; min-height:120px; padding:10px; border-radius:12px; border:1px solid #30363d; background:#0d1117; color:#c9d1d9; resize:none; font-family:JetBrains Mono, monospace; font-size:14px; }
+button { width:100%; padding:14px; border-radius:14px; border:1px solid #ccc; font-weight:700; margin-top:12px; cursor:pointer; background:#ffffff; color:#000; transition:all 0.2s; }
+button:hover { background:#f0f0f0; }
+button:disabled { opacity:.45; cursor:not-allowed; }
+#status { margin-top:14px; min-height:22px; font-size:14px; color:#8b949e; }
+#popup { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#161b22; color:#fff; padding:16px 24px; border-radius:14px; border:1px solid #30363d; box-shadow:0 10px 40px rgba(0,0,0,.8); display:none; z-index:1000; text-align:center; max-width:90%; }
+#popup button { margin-top:12px; background:#ffffff; color:#000; border:1px solid #ccc; cursor:pointer; }
+#popup.show { display:block; }
+</style>
+</head>
+<body>
+<div class="card">
+  <img src="logo.png" class="logo" alt="Commit Protocol">
+  <h1>Commit Protocol</h1>
+  <div class="subtitle">Make your commit</div>
+
+  <textarea id="commitMessage" placeholder="Write your commit message (max 1029 chars)"></textarea>
+
+  <button id="connect">Connect Wallet</button>
+  <button id="commit" disabled>Commit</button>
+
+  <div class="wallet" id="wallet">Wallet not connected</div>
+  <div id="status"></div>
+</div>
+
+<div id="popup">
+  <div id="popupMessage"></div>
+  <button onclick="hidePopup()">Close</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script>
+const BASE_CHAIN_ID = "0x2105";
+const BASE_CHAIN_DEC = 8453;
+const BASE_CHAIN = {
+  chainId: BASE_CHAIN_ID,
+  chainName: "Base",
+  nativeCurrency: { name:"Ether", symbol:"ETH", decimals:18 },
+  rpcUrls: ["https://mainnet.base.org"],
+  blockExplorerUrls: ["https://basescan.org"]
+};
+
+const CONTRACT_ADDRESS = "SEU_CONTRACT_ADDRESS_AQUI";
+
+const ABI = [
+  "function commit(string calldata message) external payable returns(uint256)",
+  "function commitCount() view returns(uint256)",
+  "uint256 COMMIT_FEE"
+];
+
+let provider, signer, contract, currentAccount;
+const connectBtn = document.getElementById("connect");
+const commitBtn = document.getElementById("commit");
+const walletText = document.getElementById("wallet");
+const statusEl = document.getElementById("status");
+const messageInput = document.getElementById("commitMessage");
+const popup = document.getElementById("popup");
+const popupMessage = document.getElementById("popupMessage");
+
+function showPopup(msg){ popupMessage.innerText=msg; popup.classList.add("show"); }
+function hidePopup(){ popup.classList.remove("show"); }
+
+async function initProvider(){
+  provider = new ethers.providers.Web3Provider(window.ethereum,"any");
+  signer = provider.getSigner();
+  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+}
+
+async function ensureBaseNetwork(){
+  const network = await provider.getNetwork();
+  if(network.chainId === BASE_CHAIN_DEC) return;
+  try {
+    await window.ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId:BASE_CHAIN_ID }]});
+  } catch(err){
+    if(err.code===4902) await window.ethereum.request({ method:"wallet_addEthereumChain", params:[BASE_CHAIN] });
+    else throw err;
+  }
+}
+
+connectBtn.onclick = async ()=>{
+  if(!window.ethereum){ showPopup("MetaMask not found."); return; }
+  try{
+    const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
+    currentAccount = accounts[0];
+    await initProvider();
+    await ensureBaseNetwork();
+    connectBtn.innerText = "Wallet Connected";
+    connectBtn.disabled = true;
+    walletText.innerText = currentAccount;
+    commitBtn.disabled = false;
+  }catch(err){ console.error(err); showPopup("Wallet connection failed"); }
+};
+
+commitBtn.onclick = async ()=>{
+  try{
+    await ensureBaseNetwork();
+    await initProvider();
+    const message = messageInput.value.trim();
+    if(!message){ showPopup("Message cannot be empty"); return; }
+    if(message.length > 1029){ showPopup("Message too long (max 1029 chars)"); return; }
+
+    const fee = await contract.COMMIT_FEE();
+    statusEl.innerText = "Committing…";
+
+    const tx = await contract.commit(message, { value: fee });
+    await tx.wait();
+    const txLink = `https://basescan.org/tx/${tx.hash}`;
+    statusEl.innerHTML = `<span style="color:#3fb950;">Commit successful</span><br>
+      <a href="${txLink}" target="_blank" style="color:#58a6ff;text-decoration:none;">View transaction ↗</a>`;
+    messageInput.value = "";
+  }catch(err){
+    console.error(err);
+    if(err.code===4001) showPopup("Transaction rejected");
+    else if(err.message && err.message.toLowerCase().includes("insufficient")) showPopup("Insufficient balance");
+    else showPopup("Commit failed");
+  }
+};
+
+if(window.ethereum){
+  window.ethereum.on("accountsChanged",()=>location.reload());
+  window.ethereum.on("chainChanged",()=>location.reload());
+}
+</script>
+</body>
+</html>
