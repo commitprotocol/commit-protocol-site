@@ -46,22 +46,22 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
-const BASE_CHAIN_ID = "0x2105";
-const BASE_CHAIN_DEC = 8453;
-const BASE_CHAIN = {
-  chainId: BASE_CHAIN_ID,
-  chainName: "Base",
+const SEPOLIA_CHAIN_ID = "0xaa36a7"; // Sepolia chainId in hex
+const SEPOLIA_CHAIN_DEC = 11155111;   // Sepolia chainId decimal
+const SEPOLIA_CHAIN = {
+  chainId: SEPOLIA_CHAIN_ID,
+  chainName: "Sepolia Testnet",
   nativeCurrency: { name:"Ether", symbol:"ETH", decimals:18 },
-  rpcUrls: ["https://mainnet.base.org"],
-  blockExplorerUrls: ["https://basescan.org"]
+  rpcUrls: ["https://rpc.sepolia.org"],
+  blockExplorerUrls: ["https://sepolia.etherscan.io"]
 };
 
-const CONTRACT_ADDRESS = "SEU_CONTRACT_ADDRESS_AQUI";
+const CONTRACT_ADDRESS = "0x025E778D50cA6e0C196cC8Ff642831d29E95ABef";
 
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function commitCount() view returns(uint256)",
-  "uint256 COMMIT_FEE"
+  "function COMMIT_FEE() view returns(uint256)"
 ];
 
 let provider, signer, contract, currentAccount;
@@ -82,13 +82,13 @@ async function initProvider(){
   contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 }
 
-async function ensureBaseNetwork(){
+async function ensureSepoliaNetwork(){
   const network = await provider.getNetwork();
-  if(network.chainId === BASE_CHAIN_DEC) return;
+  if(network.chainId === SEPOLIA_CHAIN_DEC) return;
   try {
-    await window.ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId:BASE_CHAIN_ID }]});
+    await window.ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId:SEPOLIA_CHAIN_ID }]});
   } catch(err){
-    if(err.code===4902) await window.ethereum.request({ method:"wallet_addEthereumChain", params:[BASE_CHAIN] });
+    if(err.code===4902) await window.ethereum.request({ method:"wallet_addEthereumChain", params:[SEPOLIA_CHAIN] });
     else throw err;
   }
 }
@@ -99,7 +99,7 @@ connectBtn.onclick = async ()=>{
     const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
     currentAccount = accounts[0];
     await initProvider();
-    await ensureBaseNetwork();
+    await ensureSepoliaNetwork();
     connectBtn.innerText = "Wallet Connected";
     connectBtn.disabled = true;
     walletText.innerText = currentAccount;
@@ -109,7 +109,7 @@ connectBtn.onclick = async ()=>{
 
 commitBtn.onclick = async ()=>{
   try{
-    await ensureBaseNetwork();
+    await ensureSepoliaNetwork();
     await initProvider();
     const message = messageInput.value.trim();
     if(!message){ showPopup("Message cannot be empty"); return; }
@@ -120,7 +120,7 @@ commitBtn.onclick = async ()=>{
 
     const tx = await contract.commit(message, { value: fee });
     await tx.wait();
-    const txLink = `https://basescan.org/tx/${tx.hash}`;
+    const txLink = `https://sepolia.etherscan.io/tx/${tx.hash}`;
     statusEl.innerHTML = `<span style="color:#3fb950;">Commit successful</span><br>
       <a href="${txLink}" target="_blank" style="color:#58a6ff;text-decoration:none;">View transaction ↗</a>`;
     messageInput.value = "";
