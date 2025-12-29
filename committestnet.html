@@ -60,7 +60,7 @@ const BASE_CHAIN = {
   blockExplorerUrls: ["https://sepolia.etherscan.io"]
 };
 
-const CONTRACT_ADDRESS = "0xeb956A294525941d1feA18341b0A1B75590B9c68";
+const CONTRACT_ADDRESS = "0x7E0247267B1eE29C98Fbd45124E2c55e0ce5C09f";
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function commitCount() view returns(uint256)",
@@ -139,23 +139,15 @@ commitBtn.onclick = async ()=>{
   try{
     await ensureBaseNetwork();
     await initProvider();
-    const message = messageInput.value.trim();
-    if(!message){ showPopup("Message cannot be empty"); return; }
+    const message = messageInput.value;
     const lines = message.split("\n").length;
+    if(!message){ showPopup("Message cannot be empty"); return; }
     if(message.length > MAX_CHARS || lines > MAX_LINES){ showPopup(`Too long! Max ${MAX_CHARS} chars and ${MAX_LINES} lines.`); return; }
-
-    // Escape characters that could break SVG
-    const safeMessage = message
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\\/g, "&#92;")
-      .replace(/"/g, "&quot;");
 
     const fee = await contract.COMMIT_FEE();
     statusEl.innerText = "Committing…";
 
-    const tx = await contract.commit(safeMessage, { value: fee });
+    const tx = await contract.commit(message, { value: fee });
     await tx.wait();
     const txLink = `https://sepolia.etherscan.io/tx/${tx.hash}`;
     statusEl.innerHTML = `<span style="color:#3fb950;">Commit successful</span><br>
