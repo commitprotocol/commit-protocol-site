@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Commit Protocol — Documentation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin:0;
+  min-height:100vh;
+  font-family:'Inter', system-ui;
+  background:#0d1117;
+  color:#c9d1d9;
+  display:flex;
+  justify-content:center;
+  padding:24px;
+}
+
+.card {
+  width:100%;
+  max-width:820px;
+  background:#161b22;
+  border-radius:22px;
+  padding:36px;
+  border:1px solid #30363d;
+  box-shadow:0 0 60px rgba(0,0,0,.6);
+}
+
+h1 {
+  margin-top:0;
+  font-size:26px;
+}
+
+h2 {
+  margin-top:32px;
+  font-size:20px;
+}
+
+h3 {
+  margin-top:22px;
+  font-size:16px;
+  opacity:.9;
+}
+
+p, li {
+  font-size:15px;
+  line-height:1.6;
+  color:#c9d1d9;
+}
+
+ul {
+  padding-left:20px;
+}
+
+pre {
+  background:#0d1117;
+  border:1px solid #30363d;
+  border-radius:12px;
+  padding:16px;
+  overflow-x:auto;
+  font-family:JetBrains Mono, monospace;
+  font-size:14px;
+  color:#c9d1d9;
+}
+
+code {
+  font-family:JetBrains Mono, monospace;
+  background:rgba(255,255,255,0.06);
+  padding:2px 6px;
+  border-radius:6px;
+}
+
+a {
+  color:#58a6ff;
+  text-decoration:none;
+}
+a:hover {
+  text-decoration:underline;
+}
+
+.footer {
+  margin-top:40px;
+  font-size:13px;
+  opacity:.6;
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>Commit Protocol</h1>
+<p><strong>Immutable on-chain commits. Irreversible by design.</strong></p>
+
+---
+
+<h2>Protocol Overview</h2>
+
+<p>
+Commit Protocol is a minimal ERC-721 protocol designed to store permanent,
+human-readable commit messages fully on-chain.
+Each commit is immutable, unique, and cannot be edited, removed, or overwritten.
+</p>
+
+<p>
+There is no admin control, no withdrawal function, and no mutable state that
+can alter previously committed data.
+</p>
+
+---
+
+<h2>Minting Rules</h2>
+
+<ul>
+  <li><strong>Commit Fee:</strong> Fixed <code>COMMIT_FEE</code> per commit</li>
+  <li><strong>Maximum length:</strong> 1049 ASCII characters</li>
+  <li><strong>Line limit:</strong> 21 lines</li>
+  <li><strong>Line width:</strong> 49 characters per line</li>
+</ul>
+
+<p>
+All validation is enforced <strong>on-chain</strong>.
+If the message exceeds the allowed limits, the transaction reverts.
+</p>
+
+---
+
+<h2>Allowed Content</h2>
+
+<p>
+Commit messages accept plain ASCII text.
+The protocol safely escapes the following characters before rendering:
+</p>
+
+<ul>
+  <li><code>&lt;</code></li>
+  <li><code>&gt;</code></li>
+  <li><code>&amp;</code></li>
+  <li><code>\</code></li>
+</ul>
+
+<p>
+This prevents script injection, SVG manipulation, or execution of arbitrary code.
+</p>
+
+---
+
+<h2>Security Model</h2>
+
+<ul>
+  <li>No owner or admin privileges</li>
+  <li>No upgradeability</li>
+  <li>No withdraw function</li>
+  <li>All fees sent directly to Treasury</li>
+  <li>Reentrancy protection enabled</li>
+  <li>On-chain length validation</li>
+</ul>
+
+<p>
+Each commit ID is derived from:
+</p>
+
+<pre>
+keccak256(
+  msg.sender,
+  block.number,
+  block.prevrandao,
+  message
+)
+</pre>
+
+<p>
+This guarantees practical uniqueness and prevents replay collisions.
+</p>
+
+---
+
+<h2>Treasury & Commit Fee</h2>
+
+<p>
+The commit fee exists for three reasons:
+</p>
+
+<ul>
+  <li>Prevent spam and denial-of-service attacks</li>
+  <li>Preserve long-term protocol sustainability</li>
+  <li>Fund ecosystem growth and infrastructure</li>
+</ul>
+
+<p>
+Fees are transferred immediately to the Treasury address.
+There is no custody risk and no stored ETH in the contract.
+</p>
+
+---
+
+<h2>Audit Notes</h2>
+
+<p>
+This protocol intentionally avoids complexity.
+Its attack surface is limited to:
+</p>
+
+<ul>
+  <li>ERC-721 minting logic</li>
+  <li>String length validation</li>
+  <li>SVG rendering</li>
+</ul>
+
+<p>
+There are no external calls except a single ETH transfer to Treasury,
+executed after state changes and protected by <code>ReentrancyGuard</code>.
+</p>
+
+---
+
+<h2>Final Notes</h2>
+
+<p>
+A commit made through this protocol is permanent.
+There is no moderation, no censorship, and no recovery mechanism.
+</p>
+
+<p>
+<strong>Blockchains never forget.</strong>
+</p>
+
+<div class="footer">
+commit-protocol://v0 — immutable by design
+</div>
+
+</div>
+
+</body>
+</html>
