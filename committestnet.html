@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
 <title>Mint a Commit — Commit Protocol</title>
 <meta name="description" content="Mint an immutable on-chain commit using Commit Protocol. Write ASCII messages and permanently record them on-chain. No edits. No deletes.">
+<meta name="keywords" content="Commit Protocol mint, on-chain commit, immutable NFT, ASCII NFT, blockchain record, Base blockchain, Web3 mint">
+<meta name="author" content="Commit Protocol">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -19,7 +23,7 @@ body {
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:16px;
+  padding:24px;
 }
 
 main {
@@ -30,21 +34,18 @@ main {
 
 .card {
   width:100%;
-  max-width:520px;
+  max-width:600px;
   background:#161b22;
   border-radius:22px;
-  padding:24px;
+  padding:28px;
   border:1px solid #30363d;
   box-shadow:0 0 60px rgba(0,0,0,.6);
   text-align:center;
-  display:flex;
-  flex-direction:column;
-  gap:16px;
 }
 
 .logo {
   width:72px;
-  margin-bottom:8px;
+  margin-bottom:14px;
 }
 
 h1 {
@@ -55,13 +56,13 @@ h1 {
 .subtitle {
   font-size:14px;
   opacity:.8;
-  margin-bottom:12px;
+  margin-bottom:18px;
   color:#8b949e;
 }
 
 textarea {
   width:100%;
-  height:240px; /* menor altura */
+  height:300px; /* menor altura */
   padding:12px;
   border-radius:12px;
   border:1px solid #30363d;
@@ -70,9 +71,8 @@ textarea {
   resize:none;
   font-family:JetBrains Mono, monospace;
   font-size:14px;
-  line-height:22px;
-  white-space:pre;
-  overflow-y:auto; /* scroll interno */
+  line-height:1.5;
+  overflow-y:scroll; /* ativa scroll */
 }
 
 #lineInfo {
@@ -89,10 +89,10 @@ button {
   border-radius:14px;
   border:1px solid #ccc;
   font-weight:700;
+  margin-top:12px;
   cursor:pointer;
   background:#ffffff;
   color:#000;
-  margin-top:8px;
 }
 
 button:disabled {
@@ -100,11 +100,18 @@ button:disabled {
   cursor:not-allowed;
 }
 
-#wallet, #status {
+#wallet {
   font-size:13px;
   opacity:.85;
-  margin-top:6px;
-  word-break:break-word;
+  margin-top:10px;
+  word-break:break-all;
+  color:#8b949e;
+}
+
+#status {
+  margin-top:14px;
+  min-height:22px;
+  font-size:14px;
   color:#8b949e;
 }
 
@@ -125,23 +132,6 @@ button:disabled {
 
 #popup.show { display:block; }
 #popup button { margin-top:12px; }
-
-/* RESPONSIVO */
-@media (max-width: 480px) {
-  .card {
-    padding:16px;
-  }
-  h1 {
-    font-size:20px;
-  }
-  textarea {
-    height:200px;
-    font-size:13px;
-  }
-  button {
-    padding:12px;
-  }
-}
 </style>
 </head>
 
@@ -181,7 +171,7 @@ button:disabled {
   <div id="status"></div>
 </section>
 
-<footer style="margin-top:12px;font-size:12px;opacity:.6;">
+<footer style="margin-top:18px;font-size:12px;opacity:.6;">
   commit-protocol://v0 — irreversible by design
 </footer>
 
@@ -196,7 +186,8 @@ button:disabled {
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
 <script>
-const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
+/* ================= CONFIG ================= */
+const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895"; // Base Mainnet
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function COMMIT_FEE() view returns(uint256)"
@@ -207,6 +198,7 @@ const MAX_LINE_LENGTH = 49;
 const MAX_CHARS = 1049;
 
 let provider, signer, contract, currentAccount;
+
 const messageInput = document.getElementById("commitMessage");
 const charCountEl = document.getElementById("charCount");
 const lineCountEl = document.getElementById("lineCount");
@@ -218,6 +210,7 @@ const feeEl = document.getElementById("commitFee");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
 
+/* ================= UI ================= */
 function showPopup(msg){
   popupMessage.innerText = msg;
   popup.classList.add("show");
@@ -226,9 +219,11 @@ function hidePopup(){
   popup.classList.remove("show");
 }
 
+/* ================= TEXT NORMALIZATION ================= */
 function normalizeText() {
   const raw = messageInput.value;
   let lines = [];
+
   raw.split("\n").forEach(line => {
     while (line.length > MAX_LINE_LENGTH) {
       lines.push(line.slice(0, MAX_LINE_LENGTH));
@@ -236,22 +231,33 @@ function normalizeText() {
     }
     lines.push(line);
   });
-  if (lines.length > MAX_LINES) lines = lines.slice(0, MAX_LINES);
+
+  if (lines.length > MAX_LINES) {
+    lines = lines.slice(0, MAX_LINES);
+  }
+
   const finalText = lines.join("\n");
+
   if (finalText !== messageInput.value) {
     const pos = messageInput.selectionStart;
     messageInput.value = finalText;
     messageInput.selectionStart = messageInput.selectionEnd = pos;
   }
+
   const totalChars = finalText.length;
   charCountEl.innerText = totalChars;
   lineCountEl.innerText = lines.length;
+
   commitBtn.disabled =
-    !currentAccount || totalChars === 0 || totalChars > MAX_CHARS || lines.length > MAX_LINES;
+    !currentAccount ||
+    totalChars === 0 ||
+    totalChars > MAX_CHARS ||
+    lines.length > MAX_LINES;
 }
 
 messageInput.addEventListener("input", normalizeText);
 
+/* ================= WEB3 ================= */
 async function initWeb3() {
   provider = new ethers.providers.Web3Provider(window.ethereum, "any");
   signer = provider.getSigner();
@@ -260,22 +266,45 @@ async function initWeb3() {
   feeEl.innerText = ethers.utils.formatEther(fee);
 }
 
+// Monitor account changes
+if (window.ethereum) {
+  window.ethereum.on("accountsChanged", (accounts) => {
+    if(accounts.length === 0){
+      currentAccount = null;
+      connectBtn.innerText = "Connect Wallet";
+      walletText.innerText = "Wallet not connected";
+      commitBtn.disabled = true;
+    } else {
+      currentAccount = accounts[0];
+      connectBtn.innerText = "Wallet Connected";
+      walletText.innerText = currentAccount;
+      commitBtn.disabled = false;
+    }
+  });
+}
+
+/* ================= ACTIONS ================= */
 connectBtn.onclick = async () => {
   if (!window.ethereum) return showPopup("MetaMask not found");
-  const accs = await window.ethereum.request({ method:"eth_requestAccounts" });
-  currentAccount = accs[0];
-  await initWeb3();
-  connectBtn.innerText = "Wallet Connected";
-  connectBtn.disabled = true;
-  walletText.innerText = currentAccount;
-  normalizeText();
+  try {
+    const accs = await window.ethereum.request({ method:"eth_requestAccounts" });
+    if(accs.length === 0) return showPopup("No account connected");
+    currentAccount = accs[0];
+    await initWeb3();
+    connectBtn.innerText = "Wallet Connected";
+    connectBtn.disabled = true;
+    walletText.innerText = currentAccount;
+    normalizeText();
+  } catch(e){
+    showPopup("Wallet connection failed");
+  }
 };
 
 commitBtn.onclick = async () => {
   try {
     const message = messageInput.value;
     const fee = await contract.COMMIT_FEE();
-    const balance = await provider.getBalance(currentAccount);
+    const balance = await signer.getBalance();
     if(balance.lt(fee)) return showPopup("Insufficient wallet balance");
     statusEl.innerText = "Committing…";
     const tx = await contract.commit(message, { value: fee });
