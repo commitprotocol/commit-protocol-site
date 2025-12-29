@@ -302,17 +302,24 @@ commitBtn.onclick = async () => {
   try {
     const message = messageInput.value;
     const fee = await contract.COMMIT_FEE();
-    const balance = await signer.getBalance();
-    if(balance.lt(fee)) return showPopup("Insufficient wallet balance");
     statusEl.innerText = "Committing…";
+
     const tx = await contract.commit(message, { value: fee });
     await tx.wait();
+
     statusEl.innerHTML = `<span style="color:#3fb950">Commit successful</span>`;
     messageInput.value = "";
     normalizeText();
   } catch (e) {
-    if (e.code === 4001) showPopup("Transaction rejected");
-    else showPopup("Commit failed");
+    if (e.message && e.message.toLowerCase().includes("insufficient")) {
+      showPopup("Insufficient funds in wallet");
+    }
+    else if (e.code === 4001) {
+      showPopup("Transaction rejected");
+    }
+   else {
+      showPopup("Commit failed");
+    }
   }
 };
 </script>
