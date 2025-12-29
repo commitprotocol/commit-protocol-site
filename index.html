@@ -2,8 +2,29 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Commit Protocol — Home</title>
+
+<!-- Primary SEO -->
+<title>Commit Protocol — Immutable On-Chain Commits</title>
+<meta name="description" content="Commit Protocol is an immutable on-chain protocol for permanent records. Create irreversible commits stored fully on-chain, verifiable forever.">
+<meta name="keywords" content="Commit Protocol, on-chain commits, immutable protocol, NFT commits, blockchain records, Base blockchain, Web3 protocol">
+<meta name="author" content="Commit Protocol">
+<link rel="canonical" href="https://commit-protocol.xyz/">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Commit Protocol — Immutable On-Chain Commits">
+<meta property="og:description" content="Create irreversible on-chain commits. Fully immutable, verifiable, and permanently stored on the blockchain.">
+<meta property="og:url" content="https://commit-protocol.xyz/">
+<meta property="og:image" content="https://commit-protocol.xyz/og.png">
+<meta property="og:site_name" content="Commit Protocol">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Commit Protocol — Immutable On-Chain Commits">
+<meta name="twitter:description" content="Permanent on-chain records. No edits. No deletes. No force push.">
+<meta name="twitter:image" content="https://commit-protocol.xyz/og.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -20,6 +41,12 @@ body {
   align-items:center;
   justify-content:center;
   padding:24px;
+}
+
+main {
+  width:100%;
+  display:flex;
+  justify-content:center;
 }
 
 .card {
@@ -50,10 +77,13 @@ h1 {
   color:#8b949e;
 }
 
+section {
+  margin-bottom:28px;
+}
+
 p {
   font-size:15px;
-  line-height:1.6;
-  margin-bottom:32px;
+  line-height:1.65;
   color:#c9d1d9;
 }
 
@@ -86,16 +116,17 @@ button:hover {
   transform:scale(1.04);
 }
 
-.footer {
-  margin-top:28px;
+footer {
+  margin-top:32px;
   font-size:13px;
   opacity:.6;
 }
-.footer a {
+
+footer a {
   color:#58a6ff;
   text-decoration:none;
 }
-.footer a:hover {
+footer a:hover {
   text-decoration:underline;
 }
 </style>
@@ -103,29 +134,43 @@ button:hover {
 
 <body>
 
-<div class="card">
+<main>
+  <article class="card">
 
-  <img src="logo.png" class="logo" alt="Commit Protocol">
+    <header>
+      <img src="logo.png" class="logo" alt="Commit Protocol Logo">
+      <h1>Commit Protocol</h1>
+      <div class="subtitle">Immutable on-chain commits. Irreversible by design.</div>
+    </header>
 
-  <h1>Commit Protocol</h1>
-  <div class="subtitle">Immutable on-chain commits. Irreversible by design.</div>
+    <section>
+      <p>
+        <strong>Commit Protocol</strong> is a minimal on-chain protocol designed to
+        store permanent, immutable records directly on the blockchain.
+        Each commit is fully on-chain, verifiable by anyone, and cannot be edited,
+        deleted, or overwritten.
+      </p>
+    </section>
 
-  <p>
-    Commit Protocol is a minimal on-chain protocol for permanent records.
-    Each commit is stored fully on-chain, immutable, verifiable, and cannot
-    be edited, removed, or overwritten.
-  </p>
+    <section>
+      <p>
+        Unlike traditional platforms, Commit Protocol enforces strict immutability.
+        Once a commit is made, it becomes a permanent part of the blockchain’s history.
+        No force push. No rollback. No admin control.
+      </p>
+    </section>
 
-  <div class="buttons">
-    <button onclick="location.href='commit.html'">Go to Commit</button>
-    <button class="secondary" onclick="location.href='docs.html'">Documentation / Audit</button>
-  </div>
+    <nav class="buttons">
+      <button onclick="location.href='commit.html'">Go to Commit</button>
+      <button class="secondary" onclick="location.href='docs.html'">Documentation & Audit</button>
+    </nav>
 
-  <div class="footer">
-    commit-protocol://v0 — blockchains never forget
-  </div>
+    <footer>
+      commit-protocol://v0 — <span>blockchains never forget</span>
+    </footer>
 
-</div>
+  </article>
+</main>
 
 </body>
 </html>
