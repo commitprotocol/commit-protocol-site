@@ -64,18 +64,19 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
 /* ================= CONFIG ================= */
-const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
+const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895"; // Base Mainnet
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function COMMIT_FEE() view returns(uint256)"
 ];
-const BASE_CHAIN_ID = "0xA"; // Base Mainnet chainId
+const BASE_CHAIN_ID = "0xA"; // Base Mainnet
 const MAX_LINES = 21;
 const MAX_LINE_LENGTH = 49;
 const MAX_CHARS = 1049;
 
 /* ================= STATE ================= */
 let provider, signer, contract, currentAccount;
+let currentChainId;
 
 const messageInput = document.getElementById("commitMessage");
 const charCountEl = document.getElementById("charCount");
@@ -108,61 +109,73 @@ function normalizeText() {
   }
   charCountEl.innerText = finalText.length;
   lineCountEl.innerText = lines.length;
-  commitBtn.disabled = !currentAccount || finalText.length === 0 || finalText.length > MAX_CHARS || lines.length > MAX_LINES;
+  commitBtn.disabled = !currentAccount || currentChainId !== BASE_CHAIN_ID || finalText.length === 0 || finalText.length > MAX_CHARS || lines.length > MAX_LINES;
 }
 
 messageInput.addEventListener("input", normalizeText);
 
 /* ================= WEB3 ================= */
-async function checkNetwork() {
+async function initWeb3() {
   if(!window.ethereum) throw new Error("MetaMask not found");
-  const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-  if(chainId !== BASE_CHAIN_ID){
+
+  // 1️⃣ Solicita conta primeiro
+  const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
+  currentAccount = accounts[0];
+  walletText.innerText = currentAccount;
+
+  // 2️⃣ Verifica/força a rede Base
+  currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+  if(currentChainId !== BASE_CHAIN_ID){
     try {
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: BASE_CHAIN_ID }]
       });
-    } catch (switchError) {
+      currentChainId = BASE_CHAIN_ID;
+    } catch(e){
       showPopup("Please switch your MetaMask to Base Mainnet and refresh.");
       throw new Error("Wrong network");
     }
   }
-}
 
-async function initWeb3() {
+  // 3️⃣ Cria provider, signer e contrato
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  signer = provider.getSigner();
+  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+  // 4️⃣ Lê COMMIT_FEE
   try {
-    await checkNetwork();
-    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    signer = provider.getSigner();
-    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
     const fee = await contract.COMMIT_FEE();
     feeEl.innerText = ethers.utils.formatEther(fee);
-  } catch(e) {
+  } catch(e){
     console.error("Error reading COMMIT_FEE", e);
-    feeEl.innerText = "0.001"; // fallback
+    feeEl.innerText = "–";
+    commitBtn.disabled = true;
+    return;
   }
+
+  normalizeText();
 }
 
 /* ================= ACTIONS ================= */
 connectBtn.onclick = async () => {
-  if(!window.ethereum) return showPopup("MetaMask not found");
   try {
-    await checkNetwork(); // garante que está na Base antes de conectar
-    const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
-    currentAccount = accounts[0];
     await initWeb3();
     connectBtn.innerText = "Wallet Connected";
     connectBtn.disabled = true;
-    walletText.innerText = currentAccount;
-    normalizeText();
-  } catch(e) {
+  } catch(e){
+    console.error(e);
     showPopup("Wallet connection failed or wrong network");
   }
 };
 
+// 5️⃣ Checa rede antes do commit
 commitBtn.onclick = async () => {
   try {
+    if(currentChainId !== BASE_CHAIN_ID){
+      showPopup("Switch your MetaMask to Base Mainnet before committing.");
+      return;
+    }
     const balance = await provider.getBalance(currentAccount);
     const fee = await contract.COMMIT_FEE();
     if(balance.lt(fee)){
@@ -176,7 +189,8 @@ commitBtn.onclick = async () => {
     statusEl.innerHTML = `<span style="color:#3fb950">Commit successful</span>`;
     messageInput.value = "";
     normalizeText();
-  } catch(e) {
+  } catch(e){
+    console.error(e);
     if(e.code === 4001) showPopup("Transaction rejected");
     else showPopup("Commit failed");
   }
