@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
 <title>Mint a Commit — Commit Protocol</title>
 <meta name="description" content="Mint an immutable on-chain commit using Commit Protocol. Write ASCII messages and permanently record them on-chain. No edits. No deletes.">
 <meta name="keywords" content="Commit Protocol mint, on-chain commit, immutable NFT, ASCII NFT, blockchain record, Base blockchain, Web3 mint">
 <meta name="author" content="Commit Protocol">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -34,7 +32,7 @@ main {
 
 .card {
   width:100%;
-  max-width:600px;
+  max-width:520px;
   background:#161b22;
   border-radius:22px;
   padding:28px;
@@ -62,17 +60,18 @@ h1 {
 
 textarea {
   width:100%;
-  height:300px; /* menor altura */
+  height:300px;
   padding:12px;
   border-radius:12px;
   border:1px solid #30363d;
   background:#0d1117;
   color:#c9d1d9;
-  resize:none;
+  resize:vertical;
   font-family:JetBrains Mono, monospace;
   font-size:14px;
-  line-height:1.5;
-  overflow-y:scroll; /* ativa scroll */
+  line-height:24px;
+  overflow-y:scroll;
+  white-space:pre;
 }
 
 #lineInfo {
@@ -134,7 +133,6 @@ button:disabled {
 #popup button { margin-top:12px; }
 </style>
 </head>
-
 <body>
 
 <main>
@@ -186,8 +184,7 @@ button:disabled {
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
 <script>
-/* ================= CONFIG ================= */
-const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895"; // Base Mainnet
+const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function COMMIT_FEE() view returns(uint256)"
@@ -210,7 +207,6 @@ const feeEl = document.getElementById("commitFee");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
 
-/* ================= UI ================= */
 function showPopup(msg){
   popupMessage.innerText = msg;
   popup.classList.add("show");
@@ -219,7 +215,6 @@ function hidePopup(){
   popup.classList.remove("show");
 }
 
-/* ================= TEXT NORMALIZATION ================= */
 function normalizeText() {
   const raw = messageInput.value;
   let lines = [];
@@ -257,72 +252,54 @@ function normalizeText() {
 
 messageInput.addEventListener("input", normalizeText);
 
-/* ================= WEB3 ================= */
 async function initWeb3() {
-  provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-  signer = provider.getSigner();
-  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-  const fee = await contract.COMMIT_FEE();
-  feeEl.innerText = ethers.utils.formatEther(fee);
+  try {
+    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    signer = provider.getSigner();
+    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+    const fee = await contract.COMMIT_FEE();
+    feeEl.innerText = ethers.utils.formatEther(fee);
+  } catch (err) {
+    console.error("Error reading COMMIT_FEE", err);
+    feeEl.innerText = "0";
+  }
 }
 
-// Monitor account changes
-if (window.ethereum) {
-  window.ethereum.on("accountsChanged", (accounts) => {
-    if(accounts.length === 0){
-      currentAccount = null;
-      connectBtn.innerText = "Connect Wallet";
-      walletText.innerText = "Wallet not connected";
-      commitBtn.disabled = true;
-    } else {
-      currentAccount = accounts[0];
-      connectBtn.innerText = "Wallet Connected";
-      walletText.innerText = currentAccount;
-      commitBtn.disabled = false;
-    }
-  });
-}
-
-/* ================= ACTIONS ================= */
 connectBtn.onclick = async () => {
   if (!window.ethereum) return showPopup("MetaMask not found");
-  const accs = await window.ethereum.request({ method:"eth_requestAccounts" });
-  if (!accs || accs.length === 0) return showPopup("No account connected");
-
-  currentAccount = accs[0];
-  await initWeb3();
-  connectBtn.innerText = "Wallet Connected";
-  connectBtn.disabled = true;
-  walletText.innerText = currentAccount;
-  normalizeText();
+  try {
+    const accs = await window.ethereum.request({ method:"eth_requestAccounts" });
+    currentAccount = accs[0];
+    walletText.innerText = currentAccount;
+    connectBtn.innerText = "Wallet Connected";
+    connectBtn.disabled = true;
+    await initWeb3();
+    normalizeText();
+  } catch (err) {
+    showPopup("Wallet connection failed");
+    console.error(err);
+  }
 };
-
 
 commitBtn.onclick = async () => {
   try {
-    const message = messageInput.value;
     const fee = await contract.COMMIT_FEE();
-    statusEl.innerText = "Committing…";
+    const balance = await provider.getBalance(currentAccount);
+    if (balance.lt(fee)) {
+      return showPopup("Insufficient funds");
+    }
 
+    const message = messageInput.value;
+    statusEl.innerText = "Committing…";
     const tx = await contract.commit(message, { value: fee });
     await tx.wait();
-
     statusEl.innerHTML = `<span style="color:#3fb950">Commit successful</span>`;
     messageInput.value = "";
     normalizeText();
   } catch (e) {
-    const errMsg = e.message || "";
-
-    if (errMsg.toLowerCase().includes("insufficient") || errMsg.toLowerCase().includes("balance")) {
-      showPopup("Insufficient funds in wallet");
-    }
-    else if (e.code === 4001) {
-      showPopup("Transaction rejected");
-    }
-    else {
-      showPopup("Commit failed");
-      console.error(e);
-    }
+    if (e.code === 4001) showPopup("Transaction rejected");
+    else showPopup("Commit failed");
+    console.error(e);
   }
 };
 </script>
