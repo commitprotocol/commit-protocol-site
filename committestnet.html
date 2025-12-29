@@ -286,19 +286,17 @@ if (window.ethereum) {
 /* ================= ACTIONS ================= */
 connectBtn.onclick = async () => {
   if (!window.ethereum) return showPopup("MetaMask not found");
-  try {
-    const accs = await window.ethereum.request({ method:"eth_requestAccounts" });
-    if(accs.length === 0) return showPopup("No account connected");
-    currentAccount = accs[0];
-    await initWeb3();
-    connectBtn.innerText = "Wallet Connected";
-    connectBtn.disabled = true;
-    walletText.innerText = currentAccount;
-    normalizeText();
-  } catch(e){
-    showPopup("Wallet connection failed");
-  }
+  const accs = await window.ethereum.request({ method:"eth_requestAccounts" });
+  if (!accs || accs.length === 0) return showPopup("No account connected");
+
+  currentAccount = accs[0];
+  await initWeb3();
+  connectBtn.innerText = "Wallet Connected";
+  connectBtn.disabled = true;
+  walletText.innerText = currentAccount;
+  normalizeText();
 };
+
 
 commitBtn.onclick = async () => {
   try {
