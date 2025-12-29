@@ -2,90 +2,35 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
 <title>Mint a Commit — Commit Protocol</title>
-<meta name="description" content="Mint an immutable on-chain commit using Commit Protocol. Write ASCII messages and permanently record them on-chain.">
-<meta name="keywords" content="Commit Protocol mint, on-chain commit, immutable NFT, ASCII NFT, blockchain record, Base blockchain, Web3 mint">
-<meta name="author" content="Commit Protocol">
+<meta name="description" content="Mint an immutable on-chain commit using Commit Protocol. Write ASCII messages and permanently record them on-chain. No edits. No deletes.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 * { box-sizing: border-box; }
-body {
-  margin:0;
-  min-height:100vh;
-  font-family:'Inter', system-ui;
-  background:#0d1117;
-  color:#c9d1d9;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-}
+body { margin:0; font-family:'Inter', system-ui; background:#0d1117; color:#c9d1d9; display:flex; justify-content:center; padding:24px; }
 main { width:100%; display:flex; justify-content:center; }
-.card {
-  width:100%;
-  max-width:520px;
-  background:#161b22;
-  border-radius:22px;
-  padding:28px;
-  border:1px solid #30363d;
-  box-shadow:0 0 60px rgba(0,0,0,.6);
-  text-align:center;
-}
+.card { width:100%; max-width:520px; background:#161b22; border-radius:22px; padding:28px; border:1px solid #30363d; box-shadow:0 0 60px rgba(0,0,0,.6); text-align:center; }
 .logo { width:72px; margin-bottom:14px; }
 h1 { margin:0; font-size:22px; }
 .subtitle { font-size:14px; opacity:.8; margin-bottom:18px; color:#8b949e; }
-textarea {
-  width:100%;
-  height:300px; /* menor altura */
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #30363d;
-  background:#0d1117;
-  color:#c9d1d9;
-  resize:none;
-  font-family:JetBrains Mono, monospace;
-  font-size:14px;
-  line-height:20px;
-  white-space:pre;
-  overflow:auto; /* scroll ativado */
-}
+textarea { width:100%; height:300px; padding:12px; border-radius:12px; border:1px solid #30363d; background:#0d1117; color:#c9d1d9; resize:vertical; font-family:JetBrains Mono, monospace; font-size:14px; line-height:20px; overflow:auto; }
 #lineInfo { font-size:13px; opacity:.7; margin-top:6px; text-align:right; color:#8b949e; }
-button {
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:1px solid #ccc;
-  font-weight:700;
-  margin-top:12px;
-  cursor:pointer;
-  background:#ffffff;
-  color:#000;
-}
+button { width:100%; padding:14px; border-radius:14px; border:1px solid #ccc; font-weight:700; margin-top:12px; cursor:pointer; background:#ffffff; color:#000; }
 button:disabled { opacity:.45; cursor:not-allowed; }
 #wallet { font-size:13px; opacity:.85; margin-top:10px; word-break:break-all; color:#8b949e; }
 #status { margin-top:14px; min-height:22px; font-size:14px; color:#8b949e; }
-#popup {
-  position:fixed;
-  top:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#161b22;
-  color:#fff;
-  padding:16px 24px;
-  border-radius:14px;
-  border:1px solid #30363d;
-  box-shadow:0 10px 40px rgba(0,0,0,.8);
-  display:none;
-  z-index:1000;
-}
+#popup { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#161b22; color:#fff; padding:16px 24px; border-radius:14px; border:1px solid #30363d; box-shadow:0 10px 40px rgba(0,0,0,.8); display:none; z-index:1000; }
 #popup.show { display:block; }
 #popup button { margin-top:12px; }
 </style>
 </head>
 
 <body>
+
 <main>
 <article class="card">
 <header>
@@ -95,11 +40,8 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 </header>
 
 <section>
-  <textarea id="commitMessage" placeholder="21 lines · 49 chars per line · total 1049 chars" aria-label="Commit message input"></textarea>
-  <div id="lineInfo">
-    Lines: <span id="lineCount">0</span> / 21 |
-    Chars: <span id="charCount">0</span> / 1049
-  </div>
+  <textarea id="commitMessage" placeholder="21 lines · 49 chars per line · total 1049 chars"></textarea>
+  <div id="lineInfo">Lines: <span id="lineCount">0</span> / 21 | Chars: <span id="charCount">0</span> / 1049</div>
 </section>
 
 <section>
@@ -110,9 +52,7 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   <div id="status"></div>
 </section>
 
-<footer style="margin-top:18px;font-size:12px;opacity:.6;">
-  commit-protocol://v0 — irreversible by design
-</footer>
+<footer style="margin-top:18px;font-size:12px;opacity:.6;">commit-protocol://v0 — irreversible by design</footer>
 </article>
 </main>
 
@@ -123,18 +63,20 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
-const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
+/* ================= CONFIG ================= */
+const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895"; // Base Mainnet
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function COMMIT_FEE() view returns(uint256)"
 ];
-
+const BASE_CHAIN_ID = "0xA"; // Base Mainnet chainId in hex
 const MAX_LINES = 21;
 const MAX_LINE_LENGTH = 49;
 const MAX_CHARS = 1049;
-const BASE_CHAIN_ID = 8453; // Base Mainnet
 
+/* ================= STATE ================= */
 let provider, signer, contract, currentAccount;
+
 const messageInput = document.getElementById("commitMessage");
 const charCountEl = document.getElementById("charCount");
 const lineCountEl = document.getElementById("lineCount");
@@ -146,25 +88,20 @@ const feeEl = document.getElementById("commitFee");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
 
-function showPopup(msg){
-  popupMessage.innerText = msg;
-  popup.classList.add("show");
-}
+/* ================= UI ================= */
+function showPopup(msg){ popupMessage.innerText = msg; popup.classList.add("show"); }
 function hidePopup(){ popup.classList.remove("show"); }
 
 function normalizeText() {
   const raw = messageInput.value;
   let lines = [];
   raw.split("\n").forEach(line => {
-    while (line.length > MAX_LINE_LENGTH) {
-      lines.push(line.slice(0, MAX_LINE_LENGTH));
-      line = line.slice(MAX_LINE_LENGTH);
-    }
+    while(line.length > MAX_LINE_LENGTH){ lines.push(line.slice(0, MAX_LINE_LENGTH)); line = line.slice(MAX_LINE_LENGTH); }
     lines.push(line);
   });
-  if (lines.length > MAX_LINES) lines = lines.slice(0, MAX_LINES);
+  if(lines.length > MAX_LINES) lines = lines.slice(0, MAX_LINES);
   const finalText = lines.join("\n");
-  if (finalText !== messageInput.value) {
+  if(finalText !== messageInput.value){
     const pos = messageInput.selectionStart;
     messageInput.value = finalText;
     messageInput.selectionStart = messageInput.selectionEnd = pos;
@@ -173,77 +110,72 @@ function normalizeText() {
   lineCountEl.innerText = lines.length;
   commitBtn.disabled = !currentAccount || finalText.length === 0 || finalText.length > MAX_CHARS || lines.length > MAX_LINES;
 }
+
 messageInput.addEventListener("input", normalizeText);
 
+/* ================= WEB3 ================= */
 async function initWeb3() {
-  provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-  signer = provider.getSigner();
-  const network = await provider.getNetwork();
-  if (network.chainId !== BASE_CHAIN_ID) {
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x2105" }]
-      });
-    } catch (err) {
-      if (err.code === 4902) {
+  try {
+    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    const network = await provider.getNetwork();
+    if(network.chainId !== parseInt(BASE_CHAIN_ID,16)){
+      try {
         await window.ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [{
-            chainId: "0x2105",
-            chainName: "Base Mainnet",
-            nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-            rpcUrls: ["https://mainnet.base.org"],
-            blockExplorerUrls: ["https://basescan.org"]
-          }]
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: BASE_CHAIN_ID }]
         });
-      } else {
-        showPopup("Please switch to Base Mainnet");
+      } catch (switchError) {
+        showPopup("Please switch your MetaMask to Base Mainnet and refresh.");
         throw new Error("Wrong network");
       }
     }
-  }
-  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-  try {
+    signer = provider.getSigner();
+    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
     const fee = await contract.COMMIT_FEE();
     feeEl.innerText = ethers.utils.formatEther(fee);
-  } catch {
-    feeEl.innerText = "–";
-    showPopup("Unable to read COMMIT_FEE. Contract might be paused or wrong network.");
+  } catch(e) {
+    console.error("Error reading COMMIT_FEE", e);
+    feeEl.innerText = "0.001"; // fallback display
   }
 }
 
+/* ================= ACTIONS ================= */
 connectBtn.onclick = async () => {
-  if (!window.ethereum) return showPopup("MetaMask not found");
+  if(!window.ethereum) return showPopup("MetaMask not found");
   try {
-    const accs = await window.ethereum.request({ method:"eth_requestAccounts" });
-    currentAccount = accs[0];
+    const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
+    currentAccount = accounts[0];
     await initWeb3();
     connectBtn.innerText = "Wallet Connected";
     connectBtn.disabled = true;
     walletText.innerText = currentAccount;
     normalizeText();
-  } catch (err) {
+  } catch(e) {
     showPopup("Wallet connection failed");
   }
 };
 
 commitBtn.onclick = async () => {
   try {
-    const message = messageInput.value;
+    const balance = await provider.getBalance(currentAccount);
     const fee = await contract.COMMIT_FEE();
+    if(balance.lt(fee)){
+      showPopup("Insufficient funds in wallet");
+      return;
+    }
+    const message = messageInput.value;
     statusEl.innerText = "Committing…";
     const tx = await contract.commit(message, { value: fee });
     await tx.wait();
     statusEl.innerHTML = `<span style="color:#3fb950">Commit successful</span>`;
     messageInput.value = "";
     normalizeText();
-  } catch (e) {
-    if (e.code === 4001) showPopup("Transaction rejected");
-    else if (e.message.includes("insufficient")) showPopup("Insufficient funds");
+  } catch(e) {
+    if(e.code === 4001) showPopup("Transaction rejected");
     else showPopup("Commit failed");
   }
 };
 </script>
+
 </body>
 </html>
