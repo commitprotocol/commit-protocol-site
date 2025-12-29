@@ -185,6 +185,34 @@ connectBtn.onclick = async () => {
     showPopup("Wallet connection failed or wrong network");
   }
 };
+
+/* ================= BUTTON COMMIT ================= */
+commitBtn.onclick = async () => {
+  if(!contract) return showPopup("Wallet not connected");
+
+  const message = messageInput.value.trim();
+  if(message.length === 0){
+    return showPopup("Message is empty");
+  }
+
+  commitBtn.disabled = true;
+  statusEl.innerText = "Sending transaction...";
+
+  try {
+    const fee = await contract.COMMIT_FEE();
+    const tx = await contract.commit(message, { value: fee });
+    statusEl.innerText = "Transaction sent! Waiting for confirmation...";
+    await tx.wait();
+    statusEl.innerText = `✅ Commit successful! TxHash: ${tx.hash}`;
+    messageInput.value = "";
+    normalizeText();
+  } catch(e){
+    console.error(e);
+    statusEl.innerText = "❌ Commit failed: " + (e.data?.message || e.message);
+  } finally {
+    commitBtn.disabled = false;
+  }
+};
 </script>
 
 </body>
