@@ -258,14 +258,25 @@ connectBtn.onclick = async () => {
 };
 
 commitBtn.onclick = async () => {
+  if (!currentAccount || !contract) {
+    showPopup("Connect your wallet first");
+    return;
+  }
+
   try {
-    if (!contract) return showPopup("Wallet not connected");
+    const message = messageInput.value.replace(/\r/g, "");
+
+    if (!message.length) {
+      showPopup("Message empty");
+      return;
+    }
+
+    if (message.length > MAX_CHARS) {
+      showPopup("Message too long");
+      return;
+    }
 
     await ensureNetwork();
-
-    const message = messageInput.value
-      .replace(/\r/g, "")
-      .replace(/[ \t]+$/gm, "");
 
     const fee = await contract.COMMIT_FEE();
     statusEl.innerText = "Committing…";
@@ -273,16 +284,18 @@ commitBtn.onclick = async () => {
     const tx = await contract.commit(message, { value: fee });
     await tx.wait();
 
-    statusEl.innerHTML =
-      `<span style="color:#3fb950">Commit successful</span><br>
-       <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">
-         View transaction ↗
-       </a>`;
+    statusEl.innerHTML = `
+      <span style="color:#3fb950">Commit successful</span><br>
+      <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">
+        View transaction ↗
+      </a>
+    `;
 
     messageInput.value = "";
     updateCounts();
 
   } catch (e) {
+    console.error(e);
     if (e.code === 4001) showPopup("Transaction rejected");
     else showPopup("Commit failed");
   }
