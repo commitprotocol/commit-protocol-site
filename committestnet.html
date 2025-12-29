@@ -14,7 +14,7 @@ h1 { margin:0; font-size:22px; color:#c9d1d9; }
 .subtitle { font-size:14px; opacity:.8; margin-bottom:18px; color:#8b949e; }
 .info { font-size:14px; margin-bottom:10px; color:#c9d1d9; }
 .wallet { font-size:13px; opacity:.85; margin-bottom:14px; word-break:break-all; color:#8b949e; }
-textarea { width:100%; min-height:120px; padding:10px; border-radius:12px; border:1px solid #30363d; background:#0d1117; color:#c9d1d9; resize:none; font-family:JetBrains Mono, monospace; font-size:14px; }
+textarea { width:100%; min-height:120px; padding:10px; border-radius:12px; border:1px solid #30363d; background:#0d1117; color:#c9d1d9; resize:none; font-family:JetBrains Mono, monospace; font-size:14px; white-space:pre; }
 button { width:100%; padding:14px; border-radius:14px; border:1px solid #ccc; font-weight:700; margin-top:12px; cursor:pointer; background:#ffffff; color:#000; transition:all 0.2s; }
 button:hover { background:#f0f0f0; }
 button:disabled { opacity:.45; cursor:not-allowed; }
@@ -22,13 +22,14 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 #popup { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#161b22; color:#fff; padding:16px 24px; border-radius:14px; border:1px solid #30363d; box-shadow:0 10px 40px rgba(0,0,0,.8); display:none; z-index:1000; text-align:center; max-width:90%; }
 #popup button { margin-top:12px; background:#ffffff; color:#000; border:1px solid #ccc; cursor:pointer; }
 #popup.show { display:block; }
+.line-info { font-size:13px; opacity:.7; margin-top:6px; text-align:right; color:#8b949e; }
 </style>
 </head>
 <body>
 <div class="card">
   <img src="logo.png" class="logo" alt="Commit Protocol">
   <h1>Commit Protocol</h1>
-  <div class="subtitle">Make your commit</div>
+  <div class="subtitle">Make your commit (ASCII art supported)</div>
 
   <textarea id="commitMessage" placeholder="Write your commit message (max 1029 chars, 49 per line)"></textarea>
   <div class="line-info">Lines: <span id="lineCount">0</span> / 21 | Chars: <span id="charCount">0</span> / 1029</div>
@@ -49,7 +50,7 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
-const BASE_CHAIN_ID = "0xaa36a7"; // Sepolia chainId
+const BASE_CHAIN_ID = "0xaa36a7"; // Sepolia
 const BASE_CHAIN_DEC = 11155111;
 const BASE_CHAIN = {
   chainId: BASE_CHAIN_ID,
@@ -59,8 +60,7 @@ const BASE_CHAIN = {
   blockExplorerUrls: ["https://sepolia.etherscan.io"]
 };
 
-const CONTRACT_ADDRESS = "0x9bcCAb4f92b9fcE19f6eaCA45C8B10a6f63ad422";
-
+const CONTRACT_ADDRESS = "0xe456c577C0964CB5623c428BD43558B5056Db0e3";
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function commitCount() view returns(uint256)",
@@ -76,9 +76,25 @@ const messageInput = document.getElementById("commitMessage");
 const feeEl = document.getElementById("commitFee");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
+const charCountEl = document.getElementById("charCount");
+const lineCountEl = document.getElementById("lineCount");
+
+const MAX_CHARS = 1029;
+const MAX_LINES = 21;
 
 function showPopup(msg){ popupMessage.innerText=msg; popup.classList.add("show"); }
 function hidePopup(){ popup.classList.remove("show"); }
+
+function updateCounts() {
+  const text = messageInput.value;
+  const chars = text.length;
+  const lines = text.split("\n").length;
+  charCountEl.innerText = chars;
+  lineCountEl.innerText = lines;
+  commitBtn.disabled = !currentAccount || chars === 0 || chars > MAX_CHARS || lines > MAX_LINES;
+}
+
+messageInput.addEventListener("input", updateCounts);
 
 async function initProvider(){
   provider = new ethers.providers.Web3Provider(window.ethereum,"any");
@@ -115,7 +131,7 @@ connectBtn.onclick = async ()=>{
     connectBtn.innerText = "Wallet Connected";
     connectBtn.disabled = true;
     walletText.innerText = currentAccount;
-    commitBtn.disabled = false;
+    updateCounts();
   }catch(err){ console.error(err); showPopup("Wallet connection failed"); }
 };
 
@@ -125,7 +141,8 @@ commitBtn.onclick = async ()=>{
     await initProvider();
     const message = messageInput.value.trim();
     if(!message){ showPopup("Message cannot be empty"); return; }
-    if(message.length > 1029){ showPopup("Message too long (max 1029 chars)"); return; }
+    const lines = message.split("\n").length;
+    if(message.length > MAX_CHARS || lines > MAX_LINES){ showPopup(`Too long! Max ${MAX_CHARS} chars and ${MAX_LINES} lines.`); return; }
 
     const fee = await contract.COMMIT_FEE();
     statusEl.innerText = "Committing…";
@@ -136,6 +153,7 @@ commitBtn.onclick = async ()=>{
     statusEl.innerHTML = `<span style="color:#3fb950;">Commit successful</span><br>
       <a href="${txLink}" target="_blank" style="color:#58a6ff;text-decoration:none;">View transaction ↗</a>`;
     messageInput.value = "";
+    updateCounts();
   }catch(err){
     console.error(err);
     if(err.code===4001) showPopup("Transaction rejected");
