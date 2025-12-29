@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
 <title>Mint a Commit — Commit Protocol</title>
 <meta name="description" content="Mint an immutable on-chain commit using Commit Protocol. Write ASCII messages and permanently record them on-chain. No edits. No deletes.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,14 +68,13 @@ const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function COMMIT_FEE() view returns(uint256)"
 ];
-const BASE_CHAIN_ID = "0xA"; // Base Mainnet
+const BASE_CHAIN_ID = "0x2105"; // Base Mainnet (8453 decimal)
 const MAX_LINES = 21;
 const MAX_LINE_LENGTH = 49;
 const MAX_CHARS = 1049;
 
 /* ================= STATE ================= */
-let provider, signer, contract, currentAccount;
-let currentChainId;
+let provider, signer, contract, currentAccount, currentChainId;
 
 const messageInput = document.getElementById("commitMessage");
 const charCountEl = document.getElementById("charCount");
@@ -118,12 +116,12 @@ messageInput.addEventListener("input", normalizeText);
 async function initWeb3() {
   if(!window.ethereum) throw new Error("MetaMask not found");
 
-  // 1️⃣ Solicita conta primeiro
+  // 1️⃣ Solicita conta
   const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
   currentAccount = accounts[0];
   walletText.innerText = currentAccount;
 
-  // 2️⃣ Verifica/força a rede Base
+  // 2️⃣ Verifica rede
   currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
   if(currentChainId !== BASE_CHAIN_ID){
     try {
@@ -132,13 +130,32 @@ async function initWeb3() {
         params: [{ chainId: BASE_CHAIN_ID }]
       });
       currentChainId = BASE_CHAIN_ID;
-    } catch(e){
-      showPopup("Please switch your MetaMask to Base Mainnet and refresh.");
-      throw new Error("Wrong network");
+    } catch(switchError) {
+      if(switchError.code === 4902){
+        try {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: BASE_CHAIN_ID,
+              chainName: "Base Mainnet",
+              rpcUrls: ["https://mainnet.base.org"],
+              nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+              blockExplorerUrls: ["https://basescan.org/"]
+            }]
+          });
+          currentChainId = BASE_CHAIN_ID;
+        } catch(addError){
+          showPopup("Failed to add Base network. Please add it manually in MetaMask.");
+          throw addError;
+        }
+      } else {
+        showPopup("Please switch your MetaMask to Base Mainnet and refresh.");
+        throw switchError;
+      }
     }
   }
 
-  // 3️⃣ Cria provider, signer e contrato
+  // 3️⃣ Inicializa provider, signer e contrato
   provider = new ethers.providers.Web3Provider(window.ethereum);
   signer = provider.getSigner();
   contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
@@ -163,50 +180,6 @@ connectBtn.onclick = async () => {
     await initWeb3();
     connectBtn.innerText = "Wallet Connected";
     connectBtn.disabled = true;
-  } catch(e){
-    console.error(e);
-    showPopup("Wallet connection failed or wrong network");
-  }
-};
-
-// 5️⃣ Checa rede antes do commit
-connectBtn.onclick = async () => {
-  if(!window.ethereum) return showPopup("MetaMask not found");
-  try {
-    // 1️⃣ Checa rede primeiro
-    let chainId = await window.ethereum.request({ method: 'eth_chainId' });
-    if(chainId !== BASE_CHAIN_ID){
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: BASE_CHAIN_ID }]
-        });
-        chainId = BASE_CHAIN_ID;
-      } catch(e){
-        showPopup("Please switch your MetaMask to Base Mainnet and refresh.");
-        return;
-      }
-    }
-    currentChainId = chainId;
-
-    // 2️⃣ Agora solicita a conta
-    const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
-    currentAccount = accounts[0];
-    walletText.innerText = currentAccount;
-
-    // 3️⃣ Inicializa provider, signer e contrato
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
-    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-    // 4️⃣ Lê COMMIT_FEE
-    const fee = await contract.COMMIT_FEE();
-    feeEl.innerText = ethers.utils.formatEther(fee);
-
-    // 5️⃣ Atualiza UI
-    connectBtn.innerText = "Wallet Connected";
-    connectBtn.disabled = true;
-    normalizeText();
   } catch(e){
     console.error(e);
     showPopup("Wallet connection failed or wrong network");
