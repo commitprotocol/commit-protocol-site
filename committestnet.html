@@ -45,7 +45,7 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 </section>
 
 <section>
-  <div class="info">COMMIT_FEE: <strong><span id="commitFee">0.001</span> ETH</strong></div>
+  <div class="info">COMMIT_FEE: <strong><span id="commitFee">–</span> ETH</strong></div>
   <button id="connect">Connect Wallet</button>
   <button id="commit" disabled>Commit</button>
   <div id="wallet">Wallet not connected</div>
@@ -64,12 +64,12 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
 /* ================= CONFIG ================= */
-const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895"; // Base Mainnet
+const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function COMMIT_FEE() view returns(uint256)"
 ];
-const BASE_CHAIN_ID = "0xA"; // Base Mainnet chainId in hex
+const BASE_CHAIN_ID = "0xA"; // Base Mainnet chainId
 const MAX_LINES = 21;
 const MAX_LINE_LENGTH = 49;
 const MAX_CHARS = 1049;
@@ -114,36 +114,33 @@ function normalizeText() {
 messageInput.addEventListener("input", normalizeText);
 
 /* ================= WEB3 ================= */
+async function checkNetwork() {
+  if(!window.ethereum) throw new Error("MetaMask not found");
+  const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+  if(chainId !== BASE_CHAIN_ID){
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: BASE_CHAIN_ID }]
+      });
+    } catch (switchError) {
+      showPopup("Please switch your MetaMask to Base Mainnet and refresh.");
+      throw new Error("Wrong network");
+    }
+  }
+}
+
 async function initWeb3() {
   try {
+    await checkNetwork();
     provider = new ethers.providers.Web3Provider(window.ethereum, "any");
     signer = provider.getSigner();
     contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-    const network = await provider.getNetwork();
-    if(network.chainId !== parseInt(BASE_CHAIN_ID,16)){
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: BASE_CHAIN_ID }]
-        });
-        showPopup("Switched network to Base Mainnet");
-      } catch (switchError) {
-        showPopup("Please switch your MetaMask to Base Mainnet.");
-        throw new Error("Wrong network");
-      }
-    }
-
-    // Atualiza fee na UI
-    try{
-      const fee = await contract.COMMIT_FEE();
-      feeEl.innerText = ethers.utils.formatEther(fee);
-    } catch(e){
-      console.error("Error reading COMMIT_FEE", e);
-      feeEl.innerText = "0.001";
-    }
-  } catch(e){
-    console.error(e);
+    const fee = await contract.COMMIT_FEE();
+    feeEl.innerText = ethers.utils.formatEther(fee);
+  } catch(e) {
+    console.error("Error reading COMMIT_FEE", e);
+    feeEl.innerText = "0.001"; // fallback
   }
 }
 
@@ -151,6 +148,7 @@ async function initWeb3() {
 connectBtn.onclick = async () => {
   if(!window.ethereum) return showPopup("MetaMask not found");
   try {
+    await checkNetwork(); // garante que está na Base antes de conectar
     const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
     currentAccount = accounts[0];
     await initWeb3();
@@ -159,31 +157,23 @@ connectBtn.onclick = async () => {
     walletText.innerText = currentAccount;
     normalizeText();
   } catch(e) {
-    showPopup("Wallet connection failed");
+    showPopup("Wallet connection failed or wrong network");
   }
 };
 
 commitBtn.onclick = async () => {
   try {
-    const fee = await contract.COMMIT_FEE();
     const balance = await provider.getBalance(currentAccount);
-
+    const fee = await contract.COMMIT_FEE();
     if(balance.lt(fee)){
       showPopup("Insufficient funds in wallet");
       return;
     }
-
     const message = messageInput.value;
     statusEl.innerText = "Committing…";
-
     const tx = await contract.commit(message, { value: fee });
-    const receipt = await tx.wait();
-
-    // Pega o commitId do evento
-    const event = receipt.events.find(e => e.event === "Committed");
-    const commitId = event?.args?.commitId;
-
-    statusEl.innerHTML = `<span style="color:#3fb950">Commit successful — ID: ${commitId}</span>`;
+    await tx.wait();
+    statusEl.innerHTML = `<span style="color:#3fb950">Commit successful</span>`;
     messageInput.value = "";
     normalizeText();
   } catch(e) {
