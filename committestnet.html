@@ -45,7 +45,7 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 </section>
 
 <section>
-  <div class="info">COMMIT_FEE: <strong><span id="commitFee">–</span> ETH</strong></div>
+  <div class="info">COMMIT_FEE: <strong><span id="commitFee">0.001</span> ETH</strong></div>
   <button id="connect">Connect Wallet</button>
   <button id="commit" disabled>Commit</button>
   <div id="wallet">Wallet not connected</div>
@@ -117,6 +117,9 @@ messageInput.addEventListener("input", normalizeText);
 async function initWeb3() {
   try {
     provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    signer = provider.getSigner();
+    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
     const network = await provider.getNetwork();
     if(network.chainId !== parseInt(BASE_CHAIN_ID,16)){
       try {
@@ -124,18 +127,23 @@ async function initWeb3() {
           method: "wallet_switchEthereumChain",
           params: [{ chainId: BASE_CHAIN_ID }]
         });
+        showPopup("Switched network to Base Mainnet");
       } catch (switchError) {
-        showPopup("Please switch your MetaMask to Base Mainnet and refresh.");
+        showPopup("Please switch your MetaMask to Base Mainnet.");
         throw new Error("Wrong network");
       }
     }
-    signer = provider.getSigner();
-    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-    const fee = await contract.COMMIT_FEE();
-    feeEl.innerText = ethers.utils.formatEther(fee);
-  } catch(e) {
-    console.error("Error reading COMMIT_FEE", e);
-    feeEl.innerText = "0.001"; // fallback display
+
+    // Atualiza fee na UI
+    try{
+      const fee = await contract.COMMIT_FEE();
+      feeEl.innerText = ethers.utils.formatEther(fee);
+    } catch(e){
+      console.error("Error reading COMMIT_FEE", e);
+      feeEl.innerText = "0.001";
+    }
+  } catch(e){
+    console.error(e);
   }
 }
 
@@ -157,17 +165,25 @@ connectBtn.onclick = async () => {
 
 commitBtn.onclick = async () => {
   try {
-    const balance = await provider.getBalance(currentAccount);
     const fee = await contract.COMMIT_FEE();
+    const balance = await provider.getBalance(currentAccount);
+
     if(balance.lt(fee)){
       showPopup("Insufficient funds in wallet");
       return;
     }
+
     const message = messageInput.value;
     statusEl.innerText = "Committing…";
+
     const tx = await contract.commit(message, { value: fee });
-    await tx.wait();
-    statusEl.innerHTML = `<span style="color:#3fb950">Commit successful</span>`;
+    const receipt = await tx.wait();
+
+    // Pega o commitId do evento
+    const event = receipt.events.find(e => e.event === "Committed");
+    const commitId = event?.args?.commitId;
+
+    statusEl.innerHTML = `<span style="color:#3fb950">Commit successful — ID: ${commitId}</span>`;
     messageInput.value = "";
     normalizeText();
   } catch(e) {
