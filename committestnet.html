@@ -2,8 +2,29 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Commit Protocol — Genesis Commit</title>
+
+<!-- Primary SEO -->
+<title>Mint a Commit — Commit Protocol</title>
+<meta name="description" content="Mint an immutable on-chain commit using Commit Protocol. Write ASCII messages and permanently record them on-chain. No edits. No deletes.">
+<meta name="keywords" content="Commit Protocol mint, on-chain commit, immutable NFT, ASCII NFT, blockchain record, Base blockchain, Web3 mint">
+<meta name="author" content="Commit Protocol">
+<link rel="canonical" href="https://commit-protocol.xyz/commit.html">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mint a Commit — Commit Protocol">
+<meta property="og:description" content="Create a permanent on-chain commit. Fully immutable, verifiable forever, and stored directly on the blockchain.">
+<meta property="og:url" content="https://commit-protocol.xyz/commit.html">
+<meta property="og:image" content="https://commit-protocol.xyz/og-mint.png">
+<meta property="og:site_name" content="Commit Protocol">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mint a Commit — Commit Protocol">
+<meta name="twitter:description" content="Permanent on-chain commits. ASCII supported. Irreversible by design.">
+<meta name="twitter:image" content="https://commit-protocol.xyz/og-mint.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -22,9 +43,15 @@ body {
   padding:24px;
 }
 
+main {
+  width:100%;
+  display:flex;
+  justify-content:center;
+}
+
 .card {
   width:100%;
-  max-width:500px;
+  max-width:520px;
   background:#161b22;
   border-radius:22px;
   padding:28px;
@@ -33,9 +60,15 @@ body {
   text-align:center;
 }
 
-.logo { width:72px; margin-bottom:14px; }
+.logo {
+  width:72px;
+  margin-bottom:14px;
+}
 
-h1 { margin:0; font-size:22px; }
+h1 {
+  margin:0;
+  font-size:22px;
+}
 
 .subtitle {
   font-size:14px;
@@ -46,7 +79,7 @@ h1 { margin:0; font-size:22px; }
 
 textarea {
   width:100%;
-  height:520px;               /* 21 linhas */
+  height:520px; /* 21 linhas */
   padding:12px;
   border-radius:12px;
   border:1px solid #30363d;
@@ -122,19 +155,29 @@ button:disabled {
 
 <body>
 
-<div class="card">
-  <img src="logo.png" class="logo">
-  <h1>Commit Protocol</h1>
-  <div class="subtitle">Make your commit (ASCII art supported)</div>
+<main>
+<article class="card">
 
-  <textarea id="commitMessage"
-    placeholder="21 lines · 49 chars per line · total 1049 chars"></textarea>
+<header>
+  <img src="logo.png" class="logo" alt="Commit Protocol Logo">
+  <h1>Commit Protocol</h1>
+  <div class="subtitle">Mint an immutable on-chain commit (ASCII supported)</div>
+</header>
+
+<section>
+  <textarea
+    id="commitMessage"
+    placeholder="21 lines · 49 chars per line · total 1049 chars"
+    aria-label="Commit message input"
+  ></textarea>
 
   <div id="lineInfo">
     Lines: <span id="lineCount">0</span> / 21 |
     Chars: <span id="charCount">0</span> / 1049
   </div>
+</section>
 
+<section>
   <div class="info">
     COMMIT_FEE: <strong><span id="commitFee">–</span> ETH</strong>
   </div>
@@ -144,7 +187,14 @@ button:disabled {
 
   <div id="wallet">Wallet not connected</div>
   <div id="status"></div>
-</div>
+</section>
+
+<footer style="margin-top:18px;font-size:12px;opacity:.6;">
+  commit-protocol://v0 — irreversible by design
+</footer>
+
+</article>
+</main>
 
 <div id="popup">
   <div id="popupMessage"></div>
@@ -192,7 +242,7 @@ function hidePopup(){
   popup.classList.remove("show");
 }
 
-/* ===== CORE LOGIC (CORREÇÃO REAL) ===== */
+/* ================= TEXT NORMALIZATION ================= */
 
 function normalizeText() {
   const raw = messageInput.value;
@@ -218,9 +268,7 @@ function normalizeText() {
     messageInput.selectionStart = messageInput.selectionEnd = pos;
   }
 
-  const visibleChars = finalText.replace(/\n/g, "").length;
-  const totalChars = visibleChars + (lines.length - 1);
-
+  const totalChars = finalText.length;
   charCountEl.innerText = totalChars;
   lineCountEl.innerText = lines.length;
 
