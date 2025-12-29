@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <title>Commit Protocol — Genesis Commit</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 * { box-sizing: border-box; }
+
 body {
   margin:0;
   min-height:100vh;
@@ -19,9 +21,10 @@ body {
   justify-content:center;
   padding:24px;
 }
+
 .card {
   width:100%;
-  max-width:500px;
+  max-width:520px;
   background:#161b22;
   border-radius:22px;
   padding:28px;
@@ -29,15 +32,21 @@ body {
   box-shadow:0 0 60px rgba(0,0,0,.6);
   text-align:center;
 }
+
 .logo { width:72px; margin-bottom:14px; }
+
 h1 { margin:0; font-size:22px; }
-.subtitle { font-size:14px; opacity:.8; margin-bottom:18px; color:#8b949e; }
-.info { font-size:14px; margin-bottom:10px; }
-.wallet { font-size:13px; opacity:.85; margin-bottom:14px; word-break:break-all; color:#8b949e; }
+
+.subtitle {
+  font-size:14px;
+  opacity:.8;
+  margin-bottom:18px;
+  color:#8b949e;
+}
 
 textarea {
   width:100%;
-  height:520px;            /* ALTURA FIXA (21 linhas) */
+  height:504px;              /* 21 linhas visuais */
   padding:12px;
   border-radius:12px;
   border:1px solid #30363d;
@@ -46,9 +55,9 @@ textarea {
   resize:none;
   font-family:JetBrains Mono, monospace;
   font-size:14px;
-  line-height:24px;        /* linha bem definida */
+  line-height:24px;
   white-space:pre;
-  overflow-y:hidden;       /* remove scrollbar */
+  overflow:hidden;
 }
 
 button {
@@ -62,7 +71,11 @@ button {
   background:#ffffff;
   color:#000;
 }
-button:disabled { opacity:.45; cursor:not-allowed; }
+
+button:disabled {
+  opacity:.45;
+  cursor:not-allowed;
+}
 
 #lineInfo {
   font-size:13px;
@@ -72,7 +85,20 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   color:#8b949e;
 }
 
-#status { margin-top:14px; min-height:22px; font-size:14px; color:#8b949e; }
+.wallet {
+  font-size:13px;
+  opacity:.85;
+  margin-top:12px;
+  word-break:break-all;
+  color:#8b949e;
+}
+
+#status {
+  margin-top:14px;
+  min-height:22px;
+  font-size:14px;
+  color:#8b949e;
+}
 
 #popup {
   position:fixed;
@@ -88,6 +114,7 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   display:none;
   z-index:1000;
 }
+
 #popup.show { display:block; }
 #popup button { margin-top:12px; }
 </style>
@@ -100,7 +127,8 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   <h1>Commit Protocol</h1>
   <div class="subtitle">Make your commit (ASCII art supported)</div>
 
-  <textarea id="commitMessage"
+  <textarea
+    id="commitMessage"
     placeholder="Write your commit message (max 1049 chars, 49 per line)"></textarea>
 
   <div id="lineInfo">
@@ -125,19 +153,12 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
 <script>
 /* ================= CONFIG ================= */
 
 const BASE_CHAIN_ID = "0xaa36a7";
 const BASE_CHAIN_DEC = 11155111;
-
-const BASE_CHAIN = {
-  chainId: BASE_CHAIN_ID,
-  chainName: "Sepolia",
-  nativeCurrency: { name:"Ether", symbol:"ETH", decimals:18 },
-  rpcUrls: ["https://rpc.sepolia.org"],
-  blockExplorerUrls: ["https://sepolia.etherscan.io"]
-};
 
 const CONTRACT_ADDRESS = "0x1442904D05DaACa2DCb713f05949cAEDe6aCff7c";
 
@@ -172,44 +193,29 @@ function showPopup(msg){
   popupMessage.innerText = msg;
   popup.classList.add("show");
 }
+
 function hidePopup(){
   popup.classList.remove("show");
 }
 
-/* ====== LINE WRAP FIX (49 chars) ====== */
+/* ================= VALIDATION ================= */
 
 function updateCounts() {
-  const raw = messageInput.value;
-  let resultLines = [];
+  const text = messageInput.value.replace(/\r/g, "");
+  const lines = text.split("\n");
 
-  raw.split("\n").forEach(line => {
-    while (line.length > MAX_LINE_LENGTH) {
-      resultLines.push(line.slice(0, MAX_LINE_LENGTH));
-      line = line.slice(MAX_LINE_LENGTH);
-    }
-    resultLines.push(line);
-  });
+  const tooManyLines = lines.length > MAX_LINES;
+  const tooLongLine = lines.some(l => l.length > MAX_LINE_LENGTH);
 
-  if (resultLines.length > MAX_LINES) {
-    resultLines = resultLines.slice(0, MAX_LINES);
-  }
-
-  const finalText = resultLines.join("\n");
-
-  if (finalText !== messageInput.value) {
-    const cursor = messageInput.selectionStart;
-    messageInput.value = finalText;
-    messageInput.selectionStart = messageInput.selectionEnd = cursor;
-  }
-
-  charCountEl.innerText = finalText.length;
-  lineCountEl.innerText = resultLines.length;
+  charCountEl.innerText = text.length;
+  lineCountEl.innerText = lines.length;
 
   commitBtn.disabled =
     !currentAccount ||
-    finalText.length === 0 ||
-    finalText.length > MAX_CHARS ||
-    resultLines.length > MAX_LINES;
+    text.length === 0 ||
+    text.length > MAX_CHARS ||
+    tooManyLines ||
+    tooLongLine;
 }
 
 messageInput.addEventListener("input", updateCounts);
@@ -217,7 +223,7 @@ messageInput.addEventListener("input", updateCounts);
 /* ================= WEB3 ================= */
 
 async function initProvider(){
-  provider = new ethers.providers.Web3Provider(window.ethereum,"any");
+  provider = new ethers.providers.Web3Provider(window.ethereum, "any");
   signer = provider.getSigner();
   contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
   const fee = await contract.COMMIT_FEE();
@@ -237,23 +243,29 @@ async function ensureNetwork(){
 
 connectBtn.onclick = async () => {
   if (!window.ethereum) return showPopup("MetaMask not found");
+
   const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
   currentAccount = accounts[0];
+
   await initProvider();
   await ensureNetwork();
+
   connectBtn.innerText = "Wallet Connected";
   connectBtn.disabled = true;
   walletText.innerText = currentAccount;
+
   updateCounts();
 };
 
 commitBtn.onclick = async () => {
   try {
-    await ensureNetwork();
-    await initProvider();
+    if (!contract) return showPopup("Wallet not connected");
 
-    const message = messageInput.value;
-    if (!message) return showPopup("Message empty");
+    await ensureNetwork();
+
+    const message = messageInput.value
+      .replace(/\r/g, "")
+      .replace(/[ \t]+$/gm, "");
 
     const fee = await contract.COMMIT_FEE();
     statusEl.innerText = "Committing…";
@@ -263,7 +275,9 @@ commitBtn.onclick = async () => {
 
     statusEl.innerHTML =
       `<span style="color:#3fb950">Commit successful</span><br>
-       <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">View transaction ↗</a>`;
+       <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">
+         View transaction ↗
+       </a>`;
 
     messageInput.value = "";
     updateCounts();
@@ -279,5 +293,6 @@ if (window.ethereum) {
   window.ethereum.on("chainChanged", () => location.reload());
 }
 </script>
+
 </body>
 </html>
