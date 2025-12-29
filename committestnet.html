@@ -170,29 +170,46 @@ connectBtn.onclick = async () => {
 };
 
 // 5️⃣ Checa rede antes do commit
-commitBtn.onclick = async () => {
+connectBtn.onclick = async () => {
+  if(!window.ethereum) return showPopup("MetaMask not found");
   try {
-    if(currentChainId !== BASE_CHAIN_ID){
-      showPopup("Switch your MetaMask to Base Mainnet before committing.");
-      return;
+    // 1️⃣ Checa rede primeiro
+    let chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    if(chainId !== BASE_CHAIN_ID){
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: BASE_CHAIN_ID }]
+        });
+        chainId = BASE_CHAIN_ID;
+      } catch(e){
+        showPopup("Please switch your MetaMask to Base Mainnet and refresh.");
+        return;
+      }
     }
-    const balance = await provider.getBalance(currentAccount);
+    currentChainId = chainId;
+
+    // 2️⃣ Agora solicita a conta
+    const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
+    currentAccount = accounts[0];
+    walletText.innerText = currentAccount;
+
+    // 3️⃣ Inicializa provider, signer e contrato
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+    // 4️⃣ Lê COMMIT_FEE
     const fee = await contract.COMMIT_FEE();
-    if(balance.lt(fee)){
-      showPopup("Insufficient funds in wallet");
-      return;
-    }
-    const message = messageInput.value;
-    statusEl.innerText = "Committing…";
-    const tx = await contract.commit(message, { value: fee });
-    await tx.wait();
-    statusEl.innerHTML = `<span style="color:#3fb950">Commit successful</span>`;
-    messageInput.value = "";
+    feeEl.innerText = ethers.utils.formatEther(fee);
+
+    // 5️⃣ Atualiza UI
+    connectBtn.innerText = "Wallet Connected";
+    connectBtn.disabled = true;
     normalizeText();
   } catch(e){
     console.error(e);
-    if(e.code === 4001) showPopup("Transaction rejected");
-    else showPopup("Commit failed");
+    showPopup("Wallet connection failed or wrong network");
   }
 };
 </script>
