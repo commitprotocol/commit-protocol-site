@@ -311,14 +311,17 @@ commitBtn.onclick = async () => {
     messageInput.value = "";
     normalizeText();
   } catch (e) {
-    if (e.message && e.message.toLowerCase().includes("insufficient")) {
+    const errMsg = e.message || "";
+
+    if (errMsg.toLowerCase().includes("insufficient") || errMsg.toLowerCase().includes("balance")) {
       showPopup("Insufficient funds in wallet");
     }
     else if (e.code === 4001) {
       showPopup("Transaction rejected");
     }
-   else {
+    else {
       showPopup("Commit failed");
+      console.error(e);
     }
   }
 };
