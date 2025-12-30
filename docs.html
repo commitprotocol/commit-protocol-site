@@ -6,7 +6,6 @@
 <meta name="description" content="Commit Protocol is an immutable on-chain protocol for permanent records. Create irreversible commits stored fully on-chain, verifiable forever.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Favicon -->
 <link rel="icon" href="favicon.ico" type="image/x-icon">
 <link rel="apple-touch-icon" sizes="180x180" href="favicon.ico">
 
@@ -57,6 +56,7 @@ h2 { margin-top:32px; font-size:20px; }
 h3 { margin-top:22px; font-size:16px; opacity:.9; }
 p, li { font-size:15px; line-height:1.6; color:#c9d1d9; }
 ul { padding-left:20px; }
+
 pre {
   background:#0d1117;
   border:1px solid #30363d;
@@ -65,26 +65,17 @@ pre {
   overflow-x:auto;
   font-family:JetBrains Mono, monospace;
   font-size:14px;
-  color:#c9d1d9;
 }
+
 code {
   font-family:JetBrains Mono, monospace;
   background:rgba(255,255,255,0.06);
   padding:2px 6px;
   border-radius:6px;
 }
+
 a { color:#58a6ff; text-decoration:none; }
 a:hover { text-decoration:underline; }
-.alert {
-  background:#ff3b3b;
-  color:#fff;
-  padding:12px 16px;
-  border-radius:12px;
-  margin-bottom:20px;
-  font-weight:600;
-  text-align:center;
-}
-.alert[role="alert"] { /* acessibilidade */ }
 
 .footer {
   margin-top:40px;
@@ -105,24 +96,27 @@ a:hover { text-decoration:underline; }
   <p><strong>Immutable on-chain commits. Irreversible by design.</strong></p>
 </header>
 
-<div class="alert" role="alert">
-⚠️ Always verify your wallet is connected to <strong>Base Mainnet</strong> before submitting commits. <br>
-Commit Fee: <strong>0.001 ETH</strong> per commit.
-</div>
-
-<!-- ================== SEÇÃO DE CONTRATO ================== -->
+<!-- ================== CONTRACT ================== -->
 <section>
 <h2>Contract Address</h2>
+
 <p>
-The protocol is deployed at the following address on <strong>Base Mainnet</strong>:
+The protocol is deployed <strong>exclusively on Base Mainnet</strong>.
+Always ensure your wallet is connected to the correct network before submitting a commit.
 </p>
+
+<p>
+<strong>Commit Fee:</strong> <code>0.001 ETH</code> per commit
+</p>
+
 <p>
 <a href="https://basescan.org/address/0x0b3d715d6eb9e5fd9da666cb486710a45e8a6895" target="_blank" rel="noopener noreferrer">
 0x0b3d715D6EB9e5fd9Da666CB486710A45e8a6895
 </a>
 </p>
+
 <p>
-You can verify all commits and transactions directly on BaseScan.
+All commits and transactions can be independently verified on BaseScan.
 </p>
 </section>
 
@@ -141,10 +135,6 @@ can alter previously committed data.
 
 <section>
 <h2>Network & Deployment</h2>
-<p>
-Commit Protocol is deployed <strong>exclusively on Base Mainnet</strong>,
-an Ethereum Layer 2 network built on Optimistic Rollups.
-</p>
 <ul>
   <li><strong>Network:</strong> Base Mainnet</li>
   <li><strong>Settlement layer:</strong> Ethereum</li>
@@ -152,52 +142,27 @@ an Ethereum Layer 2 network built on Optimistic Rollups.
   <li><strong>Upgradeability:</strong> None</li>
   <li><strong>Admin privileges:</strong> None</li>
 </ul>
-<p>
-All commits are stored permanently on-chain on Base, inheriting Ethereum-level
-security guarantees while benefiting from low transaction fees and fast finality.
-</p>
-<p>
-Users must connect a wallet configured for the <strong>Base network</strong>
-in order to successfully submit a commit.
-</p>
 </section>
 
 <section>
 <h2>Minting Rules</h2>
 <ul>
-  <li><strong>Commit Fee:</strong> Fixed <code>0.001 ETH</code> per commit</li>
+  <li><strong>Commit Fee:</strong> <code>0.001 ETH</code></li>
   <li><strong>Maximum length:</strong> 1049 ASCII characters</li>
   <li><strong>Line limit:</strong> 21 lines</li>
-  <li><strong>Line width:</strong> 49 characters per line</li>
+  <li><strong>Line width:</strong> 49 characters</li>
 </ul>
-<p>
-All validation is enforced <strong>on-chain</strong>.
-If the message exceeds the allowed limits, the transaction reverts.
-</p>
-</section>
-
-<section>
-<h2>Allowed Content</h2>
-<p>Commit messages accept plain ASCII text. The protocol safely escapes the following characters before rendering:</p>
-<ul>
-  <li><code>&lt;</code></li>
-  <li><code>&gt;</code></li>
-  <li><code>&amp;</code></li>
-  <li><code>\</code></li>
-</ul>
-<p>This prevents script injection, SVG manipulation, or execution of arbitrary code.</p>
 </section>
 
 <section>
 <h2>Security Model</h2>
 <ul>
-  <li>No owner or admin privileges</li>
+  <li>No owner or admin</li>
   <li>No upgradeability</li>
   <li>No withdraw function</li>
-  <li>All fees sent directly to Treasury</li>
-  <li>Reentrancy protection enabled</li>
-  <li>On-chain length validation</li>
+  <li>Reentrancy protection</li>
 </ul>
+
 <pre>
 keccak256(
   msg.sender,
@@ -206,34 +171,14 @@ keccak256(
   message
 )
 </pre>
-<p>This guarantees practical uniqueness and prevents replay collisions.</p>
-</section>
-
-<section>
-<h2>Treasury & Commit Fee</h2>
-<p>The commit fee exists for three reasons:</p>
-<ul>
-  <li>Prevent spam and denial-of-service attacks</li>
-  <li>Preserve long-term protocol sustainability</li>
-  <li>Fund ecosystem growth and infrastructure</li>
-</ul>
-<p>Fees are transferred immediately to the Treasury address. There is no custody risk and no stored ETH in the contract.</p>
-</section>
-
-<section>
-<h2>Audit Notes</h2>
-<p>This protocol intentionally avoids complexity. Its attack surface is limited to:</p>
-<ul>
-  <li>ERC-721 minting logic</li>
-  <li>String length validation</li>
-  <li>SVG rendering</li>
-</ul>
-<p>There are no external calls except a single ETH transfer to Treasury, executed after state changes and protected by <code>ReentrancyGuard</code>.</p>
 </section>
 
 <section>
 <h2>Final Notes</h2>
-<p>A commit made through this protocol is permanent. There is no moderation, no censorship, and no recovery mechanism.</p>
+<p>
+A commit made through this protocol is permanent. There is no moderation,
+no censorship, and no recovery mechanism.
+</p>
 <p><strong>Blockchains never forget.</strong></p>
 </section>
 
