@@ -41,8 +41,51 @@ body {
   align-items:center;
   justify-content:center;
   padding:24px;
+  position:relative;
 }
 
+/* ================= MENU ================= */
+.menu-button {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background:#161b22;
+  color:#c9d1d9;
+  border:1px solid #30363d;
+  padding:10px 14px;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:18px;
+  z-index:1000;
+}
+
+.dropdown-menu {
+  position: fixed;
+  top:56px;
+  right:16px;
+  background:#161b22;
+  border:1px solid #30363d;
+  border-radius:12px;
+  display:none;
+  flex-direction: column;
+  padding:10px;
+  gap:8px;
+  z-index:999;
+}
+
+.dropdown-menu a {
+  color:#c9d1d9;
+  text-decoration:none;
+  padding:6px 12px;
+  border-radius:8px;
+  transition: all .2s ease;
+}
+
+.dropdown-menu a:hover {
+  background:#0d1117;
+}
+
+/* ================= PAGE CONTENT ================= */
 main {
   width:100%;
   display:flex;
@@ -90,10 +133,10 @@ p {
 /* ================= BUTTONS ================= */
 .buttons {
   display: flex;
-  flex-direction: column; /* empilha verticalmente */
+  flex-direction: column;
   gap: 14px;
   justify-content: center;
-  align-items: center; /* centraliza horizontalmente */
+  align-items: center;
 }
 
 button, a.button-link {
@@ -143,6 +186,14 @@ footer a:hover {
 
 <body>
 
+<!-- Botão de menu -->
+<button id="menuToggle" class="menu-button">☰</button>
+<nav id="dropdownMenu" class="dropdown-menu">
+  <a href="index.html">Home</a>
+  <a href="commit.html">Commit</a>
+  <a href="docs.html">Documentation</a>
+</nav>
+
 <main>
   <article class="card">
 
@@ -180,6 +231,22 @@ footer a:hover {
 
   </article>
 </main>
+
+<script>
+const menuToggle = document.getElementById('menuToggle');
+const dropdownMenu = document.getElementById('dropdownMenu');
+
+menuToggle.addEventListener('click', () => {
+  dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
+});
+
+// Fecha o menu ao clicar fora
+document.addEventListener('click', (e) => {
+  if (!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+    dropdownMenu.style.display = 'none';
+  }
+});
+</script>
 
 </body>
 </html>
