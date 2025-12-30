@@ -5,9 +5,7 @@
 <title>Mint a Commit — Commit Protocol</title>
 <meta name="description" content="Mint an immutable on-chain commit using Commit Protocol. Write ASCII messages and permanently record them on-chain. No edits. No deletes.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
 <style>
 * { box-sizing: border-box; }
 body { margin:0; font-family:'Inter', system-ui; background:#0d1117; color:#c9d1d9; display:flex; justify-content:center; padding:24px; }
@@ -17,41 +15,20 @@ main { width:100%; display:flex; justify-content:center; }
 h1 { margin:0; font-size:22px; }
 .subtitle { font-size:14px; opacity:.8; margin-bottom:18px; color:#8b949e; }
 textarea { width:100%; height:430px; padding:12px; border-radius:12px; border:1px solid #30363d; background:#0d1117; color:#c9d1d9; resize:vertical; font-family:JetBrains Mono, monospace; font-size:14px; line-height:20px; overflow:auto; }
+textarea:focus { outline:2px solid #58a6ff; }
 #lineInfo { font-size:13px; opacity:.7; margin-top:6px; text-align:right; color:#8b949e; }
 button { width:100%; padding:14px; border-radius:14px; border:1px solid #ccc; font-weight:700; margin-top:12px; cursor:pointer; background:#ffffff; color:#000; }
 button:disabled { opacity:.45; cursor:not-allowed; }
+button.loading { position: relative; pointer-events: none; opacity: 0.6; }
+button.loading::after { content: ''; position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border: 3px solid #000; border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 #wallet { font-size:13px; opacity:.85; margin-top:10px; word-break:break-all; color:#8b949e; }
 #status { margin-top:14px; min-height:22px; font-size:14px; color:#8b949e; }
 #popup { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#161b22; color:#fff; padding:16px 24px; border-radius:14px; border:1px solid #30363d; box-shadow:0 10px 40px rgba(0,0,0,.8); display:none; z-index:1000; }
 #popup.show { display:block; }
-#popup button { margin-top:12px; }
-
-/* ================= BUTTON LOADING ================= */
-button.loading {
-  position: relative;
-  pointer-events: none;
-  opacity: 0.6;
-}
-button.loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 18px;
-  height: 18px;
-  margin: -9px 0 0 -9px;
-  border: 3px solid #000;
-  border-top: 3px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+#popup button { margin-top:12px; cursor:pointer; }
 </style>
 </head>
-
 <body>
 
 <main>
@@ -81,18 +58,18 @@ button.loading::after {
 
 <div id="popup">
   <div id="popupMessage"></div>
-  <button onclick="hidePopup()">Close</button>
+  <button id="popupClose">Close</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
 /* ================= CONFIG ================= */
-const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895"; // Base Mainnet
+const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function COMMIT_FEE() view returns(uint256)"
 ];
-const BASE_CHAIN_ID = "0x2105"; // Base Mainnet (8453 decimal)
+const BASE_CHAIN_ID = "0x2105"; // Base Mainnet
 const MAX_LINES = 21;
 const MAX_LINE_LENGTH = 49;
 const MAX_CHARS = 1049;
@@ -110,13 +87,24 @@ const statusEl = document.getElementById("status");
 const feeEl = document.getElementById("commitFee");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
+const popupClose = document.getElementById("popupClose");
 
 /* ================= UI ================= */
-function showPopup(msg){ popupMessage.innerText = msg; popup.classList.add("show"); }
-function hidePopup(){ popup.classList.remove("show"); }
+function showPopup(msg){
+  popupMessage.textContent = msg;
+  popup.classList.add("show");
+}
+function hidePopup(){
+  popup.classList.remove("show");
+}
+popupClose.addEventListener("click", hidePopup);
 
+/* ================= TEXT NORMALIZATION ================= */
+function sanitizeMessage(text){
+  return text.replace(/[^\x20-\x7E\n]/g,''); // ASCII printable + newlines
+}
 function normalizeText() {
-  const raw = messageInput.value;
+  let raw = sanitizeMessage(messageInput.value);
   let lines = [];
   raw.split("\n").forEach(line => {
     while(line.length > MAX_LINE_LENGTH){ lines.push(line.slice(0, MAX_LINE_LENGTH)); line = line.slice(MAX_LINE_LENGTH); }
@@ -129,128 +117,102 @@ function normalizeText() {
     messageInput.value = finalText;
     messageInput.selectionStart = messageInput.selectionEnd = pos;
   }
-  charCountEl.innerText = finalText.length;
-  lineCountEl.innerText = lines.length;
+  charCountEl.textContent = finalText.length;
+  lineCountEl.textContent = lines.length;
   commitBtn.disabled = !currentAccount || currentChainId !== BASE_CHAIN_ID || finalText.length === 0 || finalText.length > MAX_CHARS || lines.length > MAX_LINES;
 }
-
 messageInput.addEventListener("input", normalizeText);
 
 /* ================= WEB3 ================= */
 async function initWeb3() {
   if(!window.ethereum) throw new Error("MetaMask not found");
 
-  // 1️⃣ Solicita conta
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  signer = provider.getSigner();
+
   const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
   currentAccount = accounts[0];
-  walletText.innerText = currentAccount;
+  walletText.textContent = currentAccount;
 
-  // 2️⃣ Verifica rede
   currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
   if(currentChainId !== BASE_CHAIN_ID){
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: BASE_CHAIN_ID }]
-      });
+    try{
+      await window.ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId:BASE_CHAIN_ID }] });
       currentChainId = BASE_CHAIN_ID;
-    } catch(switchError) {
-      if(switchError.code === 4902){
-        try {
-          await window.ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [{
-              chainId: BASE_CHAIN_ID,
-              chainName: "Base Mainnet",
-              rpcUrls: ["https://mainnet.base.org"],
-              nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-              blockExplorerUrls: ["https://basescan.org/"]
-            }]
-          });
-          currentChainId = BASE_CHAIN_ID;
-        } catch(addError){
-          showPopup("Failed to add Base network. Please add it manually in MetaMask.");
-          throw addError;
-        }
-      } else {
-        showPopup("Please switch your MetaMask to Base Mainnet and refresh.");
-        throw switchError;
-      }
+    }catch(e){
+      showPopup("Please switch to Base Mainnet in your wallet.");
+      throw e;
     }
   }
 
-  // 3️⃣ Inicializa provider, signer e contrato
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  signer = provider.getSigner();
   contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
-  // 4️⃣ Lê COMMIT_FEE
-  try {
+  try{
     const fee = await contract.COMMIT_FEE();
-    feeEl.innerText = ethers.utils.formatEther(fee);
-  } catch(e){
-    console.error("Error reading COMMIT_FEE", e);
-    feeEl.innerText = "–";
+    feeEl.textContent = ethers.utils.formatEther(fee);
+  }catch(e){
+    feeEl.textContent = "–";
     commitBtn.disabled = true;
-    return;
   }
 
   normalizeText();
 }
 
-/* ================= ACTIONS ================= */
-connectBtn.onclick = async () => {
-  try {
-    await initWeb3();
-    connectBtn.innerText = "Wallet Connected";
-    connectBtn.disabled = true;
-  } catch(e){
-    console.error(e);
-    showPopup("Wallet connection failed or wrong network");
-  }
-};
+/* ================= EVENT LISTENERS ================= */
+connectBtn.addEventListener("click", async ()=>{
+  try { await initWeb3(); connectBtn.textContent="Wallet Connected"; connectBtn.disabled=true; }
+  catch(e){ console.error(e); showPopup("Wallet connection failed or wrong network"); }
+});
 
-/* ================= BUTTON COMMIT ================= */
-commitBtn.onclick = async () => {
+// Handle wallet/account changes
+if(window.ethereum){
+  window.ethereum.on("accountsChanged", (accounts)=>{
+    currentAccount = accounts[0] || null;
+    walletText.textContent = currentAccount || "Wallet not connected";
+    normalizeText();
+  });
+  window.ethereum.on("chainChanged", (_chainId)=>{
+    currentChainId = _chainId;
+    normalizeText();
+  });
+}
+
+/* ================= COMMIT BUTTON ================= */
+commitBtn.addEventListener("click", async ()=>{
   if(!contract) return showPopup("Wallet not connected");
 
   const message = messageInput.value.trim();
-  if(message.length === 0){
-    return showPopup("Message is empty");
-  }
+  if(!message) return showPopup("Message is empty");
 
-  commitBtn.disabled = true;
+  commitBtn.disabled=true;
   commitBtn.classList.add("loading");
-  statusEl.innerText = "Sending transaction...";
+  statusEl.textContent="Sending transaction...";
 
-  try {
+  try{
     const fee = await contract.COMMIT_FEE();
-    const tx = await contract.commit(message, { value: fee });
-    statusEl.innerText = "Transaction sent! Waiting for confirmation...";
-    await tx.wait();
-    statusEl.innerText = `✅ Commit successful! TxHash: ${tx.hash}`;
-    messageInput.value = "";
-    normalizeText();
-  } catch(e){
-    console.error(e);
-
-    // Mensagem curta e amigável
-    let shortMessage = "Commit failed";
-    if(e.code === "INSUFFICIENT_FUNDS") {
-      shortMessage += ": insufficient funds";
-    } else if(e.code === 4001) { // Usuário rejeitou a tx no MetaMask
-      shortMessage += ": transaction rejected";
-    } else if(e.message) {
-      shortMessage += ": " + e.message.split("\n")[0]; // só a primeira linha
+    const balance = await signer.getBalance();
+    if(balance.lt(fee)){
+      throw { code:"INSUFFICIENT_FUNDS" };
     }
 
-    statusEl.innerText = "❌ " + shortMessage;
-  } finally {
-    commitBtn.disabled = false;
+    const tx = await contract.commit(message,{value:fee});
+    statusEl.textContent="Transaction sent! Waiting for confirmation...";
+    await tx.wait();
+    statusEl.textContent=`✅ Commit successful! TxHash: ${tx.hash}`;
+    messageInput.value="";
+    normalizeText();
+  }catch(e){
+    console.error(e);
+    let shortMessage = "Commit failed";
+    if(e.code==="INSUFFICIENT_FUNDS") shortMessage+=": insufficient funds";
+    else if(e.code===4001) shortMessage+=": transaction rejected";
+    else shortMessage+=": " + (e.message?.split("\n")[0] || "unknown error");
+    statusEl.textContent="❌ "+shortMessage;
+  }finally{
+    commitBtn.disabled=false;
     commitBtn.classList.remove("loading");
   }
-};
+});
 </script>
-
 </body>
 </html>
