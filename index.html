@@ -6,32 +6,14 @@
 <!-- Primary SEO -->
 <title>Commit Protocol - Immutable On-Chain Commits</title>
 <meta name="description" content="Commit Protocol is an immutable on-chain protocol for permanent records. Create irreversible commits stored fully on-chain, verifiable forever.">
-<meta name="keywords" content="Commit Protocol, on-chain commits, immutable protocol, NFT commits, blockchain records, Base blockchain, Web3 protocol">
-<meta name="author" content="Commit Protocol">
-<link rel="canonical" href="https://commit-protocol.xyz/">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="Commit Protocol — Immutable On-Chain Commits">
-<meta property="og:description" content="Create irreversible on-chain commits. Fully immutable, verifiable, and permanently stored on the blockchain.">
-<meta property="og:url" content="https://commit-protocol.xyz/">
-<meta property="og:image" content="https://commit-protocol.xyz/og.png">
-<meta property="og:site_name" content="Commit Protocol">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Commit Protocol — Immutable On-Chain Commits">
-<meta name="twitter:description" content="Permanent on-chain records. No edits. No deletes. No force push.">
-<meta name="twitter:image" content="https://commit-protocol.xyz/og.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* Seu CSS atual permanece igual */
 * { box-sizing: border-box; }
 
+/* ================= BODY & MAIN ================= */
 body {
   margin:0;
   min-height:100vh;
@@ -39,17 +21,93 @@ body {
   background:#0d1117;
   color:#c9d1d9;
   display:flex;
+  flex-direction:column;
   align-items:center;
-  justify-content:center;
-  padding:24px;
+  padding:0;
 }
 
 main {
   width:100%;
   display:flex;
   justify-content:center;
+  padding-top:80px; /* espaço para navbar fixa */
 }
 
+/* ================= NAVBAR ================= */
+.navbar {
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#161b22;
+  border-bottom:1px solid #30363d;
+  padding:12px 36px;
+  z-index:1000;
+  box-shadow:0 2px 10px rgba(0,0,0,0.5);
+}
+
+.navbar .logo {
+  width:48px;
+}
+
+.navbar .nav-links {
+  display:flex;
+  gap:20px;
+}
+
+.navbar .nav-links a {
+  color:#c9d1d9;
+  text-decoration:none;
+  font-weight:600;
+  transition:color 0.2s;
+}
+
+.navbar .nav-links a:hover {
+  color:#58a6ff;
+}
+
+/* Hambúrguer (mobile) */
+.navbar .menu-toggle {
+  display:none;
+  flex-direction:column;
+  cursor:pointer;
+  gap:4px;
+}
+
+.navbar .menu-toggle span {
+  width:25px;
+  height:3px;
+  background:#c9d1d9;
+  border-radius:2px;
+  transition: all 0.3s ease;
+}
+
+/* Navbar responsiva */
+@media (max-width: 768px) {
+  .navbar .nav-links {
+    position: fixed;
+    top:64px;
+    right:-100%;
+    background:#161b22;
+    flex-direction:column;
+    width:200px;
+    padding:16px;
+    border-left:1px solid #30363d;
+    transition: right 0.3s ease;
+    height: calc(100% - 64px);
+  }
+  .navbar .nav-links.active {
+    right:0;
+  }
+  .navbar .menu-toggle {
+    display:flex;
+  }
+}
+
+/* ================= CARD ================= */
 .card {
   width:100%;
   max-width:640px;
@@ -61,7 +119,7 @@ main {
   text-align:center;
 }
 
-.logo {
+.logo-card {
   width:96px;
   margin-bottom:18px;
 }
@@ -91,10 +149,10 @@ p {
 /* ================= BUTTONS ================= */
 .buttons {
   display: flex;
-  flex-direction: column; /* empilha verticalmente */
+  flex-direction: column;
   gap: 14px;
   justify-content: center;
-  align-items: center; /* centraliza horizontalmente */
+  align-items: center;
 }
 
 button, a.button-link {
@@ -144,11 +202,29 @@ footer a:hover {
 
 <body>
 
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+  <img src="logo.png" class="logo" alt="Commit Protocol Logo">
+  
+  <nav class="nav-links" id="navLinks">
+    <a href="index.html">Home</a>
+    <a href="commit.html">Commit</a>
+    <a href="docs.html">Documentation</a>
+  </nav>
+
+  <div class="menu-toggle" id="menuToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</header>
+
+<!-- ================= MAIN CONTENT ================= -->
 <main>
   <article class="card">
 
     <header>
-      <img src="logo.png" class="logo" alt="Commit Protocol Logo">
+      <img src="logo.png" class="logo-card" alt="Commit Protocol Logo">
       <h1>Commit Protocol</h1>
       <div class="subtitle">Immutable on-chain commits. Irreversible by design.</div>
     </header>
@@ -181,6 +257,16 @@ footer a:hover {
 
   </article>
 </main>
+
+<script>
+// ================= MENU HAMBURGUER =================
+const menuToggle = document.getElementById('menuToggle');
+const navLinks = document.getElementById('navLinks');
+
+menuToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('active');
+});
+</script>
 
 </body>
 </html>
