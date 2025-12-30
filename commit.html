@@ -26,7 +26,6 @@ button:disabled { opacity:.45; cursor:not-allowed; }
 #popup.show { display:block; }
 #popup button { margin-top:12px; }
 
-/* ================= BUTTON LOADING ================= */
 button.loading {
   position: relative;
   pointer-events: none;
@@ -86,21 +85,18 @@ button.loading::after {
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
-/* ================= CONFIG ================= */
 const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895"; 
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function COMMIT_FEE() view returns(uint256)"
 ];
-const BASE_CHAIN_ID = "0x2105"; // Base Mainnet
+const BASE_CHAIN_ID = "0x2105";
 const MAX_LINES = 21;
 const MAX_LINE_LENGTH = 49;
 const MAX_CHARS = 1049;
 
-/* ================= STATE ================= */
 let provider, signer, contract, currentAccount, currentChainId, commitFee;
 
-/* ================= DOM ELEMENTS ================= */
 const messageInput = document.getElementById("commitMessage");
 const charCountEl = document.getElementById("charCount");
 const lineCountEl = document.getElementById("lineCount");
@@ -112,7 +108,6 @@ const feeEl = document.getElementById("commitFee");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
 
-/* ================= UI ================= */
 function showPopup(msg){ popupMessage.textContent = msg; popup.classList.add("show"); }
 function hidePopup(){ popup.classList.remove("show"); }
 
@@ -136,7 +131,6 @@ function normalizeText() {
   charCountEl.textContent = finalText.length;
   lineCountEl.textContent = lines.length;
 
-  // Checa se pode habilitar commit
   const canCommit = currentAccount && currentChainId === BASE_CHAIN_ID && finalText.length > 0 && finalText.length <= MAX_CHARS && lines.length <= MAX_LINES;
   commitBtn.disabled = !canCommit || (commitFee && signer && canCommit && !hasEnoughFunds());
 }
@@ -147,16 +141,13 @@ function hasEnoughFunds(){
 
 messageInput.addEventListener("input", normalizeText);
 
-/* ================= WEB3 ================= */
 async function initWeb3(){
   if(!window.ethereum) throw new Error("MetaMask not found");
 
-  // Solicita conta
   const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
   currentAccount = accounts[0];
   walletText.textContent = currentAccount;
 
-  // Verifica rede
   currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
   if(currentChainId !== BASE_CHAIN_ID){
     try {
@@ -165,12 +156,10 @@ async function initWeb3(){
     } catch(err){ showPopup("Please switch your MetaMask to Base Mainnet"); throw err; }
   }
 
-  // Inicializa provider, signer e contrato
   provider = new ethers.providers.Web3Provider(window.ethereum);
   signer = provider.getSigner();
   contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
-  // Lê COMMIT_FEE
   try{
     commitFee = await contract.COMMIT_FEE();
     feeEl.textContent = ethers.utils.formatEther(commitFee);
@@ -183,7 +172,6 @@ async function initWeb3(){
   normalizeText();
 }
 
-/* ================= ACTIONS ================= */
 connectBtn.onclick = async () => {
   try {
     await initWeb3();
@@ -195,7 +183,6 @@ connectBtn.onclick = async () => {
   }
 };
 
-/* ================= BUTTON COMMIT ================= */
 commitBtn.onclick = async () => {
   if(!contract) return showPopup("Wallet not connected");
   const message = messageInput.value.trim();
@@ -209,8 +196,7 @@ commitBtn.onclick = async () => {
     const tx = await contract.commit(message, { value: commitFee });
 
     statusEl.textContent = "Transaction sent! Waiting for confirmation...";
-    // Timeout de 2 minutos
-    const receipt = await Promise.race([
+   const receipt = await Promise.race([
       tx.wait(),
       new Promise((_, reject) => setTimeout(() => reject({ code: "TX_TIMEOUT" }), 120000))
     ]);
@@ -235,7 +221,6 @@ commitBtn.onclick = async () => {
   }
 };
 
-// Atualiza status de saldo automaticamente
 setInterval(async () => {
   if(provider && currentAccount && commitFee){
     const balance = await provider.getBalance(currentAccount);
