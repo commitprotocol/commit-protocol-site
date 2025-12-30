@@ -2,46 +2,41 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Mint a Commit - Commit Protocol</title>
-<meta name="description" content="Mint an immutable on-chain commit using Commit Protocol. Write ASCII messages and permanently record them on-chain. No edits. No deletes.">
+<title>Mint a Commit — Commit Protocol</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-* { box-sizing: border-box; }
+*{box-sizing:border-box}
 
-body {
+body{
   margin:0;
-  font-family:'Inter', system-ui;
+  font-family:Inter,system-ui;
   background:#0d1117;
   color:#c9d1d9;
   display:flex;
   justify-content:center;
   padding:24px;
-  position:relative;
 }
 
 /* ===== MENU ===== */
-.menu-button {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  appearance:none;
+.menu-button{
+  position:fixed;
+  top:16px;
+  right:16px;
   background:#161b22;
-  color:#c9d1d9;
   border:1px solid #30363d;
+  color:#c9d1d9;
   padding:10px 14px;
   border-radius:12px;
-  cursor:pointer;
   font-size:18px;
-  line-height:1;
-  z-index:1000;
+  cursor:pointer;
+  z-index:9999;
 }
-.menu-button:focus { outline:none; }
 
-.dropdown-menu {
-  position: fixed;
+.dropdown-menu{
+  position:fixed;
   top:56px;
   right:16px;
   background:#161b22;
@@ -50,104 +45,73 @@ body {
   display:none;
   flex-direction:column;
   padding:10px;
-  gap:8px;
-  z-index:999;
+  gap:6px;
+  z-index:9998;
 }
-.dropdown-menu a {
+
+.dropdown-menu a{
   color:#c9d1d9;
   text-decoration:none;
-  padding:6px 12px;
+  padding:8px 14px;
   border-radius:8px;
 }
+.dropdown-menu a:hover{background:#21262d}
 
 /* ===== PAGE ===== */
-main { width:100%; display:flex; justify-content:center; }
+main{width:100%;display:flex;justify-content:center}
 
-.card {
+.card{
   width:100%;
   max-width:520px;
   background:#161b22;
+  border:1px solid #30363d;
   border-radius:22px;
   padding:28px;
-  border:1px solid #30363d;
-  box-shadow:0 0 60px rgba(0,0,0,.6);
   text-align:center;
 }
 
-.logo { width:72px; margin-bottom:14px; }
-h1 { margin:0; font-size:22px; }
-.subtitle { font-size:14px; opacity:.8; margin-bottom:18px; color:#8b949e; }
-
-textarea {
+textarea{
   width:100%;
-  height:430px;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #30363d;
+  height:420px;
   background:#0d1117;
+  border:1px solid #30363d;
+  border-radius:12px;
   color:#c9d1d9;
-  resize:vertical;
-  font-family:JetBrains Mono, monospace;
-  font-size:14px;
-  line-height:20px;
+  padding:12px;
+  font-family:monospace;
 }
 
-#lineInfo {
+#lineInfo{
   font-size:13px;
   opacity:.7;
-  margin-top:6px;
   text-align:right;
-  color:#8b949e;
+  margin-top:6px;
 }
 
-button {
+button{
   width:100%;
   padding:14px;
   border-radius:14px;
-  border:1px solid #ccc;
   font-weight:700;
   margin-top:12px;
   cursor:pointer;
-  background:#ffffff;
-  color:#000;
 }
 
-button:disabled { opacity:.45; cursor:not-allowed; }
+button:disabled{opacity:.5;cursor:not-allowed}
 
-#wallet, #status {
-  font-size:13px;
-  margin-top:10px;
-  color:#8b949e;
-}
-
-#popup {
+#popup{
   position:fixed;
   top:20px;
   left:50%;
   transform:translateX(-50%);
   background:#161b22;
+  border:1px solid #30363d;
   padding:16px 24px;
   border-radius:14px;
-  border:1px solid #30363d;
   display:none;
-  z-index:2000;
+  z-index:10000;
 }
-#popup.show { display:block; }
-
-/* LOADING */
-button.loading { pointer-events:none; opacity:.6; }
-button.loading::after {
-  content:'';
-  position:absolute;
-  top:50%; left:50%;
-  width:18px; height:18px;
-  margin:-9px;
-  border:3px solid #000;
-  border-top:3px solid transparent;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
-@keyframes spin { to { transform:rotate(360deg); } }
+#popup.show{display:block}
 </style>
 </head>
 
@@ -158,37 +122,28 @@ button.loading::after {
 <nav id="dropdownMenu" class="dropdown-menu">
   <a href="index.html">Home</a>
   <a href="commit.html">Commit</a>
-  <a href="docs.html">Documentation</a>
+  <a href="docs.html">Docs</a>
 </nav>
 
 <main>
 <article class="card">
 
-<header>
-  <img src="logo.png" class="logo">
-  <h1>Commit Protocol</h1>
-  <div class="subtitle">Mint an immutable on-chain commit</div>
-</header>
+<h1>Commit Protocol</h1>
+<p style="opacity:.7">Mint an immutable on-chain commit</p>
 
-<section>
-  <textarea id="commitMessage"></textarea>
-  <div id="lineInfo">
-    Lines: <span id="lineCount">0</span> / 21 |
-    Chars: <span id="charCount">0</span> / 1049
-  </div>
-</section>
+<textarea id="commitMessage"></textarea>
+<div id="lineInfo">
+  Lines: <span id="lineCount">0</span> / 21 |
+  Chars: <span id="charCount">0</span> / 1049
+</div>
 
-<section>
-  COMMIT_FEE: <strong><span id="commitFee">–</span> ETH</strong>
-  <button id="connect">Connect Wallet</button>
-  <button id="commit" disabled>Commit</button>
-  <div id="wallet">Wallet not connected</div>
-  <div id="status"></div>
-</section>
+<p>COMMIT_FEE: <strong><span id="commitFee">–</span> ETH</strong></p>
 
-<footer style="margin-top:18px;font-size:12px;opacity:.6;">
-  commit-protocol://v0 — irreversible by design
-</footer>
+<button id="connect">Connect Wallet</button>
+<button id="commit" disabled>Commit</button>
+
+<div id="wallet">Wallet not connected</div>
+<div id="status"></div>
 
 </article>
 </main>
@@ -201,30 +156,32 @@ button.loading::after {
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
 <script>
-/* MENU */
-const menuToggle = document.getElementById('menuToggle');
-const dropdownMenu = document.getElementById('dropdownMenu');
-menuToggle.onclick = () =>
-  dropdownMenu.style.display =
-    dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
-document.addEventListener('click', e => {
-  if(!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target))
-    dropdownMenu.style.display='none';
-});
+/* ===== MENU ===== */
+const menuToggle=document.getElementById("menuToggle");
+const dropdownMenu=document.getElementById("dropdownMenu");
 
-/* CONFIG */
-const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
-const ABI = [
+menuToggle.onclick=e=>{
+  e.stopPropagation();
+  dropdownMenu.style.display=
+    dropdownMenu.style.display==="flex"?"none":"flex";
+};
+dropdownMenu.onclick=e=>e.stopPropagation();
+document.onclick=()=>dropdownMenu.style.display="none";
+
+/* ===== CONFIG ===== */
+const CONTRACT_ADDRESS="0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
+const ABI=[
   "function commit(string calldata message) external payable returns(uint256)",
   "function COMMIT_FEE() view returns(uint256)"
 ];
-const BASE_CHAIN_ID = "0x2105";
-const MAX_LINES=21, MAX_LINE_LENGTH=49, MAX_CHARS=1049;
+const BASE_CHAIN_ID="0x2105";
+const MAX_LINES=21;
+const MAX_CHARS=1049;
 
-/* STATE */
-let provider, signer, contract, account, chainId, commitFee;
+/* ===== STATE ===== */
+let provider,signer,contract,account,commitFee;
 
-/* DOM */
+/* ===== DOM ===== */
 const msg=document.getElementById("commitMessage");
 const charEl=document.getElementById("charCount");
 const lineEl=document.getElementById("lineCount");
@@ -236,67 +193,51 @@ const feeEl=document.getElementById("commitFee");
 const popup=document.getElementById("popup");
 const popupMsg=document.getElementById("popupMessage");
 
-function showPopup(m){ popupMsg.textContent=m; popup.classList.add("show"); }
-function hidePopup(){ popup.classList.remove("show"); }
+function showPopup(t){popupMsg.textContent=t;popup.classList.add("show")}
+function hidePopup(){popup.classList.remove("show")}
 
-function normalize(){
-  let lines=[];
-  msg.value.split("\n").forEach(l=>{
-    while(l.length>MAX_LINE_LENGTH){
-      lines.push(l.slice(0,MAX_LINE_LENGTH));
-      l=l.slice(MAX_LINE_LENGTH);
-    }
-    lines.push(l);
-  });
-  lines=lines.slice(0,MAX_LINES);
-  msg.value=lines.join("\n");
+/* ===== VALIDATION ===== */
+msg.oninput=()=>{
+  const lines=msg.value.split("\n").slice(0,MAX_LINES);
+  msg.value=lines.join("\n").slice(0,MAX_CHARS);
   charEl.textContent=msg.value.length;
   lineEl.textContent=lines.length;
-  commitBtn.disabled=!(account && chainId===BASE_CHAIN_ID && msg.value.length);
-}
-msg.oninput=normalize;
+  commitBtn.disabled=!account||msg.value.length===0;
+};
 
-async function init(){
-  if(!window.ethereum) return showPopup("MetaMask not found");
+/* ===== WALLET ===== */
+async function connect(){
+  if(!window.ethereum) return showPopup("Wallet not found");
   [account]=await ethereum.request({method:"eth_requestAccounts"});
-  walletEl.textContent=account;
-  chainId=await ethereum.request({method:"eth_chainId"});
+  const chainId=await ethereum.request({method:"eth_chainId"});
   if(chainId!==BASE_CHAIN_ID){
     await ethereum.request({
       method:"wallet_switchEthereumChain",
       params:[{chainId:BASE_CHAIN_ID}]
     });
-    chainId=BASE_CHAIN_ID;
   }
   provider=new ethers.providers.Web3Provider(ethereum);
   signer=provider.getSigner();
   contract=new ethers.Contract(CONTRACT_ADDRESS,ABI,signer);
   commitFee=await contract.COMMIT_FEE();
   feeEl.textContent=ethers.utils.formatEther(commitFee);
-  normalize();
+  walletEl.textContent=account;
+  commitBtn.disabled=false;
 }
 
-connectBtn.onclick=async()=>{
-  try{
-    await init();
-    connectBtn.textContent="Wallet Connected";
-    connectBtn.disabled=true;
-  }catch(e){ showPopup("Wallet error"); }
-};
+connectBtn.onclick=connect;
 
+/* ===== COMMIT ===== */
 commitBtn.onclick=async()=>{
   try{
-    commitBtn.classList.add("loading");
+    statusEl.textContent="Waiting confirmation…";
     const tx=await contract.commit(msg.value,{value:commitFee});
-    statusEl.textContent="Waiting confirmation...";
     await tx.wait();
-    statusEl.textContent="✅ Commit success";
+    statusEl.textContent="✅ Commit successful";
     msg.value="";
-    normalize();
+    msg.oninput();
   }catch(e){
     statusEl.textContent="❌ Commit failed";
-  }finally{
-    commitBtn.classList.remove("loading");
   }
 };
 </script>
