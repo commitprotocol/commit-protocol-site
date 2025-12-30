@@ -10,43 +10,24 @@
 
 <style>
 * { box-sizing: border-box; }
+
 body {
   margin:0;
   font-family:'Inter', system-ui;
   background:#0d1117;
   color:#c9d1d9;
-  padding:24px;
-}
-
-main {
-  width:100%;
   display:flex;
   justify-content:center;
+  padding:24px;
+  position:relative;
 }
-.card { width:100%; max-width:520px; background:#161b22; border-radius:22px; padding:28px; border:1px solid #30363d; box-shadow:0 0 60px rgba(0,0,0,.6); text-align:center; }
-.logo { width:72px; margin-bottom:14px; }
-h1 { margin:0; font-size:22px; }
-.subtitle { font-size:14px; opacity:.8; margin-bottom:18px; color:#8b949e; }
-textarea { width:100%; height:430px; padding:12px; border-radius:12px; border:1px solid #30363d; background:#0d1117; color:#c9d1d9; resize:vertical; font-family:JetBrains Mono, monospace; font-size:14px; line-height:20px; overflow:auto; }
-#lineInfo { font-size:13px; opacity:.7; margin-top:6px; text-align:right; color:#8b949e; }
-button { width:100%; padding:14px; border-radius:14px; border:1px solid #ccc; font-weight:700; margin-top:12px; cursor:pointer; background:#ffffff; color:#000; }
-button:disabled { opacity:.45; cursor:not-allowed; }
-#wallet { font-size:13px; opacity:.85; margin-top:10px; word-break:break-all; color:#8b949e; }
-#status { margin-top:14px; min-height:22px; font-size:14px; color:#8b949e; }
-#popup { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#161b22; color:#fff; padding:16px 24px; border-radius:14px; border:1px solid #30363d; box-shadow:0 10px 40px rgba(0,0,0,.8); display:none; z-index:1000; }
-#popup.show { display:block; }
-#popup button { margin-top:12px; }
 
-/* ================= MENU ================= */
-  .menu-button {
+/* ===== MENU ===== */
+.menu-button {
   position: fixed;
-  top: 24px;
-  right: 24px;
-
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
+  top: 16px;
+  right: 16px;
+  appearance:none;
   background:#161b22;
   color:#c9d1d9;
   border:1px solid #30363d;
@@ -55,29 +36,23 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   cursor:pointer;
   font-size:18px;
   line-height:1;
-  font-family:'Inter', system-ui;
-  z-index:3000;
+  z-index:1000;
 }
-
-.menu-button:focus,
-.menu-button:focus-visible {
-  outline: none;
-}
+.menu-button:focus { outline:none; }
 
 .dropdown-menu {
   position: fixed;
-  top:68px;
-  right:24px;
+  top:56px;
+  right:16px;
   background:#161b22;
   border:1px solid #30363d;
   border-radius:12px;
   display:none;
-  flex-direction: column;
+  flex-direction:column;
   padding:10px;
   gap:8px;
-  z-index:3000;
+  z-index:999;
 }
-
 .dropdown-menu a {
   color:#c9d1d9;
   text-decoration:none;
@@ -85,35 +60,100 @@ button:disabled { opacity:.45; cursor:not-allowed; }
   border-radius:8px;
 }
 
-/* ================= BUTTON LOADING ================= */
-button.loading {
-  position: relative;
-  pointer-events: none;
-  opacity: 0.6;
+/* ===== PAGE ===== */
+main { width:100%; display:flex; justify-content:center; }
+
+.card {
+  width:100%;
+  max-width:520px;
+  background:#161b22;
+  border-radius:22px;
+  padding:28px;
+  border:1px solid #30363d;
+  box-shadow:0 0 60px rgba(0,0,0,.6);
+  text-align:center;
 }
+
+.logo { width:72px; margin-bottom:14px; }
+h1 { margin:0; font-size:22px; }
+.subtitle { font-size:14px; opacity:.8; margin-bottom:18px; color:#8b949e; }
+
+textarea {
+  width:100%;
+  height:430px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #30363d;
+  background:#0d1117;
+  color:#c9d1d9;
+  resize:vertical;
+  font-family:JetBrains Mono, monospace;
+  font-size:14px;
+  line-height:20px;
+}
+
+#lineInfo {
+  font-size:13px;
+  opacity:.7;
+  margin-top:6px;
+  text-align:right;
+  color:#8b949e;
+}
+
+button {
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #ccc;
+  font-weight:700;
+  margin-top:12px;
+  cursor:pointer;
+  background:#ffffff;
+  color:#000;
+}
+
+button:disabled { opacity:.45; cursor:not-allowed; }
+
+#wallet, #status {
+  font-size:13px;
+  margin-top:10px;
+  color:#8b949e;
+}
+
+#popup {
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#161b22;
+  padding:16px 24px;
+  border-radius:14px;
+  border:1px solid #30363d;
+  display:none;
+  z-index:2000;
+}
+#popup.show { display:block; }
+
+/* LOADING */
+button.loading { pointer-events:none; opacity:.6; }
 button.loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 18px;
-  height: 18px;
-  margin: -9px 0 0 -9px;
-  border: 3px solid #000;
-  border-top: 3px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+  content:'';
+  position:absolute;
+  top:50%; left:50%;
+  width:18px; height:18px;
+  margin:-9px;
+  border:3px solid #000;
+  border-top:3px solid transparent;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
 }
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform:rotate(360deg); } }
 </style>
 </head>
 
 <body>
 
-  <!-- Menu -->
+<!-- MENU GLOBAL -->
 <button id="menuToggle" class="menu-button">☰</button>
 <nav id="dropdownMenu" class="dropdown-menu">
   <a href="index.html">Home</a>
@@ -123,26 +163,33 @@ button.loading::after {
 
 <main>
 <article class="card">
+
 <header>
-  <img src="logo.png" class="logo" alt="Commit Protocol Logo">
+  <img src="logo.png" class="logo">
   <h1>Commit Protocol</h1>
-  <div class="subtitle">Mint an immutable on-chain commit (ASCII supported)</div>
+  <div class="subtitle">Mint an immutable on-chain commit</div>
 </header>
 
 <section>
-  <textarea id="commitMessage" placeholder="21 lines · 49 chars per line · total 1049 chars"></textarea>
-  <div id="lineInfo">Lines: <span id="lineCount">0</span> / 21 | Chars: <span id="charCount">0</span> / 1049</div>
+  <textarea id="commitMessage"></textarea>
+  <div id="lineInfo">
+    Lines: <span id="lineCount">0</span> / 21 |
+    Chars: <span id="charCount">0</span> / 1049
+  </div>
 </section>
 
 <section>
-  <div class="info">COMMIT_FEE: <strong><span id="commitFee">–</span> ETH</strong></div>
+  COMMIT_FEE: <strong><span id="commitFee">–</span> ETH</strong>
   <button id="connect">Connect Wallet</button>
   <button id="commit" disabled>Commit</button>
   <div id="wallet">Wallet not connected</div>
   <div id="status"></div>
 </section>
 
-<footer style="margin-top:18px;font-size:12px;opacity:.6;">commit-protocol://v0 — irreversible by design</footer>
+<footer style="margin-top:18px;font-size:12px;opacity:.6;">
+  commit-protocol://v0 — irreversible by design
+</footer>
+
 </article>
 </main>
 
@@ -152,179 +199,106 @@ button.loading::after {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
 <script>
-/* ================= CONFIG ================= */
-const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895"; 
+/* MENU */
+const menuToggle = document.getElementById('menuToggle');
+const dropdownMenu = document.getElementById('dropdownMenu');
+menuToggle.onclick = () =>
+  dropdownMenu.style.display =
+    dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
+document.addEventListener('click', e => {
+  if(!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target))
+    dropdownMenu.style.display='none';
+});
+
+/* CONFIG */
+const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
   "function COMMIT_FEE() view returns(uint256)"
 ];
-const BASE_CHAIN_ID = "0x2105"; // Base Mainnet
-const MAX_LINES = 21;
-const MAX_LINE_LENGTH = 49;
-const MAX_CHARS = 1049;
+const BASE_CHAIN_ID = "0x2105";
+const MAX_LINES=21, MAX_LINE_LENGTH=49, MAX_CHARS=1049;
 
-/* ================= STATE ================= */
-let provider, signer, contract, currentAccount, currentChainId, commitFee;
+/* STATE */
+let provider, signer, contract, account, chainId, commitFee;
 
-/* ================= DOM ELEMENTS ================= */
-const messageInput = document.getElementById("commitMessage");
-const charCountEl = document.getElementById("charCount");
-const lineCountEl = document.getElementById("lineCount");
-const commitBtn = document.getElementById("commit");
-const connectBtn = document.getElementById("connect");
-const walletText = document.getElementById("wallet");
-const statusEl = document.getElementById("status");
-const feeEl = document.getElementById("commitFee");
-const popup = document.getElementById("popup");
-const popupMessage = document.getElementById("popupMessage");
+/* DOM */
+const msg=document.getElementById("commitMessage");
+const charEl=document.getElementById("charCount");
+const lineEl=document.getElementById("lineCount");
+const commitBtn=document.getElementById("commit");
+const connectBtn=document.getElementById("connect");
+const walletEl=document.getElementById("wallet");
+const statusEl=document.getElementById("status");
+const feeEl=document.getElementById("commitFee");
+const popup=document.getElementById("popup");
+const popupMsg=document.getElementById("popupMessage");
 
-/* ================= UI ================= */
-function showPopup(msg){ popupMessage.textContent = msg; popup.classList.add("show"); }
+function showPopup(m){ popupMsg.textContent=m; popup.classList.add("show"); }
 function hidePopup(){ popup.classList.remove("show"); }
 
-function normalizeText() {
-  const raw = messageInput.value;
-  let lines = [];
-  raw.split("\n").forEach(line => {
-    while(line.length > MAX_LINE_LENGTH){
-      lines.push(line.slice(0, MAX_LINE_LENGTH));
-      line = line.slice(MAX_LINE_LENGTH);
+function normalize(){
+  let lines=[];
+  msg.value.split("\n").forEach(l=>{
+    while(l.length>MAX_LINE_LENGTH){
+      lines.push(l.slice(0,MAX_LINE_LENGTH));
+      l=l.slice(MAX_LINE_LENGTH);
     }
-    lines.push(line);
+    lines.push(l);
   });
-  if(lines.length > MAX_LINES) lines = lines.slice(0, MAX_LINES);
-  const finalText = lines.join("\n");
-  if(finalText !== messageInput.value){
-    const pos = messageInput.selectionStart;
-    messageInput.value = finalText;
-    messageInput.selectionStart = messageInput.selectionEnd = pos;
-  }
-  charCountEl.textContent = finalText.length;
-  lineCountEl.textContent = lines.length;
+  lines=lines.slice(0,MAX_LINES);
+  msg.value=lines.join("\n");
+  charEl.textContent=msg.value.length;
+  lineEl.textContent=lines.length;
+  commitBtn.disabled=!(account && chainId===BASE_CHAIN_ID && msg.value.length);
+}
+msg.oninput=normalize;
 
-  // Checa se pode habilitar commit
-  const canCommit = currentAccount && currentChainId === BASE_CHAIN_ID && finalText.length > 0 && finalText.length <= MAX_CHARS && lines.length <= MAX_LINES;
-  commitBtn.disabled = !canCommit || (commitFee && signer && canCommit && !hasEnoughFunds());
+async function init(){
+  if(!window.ethereum) return showPopup("MetaMask not found");
+  [account]=await ethereum.request({method:"eth_requestAccounts"});
+  walletEl.textContent=account;
+  chainId=await ethereum.request({method:"eth_chainId"});
+  if(chainId!==BASE_CHAIN_ID){
+    await ethereum.request({
+      method:"wallet_switchEthereumChain",
+      params:[{chainId:BASE_CHAIN_ID}]
+    });
+    chainId=BASE_CHAIN_ID;
+  }
+  provider=new ethers.providers.Web3Provider(ethereum);
+  signer=provider.getSigner();
+  contract=new ethers.Contract(CONTRACT_ADDRESS,ABI,signer);
+  commitFee=await contract.COMMIT_FEE();
+  feeEl.textContent=ethers.utils.formatEther(commitFee);
+  normalize();
 }
 
-function hasEnoughFunds(){
-  return provider && signer && commitFee ? provider.getBalance(currentAccount).then(b => b.gte(commitFee)) : true;
-}
-
-messageInput.addEventListener("input", normalizeText);
-
-/* ================= WEB3 ================= */
-async function initWeb3(){
-  if(!window.ethereum) throw new Error("MetaMask not found");
-
-  // Solicita conta
-  const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
-  currentAccount = accounts[0];
-  walletText.textContent = currentAccount;
-
-  // Verifica rede
-  currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
-  if(currentChainId !== BASE_CHAIN_ID){
-    try {
-      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BASE_CHAIN_ID }] });
-      currentChainId = BASE_CHAIN_ID;
-    } catch(err){ showPopup("Please switch your MetaMask to Base Mainnet"); throw err; }
-  }
-
-  // Inicializa provider, signer e contrato
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  signer = provider.getSigner();
-  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-  // Lê COMMIT_FEE
+connectBtn.onclick=async()=>{
   try{
-    commitFee = await contract.COMMIT_FEE();
-    feeEl.textContent = ethers.utils.formatEther(commitFee);
-  } catch(e){
-    console.error(e);
-    feeEl.textContent = "–";
-    commitBtn.disabled = true;
-  }
-
-  normalizeText();
-}
-
-/* ================= ACTIONS ================= */
-connectBtn.onclick = async () => {
-  try {
-    await initWeb3();
-    connectBtn.textContent = "Wallet Connected";
-    connectBtn.disabled = true;
-  } catch(e){
-    console.error(e);
-    showPopup("Wallet connection failed or wrong network");
-  }
+    await init();
+    connectBtn.textContent="Wallet Connected";
+    connectBtn.disabled=true;
+  }catch(e){ showPopup("Wallet error"); }
 };
 
-/* ================= BUTTON COMMIT ================= */
-commitBtn.onclick = async () => {
-  if(!contract) return showPopup("Wallet not connected");
-  const message = messageInput.value.trim();
-  if(message.length === 0) return showPopup("Message is empty");
-
-  commitBtn.disabled = true;
-  commitBtn.classList.add("loading");
-  statusEl.textContent = "Sending transaction...";
-
-  try {
-    const tx = await contract.commit(message, { value: commitFee });
-
-    statusEl.textContent = "Transaction sent! Waiting for confirmation...";
-    // Timeout de 2 minutos
-    const receipt = await Promise.race([
-      tx.wait(),
-      new Promise((_, reject) => setTimeout(() => reject({ code: "TX_TIMEOUT" }), 120000))
-    ]);
-
-    statusEl.textContent = `✅ Commit successful! TxHash: ${tx.hash}`;
-    messageInput.value = "";
-    normalizeText();
-  } catch(e){
-    console.error(e);
-
-    let shortMessage = "Commit failed";
-    if(e.code === "INSUFFICIENT_FUNDS") shortMessage += ": insufficient funds";
-    else if(e.code === 4001) shortMessage += ": transaction rejected";
-    else if(e.code === "TX_TIMEOUT") shortMessage += ": transaction timeout";
-    else if(e.reason) shortMessage += ": " + e.reason;
-    else if(e.message) shortMessage += ": " + e.message.split("\n")[0];
-
-    statusEl.textContent = "❌ " + shortMessage;
-  } finally {
-    commitBtn.disabled = false;
+commitBtn.onclick=async()=>{
+  try{
+    commitBtn.classList.add("loading");
+    const tx=await contract.commit(msg.value,{value:commitFee});
+    statusEl.textContent="Waiting confirmation...";
+    await tx.wait();
+    statusEl.textContent="✅ Commit success";
+    msg.value="";
+    normalize();
+  }catch(e){
+    statusEl.textContent="❌ Commit failed";
+  }finally{
     commitBtn.classList.remove("loading");
   }
 };
-
-// Atualiza status de saldo automaticamente
-setInterval(async () => {
-  if(provider && currentAccount && commitFee){
-    const balance = await provider.getBalance(currentAccount);
-    commitBtn.disabled = !balance.gte(commitFee);
-  }
-}, 5000);
-</script>
-
-<script>
-const menuToggle = document.getElementById('menuToggle');
-const dropdownMenu = document.getElementById('dropdownMenu');
-
-menuToggle.addEventListener('click', (e) => {
-  e.stopPropagation();
-  dropdownMenu.style.display =
-    dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
-});
-
-dropdownMenu.addEventListener('click', (e) => {
-  e.stopPropagation();
-});
-
 </script>
 
 </body>
