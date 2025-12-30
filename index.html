@@ -53,10 +53,6 @@ body {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
 
   background:#161b22;
   color:#c9d1d9;
@@ -67,8 +63,12 @@ body {
   font-size:18px;
   line-height:1;
   font-family:'Inter', system-ui;
-
   z-index:1000;
+}
+
+.menu-button:focus,
+.menu-button:focus-visible {
+  outline: none;
 }
 
 .dropdown-menu {
@@ -90,11 +90,6 @@ body {
   text-decoration:none;
   padding:6px 12px;
   border-radius:8px;
-  transition: all .2s ease;
-}
-
-.dropdown-menu a:hover {
-  background:#0d1117;
 }
 
 /* ================= PAGE CONTENT ================= */
@@ -163,7 +158,6 @@ button, a.button-link {
   font-weight:700;
   cursor:pointer;
   font-size:15px;
-  transition:all .2s ease;
   text-decoration: none;
 }
 
@@ -173,11 +167,11 @@ button.secondary, a.button-link.secondary {
   border:1px solid #30363d;
 }
 
-button:hover, a.button-link:hover,
-button:focus-visible, a.button-link:focus-visible {
-  transform: scale(1.04);
-  outline: 2px solid #58a6ff;
-  outline-offset: 2px;
+button:focus,
+button:focus-visible,
+a.button-link:focus,
+a.button-link:focus-visible {
+  outline: none;
 }
 
 footer {
@@ -185,20 +179,12 @@ footer {
   font-size:13px;
   opacity:.6;
 }
-
-footer a {
-  color:#58a6ff;
-  text-decoration:none;
-}
-footer a:hover {
-  text-decoration:underline;
-}
 </style>
 </head>
 
 <body>
 
-<!-- Botão de menu -->
+<!-- Menu -->
 <button id="menuToggle" class="menu-button">☰</button>
 <nav id="dropdownMenu" class="dropdown-menu">
   <a href="index.html">Home</a>
@@ -238,7 +224,7 @@ footer a:hover {
     </nav>
 
     <footer>
-      commit-protocol://v0 — <span>blockchains never forget</span>
+      commit-protocol://v0 — blockchains never forget
     </footer>
 
   </article>
@@ -249,10 +235,10 @@ const menuToggle = document.getElementById('menuToggle');
 const dropdownMenu = document.getElementById('dropdownMenu');
 
 menuToggle.addEventListener('click', () => {
-  dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
+  dropdownMenu.style.display =
+    dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
 });
 
-// Fecha o menu ao clicar fora
 document.addEventListener('click', (e) => {
   if (!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
     dropdownMenu.style.display = 'none';
