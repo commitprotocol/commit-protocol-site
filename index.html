@@ -96,7 +96,10 @@ p {
   align-items: center; /* centraliza horizontalmente */
 }
 
-button {
+button, a.button-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   padding:14px 22px;
   border-radius:14px;
   border:1px solid #ccc;
@@ -106,16 +109,20 @@ button {
   cursor:pointer;
   font-size:15px;
   transition:all .2s ease;
+  text-decoration: none;
 }
 
-button.secondary {
+button.secondary, a.button-link.secondary {
   background:#0d1117;
   color:#c9d1d9;
   border:1px solid #30363d;
 }
 
-button:hover {
-  transform:scale(1.04);
+button:hover, a.button-link:hover,
+button:focus-visible, a.button-link:focus-visible {
+  transform: scale(1.04);
+  outline: 2px solid #58a6ff;
+  outline-offset: 2px;
 }
 
 footer {
@@ -162,9 +169,9 @@ footer a:hover {
       </p>
     </section>
 
-    <nav class="buttons">
-      <button onclick="location.href='commit.html'">Go to Commit</button>
-      <button class="secondary" onclick="location.href='docs.html'">Documentation & Audit</button>
+    <nav class="buttons" aria-label="Navigation buttons">
+      <a href="commit.html" class="button-link">Go to Commit</a>
+      <a href="docs.html" class="button-link secondary">Documentation & Audit</a>
     </nav>
 
     <footer>
