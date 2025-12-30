@@ -41,58 +41,8 @@ body {
   align-items:center;
   justify-content:center;
   padding:24px;
-  position:relative;
 }
 
-/* ================= MENU ================= */
-.menu-button {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  background:#161b22;
-  color:#c9d1d9;
-  border:1px solid #30363d;
-  padding:10px 14px;
-  border-radius:12px;
-  cursor:pointer;
-  font-size:18px;
-  line-height:1;
-  font-family:'Inter', system-ui;
-  z-index:1000;
-}
-
-.menu-button:focus,
-.menu-button:focus-visible {
-  outline: none;
-}
-
-.dropdown-menu {
-  position: fixed;
-  top:56px;
-  right:16px;
-  background:#161b22;
-  border:1px solid #30363d;
-  border-radius:12px;
-  display:none;
-  flex-direction: column;
-  padding:10px;
-  gap:8px;
-  z-index:999;
-}
-
-.dropdown-menu a {
-  color:#c9d1d9;
-  text-decoration:none;
-  padding:6px 12px;
-  border-radius:8px;
-}
-
-/* ================= PAGE CONTENT ================= */
 main {
   width:100%;
   display:flex;
@@ -137,19 +87,19 @@ p {
   color:#c9d1d9;
 }
 
-/* ================= BUTTONS ================= */
+/* BUTTONS */
 .buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  justify-content: center;
-  align-items: center;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  justify-content:center;
+  align-items:center;
 }
 
-button, a.button-link {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
+a.button-link {
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
   padding:14px 22px;
   border-radius:14px;
   border:1px solid #ccc;
@@ -158,20 +108,18 @@ button, a.button-link {
   font-weight:700;
   cursor:pointer;
   font-size:15px;
-  text-decoration: none;
+  text-decoration:none;
 }
 
-button.secondary, a.button-link.secondary {
+a.button-link.secondary {
   background:#0d1117;
   color:#c9d1d9;
   border:1px solid #30363d;
 }
 
-button:focus,
-button:focus-visible,
 a.button-link:focus,
 a.button-link:focus-visible {
-  outline: none;
+  outline:none;
 }
 
 footer {
@@ -183,14 +131,6 @@ footer {
 </head>
 
 <body>
-
-<!-- Menu -->
-<button id="menuToggle" class="menu-button">☰</button>
-<nav id="dropdownMenu" class="dropdown-menu">
-  <a href="index.html">Home</a>
-  <a href="commit.html">Commit</a>
-  <a href="docs.html">Documentation</a>
-</nav>
 
 <main>
   <article class="card">
@@ -229,22 +169,6 @@ footer {
 
   </article>
 </main>
-
-<script>
-const menuToggle = document.getElementById('menuToggle');
-const dropdownMenu = document.getElementById('dropdownMenu');
-
-menuToggle.addEventListener('click', () => {
-  dropdownMenu.style.display =
-    dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
-});
-
-document.addEventListener('click', (e) => {
-  if (!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
-    dropdownMenu.style.display = 'none';
-  }
-});
-</script>
 
 </body>
 </html>
