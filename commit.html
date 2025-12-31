@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="/menu.css">
 <meta charset="UTF-8">
 <title>Mint a Commit - Commit Protocol</title>
 <meta name="description" content="Mint an immutable on-chain commit using Commit Protocol. Write ASCII messages and permanently record them on-chain. No edits. No deletes.">
@@ -52,7 +53,7 @@ button.loading::after {
 </head>
 
 <body>
-
+<div id="global-menu"></div>
 <main>
 <article class="card">
 <header>
@@ -228,6 +229,26 @@ setInterval(async () => {
   }
 }, 5000);
 </script>
+<script>
+fetch("/menu.html")
+  .then(r => r.text())
+  .then(html => {
+    document.getElementById("global-menu").innerHTML = html;
 
+    const toggle = document.getElementById("menuToggle");
+    const menu = document.getElementById("dropdownMenu");
+
+    toggle.addEventListener("click", e => {
+      e.stopPropagation();
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", e => {
+      if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+        menu.style.display = "none";
+      }
+    });
+  });
+</script>
 </body>
 </html>
