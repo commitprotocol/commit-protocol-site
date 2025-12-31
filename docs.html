@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="/menu.css">
 <meta charset="UTF-8">
 <title>Commit Protocol - Documentation</title>
 <meta name="description" content="Commit Protocol is an immutable on-chain protocol for permanent records. Create irreversible commits stored fully on-chain, verifiable forever.">
@@ -92,6 +93,7 @@ a:hover { text-decoration:underline; }
 </head>
 
 <body>
+<div id="global-menu"></div>
 <main>
 <article class="card">
 
@@ -236,5 +238,27 @@ commit-protocol://v0 — immutable by design
 
 </article>
 </main>
+<script>
+fetch("/menu.html")
+  .then(r => r.text())
+  .then(html => {
+    document.getElementById("global-menu").innerHTML = html;
+
+    // MENU JS AQUI DENTRO
+    const toggle = document.getElementById("menuToggle");
+    const menu = document.getElementById("dropdownMenu");
+
+    toggle.addEventListener("click", e => {
+      e.stopPropagation();
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", e => {
+      if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+        menu.style.display = "none";
+      }
+    });
+  });
+</script>
 </body>
 </html>
