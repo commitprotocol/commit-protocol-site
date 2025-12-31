@@ -218,73 +218,66 @@ const feeEl = document.getElementById("commitFee");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
 
-function showPopup(msg){
-  popupMessage.textContent = msg;
-  popup.classList.add("show");
-}
-
-function hidePopup(){
-  popup.classList.remove("show");
-}
+function showPopup(msg){ popupMessage.textContent = msg; popup.classList.add("show"); }
+function hidePopup(){ popup.classList.remove("show"); }
 
 function normalizeText() {
   const raw = messageInput.value;
   let lines = [];
   raw.split("\n").forEach(line => {
-    while (line.length > MAX_LINE_LENGTH) {
+    while(line.length > MAX_LINE_LENGTH){
       lines.push(line.slice(0, MAX_LINE_LENGTH));
       line = line.slice(MAX_LINE_LENGTH);
     }
     lines.push(line);
   });
-
-  if (lines.length > MAX_LINES) lines = lines.slice(0, MAX_LINES);
+  if(lines.length > MAX_LINES) lines = lines.slice(0, MAX_LINES);
   const finalText = lines.join("\n");
-
-  if (finalText !== messageInput.value) {
+  if(finalText !== messageInput.value){
     const pos = messageInput.selectionStart;
     messageInput.value = finalText;
     messageInput.selectionStart = messageInput.selectionEnd = pos;
   }
-
   charCountEl.textContent = finalText.length;
   lineCountEl.textContent = lines.length;
 
-  const canCommit =
-    currentAccount &&
-    currentChainId === BASE_CHAIN_ID &&
-    finalText.length > 0 &&
-    finalText.length <= MAX_CHARS &&
-    lines.length <= MAX_LINES;
+  const canCommit = currentAccount && currentChainId === BASE_CHAIN_ID && finalText.length > 0 && finalText.length <= MAX_CHARS && lines.length <= MAX_LINES;
+  commitBtn.disabled = !canCommit || (commitFee && signer && canCommit && !hasEnoughFunds());
+}
 
-  commitBtn.disabled = !canCommit;
+function hasEnoughFunds(){
+  return provider && signer && commitFee ? provider.getBalance(currentAccount).then(b => b.gte(commitFee)) : true;
 }
 
 messageInput.addEventListener("input", normalizeText);
 
-async function initWeb3() {
-  if (!window.ethereum) throw new Error("MetaMask not found");
+async function initWeb3(){
+  if(!window.ethereum) throw new Error("MetaMask not found");
 
-  const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+  const accounts = await window.ethereum.request({ method:"eth_requestAccounts" });
   currentAccount = accounts[0];
   walletText.textContent = currentAccount;
 
-  currentChainId = await window.ethereum.request({ method: "eth_chainId" });
-
-  if (currentChainId !== BASE_CHAIN_ID) {
-    await window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: BASE_CHAIN_ID }]
-    });
-    currentChainId = BASE_CHAIN_ID;
+  currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+  if(currentChainId !== BASE_CHAIN_ID){
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BASE_CHAIN_ID }] });
+      currentChainId = BASE_CHAIN_ID;
+    } catch(err){ showPopup("Please switch your MetaMask to Base Mainnet"); throw err; }
   }
 
   provider = new ethers.providers.Web3Provider(window.ethereum);
   signer = provider.getSigner();
   contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
-  commitFee = await contract.COMMIT_FEE();
-  feeEl.textContent = ethers.utils.formatEther(commitFee);
+  try{
+    commitFee = await contract.COMMIT_FEE();
+    feeEl.textContent = ethers.utils.formatEther(commitFee);
+  } catch(e){
+    console.error(e);
+    feeEl.textContent = "–";
+    commitBtn.disabled = true;
+  }
 
   normalizeText();
 }
@@ -294,32 +287,56 @@ connectBtn.onclick = async () => {
     await initWeb3();
     connectBtn.textContent = "Wallet Connected";
     connectBtn.disabled = true;
-  } catch (e) {
+  } catch(e){
+    console.error(e);
     showPopup("Wallet connection failed or wrong network");
   }
 };
 
 commitBtn.onclick = async () => {
+  if(!contract) return showPopup("Wallet not connected");
   const message = messageInput.value.trim();
-  if (!message) return showPopup("Message is empty");
+  if(message.length === 0) return showPopup("Message is empty");
 
-  commitBtn.classList.add("loading");
   commitBtn.disabled = true;
+  commitBtn.classList.add("loading");
   statusEl.textContent = "Sending transaction...";
 
   try {
     const tx = await contract.commit(message, { value: commitFee });
-    await tx.wait();
-    statusEl.textContent = "✅ Commit successful!";
+
+    statusEl.textContent = "Transaction sent! Waiting for confirmation...";
+   const receipt = await Promise.race([
+      tx.wait(),
+      new Promise((_, reject) => setTimeout(() => reject({ code: "TX_TIMEOUT" }), 120000))
+    ]);
+
+    statusEl.textContent = `✅ Commit successful! TxHash: ${tx.hash}`;
     messageInput.value = "";
     normalizeText();
-  } catch (e) {
-    statusEl.textContent = "❌ Commit failed";
+  } catch(e){
+    console.error(e);
+
+    let shortMessage = "Commit failed";
+    if(e.code === "INSUFFICIENT_FUNDS") shortMessage += ": insufficient funds";
+    else if(e.code === 4001) shortMessage += ": transaction rejected";
+    else if(e.code === "TX_TIMEOUT") shortMessage += ": transaction timeout";
+    else if(e.reason) shortMessage += ": " + e.reason;
+    else if(e.message) shortMessage += ": " + e.message.split("\n")[0];
+
+    statusEl.textContent = "❌ " + shortMessage;
   } finally {
-    commitBtn.classList.remove("loading");
     commitBtn.disabled = false;
+    commitBtn.classList.remove("loading");
   }
 };
+
+setInterval(async () => {
+  if(provider && currentAccount && commitFee){
+    const balance = await provider.getBalance(currentAccount);
+    commitBtn.disabled = !balance.gte(commitFee);
+  }
+}, 5000);
 </script>
 
 <script>
