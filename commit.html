@@ -311,7 +311,7 @@ commitBtn.onclick = async () => {
       new Promise((_, reject) => setTimeout(() => reject({ code: "TX_TIMEOUT" }), 120000))
     ]);
 
-    statusEl.textContent = `✅ Commit successful! TxHash: ${tx.hash}`;
+    statusEl.textContent = `Commit successful! TxHash: ${tx.hash}`;
     messageInput.value = "";
     normalizeText();
   } catch(e){
@@ -324,7 +324,7 @@ commitBtn.onclick = async () => {
     else if(e.reason) shortMessage += ": " + e.reason;
     else if(e.message) shortMessage += ": " + e.message.split("\n")[0];
 
-    statusEl.textContent = "❌ " + shortMessage;
+    statusEl.textContent = shortMessage;
   } finally {
     commitBtn.disabled = false;
     commitBtn.classList.remove("loading");
