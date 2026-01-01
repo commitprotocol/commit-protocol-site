@@ -106,6 +106,50 @@ button:disabled {
   word-break:break-all;
 }
 
+#popup {
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#161b22;
+  color:#fff;
+  padding:16px 24px;
+  border-radius:14px;
+  border:1px solid #30363d;
+  box-shadow:0 10px 40px rgba(0,0,0,.8);
+  display:none;
+  z-index:1000;
+}
+
+#popup.show { display:block; }
+
+#popup button { margin-top:12px; }
+
+button.loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+button.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border: 3px solid #000;
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 #previewSection {
   display:none;
   margin-top:18px;
@@ -172,6 +216,10 @@ button:disabled {
 
 </article>
 </main>
+<div id="popup">
+  <div id="popupMessage"></div>
+  <button onclick="hidePopup()">Close</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
@@ -200,6 +248,9 @@ const previewError = document.getElementById("previewError");
 const walletText = document.getElementById("wallet");
 const statusEl = document.getElementById("status");
 const feeEl = document.getElementById("commitFee");
+
+function showPopup(msg){ popupMessage.textContent = msg; popup.classList.add("show"); }
+function hidePopup(){ popup.classList.remove("show"); }
 
 /* ========= ASCII VALIDATION (ALIGNED WITH CONTRACT) ========= */
 
