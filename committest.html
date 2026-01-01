@@ -62,6 +62,7 @@ textarea {
   font-family:JetBrains Mono, monospace;
   font-size:14px;
   line-height:20px;
+  white-space:pre;
 }
 
 #lineInfo {
@@ -404,14 +405,26 @@ commitBtn.onclick = async () => {
   statusEl.textContent = "Commit successful";
 };
 </script>
-
 <script>
 fetch("/menu.html")
   .then(r => r.text())
   .then(html => {
     document.getElementById("global-menu").innerHTML = html;
+
+    const toggle = document.getElementById("menuToggle");
+    const menu = document.getElementById("dropdownMenu");
+
+    toggle.addEventListener("click", e => {
+      e.stopPropagation();
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", e => {
+      if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+        menu.style.display = "none";
+      }
+    });
   });
 </script>
-
 </body>
 </html>
