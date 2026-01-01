@@ -233,32 +233,32 @@ function clearError(){
 
 /* ========= TEXT NORMALIZATION + HARD LIMIT ========= */
 
-function normalizeText(){
-  let value = messageInput.value;
-
-  if (value.length > MAX_CHARS) {
-    value = value.slice(0, MAX_CHARS);
-    messageInput.value = value;
-  }
-
-  const lines = value.split("\n");
-  let fixedLines = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    fixedLines.push(lines[i].slice(0, MAX_LINE_LENGTH));
-    if (fixedLines.length === MAX_LINES) break;
-  }
-
-  const finalText = fixedLines.join("\n");
-
-  if (finalText !== messageInput.value) {
+function normalizeText() {
+  const raw = messageInput.value;
+  let lines = [];
+  raw.split("\n").forEach(line => {
+    while(line.length > MAX_LINE_LENGTH){
+      lines.push(line.slice(0, MAX_LINE_LENGTH));
+      line = line.slice(MAX_LINE_LENGTH);
+    }
+    lines.push(line);
+  });
+  if(lines.length > MAX_LINES) lines = lines.slice(0, MAX_LINES);
+  const finalText = lines.join("\n");
+  if(finalText !== messageInput.value){
     const pos = messageInput.selectionStart;
     messageInput.value = finalText;
     messageInput.selectionStart = messageInput.selectionEnd = pos;
   }
-
   charCountEl.textContent = finalText.length;
-  lineCountEl.textContent = fixedLines.length;
+  lineCountEl.textContent = lines.length;
+
+  const canCommit = currentAccount && currentChainId === BASE_CHAIN_ID && finalText.length > 0 && finalText.length <= MAX_CHARS && lines.length <= MAX_LINES;
+  commitBtn.disabled = !canCommit || (commitFee && signer && canCommit && !hasEnoughFunds());
+}
+
+function hasEnoughFunds(){
+  return provider && signer && commitFee ? provider.getBalance(currentAccount).then(b => b.gte(commitFee)) : true;
 }
 
   const invalid = findInvalidChar(raw);
@@ -402,37 +402,82 @@ previewBtn.onclick = () => {
 /* ========= WALLET ========= */
 
 connectBtn.onclick = async () => {
-  const accounts = await ethereum.request({ method:"eth_requestAccounts" });
-  currentAccount = accounts[0];
-  walletText.textContent = currentAccount;
-
-  currentChainId = await ethereum.request({ method:"eth_chainId" });
-  if(currentChainId !== BASE_CHAIN_ID)
-    await ethereum.request({ method:"wallet_switchEthereumChain", params:[{chainId:BASE_CHAIN_ID}] });
-
-  provider = new ethers.providers.Web3Provider(ethereum);
-  signer = provider.getSigner();
-  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-  commitFee = await contract.COMMIT_FEE();
-  feeEl.textContent = ethers.utils.formatEther(commitFee);
-
-  connectBtn.textContent = "Wallet Connected";
-  connectBtn.disabled = true;
+  try {
+    await initWeb3();
+    connectBtn.textContent = "Wallet Connected";
+    connectBtn.disabled = true;
+  } catch(e){
+    console.error(e);
+    showPopup("Wallet connection failed or wrong network");
+  }
 };
 
 commitBtn.onclick = async () => {
+  if(!contract) return showPopup("Wallet not connected");
+  const message = messageInput.value.trim();
+  if(message.length === 0) return showPopup("Message is empty");
+
+  commitBtn.disabled = true;
+  commitBtn.classList.add("loading");
   statusEl.textContent = "Sending transaction...";
-  const tx = await contract.commit(messageInput.value, { value: commitFee });
-  await tx.wait();
-  statusEl.textContent = "Commit successful";
+
+  try {
+    const tx = await contract.commit(message, { value: commitFee });
+
+    statusEl.textContent = "Transaction sent! Waiting for confirmation...";
+   const receipt = await Promise.race([
+      tx.wait(),
+      new Promise((_, reject) => setTimeout(() => reject({ code: "TX_TIMEOUT" }), 120000))
+    ]);
+
+    statusEl.textContent = `Commit successful! TxHash: ${tx.hash}`;
+    messageInput.value = "";
+    normalizeText();
+  } catch(e){
+    console.error(e);
+
+    let shortMessage = "Commit failed";
+    if(e.code === "INSUFFICIENT_FUNDS") shortMessage += ": insufficient funds";
+    else if(e.code === 4001) shortMessage += ": transaction rejected";
+    else if(e.code === "TX_TIMEOUT") shortMessage += ": transaction timeout";
+    else if(e.reason) shortMessage += ": " + e.reason;
+    else if(e.message) shortMessage += ": " + e.message.split("\n")[0];
+
+    statusEl.textContent = shortMessage;
+  } finally {
+    commitBtn.disabled = false;
+    commitBtn.classList.remove("loading");
+  }
 };
+
+setInterval(async () => {
+  if(provider && currentAccount && commitFee){
+    const balance = await provider.getBalance(currentAccount);
+    commitBtn.disabled = !balance.gte(commitFee);
+  }
+}, 5000);
 </script>
 
 <script>
 fetch("/menu.html")
   .then(r => r.text())
-  .then(html => document.getElementById("global-menu").innerHTML = html);
+  .then(html => {
+    document.getElementById("global-menu").innerHTML = html;
+
+    const toggle = document.getElementById("menuToggle");
+    const menu = document.getElementById("dropdownMenu");
+
+    toggle.addEventListener("click", e => {
+      e.stopPropagation();
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", e => {
+      if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+        menu.style.display = "none";
+      }
+    });
+  });
 </script>
 
 </body>
