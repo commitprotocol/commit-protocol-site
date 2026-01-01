@@ -140,7 +140,12 @@ button:disabled {
 </header>
 
 <section>
-  <textarea id="commitMessage" placeholder="21 lines · 49 chars per line · total 1049 chars"></textarea>
+  <textarea
+    id="commitMessage"
+    maxlength="1049"
+    placeholder="21 lines · 49 chars per line · total 1049 chars">
+  </textarea>
+
   <div id="lineInfo">
     Lines: <span id="lineCount">0</span> / 21 |
     Chars: <span id="charCount">0</span> / 1049
@@ -152,7 +157,7 @@ button:disabled {
 <section id="previewSection">
   <div style="font-size:12px;opacity:.7;margin-bottom:6px;">NFT Preview</div>
   <img id="nftPreview">
-  <div id="previewError">Layout inválido. Ajuste o texto antes de commitar.</div>
+  <div id="previewError">Invalid layout. Adjust the text before committing.</div>
 </section>
 
 <section>
@@ -200,7 +205,7 @@ const walletText = document.getElementById("wallet");
 const statusEl = document.getElementById("status");
 const feeEl = document.getElementById("commitFee");
 
-/* ========= ASCII VALIDATION (ALIGNED WITH CONTRACT) ========= */
+/* ========= ASCII VALIDATION ========= */
 
 function findInvalidChar(text){
   for(let i=0;i<text.length;i++){
@@ -215,11 +220,7 @@ function findInvalidChar(text){
 }
 
 function showInvalidCharError(info){
-  statusEl.innerHTML = `
-    ❌ Invalid character:
-    <strong style="color:#ff7b72;">${info.char}</strong>
-    (U+${info.code.toString(16).toUpperCase().padStart(4,"0")})
-  `;
+  statusEl.innerHTML = `❌ Invalid character: <strong style="color:#ff7b72;">${info.char}</strong> (U+${info.code.toString(16).toUpperCase().padStart(4,"0")})`;
   statusEl.style.color = "#ff7b72";
   messageInput.focus();
   messageInput.setSelectionRange(info.index, info.index + 1);
@@ -230,9 +231,13 @@ function clearError(){
   statusEl.style.color = "#8b949e";
 }
 
-/* ========= TEXT NORMALIZATION ========= */
+/* ========= TEXT NORMALIZATION + HARD LIMIT ========= */
 
 function normalizeText(){
+  if(messageInput.value.length > MAX_CHARS){
+    messageInput.value = messageInput.value.slice(0, MAX_CHARS);
+  }
+
   const raw = messageInput.value;
   const lines = raw.split("\n");
 
@@ -248,6 +253,18 @@ function normalizeText(){
 
   clearError();
 }
+
+/* ========= PASTE GUARD ========= */
+
+messageInput.addEventListener("paste", e => {
+  const paste = e.clipboardData.getData("text");
+  const available = MAX_CHARS - messageInput.value.length;
+
+  if(paste.length > available){
+    e.preventDefault();
+    messageInput.value += paste.slice(0, available);
+  }
+});
 
 /* ========= VALIDATION ========= */
 
@@ -349,31 +366,21 @@ function generateSVG(text) {
 </svg>`;
 }
 
-/* ========= PREVIEW ========= */
+/* ========= EVENTS ========= */
+
+messageInput.addEventListener("input", normalizeText);
 
 previewBtn.onclick = () => {
   const text = messageInput.value.trim();
-
   const invalid = findInvalidChar(text);
-  if(invalid){
-    showInvalidCharError(invalid);
-    return;
-  }
+  if(invalid) return showInvalidCharError(invalid);
 
   const valid = isValidCommit(text);
-  const svg = generateSVG(text);
-
-  previewImg.src =
-    "data:image/svg+xml;base64," +
-    btoa(unescape(encodeURIComponent(svg)));
-
+  previewImg.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(generateSVG(text))));
   previewSection.style.display = "block";
   previewError.style.display = valid ? "none" : "block";
-
   commitBtn.disabled = !(valid && currentAccount && currentChainId === BASE_CHAIN_ID);
 };
-
-messageInput.addEventListener("input", normalizeText);
 
 /* ========= WALLET ========= */
 
@@ -408,9 +415,7 @@ commitBtn.onclick = async () => {
 <script>
 fetch("/menu.html")
   .then(r => r.text())
-  .then(html => {
-    document.getElementById("global-menu").innerHTML = html;
-  });
+  .then(html => document.getElementById("global-menu").innerHTML = html);
 </script>
 
 </body>
