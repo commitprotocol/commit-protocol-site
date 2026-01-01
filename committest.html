@@ -214,26 +214,92 @@ function isValidCommit(text){
   return text.length > 0 && text.length <= MAX_CHARS;
 }
 
-function generateSVG(text){
-  const escaped = text
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;");
+function escapeHTML(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function generateSVG(text) {
+  const escaped = escapeHTML(text);
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
   <rect width="100%" height="100%" fill="#ffffff"/>
-  <rect x="60" y="60" width="880" height="880" rx="20" fill="#0404e2"/>
+  <rect x="60" y="60" width="880" height="880" rx="20"
+        fill="#0404e2" stroke="#ffffff" stroke-width="2.5"/>
+
   <text x="500" y="150" text-anchor="middle"
-    font-family="JetBrains Mono,monospace"
-    font-size="60" fill="#ffffff">
+        style="font-family:JetBrains Mono,monospace;
+               font-size:65px;
+               fill:#ffffff;
+               letter-spacing:1px;">
     COMMIT PROTOCOL
   </text>
-  <text x="145" y="300"
-    font-family="JetBrains Mono,monospace"
-    font-size="24"
-    fill="#ffffff"
-    xml:space="preserve">${escaped}</text>
+
+  <text x="500" y="200" text-anchor="middle"
+        style="font-family:JetBrains Mono,monospace;
+               font-size:28px;
+               fill:#ffffff;">
+    IRREVERSIBLE BY DESIGN
+  </text>
+
+  <rect x="120" y="230" width="360" height="50" rx="8"
+        fill="#0404e2" stroke="#ffffff" stroke-width="2.5"/>
+  <text x="140" y="265"
+        style="font-family:monospace;
+               font-size:25px;
+               fill:#ffffff;">TYPE:</text>
+  <text x="219" y="265"
+        style="font-family:monospace;
+               font-size:30px;
+               fill:#ffffff;">IMMUTABLE LOG</text>
+
+  <rect x="510" y="230" width="360" height="50" rx="8"
+        fill="#0404e2" stroke="#ffffff" stroke-width="2.5"/>
+  <text x="530" y="265"
+        style="font-family:monospace;
+               font-size:25px;
+               fill:#ffffff;">STATUS:</text>
+  <text x="639" y="265"
+        style="font-family:monospace;
+               font-size:30px;
+               fill:#ffffff;">COMMITTED</text>
+
+  <rect x="120" y="308" width="760" height="550" rx="12"
+        fill="#0404e2" stroke="#ffffff" stroke-width="2.5"/>
+
+  <foreignObject x="145" y="310" width="720" height="560">
+    <pre xmlns="http://www.w3.org/1999/xhtml"
+         style="font-family:JetBrains Mono,monospace;
+                font-size:24px;
+                line-height:1;
+                color:#ffffff;
+                white-space:pre-wrap;">${escaped}</pre>
+  </foreignObject>
+
+  <text x="500" y="890" text-anchor="middle"
+        style="font-family:JetBrains Mono,monospace;
+               font-size:16px;
+               fill:#ffffff;">
+    initial commit - permanent record - no force push
+  </text>
+
+  <text x="500" y="915" text-anchor="middle"
+        style="font-family:JetBrains Mono,monospace;
+               font-size:16px;
+               fill:#ffffff;">
+    blockchains never forget
+  </text>
+
+  <text x="925" y="925" text-anchor="end"
+        style="font-family:JetBrains Mono,monospace;
+               font-size:10px;
+               fill:#ffffff;">
+    commit-protocol://v0
+  </text>
 </svg>`;
 }
 
