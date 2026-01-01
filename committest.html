@@ -136,16 +136,11 @@ button:disabled {
 <header>
   <img src="logo.png" class="logo">
   <h1>Commit Protocol</h1>
-  <div class="subtitle">Preview before mint - irreversible by design</div>
+  <div class="subtitle">Preview before mint · irreversible by design</div>
 </header>
 
 <section>
-  <textarea
-    id="commitMessage"
-    maxlength="1049"
-    placeholder="21 lines · 49 chars per line · total 1049 chars">
-  </textarea>
-
+  <textarea id="commitMessage" placeholder="21 lines · 49 chars per line · total 1049 chars"></textarea>
   <div id="lineInfo">
     Lines: <span id="lineCount">0</span> / 21 |
     Chars: <span id="charCount">0</span> / 1049
@@ -157,7 +152,7 @@ button:disabled {
 <section id="previewSection">
   <div style="font-size:12px;opacity:.7;margin-bottom:6px;">NFT Preview</div>
   <img id="nftPreview">
-  <div id="previewError">Invalid layout. Adjust the text before committing.</div>
+  <div id="previewError">Layout inválido. Ajuste o texto antes de commitar.</div>
 </section>
 
 <section>
@@ -205,7 +200,7 @@ const walletText = document.getElementById("wallet");
 const statusEl = document.getElementById("status");
 const feeEl = document.getElementById("commitFee");
 
-/* ========= ASCII VALIDATION ========= */
+/* ========= ASCII VALIDATION (ALIGNED WITH CONTRACT) ========= */
 
 function findInvalidChar(text){
   for(let i=0;i<text.length;i++){
@@ -220,7 +215,11 @@ function findInvalidChar(text){
 }
 
 function showInvalidCharError(info){
-  statusEl.innerHTML = `Invalid character: <strong style="color:#ff7b72;">${info.char}</strong> (U+${info.code.toString(16).toUpperCase().padStart(4,"0")})`;
+  statusEl.innerHTML = `
+    ❌ Invalid character:
+    <strong style="color:#ff7b72;">${info.char}</strong>
+    (U+${info.code.toString(16).toUpperCase().padStart(4,"0")})
+  `;
   statusEl.style.color = "#ff7b72";
   messageInput.focus();
   messageInput.setSelectionRange(info.index, info.index + 1);
@@ -231,35 +230,14 @@ function clearError(){
   statusEl.style.color = "#8b949e";
 }
 
-/* ========= TEXT NORMALIZATION + HARD LIMIT ========= */
+/* ========= TEXT NORMALIZATION ========= */
 
-function normalizeText() {
+function normalizeText(){
   const raw = messageInput.value;
-  let lines = [];
-  raw.split("\n").forEach(line => {
-    while(line.length > MAX_LINE_LENGTH){
-      lines.push(line.slice(0, MAX_LINE_LENGTH));
-      line = line.slice(MAX_LINE_LENGTH);
-    }
-    lines.push(line);
-  });
-  if(lines.length > MAX_LINES) lines = lines.slice(0, MAX_LINES);
-  const finalText = lines.join("\n");
-  if(finalText !== messageInput.value){
-    const pos = messageInput.selectionStart;
-    messageInput.value = finalText;
-    messageInput.selectionStart = messageInput.selectionEnd = pos;
-  }
-  charCountEl.textContent = finalText.length;
+  const lines = raw.split("\n");
+
+  charCountEl.textContent = raw.length;
   lineCountEl.textContent = lines.length;
-
-  const canCommit = currentAccount && currentChainId === BASE_CHAIN_ID && finalText.length > 0 && finalText.length <= MAX_CHARS && lines.length <= MAX_LINES;
-  commitBtn.disabled = !canCommit || (commitFee && signer && canCommit && !hasEnoughFunds());
-}
-
-function hasEnoughFunds(){
-  return provider && signer && commitFee ? provider.getBalance(currentAccount).then(b => b.gte(commitFee)) : true;
-}
 
   const invalid = findInvalidChar(raw);
   if(invalid){
@@ -270,18 +248,6 @@ function hasEnoughFunds(){
 
   clearError();
 }
-
-/* ========= PASTE GUARD ========= */
-
-messageInput.addEventListener("paste", e => {
-  const paste = e.clipboardData.getData("text");
-  const available = MAX_CHARS - messageInput.value.length;
-
-  if(paste.length > available){
-    e.preventDefault();
-    messageInput.value += paste.slice(0, available);
-  }
-});
 
 /* ========= VALIDATION ========= */
 
@@ -383,79 +349,60 @@ function generateSVG(text) {
 </svg>`;
 }
 
-/* ========= EVENTS ========= */
-
-messageInput.addEventListener("input", normalizeText);
+/* ========= PREVIEW ========= */
 
 previewBtn.onclick = () => {
   const text = messageInput.value.trim();
+
   const invalid = findInvalidChar(text);
-  if(invalid) return showInvalidCharError(invalid);
+  if(invalid){
+    showInvalidCharError(invalid);
+    return;
+  }
 
   const valid = isValidCommit(text);
-  previewImg.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(generateSVG(text))));
+  const svg = generateSVG(text);
+
+  previewImg.src =
+    "data:image/svg+xml;base64," +
+    btoa(unescape(encodeURIComponent(svg)));
+
   previewSection.style.display = "block";
   previewError.style.display = valid ? "none" : "block";
+
   commitBtn.disabled = !(valid && currentAccount && currentChainId === BASE_CHAIN_ID);
 };
+
+messageInput.addEventListener("input", normalizeText);
 
 /* ========= WALLET ========= */
 
 connectBtn.onclick = async () => {
-  try {
-    await initWeb3();
-    connectBtn.textContent = "Wallet Connected";
-    connectBtn.disabled = true;
-  } catch(e){
-    console.error(e);
-    showPopup("Wallet connection failed or wrong network");
-  }
+  const accounts = await ethereum.request({ method:"eth_requestAccounts" });
+  currentAccount = accounts[0];
+  walletText.textContent = currentAccount;
+
+  currentChainId = await ethereum.request({ method:"eth_chainId" });
+  if(currentChainId !== BASE_CHAIN_ID)
+    await ethereum.request({ method:"wallet_switchEthereumChain", params:[{chainId:BASE_CHAIN_ID}] });
+
+  provider = new ethers.providers.Web3Provider(ethereum);
+  signer = provider.getSigner();
+  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+  commitFee = await contract.COMMIT_FEE();
+  feeEl.textContent = ethers.utils.formatEther(commitFee);
+
+  connectBtn.textContent = "Wallet Connected";
+  connectBtn.disabled = true;
 };
 
 commitBtn.onclick = async () => {
-  if(!contract) return showPopup("Wallet not connected");
-  const message = messageInput.value.trim();
-  if(message.length === 0) return showPopup("Message is empty");
-
-  commitBtn.disabled = true;
-  commitBtn.classList.add("loading");
   statusEl.textContent = "Sending transaction...";
-
-  try {
-    const tx = await contract.commit(message, { value: commitFee });
-
-    statusEl.textContent = "Transaction sent! Waiting for confirmation...";
-   const receipt = await Promise.race([
-      tx.wait(),
-      new Promise((_, reject) => setTimeout(() => reject({ code: "TX_TIMEOUT" }), 120000))
-    ]);
-
-    statusEl.textContent = `Commit successful! TxHash: ${tx.hash}`;
-    messageInput.value = "";
-    normalizeText();
-  } catch(e){
-    console.error(e);
-
-    let shortMessage = "Commit failed";
-    if(e.code === "INSUFFICIENT_FUNDS") shortMessage += ": insufficient funds";
-    else if(e.code === 4001) shortMessage += ": transaction rejected";
-    else if(e.code === "TX_TIMEOUT") shortMessage += ": transaction timeout";
-    else if(e.reason) shortMessage += ": " + e.reason;
-    else if(e.message) shortMessage += ": " + e.message.split("\n")[0];
-
-    statusEl.textContent = shortMessage;
-  } finally {
-    commitBtn.disabled = false;
-    commitBtn.classList.remove("loading");
-  }
+  const tx = await contract.commit(messageInput.value, { value: commitFee });
+  await tx.wait();
+  statusEl.textContent = "Commit successful";
 };
-
-setInterval(async () => {
-  if(provider && currentAccount && commitFee){
-    const balance = await provider.getBalance(currentAccount);
-    commitBtn.disabled = !balance.gte(commitFee);
-  }
-}, 5000);
 </script>
 
 <script>
@@ -463,20 +410,6 @@ fetch("/menu.html")
   .then(r => r.text())
   .then(html => {
     document.getElementById("global-menu").innerHTML = html;
-
-    const toggle = document.getElementById("menuToggle");
-    const menu = document.getElementById("dropdownMenu");
-
-    toggle.addEventListener("click", e => {
-      e.stopPropagation();
-      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-    });
-
-    document.addEventListener("click", e => {
-      if (!menu.contains(e.target) && !toggle.contains(e.target)) {
-        menu.style.display = "none";
-      }
-    });
   });
 </script>
 
