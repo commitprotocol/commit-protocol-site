@@ -136,7 +136,7 @@ button:disabled {
 <header>
   <img src="logo.png" class="logo">
   <h1>Commit Protocol</h1>
-  <div class="subtitle">Preview before mint · irreversible by design</div>
+  <div class="subtitle">Preview before mint - irreversible by design</div>
 </header>
 
 <section>
@@ -220,7 +220,7 @@ function findInvalidChar(text){
 }
 
 function showInvalidCharError(info){
-  statusEl.innerHTML = `❌ Invalid character: <strong style="color:#ff7b72;">${info.char}</strong> (U+${info.code.toString(16).toUpperCase().padStart(4,"0")})`;
+  statusEl.innerHTML = `Invalid character: <strong style="color:#ff7b72;">${info.char}</strong> (U+${info.code.toString(16).toUpperCase().padStart(4,"0")})`;
   statusEl.style.color = "#ff7b72";
   messageInput.focus();
   messageInput.setSelectionRange(info.index, info.index + 1);
@@ -234,15 +234,32 @@ function clearError(){
 /* ========= TEXT NORMALIZATION + HARD LIMIT ========= */
 
 function normalizeText(){
-  if(messageInput.value.length > MAX_CHARS){
-    messageInput.value = messageInput.value.slice(0, MAX_CHARS);
+  let value = messageInput.value;
+
+  if (value.length > MAX_CHARS) {
+    value = value.slice(0, MAX_CHARS);
+    messageInput.value = value;
   }
 
-  const raw = messageInput.value;
-  const lines = raw.split("\n");
+  const lines = value.split("\n");
+  let fixedLines = [];
 
-  charCountEl.textContent = raw.length;
-  lineCountEl.textContent = lines.length;
+  for (let i = 0; i < lines.length; i++) {
+    fixedLines.push(lines[i].slice(0, MAX_LINE_LENGTH));
+    if (fixedLines.length === MAX_LINES) break;
+  }
+
+  const finalText = fixedLines.join("\n");
+
+  if (finalText !== messageInput.value) {
+    const pos = messageInput.selectionStart;
+    messageInput.value = finalText;
+    messageInput.selectionStart = messageInput.selectionEnd = pos;
+  }
+
+  charCountEl.textContent = finalText.length;
+  lineCountEl.textContent = fixedLines.length;
+}
 
   const invalid = findInvalidChar(raw);
   if(invalid){
