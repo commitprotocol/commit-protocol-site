@@ -200,12 +200,56 @@ const walletText = document.getElementById("wallet");
 const statusEl = document.getElementById("status");
 const feeEl = document.getElementById("commitFee");
 
+/* ========= ASCII VALIDATION (ALIGNED WITH CONTRACT) ========= */
+
+function findInvalidChar(text){
+  for(let i=0;i<text.length;i++){
+    const code = text.charCodeAt(i);
+    const char = text[i];
+    if(char === "\n") continue;
+    if(code < 0x20 || code > 0x7E){
+      return { char, index:i, code };
+    }
+  }
+  return null;
+}
+
+function showInvalidCharError(info){
+  statusEl.innerHTML = `
+    ❌ Invalid character:
+    <strong style="color:#ff7b72;">${info.char}</strong>
+    (U+${info.code.toString(16).toUpperCase().padStart(4,"0")})
+  `;
+  statusEl.style.color = "#ff7b72";
+  messageInput.focus();
+  messageInput.setSelectionRange(info.index, info.index + 1);
+}
+
+function clearError(){
+  statusEl.textContent = "";
+  statusEl.style.color = "#8b949e";
+}
+
+/* ========= TEXT NORMALIZATION ========= */
+
 function normalizeText(){
   const raw = messageInput.value;
   const lines = raw.split("\n");
+
   charCountEl.textContent = raw.length;
   lineCountEl.textContent = lines.length;
+
+  const invalid = findInvalidChar(raw);
+  if(invalid){
+    showInvalidCharError(invalid);
+    commitBtn.disabled = true;
+    return;
+  }
+
+  clearError();
 }
+
+/* ========= VALIDATION ========= */
 
 function isValidCommit(text){
   const lines = text.split("\n");
@@ -213,6 +257,8 @@ function isValidCommit(text){
   for(const l of lines) if(l.length > MAX_LINE_LENGTH) return false;
   return text.length > 0 && text.length <= MAX_CHARS;
 }
+
+/* ========= SVG ========= */
 
 function escapeHTML(text) {
   return text
@@ -303,8 +349,17 @@ function generateSVG(text) {
 </svg>`;
 }
 
+/* ========= PREVIEW ========= */
+
 previewBtn.onclick = () => {
   const text = messageInput.value.trim();
+
+  const invalid = findInvalidChar(text);
+  if(invalid){
+    showInvalidCharError(invalid);
+    return;
+  }
+
   const valid = isValidCommit(text);
   const svg = generateSVG(text);
 
@@ -319,6 +374,8 @@ previewBtn.onclick = () => {
 };
 
 messageInput.addEventListener("input", normalizeText);
+
+/* ========= WALLET ========= */
 
 connectBtn.onclick = async () => {
   const accounts = await ethereum.request({ method:"eth_requestAccounts" });
