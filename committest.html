@@ -392,31 +392,60 @@ messageInput.addEventListener("input", normalizeText);
 /* ========= WALLET ========= */
 
 connectBtn.onclick = async () => {
-  const accounts = await ethereum.request({ method:"eth_requestAccounts" });
-  currentAccount = accounts[0];
-  walletText.textContent = currentAccount;
-
-  currentChainId = await ethereum.request({ method:"eth_chainId" });
-  if(currentChainId !== BASE_CHAIN_ID)
-    await ethereum.request({ method:"wallet_switchEthereumChain", params:[{chainId:BASE_CHAIN_ID}] });
-
-  provider = new ethers.providers.Web3Provider(ethereum);
-  signer = provider.getSigner();
-  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-  commitFee = await contract.COMMIT_FEE();
-  feeEl.textContent = ethers.utils.formatEther(commitFee);
-
-  connectBtn.textContent = "Wallet Connected";
-  connectBtn.disabled = true;
+  try {
+    await initWeb3();
+    connectBtn.textContent = "Wallet Connected";
+    connectBtn.disabled = true;
+  } catch(e){
+    console.error(e);
+    showPopup("Wallet connection failed or wrong network");
+  }
 };
 
 commitBtn.onclick = async () => {
+  if(!contract) return showPopup("Wallet not connected");
+  const message = messageInput.value.trim();
+  if(message.length === 0) return showPopup("Message is empty");
+
+  commitBtn.disabled = true;
+  commitBtn.classList.add("loading");
   statusEl.textContent = "Sending transaction...";
-  const tx = await contract.commit(messageInput.value, { value: commitFee });
-  await tx.wait();
-  statusEl.textContent = "Commit successful";
+
+  try {
+    const tx = await contract.commit(message, { value: commitFee });
+
+    statusEl.textContent = "Transaction sent! Waiting for confirmation...";
+   const receipt = await Promise.race([
+      tx.wait(),
+      new Promise((_, reject) => setTimeout(() => reject({ code: "TX_TIMEOUT" }), 120000))
+    ]);
+
+    statusEl.textContent = `Commit successful! TxHash: ${tx.hash}`;
+    messageInput.value = "";
+    normalizeText();
+  } catch(e){
+    console.error(e);
+
+    let shortMessage = "Commit failed";
+    if(e.code === "INSUFFICIENT_FUNDS") shortMessage += ": insufficient funds";
+    else if(e.code === 4001) shortMessage += ": transaction rejected";
+    else if(e.code === "TX_TIMEOUT") shortMessage += ": transaction timeout";
+    else if(e.reason) shortMessage += ": " + e.reason;
+    else if(e.message) shortMessage += ": " + e.message.split("\n")[0];
+
+    statusEl.textContent = shortMessage;
+  } finally {
+    commitBtn.disabled = false;
+    commitBtn.classList.remove("loading");
+  }
 };
+
+setInterval(async () => {
+  if(provider && currentAccount && commitFee){
+    const balance = await provider.getBalance(currentAccount);
+    commitBtn.disabled = !balance.gte(commitFee);
+  }
+}, 5000);
 </script>
 <script>
 fetch("/menu.html")
