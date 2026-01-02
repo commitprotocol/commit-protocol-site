@@ -447,25 +447,26 @@ async function initWeb3() {
     throw new Error("No wallet found");
   }
 
-  provider = new ethers.providers.Web3Provider(window.ethereum);
+  const currentChain = await window.ethereum.request({
+    method: "eth_chainId"
+  });
 
-  const accounts = await provider.send("eth_requestAccounts", []);
+  if (currentChain !== BASE_CHAIN_ID) {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: BASE_CHAIN_ID }]
+    });
+  }
+
+  provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+
+  await provider.send("eth_requestAccounts", []);
+
   signer = provider.getSigner();
   currentAccount = await signer.getAddress();
 
   const network = await provider.getNetwork();
   currentChainId = "0x" + network.chainId.toString(16);
-
-  if (currentChainId !== BASE_CHAIN_ID) {
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: BASE_CHAIN_ID }]
-      });
-    } catch (e) {
-      throw new Error("Wrong network");
-    }
-  }
 
   contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
   commitFee = await contract.COMMIT_FEE();
