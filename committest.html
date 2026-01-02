@@ -476,6 +476,16 @@ async function initWeb3() {
 
   commitBtn.disabled = !isValidCommit(messageInput.value);
 }
+
+if (window.ethereum) {
+  ethereum.on("accountsChanged", () => {
+    location.reload();
+  });
+
+  ethereum.on("chainChanged", () => {
+    location.reload();
+  });
+}
   
 connectBtn.onclick = async () => {
   try {
