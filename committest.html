@@ -224,6 +224,7 @@ button.loading::after {
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
 <script>
+/* ================= CONFIG ================= */
 const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
@@ -234,12 +235,14 @@ const MAX_LINES = 21;
 const MAX_LINE_LENGTH = 49;
 const MAX_CHARS = 1049;
 
+/* ================= ELEMENTS ================= */
 let provider, signer, contract, currentAccount, currentChainId, commitFee;
 let previewIsValid = false;
 
 const messageInput = document.getElementById("commitMessage");
 const charCountEl = document.getElementById("charCount");
 const lineCountEl = document.getElementById("lineCount");
+const byteCountEl = document.getElementById("byteCount"); // novo
 const commitBtn = document.getElementById("commit");
 const connectBtn = document.getElementById("connect");
 const previewBtn = document.getElementById("generatePreview");
@@ -252,50 +255,18 @@ const feeEl = document.getElementById("commitFee");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
 
+/* ================= POPUP ================= */
 function showPopup(msg){ popupMessage.textContent = msg; popup.classList.add("show"); }
 function hidePopup(){ popup.classList.remove("show"); }
 
-/* ========= ASCII VALIDATION (ALIGNED WITH CONTRACT) ========= */
-
-function findInvalidChar(text){
-  for(let i=0;i<text.length;i++){
-    const code = text.charCodeAt(i);
-    const char = text[i];
-    if(char === "\n") continue;
-    if(code < 0x20 || code > 0x7E){
-      return { char, index:i, code };
-    }
-  }
-  return null;
-}
-
-function showInvalidCharError(info){
-  statusEl.innerHTML = `
-    Invalid character:
-    <strong style="color:#ff7b72;">${info.char}</strong>
-    (U+${info.code.toString(16).toUpperCase().padStart(4,"0")})
-  `;
-  statusEl.style.color = "#ff7b72";
-  messageInput.focus();
-  messageInput.setSelectionRange(info.index, info.index + 1);
-}
-
-function clearError(){
-  statusEl.textContent = "";
-  statusEl.style.color = "#8b949e";
-}
-
-/* ========= TEXT NORMALIZATION ========= */
-
+/* ================= NORMALIZE TEXT ================= */
 function normalizeText() {
   const raw = messageInput.value;
   let lines = raw.split("\n");
 
   // Quebra linhas que passam do limite
   let newLines = [];
-  let warnings = [];
   for (let line of lines) {
-    if(line.length > MAX_LINE_LENGTH) warnings.push("Some lines exceed max length (49 chars)");
     while (line.length > MAX_LINE_LENGTH) {
       newLines.push(line.slice(0, MAX_LINE_LENGTH));
       line = line.slice(MAX_LINE_LENGTH);
@@ -304,15 +275,15 @@ function normalizeText() {
   }
 
   // Limita o número de linhas
-  if (newLines.length > MAX_LINES) warnings.push("Max 21 lines allowed");
   if (newLines.length > MAX_LINES) newLines = newLines.slice(0, MAX_LINES);
 
   let finalText = newLines.join("\n");
 
   // Limita o total de bytes (UTF-8)
-  while (new TextEncoder().encode(finalText).length > MAX_CHARS) {
+  let bytesLength = new TextEncoder().encode(finalText).length;
+  while (bytesLength > MAX_CHARS) {
     finalText = finalText.slice(0, -1);
-    if(!warnings.includes("Total size exceeds 1049 bytes")) warnings.push("Total size exceeds 1049 bytes");
+    bytesLength = new TextEncoder().encode(finalText).length;
   }
 
   if (finalText !== messageInput.value) {
@@ -324,9 +295,14 @@ function normalizeText() {
   // Atualiza contadores
   charCountEl.textContent = finalText.length;
   lineCountEl.textContent = newLines.length;
+  byteCountEl.textContent = bytesLength;
 
-  // Mostra warnings
-  if(warnings.length > 0){
+  // Mostra warnings se ultrapassar limites
+  let warnings = [];
+  if (newLines.length >= MAX_LINES) warnings.push("Max 21 lines reached");
+  if (bytesLength >= MAX_CHARS) warnings.push("Max 1049 bytes reached");
+
+  if (warnings.length > 0) {
     statusEl.innerHTML = warnings.join("<br>");
     statusEl.style.color = "#ff7b72";
   } else {
@@ -337,22 +313,14 @@ function normalizeText() {
   updateCommitButton();
 }
 
-/* ========= VALIDATION ========= */
-
+/* ================= UPDATE BUTTON ================= */
 function isValidCommit(text){
-  const lines = text.split("\n");
-  if(lines.length > MAX_LINES) return false;
-  for(const l of lines) if(l.length > MAX_LINE_LENGTH) return false;
   return text.length > 0 && text.length <= MAX_CHARS;
 }
 
 function updateCommitButton() {
   const text = messageInput.value.trim();
-
-  const hasInvalidChar = !!findInvalidChar(text);
-  const validLayout = isValidCommit(text);
-
-  previewIsValid = !hasInvalidChar && validLayout;
+  previewIsValid = isValidCommit(text);
 
   commitBtn.disabled = !(
     previewIsValid &&
@@ -361,8 +329,7 @@ function updateCommitButton() {
   );
 }
 
-/* ========= SVG ========= */
-
+/* ================= SVG PREVIEW ================= */
 function escapeHTML(text) {
   return text
     .replace(/&/g, "&amp;")
@@ -377,8 +344,7 @@ function generateSVG(text) {
   return `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
   <rect width="100%" height="100%" fill="#ffffff"/>
-  <rect x="60" y="60" width="880" height="880" rx="20"
-        fill="#0404e2" stroke="#ffffff" stroke-width="2.5"/>
+  <rect x="60" y="60" width="880" height="880" rx="20" fill="#0404e2" stroke="#ffffff" stroke-width="2.5"/>
 
   <text x="500" y="150" text-anchor="middle"
         style="font-family:JetBrains Mono,monospace;
@@ -452,53 +418,27 @@ function generateSVG(text) {
 </svg>`;
 }
 
-/* ========= PREVIEW ========= */
-
+/* ================= PREVIEW ================= */
 previewBtn.onclick = () => {
   const text = messageInput.value.trim();
-
-  const invalid = findInvalidChar(text);
-  if(invalid){
-    showInvalidCharError(invalid);
-    return;
-  }
-
-  const valid = isValidCommit(text);
   const svg = generateSVG(text);
 
-  previewImg.src =
-    "data:image/svg+xml;base64," +
-    btoa(unescape(encodeURIComponent(svg)));
-
+  previewImg.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
   previewSection.style.display = "block";
-  previewError.style.display = valid ? "none" : "block";
 
-  previewIsValid = valid && !invalid;
-updateCommitButton();
+  normalizeText();
 };
 
-messageInput.addEventListener("input", normalizeText);
-
-/* ========= WALLET ========= */
-
+/* ================= WALLET ================= */
 async function initWeb3() {
-  if (!window.ethereum) {
-    throw new Error("No wallet found");
-  }
+  if (!window.ethereum) throw new Error("No wallet found");
 
-  const currentChain = await window.ethereum.request({
-    method: "eth_chainId"
-  });
-
+  const currentChain = await window.ethereum.request({ method: "eth_chainId" });
   if (currentChain !== BASE_CHAIN_ID) {
-    await window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: BASE_CHAIN_ID }]
-    });
+    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BASE_CHAIN_ID }] });
   }
 
   provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-
   await provider.send("eth_requestAccounts", []);
 
   signer = provider.getSigner();
@@ -517,15 +457,10 @@ async function initWeb3() {
 }
 
 if (window.ethereum) {
-  ethereum.on("accountsChanged", () => {
-    location.reload();
-  });
-
-  ethereum.on("chainChanged", () => {
-    location.reload();
-  });
+  ethereum.on("accountsChanged", () => location.reload());
+  ethereum.on("chainChanged", () => location.reload());
 }
-  
+
 connectBtn.onclick = async () => {
   try {
     await initWeb3();
@@ -537,8 +472,10 @@ connectBtn.onclick = async () => {
   }
 };
 
+/* ================= COMMIT ================= */
 commitBtn.onclick = async () => {
   if(!contract) return showPopup("Wallet not connected");
+
   const message = messageInput.value.trim();
   if(message.length === 0) return showPopup("Message is empty");
 
@@ -549,28 +486,20 @@ commitBtn.onclick = async () => {
   try {
     const tx = await contract.commit(message, { value: commitFee });
 
-    // Mostra link da transação imediatamente
     statusEl.innerHTML = `
       Transaction sent!<br>
       TxHash:
-      <a href="https://basescan.org/tx/${tx.hash}" target="_blank" style="color:#58a6ff">
-        ${tx.hash}
-      </a>
+      <a href="https://basescan.org/tx/${tx.hash}" target="_blank" style="color:#58a6ff">${tx.hash}</a>
     `;
 
-    // Espera a confirmação sem travar a UI
-    tx.wait().then(() => {
-      statusEl.innerHTML += `<br>Commit confirmed ✔️`;
-      messageInput.value = "";
-      normalizeText();
-    }).catch(waitErr => {
-      console.error(waitErr);
-      statusEl.innerHTML += `<br>Commit confirmation failed ❌`;
-    });
-    
-  } catch(e){
-    console.error(e);
+    await tx.wait();
 
+    statusEl.innerHTML += `<br>Commit confirmed ✔️`;
+    messageInput.value = "";
+    normalizeText();
+
+  } catch(e) {
+    console.error(e);
     let shortMessage = "Commit failed";
     if(e.code === "INSUFFICIENT_FUNDS") shortMessage += ": insufficient funds";
     else if(e.code === 4001) shortMessage += ": transaction rejected";
@@ -580,10 +509,13 @@ commitBtn.onclick = async () => {
 
     statusEl.textContent = shortMessage;
   } finally {
-  commitBtn.classList.remove("loading");
-  updateCommitButton();
-}
+    commitBtn.classList.remove("loading");
+    updateCommitButton();
+  }
 };
+
+/* ================= INPUT LISTENER ================= */
+messageInput.addEventListener("input", normalizeText);
 
 </script>
 <script>
