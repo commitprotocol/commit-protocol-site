@@ -493,11 +493,19 @@ commitBtn.onclick = async () => {
       <a href="https://basescan.org/tx/${tx.hash}" target="_blank" style="color:#58a6ff">${tx.hash}</a>
     `;
 
-    await tx.wait();
+    const receipt = await tx.wait();
 
-    statusEl.innerHTML += `<br>Commit confirmed ✔️`;
+if(receipt && receipt.status === 1){
+    statusEl.innerHTML = `
+      Transaction confirmed! ✔️<br>
+      TxHash:
+      <a href="https://basescan.org/tx/${tx.hash}" target="_blank" style="color:#58a6ff">${tx.hash}</a>
+    `;
     messageInput.value = "";
     normalizeText();
+} else {
+    statusEl.textContent = "Transaction failed ❌";
+}
 
   } catch(e) {
     console.error(e);
