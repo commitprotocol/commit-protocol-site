@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta http-equiv="Content-Security-Policy"
+content="
+default-src 'self';
+script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+font-src https://fonts.gstatic.com;
+img-src 'self' data:;
+connect-src 'self'
+https://basescan.org
+https://*.base.org
+https://*.alchemy.com
+https://*.infura.io
+https://rpc.ankr.com
+https://cloudflare-eth.com;
+object-src 'none';
+base-uri 'none';
+frame-ancestors 'none';
+">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
 <link rel="stylesheet" href="/menu.css">
 <meta charset="UTF-8">
 <title>Mint a Commit - Commit Protocol</title>
@@ -222,9 +242,44 @@ button.loading::after {
   <button onclick="hidePopup()">Close</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script
+  src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"
+  integrity="sha384-KP5wYpJp8qzJ0XU5zTh0VqxGNzcRCjSc5MiNmiY6L0H944kaW1YHlzTH0jzZMfjc"
+  crossorigin="anonymous">
+</script>
 
 <script>
+  
+/* ================= SECURITY ================= */
+
+let txInProgress = false;
+
+function setStatusText(text, color = "#8b949e") {
+  statusEl.textContent = text;
+  statusEl.style.color = color;
+}
+
+function setTxStatus(label, txHash) {
+  statusEl.textContent = label + " — TxHash: ";
+
+  const a = document.createElement("a");
+  a.href = `https://basescan.org/tx/${txHash}`;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.style.color = "#58a6ff";
+  a.textContent = txHash;
+
+  statusEl.appendChild(a);
+}
+
+function assertEthereum() {
+  if (!window.ethereum || typeof window.ethereum.request !== "function") {
+    throw new Error("Ethereum provider not available");
+  }
+}
+
+/* ============================================ */
+
 const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
@@ -295,8 +350,7 @@ function normalizeText() {
   if (bytesLength >= MAX_CHARS) warnings.push("Max 1049 bytes reached");
 
   if (warnings.length > 0) {
-    statusEl.innerHTML = warnings.join("<br>");
-    statusEl.style.color = "#ff7b72";
+    setStatusText(warnings.join(" | "), "#ff7b72");
   } else {
     statusEl.textContent = "";
     statusEl.style.color = "#8b949e";
@@ -419,7 +473,7 @@ previewBtn.onclick = () => {
 };
 
 async function initWeb3() {
-  if (!window.ethereum) throw new Error("No wallet found");
+  assertEthereum();
 
   const currentChain = await window.ethereum.request({ method: "eth_chainId" });
   if (currentChain !== BASE_CHAIN_ID) {
@@ -461,54 +515,45 @@ connectBtn.onclick = async () => {
 };
 
 commitBtn.onclick = async () => {
-  if(!contract) return showPopup("Wallet not connected");
+  if (txInProgress) return;
+  if (!contract) return showPopup("Wallet not connected");
 
   const message = messageInput.value.trim();
-  if(message.length === 0) return showPopup("Message is empty");
+  if (!message) return showPopup("Message is empty");
 
+  txInProgress = true;
   commitBtn.disabled = true;
   commitBtn.classList.add("loading");
-  statusEl.textContent = "Sending transaction...";
+
+  setStatusText("Sending transaction...");
 
   try {
     const tx = await contract.commit(message, { value: commitFee });
 
-    statusEl.innerHTML = `
-      Transaction sent!<br>
-      TxHash:
-      <a href="https://basescan.org/tx/${tx.hash}" target="_blank" style="color:#58a6ff">${tx.hash}</a>
-    `;
+    setTxStatus("Transaction sent!", tx.hash);
 
     const receipt = await tx.wait();
 
-if (receipt && receipt.status === 1) {
-  statusEl.innerHTML = `
-    Transaction confirmed! ✔️<br>
-    TxHash:
-    <a href="https://basescan.org/tx/${tx.hash}" target="_blank" style="color:#58a6ff">${tx.hash}</a>
-  `;
+    if (receipt && receipt.status === 1) {
+      setTxStatus("Transaction confirmed! ✔️", tx.hash);
 
-  messageInput.value = "";
+      messageInput.value = "";
+      charCountEl.textContent = "0";
+      lineCountEl.textContent = "0";
+      byteCountEl.textContent = "0";
+    } else {
+      setStatusText("Transaction failed ❌", "#ff7b72");
+    }
 
-  charCountEl.textContent = "0";
-  lineCountEl.textContent = "0";
-  byteCountEl.textContent = "0";
-
-} else {
-  statusEl.textContent = "Transaction failed ❌";
-}
-
-  } catch(e) {
+  } catch (e) {
     console.error(e);
-    let shortMessage = "Commit failed";
-    if(e.code === "INSUFFICIENT_FUNDS") shortMessage += ": insufficient funds";
-    else if(e.code === 4001) shortMessage += ": transaction rejected";
-    else if(e.code === "TX_TIMEOUT") shortMessage += ": transaction timeout";
-    else if(e.reason) shortMessage += ": " + e.reason;
-    else if(e.message) shortMessage += ": " + e.message.split("\n")[0];
+    let msg = "Commit failed";
+    if (e.code === 4001) msg += ": transaction rejected";
+    else if (e.reason) msg += ": " + e.reason;
+    setStatusText(msg, "#ff7b72");
 
-    statusEl.textContent = shortMessage;
   } finally {
+    txInProgress = false;
     commitBtn.classList.remove("loading");
     updateCommitButton();
   }
@@ -521,7 +566,13 @@ messageInput.addEventListener("input", normalizeText);
 fetch("/menu.html")
   .then(r => r.text())
   .then(html => {
-    document.getElementById("global-menu").innerHTML = html;
+    const container = document.getElementById("global-menu");
+container.replaceChildren();
+
+const temp = document.createElement("div");
+temp.innerHTML = html;
+container.appendChild(temp);
+
 
     const toggle = document.getElementById("menuToggle");
     const menu = document.getElementById("dropdownMenu");
