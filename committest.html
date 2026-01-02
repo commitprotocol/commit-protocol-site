@@ -289,30 +289,52 @@ function clearError(){
 
 function normalizeText() {
   const raw = messageInput.value;
-  let lines = [];
-  raw.split("\n").forEach(line => {
-    while(line.length > MAX_LINE_LENGTH){
-      lines.push(line.slice(0, MAX_LINE_LENGTH));
+  let lines = raw.split("\n");
+
+  // Quebra linhas que passam do limite
+  let newLines = [];
+  let warnings = [];
+  for (let line of lines) {
+    if(line.length > MAX_LINE_LENGTH) warnings.push("Some lines exceed max length (49 chars)");
+    while (line.length > MAX_LINE_LENGTH) {
+      newLines.push(line.slice(0, MAX_LINE_LENGTH));
       line = line.slice(MAX_LINE_LENGTH);
     }
-    lines.push(line);
-  });
-  if(lines.length > MAX_LINES) lines = lines.slice(0, MAX_LINES);
-  const finalText = lines.join("\n");
-  if(finalText !== messageInput.value){
+    newLines.push(line);
+  }
+
+  // Limita o número de linhas
+  if (newLines.length > MAX_LINES) warnings.push("Max 21 lines allowed");
+  if (newLines.length > MAX_LINES) newLines = newLines.slice(0, MAX_LINES);
+
+  let finalText = newLines.join("\n");
+
+  // Limita o total de bytes (UTF-8)
+  while (new TextEncoder().encode(finalText).length > MAX_CHARS) {
+    finalText = finalText.slice(0, -1);
+    if(!warnings.includes("Total size exceeds 1049 bytes")) warnings.push("Total size exceeds 1049 bytes");
+  }
+
+  if (finalText !== messageInput.value) {
     const pos = messageInput.selectionStart;
     messageInput.value = finalText;
     messageInput.selectionStart = messageInput.selectionEnd = pos;
   }
+
+  // Atualiza contadores
   charCountEl.textContent = finalText.length;
-  lineCountEl.textContent = lines.length;
+  lineCountEl.textContent = newLines.length;
 
-  const invalid = findInvalidChar(raw);
+  // Mostra warnings
+  if(warnings.length > 0){
+    statusEl.innerHTML = warnings.join("<br>");
+    statusEl.style.color = "#ff7b72";
+  } else {
+    statusEl.textContent = "";
+    statusEl.style.color = "#8b949e";
+  }
 
-if (invalid) {
-  showInvalidCharError(invalid);
-} else {
-  clearError();
+  updateCommitButton();
 }
 
 updateCommitButton();
