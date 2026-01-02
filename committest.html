@@ -225,7 +225,6 @@ button.loading::after {
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
 <script>
-/* ================= CONFIG ================= */
 const CONTRACT_ADDRESS = "0x0b3D715D6EB9e5fd9Da666CB486710A45e8a6895";
 const ABI = [
   "function commit(string calldata message) external payable returns(uint256)",
@@ -236,7 +235,6 @@ const MAX_LINES = 21;
 const MAX_LINE_LENGTH = 49;
 const MAX_CHARS = 1049;
 
-/* ================= ELEMENTS ================= */
 let provider, signer, contract, currentAccount, currentChainId, commitFee;
 let previewIsValid = false;
 
@@ -256,16 +254,13 @@ const feeEl = document.getElementById("commitFee");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popupMessage");
 
-/* ================= POPUP ================= */
 function showPopup(msg){ popupMessage.textContent = msg; popup.classList.add("show"); }
 function hidePopup(){ popup.classList.remove("show"); }
 
-/* ================= NORMALIZE TEXT ================= */
 function normalizeText() {
   const raw = messageInput.value;
   let lines = raw.split("\n");
 
-  // Quebra linhas que passam do limite
   let newLines = [];
   for (let line of lines) {
     while (line.length > MAX_LINE_LENGTH) {
@@ -275,12 +270,10 @@ function normalizeText() {
     newLines.push(line);
   }
 
-  // Limita o número de linhas
   if (newLines.length > MAX_LINES) newLines = newLines.slice(0, MAX_LINES);
 
   let finalText = newLines.join("\n");
 
-  // Limita o total de bytes (UTF-8)
   let bytesLength = new TextEncoder().encode(finalText).length;
   while (bytesLength > MAX_CHARS) {
     finalText = finalText.slice(0, -1);
@@ -293,12 +286,10 @@ function normalizeText() {
     messageInput.selectionStart = messageInput.selectionEnd = pos;
   }
 
-  // Atualiza contadores
   charCountEl.textContent = finalText.length;
   lineCountEl.textContent = newLines.length;
   byteCountEl.textContent = bytesLength;
 
-  // Mostra warnings se ultrapassar limites
   let warnings = [];
   if (newLines.length >= MAX_LINES) warnings.push("Max 21 lines reached");
   if (bytesLength >= MAX_CHARS) warnings.push("Max 1049 bytes reached");
@@ -314,7 +305,6 @@ function normalizeText() {
   updateCommitButton();
 }
 
-/* ================= UPDATE BUTTON ================= */
 function isValidCommit(text){
   return text.length > 0 && text.length <= MAX_CHARS;
 }
@@ -330,7 +320,6 @@ function updateCommitButton() {
   );
 }
 
-/* ================= SVG PREVIEW ================= */
 function escapeHTML(text) {
   return text
     .replace(/&/g, "&amp;")
@@ -419,7 +408,6 @@ function generateSVG(text) {
 </svg>`;
 }
 
-/* ================= PREVIEW ================= */
 previewBtn.onclick = () => {
   const text = messageInput.value.trim();
   const svg = generateSVG(text);
@@ -430,7 +418,6 @@ previewBtn.onclick = () => {
   normalizeText();
 };
 
-/* ================= WALLET ================= */
 async function initWeb3() {
   if (!window.ethereum) throw new Error("No wallet found");
 
@@ -473,7 +460,6 @@ connectBtn.onclick = async () => {
   }
 };
 
-/* ================= COMMIT ================= */
 commitBtn.onclick = async () => {
   if(!contract) return showPopup("Wallet not connected");
 
@@ -495,16 +481,21 @@ commitBtn.onclick = async () => {
 
     const receipt = await tx.wait();
 
-if(receipt && receipt.status === 1){
-    statusEl.innerHTML = `
-      Transaction confirmed! ✔️<br>
-      TxHash:
-      <a href="https://basescan.org/tx/${tx.hash}" target="_blank" style="color:#58a6ff">${tx.hash}</a>
-    `;
-    messageInput.value = "";
-    normalizeText();
+if (receipt && receipt.status === 1) {
+  statusEl.innerHTML = `
+    Transaction confirmed! ✔️<br>
+    TxHash:
+    <a href="https://basescan.org/tx/${tx.hash}" target="_blank" style="color:#58a6ff">${tx.hash}</a>
+  `;
+
+  messageInput.value = "";
+
+  charCountEl.textContent = "0";
+  lineCountEl.textContent = "0";
+  byteCountEl.textContent = "0";
+
 } else {
-    statusEl.textContent = "Transaction failed ❌";
+  statusEl.textContent = "Transaction failed ❌";
 }
 
   } catch(e) {
@@ -523,7 +514,6 @@ if(receipt && receipt.status === 1){
   }
 };
 
-/* ================= INPUT LISTENER ================= */
 messageInput.addEventListener("input", normalizeText);
 
 </script>
