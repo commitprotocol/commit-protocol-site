@@ -531,13 +531,17 @@ commitBtn.onclick = async () => {
     const tx = await contract.commit(message, { value: commitFee });
 
     statusEl.textContent = "Transaction sent! Waiting for confirmation...";
-   const receipt = await Promise.race([
-      tx.wait(),
-      new Promise((_, reject) => setTimeout(() => reject({ code: "TX_TIMEOUT" }), 120000))
-    ]);
+   await tx.wait();
 
-    statusEl.textContent = `Commit successful! TxHash: ${tx.hash}`;
-    messageInput.value = "";
+statusEl.innerHTML = `
+  Commit successful!<br>
+  TxHash:
+  <a href="https://basescan.org/tx/${tx.hash}"
+     target="_blank"
+     style="color:#58a6ff">
+     ${tx.hash}
+  </a>
+`;
     normalizeText();
   } catch(e){
     console.error(e);
