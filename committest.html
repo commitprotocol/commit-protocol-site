@@ -268,7 +268,7 @@ function findInvalidChar(text){
 
 function showInvalidCharError(info){
   statusEl.innerHTML = `
-    ❌ Invalid character:
+    Invalid character:
     <strong style="color:#ff7b72;">${info.char}</strong>
     (U+${info.code.toString(16).toUpperCase().padStart(4,"0")})
   `;
@@ -305,14 +305,14 @@ function normalizeText() {
   lineCountEl.textContent = lines.length;
 
   const invalid = findInvalidChar(raw);
-  if(invalid){
-    showInvalidCharError(invalid);
-    commitBtn.disabled = true;
-    return;
-  }
 
+if (invalid) {
+  showInvalidCharError(invalid);
+} else {
   clearError();
 }
+
+updateCommitButton();
 
 /* ========= VALIDATION ========= */
 
@@ -322,6 +322,22 @@ function isValidCommit(text){
   for(const l of lines) if(l.length > MAX_LINE_LENGTH) return false;
   return text.length > 0 && text.length <= MAX_CHARS;
 }
+
+function updateCommitButton() {
+  const text = messageInput.value.trim();
+
+  const hasInvalidChar = !!findInvalidChar(text);
+  const validLayout = isValidCommit(text);
+
+  previewIsValid = !hasInvalidChar && validLayout;
+
+  commitBtn.disabled = !(
+    previewIsValid &&
+    currentAccount &&
+    currentChainId === BASE_CHAIN_ID
+  );
+}
+
 
 /* ========= SVG ========= */
 
@@ -435,8 +451,8 @@ previewBtn.onclick = () => {
   previewSection.style.display = "block";
   previewError.style.display = valid ? "none" : "block";
 
-  commitBtn.disabled = !(valid && currentAccount && currentChainId === BASE_CHAIN_ID);
-};
+  previewIsValid = valid && !invalid;
+updateCommitButton();
 
 messageInput.addEventListener("input", normalizeText);
 
@@ -474,8 +490,7 @@ async function initWeb3() {
   walletText.textContent = "Connected: " + currentAccount;
   feeEl.textContent = ethers.utils.formatEther(commitFee);
 
-  commitBtn.disabled = !isValidCommit(messageInput.value);
-}
+  updateCommitButton();
 
 if (window.ethereum) {
   ethereum.on("accountsChanged", () => {
@@ -531,17 +546,11 @@ commitBtn.onclick = async () => {
 
     statusEl.textContent = shortMessage;
   } finally {
-    commitBtn.disabled = false;
-    commitBtn.classList.remove("loading");
-  }
+  commitBtn.classList.remove("loading");
+  updateCommitButton();
+}
 };
 
-setInterval(async () => {
-  if(provider && currentAccount && commitFee){
-    const balance = await provider.getBalance(currentAccount);
-    commitBtn.disabled = !balance.gte(commitFee);
-  }
-}, 5000);
 </script>
 <script>
 fetch("/menu.html")
