@@ -1,28 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy"
 content="
 default-src 'self';
-script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-font-src https://fonts.gstatic.com;
+script-src 'self' 'unsafe-inline';
+style-src 'self' 'unsafe-inline';
 img-src 'self' data:;
-connect-src 'self'
-https://basescan.org
-https://*.base.org
-https://*.alchemy.com
-https://*.infura.io
-https://rpc.ankr.com
-https://cloudflare-eth.com;
+font-src https://fonts.gstatic.com;
+connect-src 'self' https://*.base.org https://basescan.org;
 object-src 'none';
 base-uri 'none';
-frame-ancestors 'none';
 ">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <link rel="stylesheet" href="/menu.css">
-<meta charset="UTF-8">
 <title>Mint a Commit - Commit Protocol</title>
 <meta name="description" content="Mint an immutable on-chain commit using Commit Protocol. Write ASCII messages and permanently record them on-chain.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -472,8 +465,16 @@ async function initWeb3() {
   assertEthereum();
 
   const currentChain = await window.ethereum.request({ method: "eth_chainId" });
+
   if (currentChain !== BASE_CHAIN_ID) {
-    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BASE_CHAIN_ID }] });
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: BASE_CHAIN_ID }]
+      });
+    } catch (e) {
+      throw new Error("Wrong network");
+    }
   }
 
   provider = new ethers.providers.Web3Provider(window.ethereum, "any");
@@ -560,10 +561,13 @@ messageInput.addEventListener("input", normalizeText);
 </script>
 <script>
 fetch("/menu.html")
-  .then(r => r.text())
+  .then(r => {
+    if (!r.ok) throw new Error("Menu load failed");
+    return r.text();
+  })
   .then(html => {
     const container = document.getElementById("global-menu");
-container.replaceChildren();
+    container.replaceChildren();
 
 const temp = document.createElement("div");
 temp.innerHTML = html;
@@ -572,6 +576,8 @@ container.appendChild(temp);
 
     const toggle = document.getElementById("menuToggle");
     const menu = document.getElementById("dropdownMenu");
+
+if (!toggle || !menu) return;
 
     toggle.addEventListener("click", e => {
       e.stopPropagation();
@@ -584,6 +590,12 @@ container.appendChild(temp);
       }
     });
   });
+</script>
+<script>
+if (window.top !== window.self) {
+  document.body.innerHTML = "";
+  window.top.location = window.location;
+}
 </script>
 </body>
 </html>
