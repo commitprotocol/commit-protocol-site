@@ -81,8 +81,6 @@ a:hover { text-decoration:underline; }
   font-weight:600;
   text-align:center;
 }
-.alert[role="alert"] {  }
-
 .footer {
   margin-top:40px;
   font-size:13px;
@@ -156,10 +154,13 @@ in order to successfully submit a commit.
 
 <section>
 <h2>Minting Rules</h2>
-<ul>
-  <div class="alert" role="alert">
-⚠️ Always verify your wallet is connected to <strong>Base Mainnet</strong> before submitting commits.
+<div class="alert" role="alert">
+💡 Always generate a preview before committing — see it, then mint it.
 </div>
+<div class="alert" role="alert">
+⚠️ Verify your wallet is connected to <strong>Base Mainnet</strong> before submitting commits.
+</div>
+<ul>
   <li><strong>Commit Fee:</strong> Fixed <code>0.001 ETH</code> per commit</li>
   <li><strong>Maximum length:</strong> 1049 ASCII characters</li>
   <li><strong>Line limit:</strong> 21 lines</li>
@@ -238,6 +239,7 @@ commit-protocol://v0 - immutable by design
 
 </article>
 </main>
+
 <script>
 fetch("/menu.html")
   .then(r => r.text())
@@ -247,16 +249,18 @@ fetch("/menu.html")
     const toggle = document.getElementById("menuToggle");
     const menu = document.getElementById("dropdownMenu");
 
-    toggle.addEventListener("click", e => {
-      e.stopPropagation();
-      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-    });
+    if (toggle && menu) {
+      toggle.addEventListener("click", e => {
+        e.stopPropagation();
+        menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+      });
 
-    document.addEventListener("click", e => {
-      if (!menu.contains(e.target) && !toggle.contains(e.target)) {
-        menu.style.display = "none";
-      }
-    });
+      document.addEventListener("click", e => {
+        if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+          menu.style.display = "none";
+        }
+      });
+    }
   });
 </script>
 </body>
