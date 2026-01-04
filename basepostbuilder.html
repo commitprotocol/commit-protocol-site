@@ -310,7 +310,7 @@ document.getElementById("body").oninput = e => {
   lines.forEach((line, i) => {
     const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
     tspan.setAttribute("x", "500");
-    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 0.9); // espaçamento proporcional
+    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 1); // espaçamento proporcional
     tspan.setAttribute("fill", color);
     tspan.setAttribute("font-size", fontSize);
     tspan.textContent = line;
