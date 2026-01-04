@@ -242,12 +242,12 @@ const templateTextColors = {
   "assets/templates/blackandwhite.svg":"#000000"
 };
 const logos = [
+  "assets/logos/Base_blue.svg",
+  "assets/logos/Base_black.svg",
+  "assets/logos/Base_black.svg",
   "assets/logos/Base_blue2.svg",
   "assets/logos/Base_black2.svg",
   "assets/logos/Base_white2.svg",
-  "assets/logos/Base_black.svg",
-  "assets/logos/Base_white.svg",
-  "assets/logos/Base_blue.svg"
 ];
 const logoPositions = {
   "bottom-right": { x: 720, y: 780 },
@@ -385,35 +385,39 @@ document.getElementById("footerSize").oninput=e=>{
 };
 
 // SHARE PNG SEGURO
-document.getElementById("downloadPNG").onclick = async () => {
+document.getElementById("sharePNG").onclick = () => {
   const svgData = new XMLSerializer().serializeToString(svgCard);
 
-  // Cria um blob SVG
+  // Cria o blob do SVG
   const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(svgBlob);
 
-  // Cria imagem a partir do blob
   const img = new Image();
-  img.crossOrigin = "anonymous"; // importante para evitar problemas de CORS
+  img.crossOrigin = "anonymous"; // evita problemas de CORS
   img.src = url;
 
   img.onload = () => {
-    // Cria canvas do tamanho do SVG
+    // Cria canvas
     const canvas = document.createElement("canvas");
     canvas.width = 1000;
     canvas.height = 1000;
     const ctx = canvas.getContext("2d");
 
-    // Desenha a imagem no canvas
+    // Desenha a imagem do SVG no canvas
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    // Gera o link de download
-    const link = document.createElement("a");
-    link.download = "base_post.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-
+    // Gera a data URL PNG
+    const pngDataUrl = canvas.toDataURL("image/png");
     URL.revokeObjectURL(url);
+
+    // Abre nova aba com a imagem e instrução
+    const win = window.open();
+    win.document.write(`
+      <p style="font-family: sans-serif; text-align: center; font-size:16px; margin-top:20px;">
+        Clique com o botão direito na imagem e escolha "Salvar imagem como..."
+      </p>
+      <img src="${pngDataUrl}" style="display:block; margin:20px auto; max-width:90%; height:auto; border:1px solid #ccc;"/>
+    `);
   };
 };
 
