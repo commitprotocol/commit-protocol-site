@@ -385,28 +385,36 @@ document.getElementById("footerSize").oninput=e=>{
 };
 
 // SHARE PNG SEGURO
-document.getElementById("downloadPNG").onclick = () => {
+document.getElementById("downloadPNG").onclick = async () => {
   const svgData = new XMLSerializer().serializeToString(svgCard);
-  const canvas = document.createElement("canvas");
-  canvas.width = 1000;
-  canvas.height = 1000;
-  const ctx = canvas.getContext("2d");
-  const img = new Image();
+
+  // Cria um blob SVG
   const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(svgBlob);
 
-  img.onload = () => {
-    ctx.drawImage(img, 0, 0);
-    URL.revokeObjectURL(url);
+  // Cria imagem a partir do blob
+  const img = new Image();
+  img.crossOrigin = "anonymous"; // importante para evitar problemas de CORS
+  img.src = url;
 
-    // Baixa o PNG
+  img.onload = () => {
+    // Cria canvas do tamanho do SVG
+    const canvas = document.createElement("canvas");
+    canvas.width = 1000;
+    canvas.height = 1000;
+    const ctx = canvas.getContext("2d");
+
+    // Desenha a imagem no canvas
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // Gera o link de download
     const link = document.createElement("a");
     link.download = "base_post.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
-  };
 
-  img.src = url;
+    URL.revokeObjectURL(url);
+  };
 };
 
 // DRAG LOGO DO USUÁRIO
