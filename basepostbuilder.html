@@ -302,18 +302,18 @@ function applyTemplateTextColor(templateSrc){
 
 // INPUTS
 document.getElementById("headline").oninput=e=>svgHeadline.textContent=e.target.value;
-document.getElementById("body").oninput=e=>{
-  const lines=e.target.value.split("\n");
-  svgBody.innerHTML="";
-  const color=document.getElementById("bodyColor").value;
-  const size=document.getElementById("bodySize").value;
-  lines.forEach((line,i)=>{
-    const tspan=document.createElementNS("http://www.w3.org/2000/svg","tspan");
-    tspan.setAttribute("x","500");
-    tspan.setAttribute("dy",i===0?"0":"32");
-    tspan.setAttribute("fill",color);
-    tspan.setAttribute("font-size",size);
-    tspan.textContent=line;
+document.getElementById("body").oninput = e => {
+  const lines = e.target.value.split("\n");
+  svgBody.innerHTML = "";
+  const color = document.getElementById("bodyColor").value;
+  const fontSize = parseInt(document.getElementById("bodySize").value); // novo
+  lines.forEach((line, i) => {
+    const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
+    tspan.setAttribute("x", "500");
+    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 1.2); // espaçamento proporcional
+    tspan.setAttribute("fill", color);
+    tspan.setAttribute("font-size", fontSize);
+    tspan.textContent = line;
     svgBody.appendChild(tspan);
   });
 };
