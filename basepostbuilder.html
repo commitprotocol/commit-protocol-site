@@ -1,3 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Base Post Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- Fonts recommended by Base -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: #ffffff;
+  padding: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+main {
+  max-width: 1100px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 32px;
+}
+
+.panel {
+  border: 1px solid #e6e6e6;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.section h3 {
+  margin-top: 0;
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  display: block;
+  margin-top: 8px;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d0d0d0;
+  font-family: Inter;
+  font-size: 14px;
+}
+
+textarea { min-height: 80px; }
+
+.selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.selector img {
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.selector img.selected { border-color: #0404e2; }
+
+.preview-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.card { width: 600px; height: 600px; margin-bottom: 16px; }
+
+button { 
+  padding: 10px 16px; 
+  background: #1da1f2; 
+  color: white; 
+  border: none; 
+  border-radius: 8px; 
+  cursor: pointer; 
+  font-weight: 600;
+}
+button:hover { opacity: 0.9; }
+
+hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
+</style>
+</head>
+
+<body>
+<main>
+
 <section class="panel">
   <h2>Base Post Generator</h2>
 
@@ -93,4 +199,187 @@
       <option value="top-center">Top Center</option>
     </select>
   </div>
+
+  <hr>
+
+  <!-- SHARE -->
+  <div class="section">
+    <button id="shareX">Share PNG on X</button>
+  </div>
+
 </section>
+
+<section class="preview-wrapper">
+  <div class="card">
+    <svg id="svgCard" viewBox="0 0 1000 1000" width="100%" height="100%">
+      <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
+      <text id="svgHeadline" x="500" y="260" text-anchor="middle"
+            font-size="48" font-weight="700" fill="#fff"
+            font-family="Inter">Building for builders</text>
+      <text id="svgBody" x="500" y="330" text-anchor="middle"
+            font-size="28" fill="#fff" font-family="Inter, system-ui"></text>
+      <text id="svgFooter" x="500" y="820" text-anchor="middle"
+            font-size="16" fill="#fff" opacity="0.75"
+            font-family="Inter">Permissionless by design</text>
+      <image id="svgLogo" width="160" height="160"/>
+    </svg>
+  </div>
+</section>
+
+<script>
+const templates = [
+  "assets/templates/blue.svg",
+  "assets/templates/black.svg",
+  "assets/templates/blackandblue.svg",
+  "assets/templates/blackandwhite.svg"
+];
+
+const templateTextColors = {
+  "assets/templates/blue.svg": "#ffffff",
+  "assets/templates/black.svg": "#ffffff",
+  "assets/templates/blackandblue.svg": "#ffffff",
+  "assets/templates/blackandwhite.svg": "#000000"
+};
+
+const logos = [
+  "assets/logos/Base_basemark_blue.svg",
+  "assets/logos/Base_basemark_black.svg",
+  "assets/logos/Base_basemark_white.svg",
+  "assets/logos/Base_lockup_black.svg",
+  "assets/logos/Base_lockup_white.svg",
+  "assets/logos/Base_lockup_2color.svg"
+];
+
+const logoPositions = {
+  "bottom-right": { x: 720, y: 800 },
+  "bottom-left": { x: 120, y: 800 },
+  "bottom-center": { x: 420, y: 760 },
+  "top-right": { x: 760, y: 80 },
+  "top-left": { x: 80, y: 80 },
+  "top-center": { x: 420, y: 80 }
+};
+
+const svgHeadline = document.getElementById("svgHeadline");
+const svgBody = document.getElementById("svgBody");
+const svgFooter = document.getElementById("svgFooter");
+const svgLogo = document.getElementById("svgLogo");
+const svgTemplate = document.getElementById("svgTemplate");
+const svgCard = document.getElementById("svgCard");
+
+const templateSelector = document.getElementById("templateSelector");
+const logoSelector = document.getElementById("logoSelector");
+
+// Templates
+templates.forEach((src,i)=>{
+  const img=document.createElement("img");
+  img.src=src;
+  img.onclick=()=>{
+    svgTemplate.setAttribute("href",src);
+    selectItem(templateSelector,img);
+    applyTemplateTextColor(src);
+  };
+  if(i===0) img.classList.add("selected");
+  templateSelector.appendChild(img);
+});
+
+// Logos
+logos.forEach((src,i)=>{
+  const img=document.createElement("img");
+  img.src=src;
+  img.onclick=()=>{
+    svgLogo.setAttribute("href",src);
+    selectItem(logoSelector,img);
+  };
+  if(i===0){svgLogo.setAttribute("href",src);img.classList.add("selected");}
+  logoSelector.appendChild(img);
+});
+
+// Logo position
+const logoPositionSelect = document.getElementById("logoPosition");
+logoPositionSelect.onchange = e=>{
+  const p=logoPositions[e.target.value];
+  svgLogo.setAttribute("x",p.x);
+  svgLogo.setAttribute("y",p.y);
+};
+logoPositionSelect.value="bottom-right";
+const setLogoPosition=(pos)=>{
+  const p=logoPositions[pos];
+  svgLogo.setAttribute("x",p.x);
+  svgLogo.setAttribute("y",p.y);
+};
+setLogoPosition("bottom-right");
+
+// Select item helper
+function selectItem(container,el){
+  [...container.children].forEach(i=>i.classList.remove("selected"));
+  el.classList.add("selected");
+}
+
+// Apply template color
+function applyTemplateTextColor(templateSrc){
+  const color=templateTextColors[templateSrc]||"#ffffff";
+  svgHeadline.setAttribute("fill",color);
+  svgFooter.setAttribute("fill",color);
+  [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill",color));
+  document.getElementById("headlineColor").value=color;
+  document.getElementById("bodyColor").value=color;
+  document.getElementById("footerColor").value=color;
+}
+
+// Update SVG live
+document.getElementById("headline").oninput=e=>svgHeadline.textContent=e.target.value;
+document.getElementById("body").oninput=e=>{
+  const lines=e.target.value.split("\n");
+  svgBody.innerHTML="";
+  const color=document.getElementById("bodyColor").value;
+  const size=document.getElementById("bodySize").value;
+  lines.forEach((line,i)=>{
+    const tspan=document.createElementNS("http://www.w3.org/2000/svg","tspan");
+    tspan.setAttribute("x","500");
+    tspan.setAttribute("dy",i===0?"0":"32");
+    tspan.setAttribute("fill",color);
+    tspan.setAttribute("font-size",size);
+    tspan.textContent=line;
+    svgBody.appendChild(tspan);
+  });
+};
+document.getElementById("footer").oninput=e=>svgFooter.textContent=e.target.value;
+
+// Fonts
+document.getElementById("headlineFont").onchange=e=>svgHeadline.setAttribute("font-family",e.target.value);
+document.getElementById("bodyFont").onchange=e=>svgBody.setAttribute("font-family",e.target.value);
+
+// Color inputs
+document.getElementById("headlineColor").oninput=e=>svgHeadline.setAttribute("fill",e.target.value);
+document.getElementById("bodyColor").oninput=e=>[...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill",e.target.value));
+document.getElementById("footerColor").oninput=e=>svgFooter.setAttribute("fill",e.target.value);
+
+// Size sliders
+document.getElementById("headlineSize").oninput=e=>svgHeadline.setAttribute("font-size",e.target.value);
+document.getElementById("bodySize").oninput=e=>{
+  const size=e.target.value;
+  [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size",size));
+};
+document.getElementById("footerSize").oninput=e=>svgFooter.setAttribute("font-size",e.target.value);
+
+// SHARE PNG to X
+document.getElementById("shareX").onclick=()=>{
+  const svgData=new XMLSerializer().serializeToString(svgCard);
+  const canvas=document.createElement("canvas");
+  canvas.width=1000; canvas.height=1000;
+  const ctx=canvas.getContext("2d");
+  const img=new Image();
+  const svgBlob=new Blob([svgData],{type:"image/svg+xml;charset=utf-8"});
+  const url=URL.createObjectURL(svgBlob);
+  img.onload=()=>{
+    ctx.drawImage(img,0,0);
+    URL.revokeObjectURL(url);
+    const pngUrl=canvas.toDataURL("image/png");
+    const tweetUrl=`https://twitter.com/intent/tweet?url=&text=&hashtags=&via=&media=${encodeURIComponent(pngUrl)}`;
+    window.open(tweetUrl,"_blank");
+  };
+  img.src=url;
+};
+</script>
+</body>
+</html>
