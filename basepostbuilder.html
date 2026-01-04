@@ -5,7 +5,6 @@
 <title>Base Post Generator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- Fonts recommended by Base -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -14,96 +13,88 @@
 body {
   margin: 0;
   font-family: Inter, system-ui, sans-serif;
-  background: #ffffff;
+  background: #f5f5f5;
   padding: 32px;
   display: flex;
   justify-content: center;
 }
 
 main {
-  max-width: 1100px;
+  max-width: 1200px;
   width: 100%;
-  display: grid;
-  grid-template-columns: 360px 1fr;
+  display: flex;
   gap: 32px;
+  flex-wrap: wrap;
 }
 
 .panel {
-  border: 1px solid #e6e6e6;
+  flex: 1 1 360px;
+  background: #fff;
   border-radius: 16px;
   padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
+.section { margin-bottom: 20px; }
 .section h3 {
   margin-top: 0;
   font-size: 16px;
   font-weight: 600;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #ddd;
   padding-bottom: 4px;
   margin-bottom: 8px;
 }
 
-label {
-  font-size: 13px;
-  font-weight: 600;
-  display: block;
-  margin-top: 8px;
-}
+label { font-size: 13px; font-weight: 600; display: block; margin-top: 8px; }
 
-input, textarea, select {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #d0d0d0;
-  font-family: Inter;
-  font-size: 14px;
-}
+input, textarea, select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #ccc; font-size: 14px; }
 
 textarea { min-height: 80px; }
 
-.selector {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 8px;
-}
+.selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
 
 .selector img {
   width: 100%;
   border-radius: 8px;
   border: 2px solid transparent;
   cursor: pointer;
+  transition: all 0.2s;
 }
-
-.selector img.selected { border-color: #0404e2; }
+.selector img:hover { transform: scale(1.05); }
+.selector img.selected { border-color: #1da1f2; box-shadow: 0 0 8px rgba(29,161,242,0.5); }
 
 .preview-wrapper {
+  flex: 1 1 600px;
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
+  align-items: center;
 }
 
-.card { width: 600px; height: 600px; margin-bottom: 16px; }
+.card { width: 100%; max-width: 600px; height: auto; margin-bottom: 16px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
 
-button { 
-  padding: 10px 16px; 
-  background: #1da1f2; 
-  color: white; 
-  border: none; 
-  border-radius: 8px; 
-  cursor: pointer; 
+button {
+  padding: 10px 16px;
+  background: #1da1f2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
   font-weight: 600;
+  width: 100%;
+  margin-top: 8px;
+  transition: 0.2s;
 }
 button:hover { opacity: 0.9; }
 
-hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
+.slider-wrapper { display: flex; align-items: center; gap: 8px; }
+.slider-wrapper span { width: 32px; text-align: center; font-size: 13px; }
 </style>
 </head>
 
 <body>
 <main>
 
+<!-- PANEL -->
 <section class="panel">
   <h2>Base Post Generator</h2>
 
@@ -117,10 +108,11 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
     <input type="color" id="headlineColor" value="#ffffff">
 
     <label>Size</label>
-    <input type="range" id="headlineSize" min="24" max="100" value="48">
+    <div class="slider-wrapper">
+      <input type="range" id="headlineSize" min="24" max="100" value="48">
+      <span id="headlineSizeValue">48</span>
+    </div>
   </div>
-
-  <hr>
 
   <!-- BODY -->
   <div class="section">
@@ -132,10 +124,11 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
     <input type="color" id="bodyColor" value="#ffffff">
 
     <label>Size</label>
-    <input type="range" id="bodySize" min="14" max="60" value="28">
+    <div class="slider-wrapper">
+      <input type="range" id="bodySize" min="14" max="60" value="28">
+      <span id="bodySizeValue">28</span>
+    </div>
   </div>
-
-  <hr>
 
   <!-- FOOTER -->
   <div class="section">
@@ -147,10 +140,11 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
     <input type="color" id="footerColor" value="#ffffff">
 
     <label>Size</label>
-    <input type="range" id="footerSize" min="10" max="40" value="16">
+    <div class="slider-wrapper">
+      <input type="range" id="footerSize" min="10" max="40" value="16">
+      <span id="footerSizeValue">16</span>
+    </div>
   </div>
-
-  <hr>
 
   <!-- FONTS -->
   <div class="section">
@@ -174,15 +168,11 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
     </select>
   </div>
 
-  <hr>
-
   <!-- TEMPLATE -->
   <div class="section">
     <h3>Template</h3>
     <div class="selector" id="templateSelector"></div>
   </div>
-
-  <hr>
 
   <!-- LOGO -->
   <div class="section">
@@ -200,47 +190,39 @@ hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
     </select>
   </div>
 
-  <hr>
-
   <!-- SHARE -->
   <div class="section">
     <button id="shareX">Share PNG on X</button>
   </div>
-
 </section>
 
+<!-- PREVIEW -->
 <section class="preview-wrapper">
   <div class="card">
     <svg id="svgCard" viewBox="0 0 1000 1000" width="100%" height="100%">
       <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
-      <text id="svgHeadline" x="500" y="260" text-anchor="middle"
-            font-size="48" font-weight="700" fill="#fff"
-            font-family="Inter">Building for builders</text>
-      <text id="svgBody" x="500" y="330" text-anchor="middle"
-            font-size="28" fill="#fff" font-family="Inter, system-ui"></text>
-      <text id="svgFooter" x="500" y="820" text-anchor="middle"
-            font-size="16" fill="#fff" opacity="0.75"
-            font-family="Inter">Permissionless by design</text>
+      <text id="svgHeadline" x="500" y="260" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" font-family="Inter">Building for builders</text>
+      <text id="svgBody" x="500" y="330" text-anchor="middle" font-size="28" fill="#fff" font-family="Inter, system-ui"></text>
+      <text id="svgFooter" x="500" y="820" text-anchor="middle" font-size="16" fill="#fff" opacity="0.75" font-family="Inter">Permissionless by design</text>
       <image id="svgLogo" width="160" height="160"/>
     </svg>
   </div>
 </section>
 
 <script>
+// CONFIG
 const templates = [
   "assets/templates/blue.svg",
   "assets/templates/black.svg",
   "assets/templates/blackandblue.svg",
   "assets/templates/blackandwhite.svg"
 ];
-
 const templateTextColors = {
-  "assets/templates/blue.svg": "#ffffff",
-  "assets/templates/black.svg": "#ffffff",
-  "assets/templates/blackandblue.svg": "#ffffff",
-  "assets/templates/blackandwhite.svg": "#000000"
+  "assets/templates/blue.svg":"#ffffff",
+  "assets/templates/black.svg":"#ffffff",
+  "assets/templates/blackandblue.svg":"#ffffff",
+  "assets/templates/blackandwhite.svg":"#000000"
 };
-
 const logos = [
   "assets/logos/Base_basemark_blue.svg",
   "assets/logos/Base_basemark_black.svg",
@@ -249,7 +231,6 @@ const logos = [
   "assets/logos/Base_lockup_white.svg",
   "assets/logos/Base_lockup_2color.svg"
 ];
-
 const logoPositions = {
   "bottom-right": { x: 720, y: 800 },
   "bottom-left": { x: 120, y: 800 },
@@ -259,6 +240,7 @@ const logoPositions = {
   "top-center": { x: 420, y: 80 }
 };
 
+// ELEMENTS
 const svgHeadline = document.getElementById("svgHeadline");
 const svgBody = document.getElementById("svgBody");
 const svgFooter = document.getElementById("svgFooter");
@@ -269,7 +251,7 @@ const svgCard = document.getElementById("svgCard");
 const templateSelector = document.getElementById("templateSelector");
 const logoSelector = document.getElementById("logoSelector");
 
-// Templates
+// INIT TEMPLATES
 templates.forEach((src,i)=>{
   const img=document.createElement("img");
   img.src=src;
@@ -282,7 +264,7 @@ templates.forEach((src,i)=>{
   templateSelector.appendChild(img);
 });
 
-// Logos
+// INIT LOGOS
 logos.forEach((src,i)=>{
   const img=document.createElement("img");
   img.src=src;
@@ -290,11 +272,11 @@ logos.forEach((src,i)=>{
     svgLogo.setAttribute("href",src);
     selectItem(logoSelector,img);
   };
-  if(i===0){svgLogo.setAttribute("href",src);img.classList.add("selected");}
+  if(i===0){svgLogo.setAttribute("href",src); img.classList.add("selected");}
   logoSelector.appendChild(img);
 });
 
-// Logo position
+// LOGO POSITION
 const logoPositionSelect = document.getElementById("logoPosition");
 logoPositionSelect.onchange = e=>{
   const p=logoPositions[e.target.value];
@@ -309,13 +291,11 @@ const setLogoPosition=(pos)=>{
 };
 setLogoPosition("bottom-right");
 
-// Select item helper
+// HELPERS
 function selectItem(container,el){
   [...container.children].forEach(i=>i.classList.remove("selected"));
   el.classList.add("selected");
 }
-
-// Apply template color
 function applyTemplateTextColor(templateSrc){
   const color=templateTextColors[templateSrc]||"#ffffff";
   svgHeadline.setAttribute("fill",color);
@@ -326,7 +306,7 @@ function applyTemplateTextColor(templateSrc){
   document.getElementById("footerColor").value=color;
 }
 
-// Update SVG live
+// INPUTS
 document.getElementById("headline").oninput=e=>svgHeadline.textContent=e.target.value;
 document.getElementById("body").oninput=e=>{
   const lines=e.target.value.split("\n");
@@ -345,24 +325,27 @@ document.getElementById("body").oninput=e=>{
 };
 document.getElementById("footer").oninput=e=>svgFooter.textContent=e.target.value;
 
-// Fonts
 document.getElementById("headlineFont").onchange=e=>svgHeadline.setAttribute("font-family",e.target.value);
 document.getElementById("bodyFont").onchange=e=>svgBody.setAttribute("font-family",e.target.value);
 
-// Color inputs
 document.getElementById("headlineColor").oninput=e=>svgHeadline.setAttribute("fill",e.target.value);
 document.getElementById("bodyColor").oninput=e=>[...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill",e.target.value));
 document.getElementById("footerColor").oninput=e=>svgFooter.setAttribute("fill",e.target.value);
 
-// Size sliders
-document.getElementById("headlineSize").oninput=e=>svgHeadline.setAttribute("font-size",e.target.value);
-document.getElementById("bodySize").oninput=e=>{
-  const size=e.target.value;
-  [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size",size));
+document.getElementById("headlineSize").oninput=e=>{
+  svgHeadline.setAttribute("font-size",e.target.value);
+  document.getElementById("headlineSizeValue").textContent=e.target.value;
 };
-document.getElementById("footerSize").oninput=e=>svgFooter.setAttribute("font-size",e.target.value);
+document.getElementById("bodySize").oninput=e=>{
+  [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size",e.target.value));
+  document.getElementById("bodySizeValue").textContent=e.target.value;
+};
+document.getElementById("footerSize").oninput=e=>{
+  svgFooter.setAttribute("font-size",e.target.value);
+  document.getElementById("footerSizeValue").textContent=e.target.value;
+};
 
-// SHARE PNG to X
+// SHARE PNG
 document.getElementById("shareX").onclick=()=>{
   const svgData=new XMLSerializer().serializeToString(svgCard);
   const canvas=document.createElement("canvas");
@@ -375,8 +358,8 @@ document.getElementById("shareX").onclick=()=>{
     ctx.drawImage(img,0,0);
     URL.revokeObjectURL(url);
     const pngUrl=canvas.toDataURL("image/png");
-    const tweetUrl=`https://twitter.com/intent/tweet?url=&text=&hashtags=&via=&media=${encodeURIComponent(pngUrl)}`;
-    window.open(tweetUrl,"_blank");
+    alert("PNG gerado! Agora você pode salvar e postar no X.");
+    window.open("https://twitter.com/intent/tweet?url=&text=Check%20this%20post&hashtags=&via=&media=","_blank");
   };
   img.src=url;
 };
