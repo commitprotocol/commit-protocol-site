@@ -341,22 +341,30 @@ document.getElementById("footerSize").oninput = e => { svgFooter.setAttribute("f
 
 // SHARE PNG
 document.getElementById("sharePNG").onclick = async () => {
+  // Abre a janela primeiro
+  const win = window.open("", "_blank");
+  if (!win) return alert("Permita pop-ups para usar esta função.");
+
   const svgData = new XMLSerializer().serializeToString(svgCard);
   const canvas = document.createElement("canvas");
   canvas.width = 1000;
   canvas.height = 1000;
   const ctx = canvas.getContext("2d");
+
+  // Renderiza SVG no canvas
   const v = await Canvg.fromString(ctx, svgData);
   await v.render();
+
+  // Converte para PNG
   const pngDataUrl = canvas.toDataURL("image/png");
 
-  const win = window.open();
-  win.document.write(`
+  // Adiciona conteúdo na janela aberta
+  win.document.body.innerHTML = `
     <p style="font-family: sans-serif; text-align: center; font-size:16px; margin-top:20px;">
       Clique com o botão direito na imagem e escolha "Salvar imagem como..."
     </p>
     <img src="${pngDataUrl}" style="display:block; margin:20px auto; max-width:90%; height:auto; border:1px solid #ccc;"/>
-  `);
+  `;
 };
 
 // DRAG USER LOGO
