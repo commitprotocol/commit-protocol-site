@@ -197,6 +197,14 @@ const templates = [
   "assets/templates/blackandwhite.svg"
 ];
 
+// Mapeamento automático de cor de texto por template
+const templateTextColors = {
+  "assets/templates/blue.svg": "#ffffff",
+  "assets/templates/black.svg": "#ffffff",
+  "assets/templates/blackandblue.svg": "#ffffff",
+  "assets/templates/blackandwhite.svg": "#000000" // template claro
+};
+
 const logos = [
   "assets/logos/Base_basemark_blue.svg",
   "assets/logos/Base_basemark_black.svg",
@@ -230,6 +238,7 @@ templates.forEach((src, i) => {
   img.onclick = () => {
     document.getElementById("svgTemplate").setAttribute("href", src);
     selectItem(templateSelector, img);
+    applyTemplateTextColor(src);
   };
   if(i===0) img.classList.add("selected");
   templateSelector.appendChild(img);
@@ -263,6 +272,20 @@ function selectItem(container, el){
   el.classList.add("selected");
 }
 
+// Atualiza cores automáticas de acordo com template
+function applyTemplateTextColor(templateSrc){
+  const color = templateTextColors[templateSrc] || "#ffffff";
+  svgHeadline.setAttribute("fill", color);
+  svgFooter.setAttribute("fill", color);
+  [...svgBody.querySelectorAll("tspan")].forEach(tspan =>
+    tspan.setAttribute("fill", color)
+  );
+  // Atualiza os inputs de cor para refletir a cor automática
+  document.getElementById("headlineColor").value = color;
+  document.getElementById("bodyColor").value = color;
+  document.getElementById("footerColor").value = color;
+}
+
 // Update SVG live
 document.getElementById("headline").oninput = e =>
   svgHeadline.textContent = e.target.value;
@@ -270,10 +293,12 @@ document.getElementById("headline").oninput = e =>
 document.getElementById("body").oninput = e => {
   const lines = e.target.value.split("\n");
   svgBody.innerHTML = "";
+  const color = document.getElementById("bodyColor").value;
   lines.forEach((line, i) => {
     const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
     tspan.setAttribute("x", "500");
     tspan.setAttribute("dy", i===0 ? "0" : "32");
+    tspan.setAttribute("fill", color);
     tspan.textContent = line;
     svgBody.appendChild(tspan);
   });
@@ -289,7 +314,7 @@ document.getElementById("headlineFont").onchange = e =>
 document.getElementById("bodyFont").onchange = e =>
   svgBody.setAttribute("font-family", e.target.value);
 
-// Color selectors
+// Color selectors (manual override)
 document.getElementById("headlineColor").oninput = e =>
   svgHeadline.setAttribute("fill", e.target.value);
 
