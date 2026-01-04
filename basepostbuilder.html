@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Base Post Generator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/canvg@4.0.24/lib/umd.min.js"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
 
@@ -385,40 +386,30 @@ document.getElementById("footerSize").oninput=e=>{
 };
 
 // SHARE PNG SEGURO
-document.getElementById("sharePNG").onclick = () => {
+document.getElementById("sharePNG").onclick = async () => {
   const svgData = new XMLSerializer().serializeToString(svgCard);
 
-  // Cria o blob do SVG
-  const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(svgBlob);
+  // Cria canvas
+  const canvas = document.createElement("canvas");
+  canvas.width = 1000;
+  canvas.height = 1000;
 
-  const img = new Image();
-  img.crossOrigin = "anonymous"; // evita problemas de CORS
-  img.src = url;
+  // Renderiza SVG no canvas usando canvg
+  const ctx = canvas.getContext("2d");
+  const v = await Canvg.fromString(ctx, svgData);
+  await v.render();
 
-  img.onload = () => {
-    // Cria canvas
-    const canvas = document.createElement("canvas");
-    canvas.width = 1000;
-    canvas.height = 1000;
-    const ctx = canvas.getContext("2d");
+  // Gera PNG
+  const pngDataUrl = canvas.toDataURL("image/png");
 
-    // Desenha a imagem do SVG no canvas
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    // Gera a data URL PNG
-    const pngDataUrl = canvas.toDataURL("image/png");
-    URL.revokeObjectURL(url);
-
-    // Abre nova aba com a imagem e instrução
-    const win = window.open();
-    win.document.write(`
-      <p style="font-family: sans-serif; text-align: center; font-size:16px; margin-top:20px;">
-        Clique com o botão direito na imagem e escolha "Salvar imagem como..."
-      </p>
-      <img src="${pngDataUrl}" style="display:block; margin:20px auto; max-width:90%; height:auto; border:1px solid #ccc;"/>
-    `);
-  };
+  // Abre em nova aba com instrução
+  const win = window.open();
+  win.document.write(`
+    <p style="font-family: sans-serif; text-align: center; font-size:16px; margin-top:20px;">
+      Clique com o botão direito na imagem e escolha "Salvar imagem como..."
+    </p>
+    <img src="${pngDataUrl}" style="display:block; margin:20px auto; max-width:90%; height:auto; border:1px solid #ccc;"/>
+  `);
 };
 
 // DRAG LOGO DO USUÁRIO
