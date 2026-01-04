@@ -223,7 +223,8 @@ button:hover { opacity: 0.9; }
   </div>
 
   <!-- BOTÃO SHARE ABAIXO -->
-  <button id="shareX" style="max-width:600px; margin-top:16px;">Share PNG on X</button>
+  <button id="downloadPNG" style="max-width:600px; margin-top:16px;">Download PNG</button>
+  
 </section>
 
 <script>
@@ -384,7 +385,7 @@ document.getElementById("footerSize").oninput=e=>{
 };
 
 // SHARE PNG SEGURO
-document.getElementById("shareX").onclick = () => {
+document.getElementById("downloadPNG").onclick = () => {
   const svgData = new XMLSerializer().serializeToString(svgCard);
   const canvas = document.createElement("canvas");
   canvas.width = 1000;
@@ -397,10 +398,12 @@ document.getElementById("shareX").onclick = () => {
   img.onload = () => {
     ctx.drawImage(img, 0, 0);
     URL.revokeObjectURL(url);
-    const pngDataUrl = canvas.toDataURL("image/png");
-    const win = window.open();
-    win.document.write(`<p>Right-click the image to save or drag it to X:</p>`);
-    win.document.write(`<img src="${pngDataUrl}" style="max-width:100%; height:auto;"/>`);
+
+    // Baixa o PNG
+    const link = document.createElement("a");
+    link.download = "base_post.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
   };
 
   img.src = url;
