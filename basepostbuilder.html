@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Base Post Preview</title>
+<title>Base Post Generator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- Fonts recommended by Base -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 * { box-sizing: border-box; }
@@ -40,12 +41,13 @@ label {
   margin-top: 16px;
 }
 
-input, textarea {
+input, textarea, select {
   width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid #d0d0d0;
   font-family: Inter;
+  font-size: 14px;
 }
 
 textarea {
@@ -99,7 +101,6 @@ textarea {
 </head>
 
 <body>
-
 <main>
 
 <section class="panel">
@@ -109,10 +110,28 @@ textarea {
   <input id="headline" placeholder="Building for builders">
 
   <label>Body</label>
-  <textarea id="body" placeholder="Composable tools for the Base ecosystem."></textarea>
+  <textarea id="body" placeholder="Composable tools for the Base ecosystem. Use Shift+Enter for line breaks."></textarea>
 
   <label>Footer</label>
   <input id="footer" placeholder="Permissionless by design">
+
+  <label>Headline Font</label>
+  <select id="headlineFont">
+    <option value="Inter">Inter</option>
+    <option value="'IBM Plex Sans'">IBM Plex Sans</option>
+    <option value="'Space Grotesk'">Space Grotesk</option>
+    <option value="'DM Sans'">DM Sans</option>
+    <option value="system-ui">System UI</option>
+  </select>
+
+  <label>Body Font</label>
+  <select id="bodyFont">
+    <option value="Inter">Inter</option>
+    <option value="'IBM Plex Sans'">IBM Plex Sans</option>
+    <option value="'Space Grotesk'">Space Grotesk</option>
+    <option value="'DM Sans'">DM Sans</option>
+    <option value="system-ui">System UI</option>
+  </select>
 
   <label>Template</label>
   <div class="selector" id="templateSelector"></div>
@@ -135,28 +154,26 @@ textarea {
   <div class="card">
     <svg viewBox="0 0 1000 1000" width="100%" height="100%">
 
+      <!-- Template -->
       <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
 
+      <!-- Headline -->
       <text id="svgHeadline" x="500" y="260" text-anchor="middle"
             font-size="48" font-weight="700" fill="#fff"
             font-family="Inter">Building for builders</text>
 
-     <text id="svgBody"
-      x="500"
-      y="330"
-      text-anchor="middle"
-      font-size="28"
-      fill="#ffffff"
-      font-family="Inter, system-ui, sans-serif">
-</text>
+      <!-- Body (preserves line breaks) -->
+      <text id="svgBody" x="500" y="330" text-anchor="middle"
+            font-size="28" fill="#fff" font-family="Inter, system-ui">
+      </text>
 
-
+      <!-- Footer -->
       <text id="svgFooter" x="500" y="820" text-anchor="middle"
             font-size="16" fill="#fff" opacity="0.75"
             font-family="Inter">Permissionless by design</text>
 
+      <!-- Logo -->
       <image id="svgLogo" width="160" height="160"/>
-
     </svg>
   </div>
 </section>
@@ -189,15 +206,15 @@ const logoPositions = {
   "top-center": { x: 420, y: 80 }
 };
 
-const templateSelector = document.getElementById("templateSelector");
-const logoSelector = document.getElementById("logoSelector");
+const svgHeadline = document.getElementById("svgHeadline");
+const svgBody = document.getElementById("svgBody");
+const svgFooter = document.getElementById("svgFooter");
 const svgLogo = document.getElementById("svgLogo");
 
-function selectItem(container, el) {
-  [...container.children].forEach(i => i.classList.remove("selected"));
-  el.classList.add("selected");
-}
+const templateSelector = document.getElementById("templateSelector");
+const logoSelector = document.getElementById("logoSelector");
 
+// Templates
 templates.forEach((src, i) => {
   const img = document.createElement("img");
   img.src = src;
@@ -205,10 +222,11 @@ templates.forEach((src, i) => {
     document.getElementById("svgTemplate").setAttribute("href", src);
     selectItem(templateSelector, img);
   };
-  if (i === 0) img.classList.add("selected");
+  if(i===0) img.classList.add("selected");
   templateSelector.appendChild(img);
 });
 
+// Logos
 logos.forEach((src, i) => {
   const img = document.createElement("img");
   img.src = src;
@@ -216,64 +234,53 @@ logos.forEach((src, i) => {
     svgLogo.setAttribute("href", src);
     selectItem(logoSelector, img);
   };
-  if (i === 0) {
+  if(i===0){
     svgLogo.setAttribute("href", src);
     img.classList.add("selected");
   }
   logoSelector.appendChild(img);
 });
 
-function setLogoPosition(pos) {
+// Logo Position
+function setLogoPosition(pos){
   const p = logoPositions[pos];
   svgLogo.setAttribute("x", p.x);
   svgLogo.setAttribute("y", p.y);
 }
-
 setLogoPosition("bottom-right");
 
-function updateSvgMultilineText(elementId, text, options = {}) {
-  const {
-    maxLines = 4,
-    lineHeight = 36,
-    startY = 330
-  } = options;
-
-  const el = document.getElementById(elementId);
-  el.innerHTML = "";
-
-  const lines = text.split("\n").slice(0, maxLines);
-
-  lines.forEach((line, i) => {
-    const tspan = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "tspan"
-    );
-
-    tspan.setAttribute("x", "500");
-    tspan.setAttribute("y", startY + i * lineHeight);
-
-    // preserva espaços
-    tspan.setAttribute("xml:space", "preserve");
-
-    tspan.textContent = line;
-    el.appendChild(tspan);
-  });
+function selectItem(container, el){
+  [...container.children].forEach(i => i.classList.remove("selected"));
+  el.classList.add("selected");
 }
 
+// Update SVG live
 document.getElementById("headline").oninput = e =>
-  document.getElementById("svgHeadline").textContent = e.target.value;
+  svgHeadline.textContent = e.target.value;
 
 document.getElementById("body").oninput = e => {
-  updateSvgMultilineText("svgBody", e.target.value, {
-    maxLines: 4,
-    lineHeight: 36,
-    startY: 330
+  // Preserve line breaks
+  const lines = e.target.value.split("\n");
+  svgBody.innerHTML = "";
+  lines.forEach((line, i) => {
+    const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
+    tspan.setAttribute("x", "500");
+    tspan.setAttribute("dy", i===0 ? "0" : "32"); // line spacing
+    tspan.textContent = line;
+    svgBody.appendChild(tspan);
   });
 };
 
 document.getElementById("footer").oninput = e =>
-  document.getElementById("svgFooter").textContent = e.target.value;
-</script>
+  svgFooter.textContent = e.target.value;
 
+// Font selectors
+document.getElementById("headlineFont").onchange = e =>
+  svgHeadline.setAttribute("font-family", e.target.value);
+
+document.getElementById("bodyFont").onchange = e =>
+  svgBody.setAttribute("font-family", e.target.value);
+
+</script>
 </body>
 </html>
