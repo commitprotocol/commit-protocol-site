@@ -141,9 +141,15 @@ textarea {
             font-size="48" font-weight="700" fill="#fff"
             font-family="Inter">Building for builders</text>
 
-      <text id="svgBody" x="500" y="330" text-anchor="middle"
-            font-size="28" fill="#fff"
-            font-family="Inter">Composable tools for the Base ecosystem.</text>
+     <text id="svgBody"
+      x="500"
+      y="330"
+      text-anchor="middle"
+      font-size="28"
+      fill="#ffffff"
+      font-family="Inter, system-ui, sans-serif">
+</text>
+
 
       <text id="svgFooter" x="500" y="820" text-anchor="middle"
             font-size="16" fill="#fff" opacity="0.75"
@@ -225,11 +231,45 @@ function setLogoPosition(pos) {
 
 setLogoPosition("bottom-right");
 
+function updateSvgMultilineText(elementId, text, options = {}) {
+  const {
+    maxLines = 4,
+    lineHeight = 36,
+    startY = 330
+  } = options;
+
+  const el = document.getElementById(elementId);
+  el.innerHTML = "";
+
+  const lines = text.split("\n").slice(0, maxLines);
+
+  lines.forEach((line, i) => {
+    const tspan = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "tspan"
+    );
+
+    tspan.setAttribute("x", "500");
+    tspan.setAttribute("y", startY + i * lineHeight);
+
+    // preserva espaços
+    tspan.setAttribute("xml:space", "preserve");
+
+    tspan.textContent = line;
+    el.appendChild(tspan);
+  });
+}
+
 document.getElementById("headline").oninput = e =>
   document.getElementById("svgHeadline").textContent = e.target.value;
 
-document.getElementById("body").oninput = e =>
-  document.getElementById("svgBody").textContent = e.target.value;
+document.getElementById("body").oninput = e => {
+  updateSvgMultilineText("svgBody", e.target.value, {
+    maxLines: 4,
+    lineHeight: 36,
+    startY: 330
+  });
+};
 
 document.getElementById("footer").oninput = e =>
   document.getElementById("svgFooter").textContent = e.target.value;
