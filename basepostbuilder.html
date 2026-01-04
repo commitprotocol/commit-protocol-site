@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Base Post Generator</title>
+<title>Base Post Generator - Pixel Perfect</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -240,7 +240,7 @@ const svgUserLogo = document.getElementById("svgUserLogo");
 const userLogoWidth = document.getElementById("userLogoWidth");
 const userLogoHeight = document.getElementById("userLogoHeight");
 
-// UPLOAD LOGO
+// UPLOAD USER LOGO
 userLogoInput.onchange = e => {
   const file = e.target.files[0];
   if(!file) return;
@@ -331,24 +331,13 @@ document.getElementById("body").oninput = e=>{
 };
 document.getElementById("footer").oninput = e=> svgFooter.textContent = e.target.value;
 document.getElementById("headlineFont").onchange = e => svgHeadline.setAttribute("font-family", e.target.value);
-document.getElementById("bodyFont").onchange = e => {
-  [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-family", e.target.value));
-};
+document.getElementById("bodyFont").onchange = e => [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-family", e.target.value));
 document.getElementById("headlineColor").oninput = e => svgHeadline.setAttribute("fill", e.target.value);
 document.getElementById("bodyColor").oninput = e => [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill", e.target.value));
 document.getElementById("footerColor").oninput = e => svgFooter.setAttribute("fill", e.target.value);
-document.getElementById("headlineSize").oninput = e => {
-  svgHeadline.setAttribute("font-size", e.target.value);
-  document.getElementById("headlineSizeValue").textContent = e.target.value;
-};
-document.getElementById("bodySize").oninput = e => {
-  [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size", e.target.value));
-  document.getElementById("bodySizeValue").textContent = e.target.value;
-};
-document.getElementById("footerSize").oninput = e => {
-  svgFooter.setAttribute("font-size", e.target.value);
-  document.getElementById("footerSizeValue").textContent = e.target.value;
-};
+document.getElementById("headlineSize").oninput = e => { svgHeadline.setAttribute("font-size", e.target.value); document.getElementById("headlineSizeValue").textContent = e.target.value; };
+document.getElementById("bodySize").oninput = e => { [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size", e.target.value)); document.getElementById("bodySizeValue").textContent = e.target.value; };
+document.getElementById("footerSize").oninput = e => { svgFooter.setAttribute("font-size", e.target.value); document.getElementById("footerSizeValue").textContent = e.target.value; };
 
 // SHARE PNG
 document.getElementById("sharePNG").onclick = async () => {
