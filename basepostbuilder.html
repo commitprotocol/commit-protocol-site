@@ -353,16 +353,19 @@ document.getElementById("sharePNG").onclick = () => {
   rect.setAttribute("fill","#ffffff");
   svgClone.insertBefore(rect, svgClone.firstChild);
 
-  const svgData = new XMLSerializer().serializeToString(svgClone);
-  const img = new Image();
-  img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
-  img.onload = () => {
+const svgData = new XMLSerializer().serializeToString(svgCard);
+const blob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"});
+const url = URL.createObjectURL(blob);
+const img = new Image();
+img.onload = () => {
     const canvas = document.createElement("canvas");
-    canvas.width = 1000;
+    canvas.width = 1000; // mesmo que viewBox
     canvas.height = 1000;
     const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, 1000, 1000); // redimensiona pro canvas
+    URL.revokeObjectURL(url);
     const pngDataUrl = canvas.toDataURL("image/png");
+
     const win = window.open();
     win.document.write(`
       <p style="font-family: sans-serif; text-align: center; font-size:16px; margin-top:20px;">
@@ -370,8 +373,8 @@ document.getElementById("sharePNG").onclick = () => {
       </p>
       <img src="${pngDataUrl}" style="display:block; margin:20px auto; max-width:90%; height:auto; border:1px solid #ccc;"/>
     `);
-  };
 };
+img.src = url;
 
 // DRAG LOGO
 let isDragging=false, offsetY=0;
