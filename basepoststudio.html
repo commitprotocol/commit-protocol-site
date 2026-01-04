@@ -1,178 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Base Post Preview</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Base Post Builder</title>
 
-  <!-- Inter (Base style) -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    margin: 0;
+    padding: 24px;
+  }
 
-  <style>
-    * { box-sizing: border-box; }
+  .app {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 24px;
+  }
 
-    body {
-      margin: 0;
-      font-family: Inter, system-ui, sans-serif;
-      background: #ffffff;
-      color: #0a0a0a;
-      display: flex;
-      justify-content: center;
-      padding: 32px;
-    }
+  .panel {
+    background: #111;
+    border-radius: 12px;
+    padding: 16px;
+  }
 
-    main {
-      width: 100%;
-      max-width: 1100px;
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 32px;
-    }
+  .panel h3 {
+    margin-top: 0;
+    font-size: 14px;
+    opacity: 0.7;
+  }
 
-    /* Left panel */
-    .panel {
-      border: 1px solid #e6e6e6;
-      border-radius: 16px;
-      padding: 20px;
-    }
+  .options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
 
-    .panel h1 {
-      font-size: 20px;
-      margin: 0 0 16px;
-    }
+  .option {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
 
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      margin-top: 14px;
-      margin-bottom: 6px;
-    }
+  .option.selected {
+    border-color: #0404e2;
+  }
 
-    input, textarea {
-      width: 100%;
-      font-family: Inter, system-ui, sans-serif;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #d0d0d0;
-      font-size: 14px;
-    }
+  .option img {
+    width: 100%;
+    display: block;
+  }
 
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
+  .preview {
+    background: #000;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    button {
-      margin-top: 18px;
-      width: 100%;
-      padding: 12px;
-      border-radius: 12px;
-      border: none;
-      background: #0404e2;
-      color: #ffffff;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+  .canvas {
+    width: 600px;
+    aspect-ratio: 1 / 1;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
 
-    button:hover {
-      opacity: 0.9;
-    }
-
-    /* Preview */
-    .preview-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .preview {
-      width: 600px;
-      height: 600px;
-      background: #ffffff;
-      border-radius: 24px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .card {
-      width: 520px;
-      height: 520px;
-      background: #0404e2;
-      border-radius: 28px;
-      padding: 40px;
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .card h2 {
-      font-size: 32px;
-      line-height: 1.2;
-      margin: 0;
-    }
-
-    .card p {
-      font-size: 20px;
-      line-height: 1.4;
-      margin: 0;
-      opacity: 0.95;
-    }
-
-    .footer {
-      font-size: 13px;
-      opacity: 0.7;
-    }
-  </style>
+  .canvas img.logo {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    width: 120px;
+  }
+</style>
 </head>
 
 <body>
 
-<main>
+<div class="app">
 
-  <!-- Controls -->
-  <section class="panel">
-    <h1>Base Post Preview</h1>
+  <!-- LEFT PANEL -->
+  <div class="panel">
+    <h3>Templates</h3>
+    <div class="options" id="templateOptions"></div>
 
-    <label>Headline</label>
-    <input id="headline" placeholder="Building on Base">
+    <h3 style="margin-top:24px">Logos</h3>
+    <div class="options" id="logoOptions"></div>
+  </div>
 
-    <label>Body</label>
-    <textarea id="body" placeholder="Simple tools for builders."></textarea>
-
-    <label>Footer (optional)</label>
-    <input id="footer" placeholder="For the Base ecosystem">
-
-    <button onclick="updatePreview()">Update preview</button>
-  </section>
-
-  <!-- Preview -->
-  <section class="preview-wrapper">
-    <div class="preview">
-      <div class="card">
-        <h2 id="pHeadline">Building on Base</h2>
-        <p id="pBody">Simple tools for builders.</p>
-        <div class="footer" id="pFooter">For the Base ecosystem</div>
-      </div>
+  <!-- PREVIEW -->
+  <div class="preview">
+    <div class="canvas" id="canvas">
+      <img id="logoPreview" class="logo" />
     </div>
-  </section>
+  </div>
 
-</main>
+</div>
 
 <script>
-  function updatePreview() {
-    document.getElementById("pHeadline").textContent =
-      document.getElementById("headline").value || "";
+  const templates = [
+    'assets/templates/blue.svg',
+    'assets/templates/black.svg',
+    'assets/templates/blackandblue.svg',
+    'assets/templates/blackandwhite.svg'
+  ];
 
-    document.getElementById("pBody").textContent =
-      document.getElementById("body").value || "";
+  const logos = [
+    'assets/logos/Base_basemark_black.svg',
+    'assets/logos/Base_basemark_blue.svg',
+    'assets/logos/Base_basemark_white.svg',
+    'assets/logos/Base_lockup_2color.svg',
+    'assets/logos/Base_lockup_black.svg',
+    'assets/logos/Base_lockup_white.svg'
+  ];
 
-    document.getElementById("pFooter").textContent =
-      document.getElementById("footer").value || "";
+  const templateContainer = document.getElementById('templateOptions');
+  const logoContainer = document.getElementById('logoOptions');
+  const canvas = document.getElementById('canvas');
+  const logoPreview = document.getElementById('logoPreview');
+
+  function selectOption(container, el) {
+    [...container.children].forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
   }
+
+  templates.forEach(src => {
+    const el = document.createElement('div');
+    el.className = 'option';
+    el.innerHTML = `<img src="${src}">`;
+    el.onclick = () => {
+      canvas.style.backgroundImage = `url(${src})`;
+      selectOption(templateContainer, el);
+    };
+    templateContainer.appendChild(el);
+  });
+
+  logos.forEach(src => {
+    const el = document.createElement('div');
+    el.className = 'option';
+    el.innerHTML = `<img src="${src}">`;
+    el.onclick = () => {
+      logoPreview.src = src;
+      selectOption(logoContainer, el);
+    };
+    logoContainer.appendChild(el);
+  });
+
+  // defaults
+  canvas.style.backgroundImage = `url(${templates[0]})`;
+  logoPreview.src = logos[0];
 </script>
 
 </body>
