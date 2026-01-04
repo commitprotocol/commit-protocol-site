@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Base Post Preview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Inter (Base style) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background: #ffffff;
+      color: #0a0a0a;
+      display: flex;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 32px;
+    }
+
+    /* Left panel */
+    .panel {
+      border: 1px solid #e6e6e6;
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .panel h1 {
+      font-size: 20px;
+      margin: 0 0 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    input, textarea {
+      width: 100%;
+      font-family: Inter, system-ui, sans-serif;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #d0d0d0;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      margin-top: 18px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: #0404e2;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    /* Preview */
+    .preview-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .preview {
+      width: 600px;
+      height: 600px;
+      background: #ffffff;
+      border-radius: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      width: 520px;
+      height: 520px;
+      background: #0404e2;
+      border-radius: 28px;
+      padding: 40px;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card h2 {
+      font-size: 32px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .card p {
+      font-size: 20px;
+      line-height: 1.4;
+      margin: 0;
+      opacity: 0.95;
+    }
+
+    .footer {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+
+<main>
+
+  <!-- Controls -->
+  <section class="panel">
+    <h1>Base Post Preview</h1>
+
+    <label>Headline</label>
+    <input id="headline" placeholder="Building on Base">
+
+    <label>Body</label>
+    <textarea id="body" placeholder="Simple tools for builders."></textarea>
+
+    <label>Footer (optional)</label>
+    <input id="footer" placeholder="For the Base ecosystem">
+
+    <button onclick="updatePreview()">Update preview</button>
+  </section>
+
+  <!-- Preview -->
+  <section class="preview-wrapper">
+    <div class="preview">
+      <div class="card">
+        <h2 id="pHeadline">Building on Base</h2>
+        <p id="pBody">Simple tools for builders.</p>
+        <div class="footer" id="pFooter">For the Base ecosystem</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function updatePreview() {
+    document.getElementById("pHeadline").textContent =
+      document.getElementById("headline").value || "";
+
+    document.getElementById("pBody").textContent =
+      document.getElementById("body").value || "";
+
+    document.getElementById("pFooter").textContent =
+      document.getElementById("footer").value || "";
+  }
+</script>
+
+</body>
+</html>
