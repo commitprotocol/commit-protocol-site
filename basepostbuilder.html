@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Base Post Generator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.jsdelivr.net/npm/canvg@4.0.24/lib/umd.min.js"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
 
@@ -28,7 +27,6 @@ main {
   max-width: 1200px;
 }
 
-/* PAINEL COM SCROLL */
 .panel {
   flex: 0 0 360px;
   background: #fff;
@@ -52,7 +50,6 @@ main {
 label { font-size: 13px; font-weight: 600; display: block; margin-top: 8px; }
 
 input, textarea, select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #ccc; font-size: 14px; }
-
 textarea { min-height: 80px; }
 
 .selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
@@ -110,15 +107,12 @@ button:hover { opacity: 0.9; }
     <input type="number" id="userLogoHeight" value="100" min="20" max="300">
   </div>
 
-  <!-- HEADLINE -->
   <div class="section">
     <h3>Headline</h3>
     <label>Text</label>
     <input id="headline" placeholder="Building for builders">
-
     <label>Color</label>
     <input type="color" id="headlineColor" value="#ffffff">
-
     <label>Size</label>
     <div class="slider-wrapper">
       <input type="range" id="headlineSize" min="24" max="100" value="48">
@@ -126,15 +120,12 @@ button:hover { opacity: 0.9; }
     </div>
   </div>
 
-  <!-- BODY -->
   <div class="section">
     <h3>Body</h3>
     <label>Text</label>
     <textarea id="body" placeholder="Composable tools for the Base ecosystem. Use Shift+Enter for line breaks."></textarea>
-
     <label>Color</label>
     <input type="color" id="bodyColor" value="#ffffff">
-
     <label>Size</label>
     <div class="slider-wrapper">
       <input type="range" id="bodySize" min="14" max="60" value="28">
@@ -142,14 +133,11 @@ button:hover { opacity: 0.9; }
     </div>
   </div>
 
-  <!-- FOOTER -->
   <div class="section">
     <h3>Footer</h3>
     <input id="footer" placeholder="Permissionless by design">
-
     <label>Color</label>
     <input type="color" id="footerColor" value="#ffffff">
-
     <label>Size</label>
     <div class="slider-wrapper">
       <input type="range" id="footerSize" min="10" max="40" value="16">
@@ -157,7 +145,6 @@ button:hover { opacity: 0.9; }
     </div>
   </div>
 
-  <!-- FONTS -->
   <div class="section">
     <h3>Fonts</h3>
     <label>Headline Font</label>
@@ -168,7 +155,6 @@ button:hover { opacity: 0.9; }
       <option value="'DM Sans'">DM Sans</option>
       <option value="system-ui">System UI</option>
     </select>
-
     <label>Body Font</label>
     <select id="bodyFont">
       <option value="Inter">Inter</option>
@@ -179,17 +165,14 @@ button:hover { opacity: 0.9; }
     </select>
   </div>
 
-  <!-- TEMPLATE -->
   <div class="section">
     <h3>Template</h3>
     <div class="selector" id="templateSelector"></div>
   </div>
 
-  <!-- LOGO -->
   <div class="section">
     <h3>Logo</h3>
     <div class="selector" id="logoSelector"></div>
-
     <label>Logo Position</label>
     <select id="logoPosition">
       <option value="bottom-right">Bottom Right</option>
@@ -203,33 +186,20 @@ button:hover { opacity: 0.9; }
 <section class="preview-wrapper">
   <div class="card">
     <svg id="svgCard" viewBox="0 0 1000 1000" width="100%" height="100%">
-      <!-- TEMPLATE (primeiro) -->
       <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
-
-      <!-- Logo do usuário arrastável (depois do template) -->
       <image id="svgUserLogo" x="450" y="100" width="100" height="100" href="" />
-
-      <!-- Headline -->
       <text id="svgHeadline" x="500" y="260" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" font-family="Inter">Building for builders</text>
-
-      <!-- Body -->
       <text id="svgBody" x="500" y="330" text-anchor="middle" font-size="28" fill="#fff" font-family="Inter, system-ui"></text>
-
-      <!-- Footer -->
       <text id="svgFooter" x="500" y="820" text-anchor="middle" font-size="16" fill="#fff" opacity="0.75" font-family="Inter">Permissionless by design</text>
-
-      <!-- Logo Base -->
       <image id="svgLogo" width="160" height="160"/>
     </svg>
   </div>
 
-  <!-- BOTÃO SHARE ABAIXO -->
   <button id="sharePNG" style="max-width:600px; margin-top:16px;">Share PNG</button>
-  
 </section>
 
 <script>
-// CONFIGURAÇÃO
+// CONFIG
 const templates = [
   "assets/templates/blue.svg",
   "assets/templates/black.svg",
@@ -256,7 +226,7 @@ const logoPositions = {
   "bottom-center": { x: 420, y: 780 },
 };
 
-// ELEMENTOS
+// ELEMENTS
 const svgHeadline = document.getElementById("svgHeadline");
 const svgBody = document.getElementById("svgBody");
 const svgFooter = document.getElementById("svgFooter");
@@ -268,20 +238,18 @@ const svgUserLogo = document.getElementById("svgUserLogo");
 const userLogoWidth = document.getElementById("userLogoWidth");
 const userLogoHeight = document.getElementById("userLogoHeight");
 
-// Função de upload do usuário
+// UPLOAD LOGO
 userLogoInput.onchange = e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
     svgUserLogo.setAttribute("href", reader.result);
-    // centraliza horizontalmente
     svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
   };
   reader.readAsDataURL(file);
 };
 
-// Alterar tamanho em tempo real
 userLogoWidth.oninput = e => {
   svgUserLogo.setAttribute("width", e.target.value);
   svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
@@ -291,7 +259,7 @@ userLogoHeight.oninput = e => svgUserLogo.setAttribute("height", e.target.value)
 const templateSelector = document.getElementById("templateSelector");
 const logoSelector = document.getElementById("logoSelector");
 
-// INICIALIZA TEMPLATES
+// INIT TEMPLATES
 templates.forEach((src,i)=>{
   const img=document.createElement("img");
   img.src=src;
@@ -304,7 +272,7 @@ templates.forEach((src,i)=>{
   templateSelector.appendChild(img);
 });
 
-// INICIALIZA LOGOS
+// INIT LOGOS
 logos.forEach((src,i)=>{
   const img=document.createElement("img");
   img.src=src;
@@ -331,7 +299,7 @@ const setLogoPosition=(pos)=>{
 };
 setLogoPosition("bottom-right");
 
-// FUNÇÕES AUX
+// AUX FUNCTIONS
 function selectItem(container,el){
   [...container.children].forEach(i=>i.classList.remove("selected"));
   el.classList.add("selected");
@@ -348,93 +316,68 @@ function applyTemplateTextColor(templateSrc){
 
 // INPUTS
 document.getElementById("headline").oninput=e=>svgHeadline.textContent=e.target.value;
-document.getElementById("body").oninput = e => {
-  const lines = e.target.value.split("\n");
-  svgBody.innerHTML = "";
-  const color = document.getElementById("bodyColor").value;
-  const fontSize = parseInt(document.getElementById("bodySize").value);
-  lines.forEach((line, i) => {
-    const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
-    tspan.setAttribute("x", "500");
-    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 1);
-    tspan.setAttribute("fill", color);
-    tspan.setAttribute("font-size", fontSize);
-    tspan.textContent = line;
+document.getElementById("body").oninput=e=>{
+  const lines=e.target.value.split("\n");
+  svgBody.innerHTML="";
+  const color=document.getElementById("bodyColor").value;
+  const fontSize=parseInt(document.getElementById("bodySize").value);
+  lines.forEach((line,i)=>{
+    const tspan=document.createElementNS("http://www.w3.org/2000/svg","tspan");
+    tspan.setAttribute("x","500");
+    tspan.setAttribute("dy",i===0?"0":fontSize*1);
+    tspan.setAttribute("fill",color);
+    tspan.setAttribute("font-size",fontSize);
+    tspan.textContent=line;
     svgBody.appendChild(tspan);
   });
 };
 document.getElementById("footer").oninput=e=>svgFooter.textContent=e.target.value;
-
 document.getElementById("headlineFont").onchange=e=>svgHeadline.setAttribute("font-family",e.target.value);
 document.getElementById("bodyFont").onchange=e=>svgBody.setAttribute("font-family",e.target.value);
-
 document.getElementById("headlineColor").oninput=e=>svgHeadline.setAttribute("fill",e.target.value);
 document.getElementById("bodyColor").oninput=e=>[...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill",e.target.value));
 document.getElementById("footerColor").oninput=e=>svgFooter.setAttribute("fill",e.target.value);
+document.getElementById("headlineSize").oninput=e=>{svgHeadline.setAttribute("font-size",e.target.value); document.getElementById("headlineSizeValue").textContent=e.target.value;};
+document.getElementById("bodySize").oninput=e=>{[...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size",e.target.value)); document.getElementById("bodySizeValue").textContent=e.target.value;};
+document.getElementById("footerSize").oninput=e=>{svgFooter.setAttribute("font-size",e.target.value); document.getElementById("footerSizeValue").textContent=e.target.value;};
 
-document.getElementById("headlineSize").oninput=e=>{
-  svgHeadline.setAttribute("font-size",e.target.value);
-  document.getElementById("headlineSizeValue").textContent=e.target.value;
-};
-document.getElementById("bodySize").oninput=e=>{
-  [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size",e.target.value));
-  document.getElementById("bodySizeValue").textContent=e.target.value;
-};
-document.getElementById("footerSize").oninput=e=>{
-  svgFooter.setAttribute("font-size",e.target.value);
-  document.getElementById("footerSizeValue").textContent=e.target.value;
-};
+// SHARE PNG FUNCTION
+document.getElementById("sharePNG").onclick = () => {
+  const svgClone = svgCard.cloneNode(true);
+  // Adiciona fundo branco
+  const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+  rect.setAttribute("x","0");
+  rect.setAttribute("y","0");
+  rect.setAttribute("width","1000");
+  rect.setAttribute("height","1000");
+  rect.setAttribute("fill","#ffffff");
+  svgClone.insertBefore(rect, svgClone.firstChild);
 
-// SHARE PNG SEGURO
-document.getElementById("sharePNG").onclick = async () => {
-  const svgData = new XMLSerializer().serializeToString(svgCard);
-
-  // Cria canvas
-  const canvas = document.createElement("canvas");
-  canvas.width = 1000;
-  canvas.height = 1000;
-
-  // Renderiza SVG no canvas usando canvg
-  const ctx = canvas.getContext("2d");
-  const v = await Canvg.fromString(ctx, svgData);
-  await v.render();
-
-  // Gera PNG
-  const pngDataUrl = canvas.toDataURL("image/png");
-
-  // Abre em nova aba com instrução
-  const win = window.open();
-  win.document.write(`
-    <p style="font-family: sans-serif; text-align: center; font-size:16px; margin-top:20px;">
-      Clique com o botão direito na imagem e escolha "Salvar imagem como..."
-    </p>
-    <img src="${pngDataUrl}" style="display:block; margin:20px auto; max-width:90%; height:auto; border:1px solid #ccc;"/>
-  `);
+  const svgData = new XMLSerializer().serializeToString(svgClone);
+  const img = new Image();
+  img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1000;
+    canvas.height = 1000;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    const pngDataUrl = canvas.toDataURL("image/png");
+    const win = window.open();
+    win.document.write(`
+      <p style="font-family: sans-serif; text-align: center; font-size:16px; margin-top:20px;">
+        Clique com o botão direito na imagem e escolha "Salvar imagem como..."
+      </p>
+      <img src="${pngDataUrl}" style="display:block; margin:20px auto; max-width:90%; height:auto; border:1px solid #ccc;"/>
+    `);
+  };
 };
 
-// DRAG LOGO DO USUÁRIO
-let isDragging = false;
-let offsetY = 0;
-
-svgUserLogo.addEventListener("mousedown", e => {
-  isDragging = true;
-  offsetY = e.clientY - parseFloat(svgUserLogo.getAttribute("y"));
-  svgUserLogo.style.cursor = "grabbing";
-});
-
-window.addEventListener("mousemove", e => {
-  if (!isDragging) return;
-  let newY = e.clientY - offsetY;
-  if (newY < 0) newY = 0;
-  if (newY > 900) newY = 900;
-  svgUserLogo.setAttribute("y", newY);
-  svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
-});
-
-window.addEventListener("mouseup", () => {
-  isDragging = false;
-  svgUserLogo.style.cursor = "grab";
-});
+// DRAG LOGO
+let isDragging=false, offsetY=0;
+svgUserLogo.addEventListener("mousedown", e=>{isDragging=true; offsetY=e.clientY-parseFloat(svgUserLogo.getAttribute("y")); svgUserLogo.style.cursor="grabbing";});
+window.addEventListener("mousemove", e=>{if(!isDragging)return; let newY=e.clientY-offsetY; if(newY<0)newY=0; if(newY>900)newY=900; svgUserLogo.setAttribute("y",newY); svgUserLogo.setAttribute("x",500-parseFloat(svgUserLogo.getAttribute("width"))/2);});
+window.addEventListener("mouseup", ()=>{isDragging=false; svgUserLogo.style.cursor="grab";});
 </script>
 </body>
 </html>
