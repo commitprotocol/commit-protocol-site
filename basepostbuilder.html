@@ -144,12 +144,9 @@ button:hover { opacity: 0.9; }
   <!-- FOOTER -->
   <div class="section">
     <h3>Footer</h3>
-    <label>Text</label>
     <input id="footer" placeholder="Permissionless by design">
-
     <label>Color</label>
     <input type="color" id="footerColor" value="#ffffff">
-
     <label>Size</label>
     <div class="slider-wrapper">
       <input type="range" id="footerSize" min="10" max="40" value="16">
@@ -204,7 +201,9 @@ button:hover { opacity: 0.9; }
   <div class="card">
     <svg id="svgCard" viewBox="0 0 1000 1000" width="100%" height="100%">
       <!-- Logo do usuário arrastável -->
-      <image id="svgUserLogo" x="450" y="200" width="100" height="100" href="" style="cursor:grab;" />
+      <image id="svgUserLogo" x="450" y="200" width="100" height="100" 
+             href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" 
+             style="cursor:grab;" />
 
       <!-- Template -->
       <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
@@ -223,7 +222,6 @@ button:hover { opacity: 0.9; }
     </svg>
   </div>
 
-  <!-- BOTÃO SHARE ABAIXO -->
   <button id="shareX" style="max-width:600px; margin-top:16px;">Share PNG on X</button>
 </section>
 
@@ -267,13 +265,13 @@ const svgUserLogo = document.getElementById("svgUserLogo");
 const userLogoWidth = document.getElementById("userLogoWidth");
 const userLogoHeight = document.getElementById("userLogoHeight");
 
-// Função de upload do usuário
+// FUNÇÃO DE UPLOAD DO USUÁRIO (FIX)
 userLogoInput.onchange = e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    svgUserLogo.setAttribute("href", reader.result);
+    svgUserLogo.setAttributeNS('http://www.w3.org/1999/xlink','href', reader.result);
   };
   reader.readAsDataURL(file);
 };
@@ -346,11 +344,11 @@ document.getElementById("body").oninput = e => {
   const lines = e.target.value.split("\n");
   svgBody.innerHTML = "";
   const color = document.getElementById("bodyColor").value;
-  const fontSize = parseInt(document.getElementById("bodySize").value); // novo
+  const fontSize = parseInt(document.getElementById("bodySize").value);
   lines.forEach((line, i) => {
     const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
     tspan.setAttribute("x", "500");
-    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 1); // espaçamento proporcional
+    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 1);
     tspan.setAttribute("fill", color);
     tspan.setAttribute("font-size", fontSize);
     tspan.textContent = line;
@@ -379,7 +377,7 @@ document.getElementById("footerSize").oninput=e=>{
   document.getElementById("footerSizeValue").textContent=e.target.value;
 };
 
-// SHARE PNG SEGURO
+// SHARE PNG
 document.getElementById("shareX").onclick = () => {
   const svgData = new XMLSerializer().serializeToString(svgCard);
   const canvas = document.createElement("canvas");
@@ -393,11 +391,7 @@ document.getElementById("shareX").onclick = () => {
   img.onload = () => {
     ctx.drawImage(img, 0, 0);
     URL.revokeObjectURL(url);
-
-    // PNG DataURL
     const pngDataUrl = canvas.toDataURL("image/png");
-
-    // Abre PNG em nova aba para o usuário salvar manualmente
     const win = window.open();
     win.document.write(`<p>Right-click the image to save or drag it to X:</p>`);
     win.document.write(`<img src="${pngDataUrl}" style="max-width:100%; height:auto;"/>`);
