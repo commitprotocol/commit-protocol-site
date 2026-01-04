@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>Base Post Generator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
 
@@ -20,19 +20,22 @@ body {
 }
 
 main {
-  max-width: 1200px;
-  width: 100%;
   display: flex;
-  gap: 32px;
+  gap: 24px;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 1200px;
 }
 
+/* PAINEL COM SCROLL */
 .panel {
-  flex: 1 1 360px;
+  flex: 0 0 360px;
   background: #fff;
   border-radius: 16px;
-  padding: 20px;
+  padding: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .section { margin-bottom: 20px; }
@@ -52,7 +55,6 @@ input, textarea, select { width: 100%; padding: 10px 12px; border-radius: 10px; 
 textarea { min-height: 80px; }
 
 .selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
-
 .selector img {
   width: 100%;
   border-radius: 8px;
@@ -94,7 +96,7 @@ button:hover { opacity: 0.9; }
 <body>
 <main>
 
-<!-- PANEL -->
+<!-- PAINEL -->
 <section class="panel">
   <h2>Base Post Generator</h2>
 
@@ -189,11 +191,6 @@ button:hover { opacity: 0.9; }
       <option value="top-center">Top Center</option>
     </select>
   </div>
-
-  <!-- SHARE -->
-  <div class="section">
-    <button id="shareX">Share PNG on X</button>
-  </div>
 </section>
 
 <!-- PREVIEW -->
@@ -207,10 +204,13 @@ button:hover { opacity: 0.9; }
       <image id="svgLogo" width="160" height="160"/>
     </svg>
   </div>
+
+  <!-- BOTÃO SHARE ABAIXO -->
+  <button id="shareX" style="max-width:600px; margin-top:16px;">Share PNG on X</button>
 </section>
 
 <script>
-// CONFIG
+// CONFIGURAÇÃO
 const templates = [
   "assets/templates/blue.svg",
   "assets/templates/black.svg",
@@ -240,7 +240,7 @@ const logoPositions = {
   "top-center": { x: 420, y: 80 }
 };
 
-// ELEMENTS
+// ELEMENTOS
 const svgHeadline = document.getElementById("svgHeadline");
 const svgBody = document.getElementById("svgBody");
 const svgFooter = document.getElementById("svgFooter");
@@ -251,7 +251,7 @@ const svgCard = document.getElementById("svgCard");
 const templateSelector = document.getElementById("templateSelector");
 const logoSelector = document.getElementById("logoSelector");
 
-// INIT TEMPLATES
+// INICIALIZA TEMPLATES
 templates.forEach((src,i)=>{
   const img=document.createElement("img");
   img.src=src;
@@ -264,7 +264,7 @@ templates.forEach((src,i)=>{
   templateSelector.appendChild(img);
 });
 
-// INIT LOGOS
+// INICIALIZA LOGOS
 logos.forEach((src,i)=>{
   const img=document.createElement("img");
   img.src=src;
@@ -291,7 +291,7 @@ const setLogoPosition=(pos)=>{
 };
 setLogoPosition("bottom-right");
 
-// HELPERS
+// FUNÇÕES AUX
 function selectItem(container,el){
   [...container.children].forEach(i=>i.classList.remove("selected"));
   el.classList.add("selected");
@@ -345,23 +345,31 @@ document.getElementById("footerSize").oninput=e=>{
   document.getElementById("footerSizeValue").textContent=e.target.value;
 };
 
-// SHARE PNG
-document.getElementById("shareX").onclick=()=>{
-  const svgData=new XMLSerializer().serializeToString(svgCard);
-  const canvas=document.createElement("canvas");
-  canvas.width=1000; canvas.height=1000;
-  const ctx=canvas.getContext("2d");
-  const img=new Image();
-  const svgBlob=new Blob([svgData],{type:"image/svg+xml;charset=utf-8"});
-  const url=URL.createObjectURL(svgBlob);
-  img.onload=()=>{
-    ctx.drawImage(img,0,0);
+// SHARE PNG SEGURO
+document.getElementById("shareX").onclick = () => {
+  const svgData = new XMLSerializer().serializeToString(svgCard);
+  const canvas = document.createElement("canvas");
+  canvas.width = 1000;
+  canvas.height = 1000;
+  const ctx = canvas.getContext("2d");
+  const img = new Image();
+  const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(svgBlob);
+
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0);
     URL.revokeObjectURL(url);
-    const pngUrl=canvas.toDataURL("image/png");
-    alert("PNG gerado! Agora você pode salvar e postar no X.");
-    window.open("https://twitter.com/intent/tweet?url=&text=Check%20this%20post&hashtags=&via=&media=","_blank");
+
+    // PNG DataURL
+    const pngDataUrl = canvas.toDataURL("image/png");
+
+    // Abre PNG em nova aba para o usuário salvar manualmente
+    const win = window.open();
+    win.document.write(`<p>Right-click the image to save or drag it to X:</p>`);
+    win.document.write(`<img src="${pngDataUrl}" style="max-width:100%; height:auto;"/>`);
   };
-  img.src=url;
+
+  img.src = url;
 };
 </script>
 </body>
