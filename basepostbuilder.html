@@ -206,7 +206,7 @@ button:hover { opacity: 0.9; }
       <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
 
       <!-- Logo do usuário arrastável (depois do template) -->
-      <image id="svgUserLogo" x="450" y="200" width="100" height="100" href="" style="cursor:grab;" />
+      <image id="svgUserLogo" x="450" y="50" width="100" height="100" href="" />
 
       <!-- Headline -->
       <text id="svgHeadline" x="500" y="260" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" font-family="Inter">Building for builders</text>
@@ -273,12 +273,17 @@ userLogoInput.onchange = e => {
   const reader = new FileReader();
   reader.onload = () => {
     svgUserLogo.setAttribute("href", reader.result);
+    // centraliza horizontalmente
+    svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
   };
   reader.readAsDataURL(file);
 };
 
 // Alterar tamanho em tempo real
-userLogoWidth.oninput = e => svgUserLogo.setAttribute("width", e.target.value);
+userLogoWidth.oninput = e => {
+  svgUserLogo.setAttribute("width", e.target.value);
+  svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
+};
 userLogoHeight.oninput = e => svgUserLogo.setAttribute("height", e.target.value);
 
 const templateSelector = document.getElementById("templateSelector");
