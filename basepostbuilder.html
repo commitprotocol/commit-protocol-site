@@ -100,6 +100,7 @@ button:hover { opacity: 0.9; }
 <section class="panel">
   <h2>Base Post Generator</h2>
 
+  <!-- USER LOGO -->
   <div class="section">
     <h3>User Logo / PFP</h3>
     <input type="file" id="userLogoInput" accept="image/*">
@@ -203,8 +204,7 @@ button:hover { opacity: 0.9; }
 <section class="preview-wrapper">
   <div class="card">
     <svg id="svgCard" viewBox="0 0 1000 1000" width="100%" height="100%">
-      <!-- User Logo PFP -->
-      <image id="svgUserLogo" x="500" width="100" height="100" transform="translate(-50,0)" />
+      <image id="svgUserLogo" x="450" y="150" width="100" height="100" href="" style="cursor:grab;" />
       <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
       <text id="svgHeadline" x="500" y="260" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" font-family="Inter">Building for builders</text>
       <text id="svgBody" x="500" y="330" text-anchor="middle" font-size="28" fill="#fff" font-family="Inter, system-ui"></text>
@@ -252,49 +252,55 @@ const svgFooter = document.getElementById("svgFooter");
 const svgLogo = document.getElementById("svgLogo");
 const svgTemplate = document.getElementById("svgTemplate");
 const svgCard = document.getElementById("svgCard");
-const userLogoInput = document.getElementById("userLogoInput");
+
+// USER LOGO
 const svgUserLogo = document.getElementById("svgUserLogo");
+const userLogoInput = document.getElementById("userLogoInput");
 const userLogoWidth = document.getElementById("userLogoWidth");
 const userLogoHeight = document.getElementById("userLogoHeight");
 
-// Função de upload do usuário
+let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+svgUserLogo.addEventListener("mousedown", e => {
+  isDragging = true;
+  offsetX = e.offsetX - parseFloat(svgUserLogo.getAttribute("x"));
+  offsetY = e.offsetY - parseFloat(svgUserLogo.getAttribute("y"));
+  svgUserLogo.style.cursor = "grabbing";
+});
+
+svgUserLogo.addEventListener("mousemove", e => {
+  if(!isDragging) return;
+  const svgRect = svgUserLogo.ownerSVGElement.getBoundingClientRect();
+  const scaleX = 1000 / svgRect.width;
+  const scaleY = 1000 / svgRect.height;
+  const newX = (e.clientX - svgRect.left) * scaleX - offsetX;
+  const newY = (e.clientY - svgRect.top) * scaleY - offsetY;
+  svgUserLogo.setAttribute("x", newX);
+  svgUserLogo.setAttribute("y", newY);
+});
+
+svgUserLogo.addEventListener("mouseup", () => {
+  isDragging = false;
+  svgUserLogo.style.cursor = "grab";
+});
+svgUserLogo.addEventListener("mouseleave", () => isDragging = false);
+
+// Upload da PFP
 userLogoInput.onchange = e => {
   const file = e.target.files[0];
-  if (!file) return;
+  if(!file) return;
   const reader = new FileReader();
-  reader.onload = () => {
-    svgUserLogo.setAttribute("href", reader.result);
-    updateUserLogoPosition();
-  };
+  reader.onload = () => svgUserLogo.setAttribute("href", reader.result);
   reader.readAsDataURL(file);
 };
 
-// Alterar tamanho em tempo real
-userLogoWidth.oninput = e => {
-  svgUserLogo.setAttribute("width", e.target.value);
-  updateUserLogoPosition();
-};
-userLogoHeight.oninput = e => {
-  svgUserLogo.setAttribute("height", e.target.value);
-  updateUserLogoPosition();
-};
+// Ajuste de tamanho
+userLogoWidth.oninput = e => svgUserLogo.setAttribute("width", e.target.value);
+userLogoHeight.oninput = e => svgUserLogo.setAttribute("height", e.target.value);
 
-// Função para atualizar Y da PFP automaticamente acima do headline
-function updateUserLogoPosition() {
-  const headlineBBox = svgHeadline.getBBox();
-  const spacing = 20;
-  const logoHeight = parseInt(svgUserLogo.getAttribute("height")) || 100;
-  const newY = headlineBBox.y - logoHeight - spacing;
-  svgUserLogo.setAttribute("y", newY);
-}
-
-// Atualiza posição ao digitar no headline
-document.getElementById("headline").oninput = e => {
-  svgHeadline.textContent = e.target.value;
-  updateUserLogoPosition();
-};
-
-// --- RESTANTE DO SEU CÓDIGO (templates, logos, inputs, share) permanece igual ---
+// RESTO DO SEU JS ORIGINAL
 const templateSelector = document.getElementById("templateSelector");
 const logoSelector = document.getElementById("logoSelector");
 
@@ -354,11 +360,12 @@ function applyTemplateTextColor(templateSrc){
 }
 
 // INPUTS
+document.getElementById("headline").oninput=e=>svgHeadline.textContent=e.target.value;
 document.getElementById("body").oninput = e => {
   const lines = e.target.value.split("\n");
   svgBody.innerHTML = "";
   const color = document.getElementById("bodyColor").value;
-  const fontSize = parseInt(document.getElementById("bodySize").value);
+  const fontSize = parseInt(document.getElementById("bodySize").value); 
   lines.forEach((line, i) => {
     const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
     tspan.setAttribute("x", "500");
@@ -381,7 +388,6 @@ document.getElementById("footerColor").oninput=e=>svgFooter.setAttribute("fill",
 document.getElementById("headlineSize").oninput=e=>{
   svgHeadline.setAttribute("font-size",e.target.value);
   document.getElementById("headlineSizeValue").textContent=e.target.value;
-  updateUserLogoPosition();
 };
 document.getElementById("bodySize").oninput=e=>{
   [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size",e.target.value));
@@ -408,7 +414,6 @@ document.getElementById("shareX").onclick = () => {
     URL.revokeObjectURL(url);
 
     const pngDataUrl = canvas.toDataURL("image/png");
-
     const win = window.open();
     win.document.write(`<p>Right-click the image to save or drag it to X:</p>`);
     win.document.write(`<img src="${pngDataUrl}" style="max-width:100%; height:auto;"/>`);
