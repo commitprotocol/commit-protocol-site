@@ -1,307 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Base Post Preview</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>Base Post Preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Inter (Base style) -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    * { box-sizing: border-box; }
+<style>
+* { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      font-family: Inter, system-ui, sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
-      display: flex;
-      justify-content: center;
-      padding: 32px;
-    }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: #ffffff;
+  padding: 32px;
+  display: flex;
+  justify-content: center;
+}
 
-    main {
-      width: 100%;
-      max-width: 1100px;
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 32px;
-    }
+main {
+  max-width: 1100px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 32px;
+}
 
-    /* Left panel */
-    .panel {
-      border: 1px solid #e6e6e6;
-      border-radius: 16px;
-      padding: 20px;
-    }
+.panel {
+  border: 1px solid #e6e6e6;
+  border-radius: 16px;
+  padding: 20px;
+}
 
-    .panel h1 {
-      font-size: 20px;
-      margin: 0 0 16px;
-    }
+label {
+  font-size: 13px;
+  font-weight: 600;
+  display: block;
+  margin-top: 16px;
+}
 
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      margin-top: 16px;
-      margin-bottom: 6px;
-    }
+input, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d0d0d0;
+  font-family: Inter;
+}
 
-    input, textarea {
-      width: 100%;
-      font-family: Inter, system-ui, sans-serif;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #d0d0d0;
-      font-size: 14px;
-    }
+textarea {
+  min-height: 80px;
+}
 
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
+.selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
 
-    button {
-      margin-top: 18px;
-      width: 100%;
-      padding: 12px;
-      border-radius: 12px;
-      border: none;
-      background: #0404e2;
-      color: #ffffff;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+.selector img {
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
 
-    button:hover {
-      opacity: 0.9;
-    }
+.selector img.selected {
+  border-color: #0404e2;
+}
 
-    /* Selectors */
-    .selector {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 8px;
-    }
+.radio-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
 
-    .selector img {
-      width: 100%;
-      border-radius: 8px;
-      border: 2px solid transparent;
-      cursor: pointer;
-    }
+.radio-group label {
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-    .selector img.selected {
-      border-color: #0404e2;
-    }
+.preview-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    /* Preview */
-    .preview-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .preview {
-      width: 600px;
-      height: 600px;
-      background: #ffffff;
-      border-radius: 24px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .card {
-      width: 520px;
-      height: 520px;
-      background: #0404e2;
-      background-size: cover;
-      background-position: center;
-      border-radius: 28px;
-      padding: 40px;
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-    }
-
-    .card h2 {
-      font-size: 32px;
-      line-height: 1.2;
-      margin: 0;
-    }
-
-    .card p {
-      font-size: 20px;
-      line-height: 1.4;
-      margin: 0;
-      opacity: 0.95;
-    }
-
-    .footer {
-      font-size: 13px;
-      opacity: 0.7;
-    }
-
-    .card-logo {
-      width: 96px;
-      position: absolute;
-      bottom: 32px;
-      right: 32px;
-    }
-  </style>
+.card {
+  width: 600px;
+  height: 600px;
+}
+</style>
 </head>
 
 <body>
 
 <main>
 
-  <!-- Controls -->
-  <section class="panel">
-    <h1>Base Post Preview</h1>
+<section class="panel">
+  <h2>Base Post Generator</h2>
 
-    <label>Headline</label>
-    <input id="headline" placeholder="Building for builders">
+  <label>Headline</label>
+  <input id="headline" placeholder="Building for builders">
 
-    <label>Body</label>
-    <textarea id="body" placeholder="Composable tools for the Base ecosystem."></textarea>
+  <label>Body</label>
+  <textarea id="body" placeholder="Composable tools for the Base ecosystem."></textarea>
 
-    <label>Footer (optional)</label>
-    <input id="footer" placeholder="Permissionless by design">
+  <label>Footer</label>
+  <input id="footer" placeholder="Permissionless by design">
 
-    <label>Template</label>
-    <div class="selector" id="templateSelector"></div>
+  <label>Template</label>
+  <div class="selector" id="templateSelector"></div>
 
-    <label>Logo</label>
-    <div class="selector" id="logoSelector"></div>
+  <label>Logo</label>
+  <div class="selector" id="logoSelector"></div>
 
-    <button onclick="updatePreview()">Update preview</button>
-  </section>
+  <label>Logo position</label>
+  <div class="radio-group">
+    <label><input type="radio" name="logoPos" checked onclick="setLogoPosition('bottom-right')"> Bottom Right</label>
+    <label><input type="radio" name="logoPos" onclick="setLogoPosition('bottom-left')"> Bottom Left</label>
+    <label><input type="radio" name="logoPos" onclick="setLogoPosition('bottom-center')"> Bottom Center</label>
+    <label><input type="radio" name="logoPos" onclick="setLogoPosition('top-right')"> Top Right</label>
+    <label><input type="radio" name="logoPos" onclick="setLogoPosition('top-left')"> Top Left</label>
+    <label><input type="radio" name="logoPos" onclick="setLogoPosition('top-center')"> Top Center</label>
+  </div>
+</section>
 
-  <!-- Preview -->
-  <section class="preview-wrapper">
-    <div class="card">
-  <svg id="cardSvg" viewBox="0 0 1000 1000" width="100%" height="100%">
-    <!-- Template -->
-    <image id="svgTemplate"
-           href="assets/templates/blue.svg"
-           x="0" y="0"
-           width="1000" height="1000" />
+<section class="preview-wrapper">
+  <div class="card">
+    <svg viewBox="0 0 1000 1000" width="100%" height="100%">
 
-    <!-- Headline -->
-    <text id="svgHeadline"
-          x="500" y="260"
-          text-anchor="middle"
-          font-size="48"
-          font-weight="700"
-          fill="#ffffff"
-          font-family="Inter, system-ui, sans-serif">
-      Building for builders
-    </text>
+      <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
 
-    <!-- Body -->
-    <text id="svgBody"
-          x="500" y="330"
-          text-anchor="middle"
-          font-size="28"
-          fill="#ffffff"
-          font-family="Inter, system-ui, sans-serif">
-      Composable tools for the Base ecosystem.
-    </text>
+      <text id="svgHeadline" x="500" y="260" text-anchor="middle"
+            font-size="48" font-weight="700" fill="#fff"
+            font-family="Inter">Building for builders</text>
 
-    <!-- Footer -->
-    <text id="svgFooter"
-          x="500" y="820"
-          text-anchor="middle"
-          font-size="16"
-          fill="#ffffff"
-          opacity="0.75"
-          font-family="Inter, system-ui, sans-serif">
-      Permissionless by design
-    </text>
+      <text id="svgBody" x="500" y="330" text-anchor="middle"
+            font-size="28" fill="#fff"
+            font-family="Inter">Composable tools for the Base ecosystem.</text>
 
-    <!-- Logo -->
-    <image id="svgLogo"
-           href=""
-           x="760" y="760"
-           width="160" height="160" />
-  </svg>
-</div>
-  </section>
+      <text id="svgFooter" x="500" y="820" text-anchor="middle"
+            font-size="16" fill="#fff" opacity="0.75"
+            font-family="Inter">Permissionless by design</text>
+
+      <image id="svgLogo" width="160" height="160"/>
+
+    </svg>
+  </div>
+</section>
 
 </main>
 
 <script>
-  const templates = [
-    "assets/templates/blue.svg",
-    "assets/templates/blackandwhite.svg",
-    "assets/templates/blackandblue.svg",
-    "assets/templates/black.svg"
-  ];
+const templates = [
+  "assets/templates/blue.svg",
+  "assets/templates/black.svg",
+  "assets/templates/blackandblue.svg",
+  "assets/templates/blackandwhite.svg"
+];
 
-  const logos = [
-    "assets/logos/Base_basemark_blue.svg",
-    "assets/logos/Base_basemark_black.svg",
-    "assets/logos/Base_basemark_white.svg",
-    "assets/logos/Base_lockup_2color.svg",
-    "assets/logos/Base_lockup_black.svg",
-    "assets/logos/Base_lockup_white.svg"
-  ];
+const logos = [
+  "assets/logos/Base_basemark_blue.svg",
+  "assets/logos/Base_basemark_black.svg",
+  "assets/logos/Base_basemark_white.svg",
+  "assets/logos/Base_lockup_black.svg",
+  "assets/logos/Base_lockup_white.svg",
+  "assets/logos/Base_lockup_2color.svg"
+];
 
-  const templateSelector = document.getElementById("templateSelector");
-  const logoSelector = document.getElementById("logoSelector");
+const logoPositions = {
+  "bottom-right": { x: 760, y: 760 },
+  "bottom-left": { x: 80, y: 760 },
+  "bottom-center": { x: 420, y: 760 },
+  "top-right": { x: 760, y: 80 },
+  "top-left": { x: 80, y: 80 },
+  "top-center": { x: 420, y: 80 }
+};
 
-  function selectItem(container, el) {
-    [...container.children].forEach(i => i.classList.remove("selected"));
-    el.classList.add("selected");
+const templateSelector = document.getElementById("templateSelector");
+const logoSelector = document.getElementById("logoSelector");
+const svgLogo = document.getElementById("svgLogo");
+
+function selectItem(container, el) {
+  [...container.children].forEach(i => i.classList.remove("selected"));
+  el.classList.add("selected");
+}
+
+templates.forEach((src, i) => {
+  const img = document.createElement("img");
+  img.src = src;
+  img.onclick = () => {
+    document.getElementById("svgTemplate").setAttribute("href", src);
+    selectItem(templateSelector, img);
+  };
+  if (i === 0) img.classList.add("selected");
+  templateSelector.appendChild(img);
+});
+
+logos.forEach((src, i) => {
+  const img = document.createElement("img");
+  img.src = src;
+  img.onclick = () => {
+    svgLogo.setAttribute("href", src);
+    selectItem(logoSelector, img);
+  };
+  if (i === 0) {
+    svgLogo.setAttribute("href", src);
+    img.classList.add("selected");
   }
+  logoSelector.appendChild(img);
+});
 
-  // Templates
-  templates.forEach((src, i) => {
-    const img = document.createElement("img");
-    img.src = src;
-    img.onclick = () => {
-      document.getElementById("svgTemplate").setAttribute("href", src);
-      selectItem(templateSelector, img);
-    };
+function setLogoPosition(pos) {
+  const p = logoPositions[pos];
+  svgLogo.setAttribute("x", p.x);
+  svgLogo.setAttribute("y", p.y);
+}
 
-    if (i === 0) img.classList.add("selected");
-    templateSelector.appendChild(img);
-  });
+setLogoPosition("bottom-right");
 
-  // Logos (FIX REAL)
-  logos.forEach((src, i) => {
-    const img = document.createElement("img");
-    img.src = src;
-    img.onclick = () => {
-      document.getElementById("svgLogo").setAttribute("href", src);
-      selectItem(logoSelector, img);
-    };
+document.getElementById("headline").oninput = e =>
+  document.getElementById("svgHeadline").textContent = e.target.value;
 
-    if (i === 0) {
-      document.getElementById("svgLogo").setAttribute("href", src);
-      img.classList.add("selected");
-    }
+document.getElementById("body").oninput = e =>
+  document.getElementById("svgBody").textContent = e.target.value;
 
-    logoSelector.appendChild(img);
-  });
-
-  function updatePreview() {
-    document.getElementById("svgHeadline").textContent =
-      document.getElementById("headline").value || "";
-
-    document.getElementById("svgBody").textContent =
-      document.getElementById("body").value || "";
-
-    document.getElementById("svgFooter").textContent =
-      document.getElementById("footer").value || "";
-  }
+document.getElementById("footer").oninput = e =>
+  document.getElementById("svgFooter").textContent = e.target.value;
 </script>
 
 </body>
