@@ -203,8 +203,9 @@ button:hover { opacity: 0.9; }
 <section class="preview-wrapper">
   <div class="card">
     <svg id="svgCard" viewBox="0 0 1000 1000" width="100%" height="100%">
+      <!-- User Logo PFP -->
+      <image id="svgUserLogo" x="500" width="100" height="100" transform="translate(-50,0)" />
       <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
-      <image id="svgUserLogo" x="500" y="150" width="100" height="100" transform="translate(-50,0)" />
       <text id="svgHeadline" x="500" y="260" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" font-family="Inter">Building for builders</text>
       <text id="svgBody" x="500" y="330" text-anchor="middle" font-size="28" fill="#fff" font-family="Inter, system-ui"></text>
       <text id="svgFooter" x="500" y="820" text-anchor="middle" font-size="16" fill="#fff" opacity="0.75" font-family="Inter">Permissionless by design</text>
@@ -251,27 +252,51 @@ const svgFooter = document.getElementById("svgFooter");
 const svgLogo = document.getElementById("svgLogo");
 const svgTemplate = document.getElementById("svgTemplate");
 const svgCard = document.getElementById("svgCard");
-
 const userLogoInput = document.getElementById("userLogoInput");
 const svgUserLogo = document.getElementById("svgUserLogo");
 const userLogoWidth = document.getElementById("userLogoWidth");
 const userLogoHeight = document.getElementById("userLogoHeight");
 
-const templateSelector = document.getElementById("templateSelector");
-const logoSelector = document.getElementById("logoSelector");
-
-// UPLOAD USER LOGO
+// Função de upload do usuário
 userLogoInput.onchange = e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
     svgUserLogo.setAttribute("href", reader.result);
+    updateUserLogoPosition();
   };
   reader.readAsDataURL(file);
 };
-userLogoWidth.oninput = e => svgUserLogo.setAttribute("width", e.target.value);
-userLogoHeight.oninput = e => svgUserLogo.setAttribute("height", e.target.value);
+
+// Alterar tamanho em tempo real
+userLogoWidth.oninput = e => {
+  svgUserLogo.setAttribute("width", e.target.value);
+  updateUserLogoPosition();
+};
+userLogoHeight.oninput = e => {
+  svgUserLogo.setAttribute("height", e.target.value);
+  updateUserLogoPosition();
+};
+
+// Função para atualizar Y da PFP automaticamente acima do headline
+function updateUserLogoPosition() {
+  const headlineBBox = svgHeadline.getBBox();
+  const spacing = 20;
+  const logoHeight = parseInt(svgUserLogo.getAttribute("height")) || 100;
+  const newY = headlineBBox.y - logoHeight - spacing;
+  svgUserLogo.setAttribute("y", newY);
+}
+
+// Atualiza posição ao digitar no headline
+document.getElementById("headline").oninput = e => {
+  svgHeadline.textContent = e.target.value;
+  updateUserLogoPosition();
+};
+
+// --- RESTANTE DO SEU CÓDIGO (templates, logos, inputs, share) permanece igual ---
+const templateSelector = document.getElementById("templateSelector");
+const logoSelector = document.getElementById("logoSelector");
 
 // INICIALIZA TEMPLATES
 templates.forEach((src,i)=>{
@@ -329,7 +354,6 @@ function applyTemplateTextColor(templateSrc){
 }
 
 // INPUTS
-document.getElementById("headline").oninput=e=>svgHeadline.textContent=e.target.value;
 document.getElementById("body").oninput = e => {
   const lines = e.target.value.split("\n");
   svgBody.innerHTML = "";
@@ -357,6 +381,7 @@ document.getElementById("footerColor").oninput=e=>svgFooter.setAttribute("fill",
 document.getElementById("headlineSize").oninput=e=>{
   svgHeadline.setAttribute("font-size",e.target.value);
   document.getElementById("headlineSizeValue").textContent=e.target.value;
+  updateUserLogoPosition();
 };
 document.getElementById("bodySize").oninput=e=>{
   [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size",e.target.value));
@@ -382,10 +407,8 @@ document.getElementById("shareX").onclick = () => {
     ctx.drawImage(img, 0, 0);
     URL.revokeObjectURL(url);
 
-    // PNG DataURL
     const pngDataUrl = canvas.toDataURL("image/png");
 
-    // Abre PNG em nova aba para o usuário salvar manualmente
     const win = window.open();
     win.document.write(`<p>Right-click the image to save or drag it to X:</p>`);
     win.document.write(`<img src="${pngDataUrl}" style="max-width:100%; height:auto;"/>`);
