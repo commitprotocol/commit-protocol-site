@@ -145,8 +145,10 @@ button:hover { opacity: 0.9; }
   <div class="section">
     <h3>Footer</h3>
     <input id="footer" placeholder="Permissionless by design">
+
     <label>Color</label>
     <input type="color" id="footerColor" value="#ffffff">
+
     <label>Size</label>
     <div class="slider-wrapper">
       <input type="range" id="footerSize" min="10" max="40" value="16">
@@ -200,13 +202,11 @@ button:hover { opacity: 0.9; }
 <section class="preview-wrapper">
   <div class="card">
     <svg id="svgCard" viewBox="0 0 1000 1000" width="100%" height="100%">
-      <!-- Logo do usuário arrastável -->
-      <image id="svgUserLogo" x="450" y="200" width="100" height="100" 
-             href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" 
-             style="cursor:grab;" />
-
-      <!-- Template -->
+      <!-- TEMPLATE (primeiro) -->
       <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
+
+      <!-- Logo do usuário arrastável (depois do template) -->
+      <image id="svgUserLogo" x="450" y="200" width="100" height="100" href="" style="cursor:grab;" />
 
       <!-- Headline -->
       <text id="svgHeadline" x="500" y="260" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" font-family="Inter">Building for builders</text>
@@ -222,6 +222,7 @@ button:hover { opacity: 0.9; }
     </svg>
   </div>
 
+  <!-- BOTÃO SHARE ABAIXO -->
   <button id="shareX" style="max-width:600px; margin-top:16px;">Share PNG on X</button>
 </section>
 
@@ -265,15 +266,13 @@ const svgUserLogo = document.getElementById("svgUserLogo");
 const userLogoWidth = document.getElementById("userLogoWidth");
 const userLogoHeight = document.getElementById("userLogoHeight");
 
-// Upload da logo do usuário (funcionando)
+// Função de upload do usuário
 userLogoInput.onchange = e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    const dataUrl = reader.result;
-    svgUserLogo.setAttribute("href", dataUrl);
-    svgUserLogo.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", dataUrl);
+    svgUserLogo.setAttribute("href", reader.result);
   };
   reader.readAsDataURL(file);
 };
@@ -379,7 +378,7 @@ document.getElementById("footerSize").oninput=e=>{
   document.getElementById("footerSizeValue").textContent=e.target.value;
 };
 
-// SHARE PNG
+// SHARE PNG SEGURO
 document.getElementById("shareX").onclick = () => {
   const svgData = new XMLSerializer().serializeToString(svgCard);
   const canvas = document.createElement("canvas");
