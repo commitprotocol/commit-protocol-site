@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Base Post Preview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Inter (Base style) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background: #ffffff;
+      color: #0a0a0a;
+      display: flex;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 32px;
+    }
+
+    /* Left panel */
+    .panel {
+      border: 1px solid #e6e6e6;
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .panel h1 {
+      font-size: 20px;
+      margin: 0 0 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+
+    input, textarea {
+      width: 100%;
+      font-family: Inter, system-ui, sans-serif;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #d0d0d0;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      margin-top: 18px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: #0404e2;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    /* Selectors */
+    .selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .selector img {
+      width: 100%;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .selector img.selected {
+      border-color: #0404e2;
+    }
+
+    /* Preview */
+    .preview-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .preview {
+      width: 600px;
+      height: 600px;
+      background: #ffffff;
+      border-radius: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      width: 520px;
+      height: 520px;
+      background: #0404e2;
+      background-size: cover;
+      background-position: center;
+      border-radius: 28px;
+      padding: 40px;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .card h2 {
+      font-size: 32px;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .card p {
+      font-size: 20px;
+      line-height: 1.4;
+      margin: 0;
+      opacity: 0.95;
+    }
+
+    .footer {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+
+    .card-logo {
+      width: 96px;
+      position: absolute;
+      bottom: 32px;
+      right: 32px;
+    }
+  </style>
+</head>
+
+<body>
+
+<main>
+
+  <!-- Controls -->
+  <section class="panel">
+    <h1>Base Post Preview</h1>
+
+    <label>Headline</label>
+    <input id="headline" placeholder="Building for builders">
+
+    <label>Body</label>
+    <textarea id="body" placeholder="Composable tools for the Base ecosystem."></textarea>
+
+    <label>Footer (optional)</label>
+    <input id="footer" placeholder="Permissionless by design">
+
+    <label>Template</label>
+    <div class="selector" id="templateSelector"></div>
+
+    <label>Logo</label>
+    <div class="selector" id="logoSelector"></div>
+
+    <button onclick="updatePreview()">Update preview</button>
+  </section>
+
+  <!-- Preview -->
+  <section class="preview-wrapper">
+    <div class="preview">
+      <div class="card">
+        <h2 id="pHeadline">Building for builders</h2>
+        <p id="pBody">Composable tools for the Base ecosystem.</p>
+        <div class="footer" id="pFooter">Permissionless by design</div>
+
+        <img id="cardLogo" class="card-logo" />
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const templates = [
+    "assets/templates/blue.svg",
+    "assets/templates/blackandwhite.svg",
+    "assets/templates/blackandblue.svg",
+    "assets/templates/black.svg"
+  ];
+
+  const logos = [
+    "assets/logos/Base_basemark_blue.svg",
+    "assets/logos/Base_basemark_black.svg",
+    "assets/logos/Base_basemark_white.svg",
+    "assets/logos/Base_lockup_2color.svg",
+    "assets/logos/Base_lockup_black.svg",
+    "assets/logos/Base_lockup_white.svg"
+  ];
+
+  const card = document.querySelector(".card");
+  const logoImg = document.getElementById("cardLogo");
+
+  const templateSelector = document.getElementById("templateSelector");
+  const logoSelector = document.getElementById("logoSelector");
+
+  function selectItem(container, el) {
+    [...container.children].forEach(i => i.classList.remove("selected"));
+    el.classList.add("selected");
+  }
+
+  templates.forEach((src, i) => {
+    const img = document.createElement("img");
+    img.src = src;
+    img.onclick = () => {
+      card.style.backgroundImage = `url(${src})`;
+      selectItem(templateSelector, img);
+    };
+    if (i === 0) {
+      card.style.backgroundImage = `url(${src})`;
+      img.classList.add("selected");
+    }
+    templateSelector.appendChild(img);
+  });
+
+  logos.forEach((src, i) => {
+    const img = document.createElement("img");
+    img.src = src;
+    img.onclick = () => {
+      logoImg.src = src;
+      selectItem(logoSelector, img);
+    };
+    if (i === 0) {
+      logoImg.src = src;
+      img.classList.add("selected");
+    }
+    logoSelector.appendChild(img);
+  });
+
+  function updatePreview() {
+    document.getElementById("pHeadline").textContent =
+      document.getElementById("headline").value || "";
+
+    document.getElementById("pBody").textContent =
+      document.getElementById("body").value || "";
+
+    document.getElementById("pFooter").textContent =
+      document.getElementById("footer").value || "";
+  }
+</script>
+
+</body>
+</html>
