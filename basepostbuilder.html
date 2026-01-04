@@ -101,13 +101,13 @@ button:hover { opacity: 0.9; }
   <h2>Base Post Generator</h2>
 
   <div class="section">
-  <h3>User Logo / PFP</h3>
-  <input type="file" id="userLogoInput" accept="image/*">
-  <label>Width (px)</label>
-  <input type="number" id="userLogoWidth" value="100" min="20" max="300">
-  <label>Height (px)</label>
-  <input type="number" id="userLogoHeight" value="100" min="20" max="300">
-</div>
+    <h3>User Logo / PFP</h3>
+    <input type="file" id="userLogoInput" accept="image/*">
+    <label>Width (px)</label>
+    <input type="number" id="userLogoWidth" value="100" min="20" max="300">
+    <label>Height (px)</label>
+    <input type="number" id="userLogoHeight" value="100" min="20" max="300">
+  </div>
 
   <!-- HEADLINE -->
   <div class="section">
@@ -203,8 +203,8 @@ button:hover { opacity: 0.9; }
 <section class="preview-wrapper">
   <div class="card">
     <svg id="svgCard" viewBox="0 0 1000 1000" width="100%" height="100%">
-      <image id="svgUserLogo" x="500" y="150" width="100" height="100" style="transform: translate(-50%, 0);" />
       <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
+      <image id="svgUserLogo" x="500" y="150" width="100" height="100" transform="translate(-50,0)" />
       <text id="svgHeadline" x="500" y="260" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" font-family="Inter">Building for builders</text>
       <text id="svgBody" x="500" y="330" text-anchor="middle" font-size="28" fill="#fff" font-family="Inter, system-ui"></text>
       <text id="svgFooter" x="500" y="820" text-anchor="middle" font-size="16" fill="#fff" opacity="0.75" font-family="Inter">Permissionless by design</text>
@@ -251,12 +251,16 @@ const svgFooter = document.getElementById("svgFooter");
 const svgLogo = document.getElementById("svgLogo");
 const svgTemplate = document.getElementById("svgTemplate");
 const svgCard = document.getElementById("svgCard");
+
 const userLogoInput = document.getElementById("userLogoInput");
 const svgUserLogo = document.getElementById("svgUserLogo");
 const userLogoWidth = document.getElementById("userLogoWidth");
 const userLogoHeight = document.getElementById("userLogoHeight");
 
-// Função de upload do usuário
+const templateSelector = document.getElementById("templateSelector");
+const logoSelector = document.getElementById("logoSelector");
+
+// UPLOAD USER LOGO
 userLogoInput.onchange = e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -266,13 +270,8 @@ userLogoInput.onchange = e => {
   };
   reader.readAsDataURL(file);
 };
-
-// Alterar tamanho em tempo real
 userLogoWidth.oninput = e => svgUserLogo.setAttribute("width", e.target.value);
 userLogoHeight.oninput = e => svgUserLogo.setAttribute("height", e.target.value);
-
-const templateSelector = document.getElementById("templateSelector");
-const logoSelector = document.getElementById("logoSelector");
 
 // INICIALIZA TEMPLATES
 templates.forEach((src,i)=>{
@@ -335,11 +334,11 @@ document.getElementById("body").oninput = e => {
   const lines = e.target.value.split("\n");
   svgBody.innerHTML = "";
   const color = document.getElementById("bodyColor").value;
-  const fontSize = parseInt(document.getElementById("bodySize").value); // novo
+  const fontSize = parseInt(document.getElementById("bodySize").value);
   lines.forEach((line, i) => {
     const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
     tspan.setAttribute("x", "500");
-    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 1); // espaçamento proporcional
+    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 1);
     tspan.setAttribute("fill", color);
     tspan.setAttribute("font-size", fontSize);
     tspan.textContent = line;
