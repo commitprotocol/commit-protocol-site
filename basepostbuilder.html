@@ -265,13 +265,15 @@ const svgUserLogo = document.getElementById("svgUserLogo");
 const userLogoWidth = document.getElementById("userLogoWidth");
 const userLogoHeight = document.getElementById("userLogoHeight");
 
-// FUNÇÃO DE UPLOAD DO USUÁRIO (FIX)
+// Upload da logo do usuário (funcionando)
 userLogoInput.onchange = e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
-    svgUserLogo.setAttributeNS('http://www.w3.org/1999/xlink','href', reader.result);
+    const dataUrl = reader.result;
+    svgUserLogo.setAttribute("href", dataUrl);
+    svgUserLogo.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", dataUrl);
   };
   reader.readAsDataURL(file);
 };
