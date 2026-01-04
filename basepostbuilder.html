@@ -254,9 +254,6 @@
     "assets/logos/Base_lockup_white.svg"
   ];
 
-  const card = document.querySelector(".card");
-  const logoImg = document.getElementById("cardLogo");
-
   const templateSelector = document.getElementById("templateSelector");
   const logoSelector = document.getElementById("logoSelector");
 
@@ -265,46 +262,46 @@
     el.classList.add("selected");
   }
 
+  // Templates
   templates.forEach((src, i) => {
     const img = document.createElement("img");
     img.src = src;
     img.onclick = () => {
-  document.getElementById("svgTemplate").setAttribute("href", src);
-  selectItem(templateSelector, img);
-};
+      document.getElementById("svgTemplate").setAttribute("href", src);
+      selectItem(templateSelector, img);
+    };
 
-    if (i === 0) {
-      card.style.backgroundImage = `url(${src})`;
-      img.classList.add("selected");
-    }
+    if (i === 0) img.classList.add("selected");
     templateSelector.appendChild(img);
   });
 
+  // Logos (FIX REAL)
   logos.forEach((src, i) => {
     const img = document.createElement("img");
     img.src = src;
     img.onclick = () => {
-  document.getElementById("svgLogo").setAttribute("href", src);
-  selectItem(logoSelector, img);
-};
+      document.getElementById("svgLogo").setAttribute("href", src);
+      selectItem(logoSelector, img);
+    };
 
     if (i === 0) {
-      logoImg.src = src;
+      document.getElementById("svgLogo").setAttribute("href", src);
       img.classList.add("selected");
     }
+
     logoSelector.appendChild(img);
   });
 
   function updatePreview() {
-  document.getElementById("svgHeadline").textContent =
-    document.getElementById("headline").value || "";
+    document.getElementById("svgHeadline").textContent =
+      document.getElementById("headline").value || "";
 
-  document.getElementById("svgBody").textContent =
-    document.getElementById("body").value || "";
+    document.getElementById("svgBody").textContent =
+      document.getElementById("body").value || "";
 
-  document.getElementById("svgFooter").textContent =
-    document.getElementById("footer").value || "";
-}
+    document.getElementById("svgFooter").textContent =
+      document.getElementById("footer").value || "";
+  }
 </script>
 
 </body>
