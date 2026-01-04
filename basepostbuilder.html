@@ -109,11 +109,20 @@ textarea {
   <label>Headline</label>
   <input id="headline" placeholder="Building for builders">
 
+  <label>Headline Color</label>
+  <input type="color" id="headlineColor" value="#ffffff">
+
   <label>Body</label>
   <textarea id="body" placeholder="Composable tools for the Base ecosystem. Use Shift+Enter for line breaks."></textarea>
 
+  <label>Body Color</label>
+  <input type="color" id="bodyColor" value="#ffffff">
+
   <label>Footer</label>
   <input id="footer" placeholder="Permissionless by design">
+
+  <label>Footer Color</label>
+  <input type="color" id="footerColor" value="#ffffff">
 
   <label>Headline Font</label>
   <select id="headlineFont">
@@ -259,13 +268,12 @@ document.getElementById("headline").oninput = e =>
   svgHeadline.textContent = e.target.value;
 
 document.getElementById("body").oninput = e => {
-  // Preserve line breaks
   const lines = e.target.value.split("\n");
   svgBody.innerHTML = "";
   lines.forEach((line, i) => {
     const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
     tspan.setAttribute("x", "500");
-    tspan.setAttribute("dy", i===0 ? "0" : "32"); // line spacing
+    tspan.setAttribute("dy", i===0 ? "0" : "32");
     tspan.textContent = line;
     svgBody.appendChild(tspan);
   });
@@ -281,6 +289,18 @@ document.getElementById("headlineFont").onchange = e =>
 document.getElementById("bodyFont").onchange = e =>
   svgBody.setAttribute("font-family", e.target.value);
 
+// Color selectors
+document.getElementById("headlineColor").oninput = e =>
+  svgHeadline.setAttribute("fill", e.target.value);
+
+document.getElementById("bodyColor").oninput = e => {
+  [...svgBody.querySelectorAll("tspan")].forEach(tspan =>
+    tspan.setAttribute("fill", e.target.value)
+  );
+};
+
+document.getElementById("footerColor").oninput = e =>
+  svgFooter.setAttribute("fill", e.target.value);
 </script>
 </body>
 </html>
