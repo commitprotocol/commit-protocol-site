@@ -186,15 +186,53 @@
 
   <!-- Preview -->
   <section class="preview-wrapper">
-    <div class="preview">
-      <div class="card">
-        <h2 id="pHeadline">Building for builders</h2>
-        <p id="pBody">Composable tools for the Base ecosystem.</p>
-        <div class="footer" id="pFooter">Permissionless by design</div>
+    <div class="card">
+  <svg id="cardSvg" viewBox="0 0 1000 1000" width="100%" height="100%">
+    <!-- Template -->
+    <image id="svgTemplate"
+           href="assets/templates/blue.svg"
+           x="0" y="0"
+           width="1000" height="1000" />
 
-        <img id="cardLogo" class="card-logo" />
-      </div>
-    </div>
+    <!-- Headline -->
+    <text id="svgHeadline"
+          x="500" y="260"
+          text-anchor="middle"
+          font-size="48"
+          font-weight="700"
+          fill="#ffffff"
+          font-family="Inter, system-ui, sans-serif">
+      Building for builders
+    </text>
+
+    <!-- Body -->
+    <text id="svgBody"
+          x="500" y="330"
+          text-anchor="middle"
+          font-size="28"
+          fill="#ffffff"
+          font-family="Inter, system-ui, sans-serif">
+      Composable tools for the Base ecosystem.
+    </text>
+
+    <!-- Footer -->
+    <text id="svgFooter"
+          x="500" y="820"
+          text-anchor="middle"
+          font-size="16"
+          fill="#ffffff"
+          opacity="0.75"
+          font-family="Inter, system-ui, sans-serif">
+      Permissionless by design
+    </text>
+
+    <!-- Logo -->
+    <image id="svgLogo"
+           href=""
+           x="760" y="760"
+           width="160" height="160" />
+  </svg>
+</div>
   </section>
 
 </main>
@@ -231,9 +269,10 @@
     const img = document.createElement("img");
     img.src = src;
     img.onclick = () => {
-      card.style.backgroundImage = `url(${src})`;
-      selectItem(templateSelector, img);
-    };
+  document.getElementById("svgTemplate").setAttribute("href", src);
+  selectItem(templateSelector, img);
+};
+
     if (i === 0) {
       card.style.backgroundImage = `url(${src})`;
       img.classList.add("selected");
@@ -245,9 +284,10 @@
     const img = document.createElement("img");
     img.src = src;
     img.onclick = () => {
-      logoImg.src = src;
-      selectItem(logoSelector, img);
-    };
+  document.getElementById("svgLogo").setAttribute("href", src);
+  selectItem(logoSelector, img);
+};
+
     if (i === 0) {
       logoImg.src = src;
       img.classList.add("selected");
@@ -256,15 +296,15 @@
   });
 
   function updatePreview() {
-    document.getElementById("pHeadline").textContent =
-      document.getElementById("headline").value || "";
+  document.getElementById("svgHeadline").textContent =
+    document.getElementById("headline").value || "";
 
-    document.getElementById("pBody").textContent =
-      document.getElementById("body").value || "";
+  document.getElementById("svgBody").textContent =
+    document.getElementById("body").value || "";
 
-    document.getElementById("pFooter").textContent =
-      document.getElementById("footer").value || "";
-  }
+  document.getElementById("svgFooter").textContent =
+    document.getElementById("footer").value || "";
+}
 </script>
 
 </body>
