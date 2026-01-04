@@ -100,7 +100,6 @@ button:hover { opacity: 0.9; }
 <section class="panel">
   <h2>Base Post Generator</h2>
 
-  <!-- USER LOGO -->
   <div class="section">
     <h3>User Logo / PFP</h3>
     <input type="file" id="userLogoInput" accept="image/*">
@@ -204,11 +203,22 @@ button:hover { opacity: 0.9; }
 <section class="preview-wrapper">
   <div class="card">
     <svg id="svgCard" viewBox="0 0 1000 1000" width="100%" height="100%">
-      <image id="svgUserLogo" x="450" y="150" width="100" height="100" href="" style="cursor:grab;" />
+      <!-- Logo do usuário arrastável -->
+      <image id="svgUserLogo" x="450" y="200" width="100" height="100" href="" style="cursor:grab;" />
+
+      <!-- Template -->
       <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
+
+      <!-- Headline -->
       <text id="svgHeadline" x="500" y="260" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" font-family="Inter">Building for builders</text>
+
+      <!-- Body -->
       <text id="svgBody" x="500" y="330" text-anchor="middle" font-size="28" fill="#fff" font-family="Inter, system-ui"></text>
+
+      <!-- Footer -->
       <text id="svgFooter" x="500" y="820" text-anchor="middle" font-size="16" fill="#fff" opacity="0.75" font-family="Inter">Permissionless by design</text>
+
+      <!-- Logo Base -->
       <image id="svgLogo" width="160" height="160"/>
     </svg>
   </div>
@@ -252,55 +262,26 @@ const svgFooter = document.getElementById("svgFooter");
 const svgLogo = document.getElementById("svgLogo");
 const svgTemplate = document.getElementById("svgTemplate");
 const svgCard = document.getElementById("svgCard");
-
-// USER LOGO
-const svgUserLogo = document.getElementById("svgUserLogo");
 const userLogoInput = document.getElementById("userLogoInput");
+const svgUserLogo = document.getElementById("svgUserLogo");
 const userLogoWidth = document.getElementById("userLogoWidth");
 const userLogoHeight = document.getElementById("userLogoHeight");
 
-let isDragging = false;
-let offsetX = 0;
-let offsetY = 0;
-
-svgUserLogo.addEventListener("mousedown", e => {
-  isDragging = true;
-  offsetX = e.offsetX - parseFloat(svgUserLogo.getAttribute("x"));
-  offsetY = e.offsetY - parseFloat(svgUserLogo.getAttribute("y"));
-  svgUserLogo.style.cursor = "grabbing";
-});
-
-svgUserLogo.addEventListener("mousemove", e => {
-  if(!isDragging) return;
-  const svgRect = svgUserLogo.ownerSVGElement.getBoundingClientRect();
-  const scaleX = 1000 / svgRect.width;
-  const scaleY = 1000 / svgRect.height;
-  const newX = (e.clientX - svgRect.left) * scaleX - offsetX;
-  const newY = (e.clientY - svgRect.top) * scaleY - offsetY;
-  svgUserLogo.setAttribute("x", newX);
-  svgUserLogo.setAttribute("y", newY);
-});
-
-svgUserLogo.addEventListener("mouseup", () => {
-  isDragging = false;
-  svgUserLogo.style.cursor = "grab";
-});
-svgUserLogo.addEventListener("mouseleave", () => isDragging = false);
-
-// Upload da PFP
+// Função de upload do usuário
 userLogoInput.onchange = e => {
   const file = e.target.files[0];
-  if(!file) return;
+  if (!file) return;
   const reader = new FileReader();
-  reader.onload = () => svgUserLogo.setAttribute("href", reader.result);
+  reader.onload = () => {
+    svgUserLogo.setAttribute("href", reader.result);
+  };
   reader.readAsDataURL(file);
 };
 
-// Ajuste de tamanho
+// Alterar tamanho em tempo real
 userLogoWidth.oninput = e => svgUserLogo.setAttribute("width", e.target.value);
 userLogoHeight.oninput = e => svgUserLogo.setAttribute("height", e.target.value);
 
-// RESTO DO SEU JS ORIGINAL
 const templateSelector = document.getElementById("templateSelector");
 const logoSelector = document.getElementById("logoSelector");
 
@@ -365,11 +346,11 @@ document.getElementById("body").oninput = e => {
   const lines = e.target.value.split("\n");
   svgBody.innerHTML = "";
   const color = document.getElementById("bodyColor").value;
-  const fontSize = parseInt(document.getElementById("bodySize").value); 
+  const fontSize = parseInt(document.getElementById("bodySize").value); // novo
   lines.forEach((line, i) => {
     const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
     tspan.setAttribute("x", "500");
-    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 1);
+    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 1); // espaçamento proporcional
     tspan.setAttribute("fill", color);
     tspan.setAttribute("font-size", fontSize);
     tspan.textContent = line;
@@ -413,7 +394,10 @@ document.getElementById("shareX").onclick = () => {
     ctx.drawImage(img, 0, 0);
     URL.revokeObjectURL(url);
 
+    // PNG DataURL
     const pngDataUrl = canvas.toDataURL("image/png");
+
+    // Abre PNG em nova aba para o usuário salvar manualmente
     const win = window.open();
     win.document.write(`<p>Right-click the image to save or drag it to X:</p>`);
     win.document.write(`<img src="${pngDataUrl}" style="max-width:100%; height:auto;"/>`);
@@ -421,6 +405,30 @@ document.getElementById("shareX").onclick = () => {
 
   img.src = url;
 };
+
+// DRAG LOGO DO USUÁRIO
+let isDragging = false;
+let offsetY = 0;
+
+svgUserLogo.addEventListener("mousedown", e => {
+  isDragging = true;
+  offsetY = e.clientY - parseFloat(svgUserLogo.getAttribute("y"));
+  svgUserLogo.style.cursor = "grabbing";
+});
+
+window.addEventListener("mousemove", e => {
+  if (!isDragging) return;
+  let newY = e.clientY - offsetY;
+  if (newY < 0) newY = 0;
+  if (newY > 900) newY = 900;
+  svgUserLogo.setAttribute("y", newY);
+  svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
+});
+
+window.addEventListener("mouseup", () => {
+  isDragging = false;
+  svgUserLogo.style.cursor = "grab";
+});
 </script>
 </body>
 </html>
