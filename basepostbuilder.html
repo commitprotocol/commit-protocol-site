@@ -106,24 +106,37 @@ textarea {
 <section class="panel">
   <h2>Base Post Generator</h2>
 
+  <!-- Headline -->
   <label>Headline</label>
   <input id="headline" placeholder="Building for builders">
 
   <label>Headline Color</label>
   <input type="color" id="headlineColor" value="#ffffff">
 
+  <label>Headline Size</label>
+  <input type="range" id="headlineSize" min="24" max="100" value="48">
+
+  <!-- Body -->
   <label>Body</label>
   <textarea id="body" placeholder="Composable tools for the Base ecosystem. Use Shift+Enter for line breaks."></textarea>
 
   <label>Body Color</label>
   <input type="color" id="bodyColor" value="#ffffff">
 
+  <label>Body Size</label>
+  <input type="range" id="bodySize" min="14" max="60" value="28">
+
+  <!-- Footer -->
   <label>Footer</label>
   <input id="footer" placeholder="Permissionless by design">
 
   <label>Footer Color</label>
   <input type="color" id="footerColor" value="#ffffff">
 
+  <label>Footer Size</label>
+  <input type="range" id="footerSize" min="10" max="40" value="16">
+
+  <!-- Fonts -->
   <label>Headline Font</label>
   <select id="headlineFont">
     <option value="Inter">Inter</option>
@@ -142,12 +155,15 @@ textarea {
     <option value="system-ui">System UI</option>
   </select>
 
+  <!-- Template -->
   <label>Template</label>
   <div class="selector" id="templateSelector"></div>
 
+  <!-- Logo -->
   <label>Logo</label>
   <div class="selector" id="logoSelector"></div>
 
+  <!-- Logo position -->
   <label>Logo position</label>
   <div class="radio-group">
     <label><input type="radio" name="logoPos" checked onclick="setLogoPosition('bottom-right')"> Bottom Right</label>
@@ -171,10 +187,9 @@ textarea {
             font-size="48" font-weight="700" fill="#fff"
             font-family="Inter">Building for builders</text>
 
-      <!-- Body (preserves line breaks) -->
+      <!-- Body -->
       <text id="svgBody" x="500" y="330" text-anchor="middle"
-            font-size="28" fill="#fff" font-family="Inter, system-ui">
-      </text>
+            font-size="28" fill="#fff" font-family="Inter, system-ui"></text>
 
       <!-- Footer -->
       <text id="svgFooter" x="500" y="820" text-anchor="middle"
@@ -197,7 +212,7 @@ const templates = [
   "assets/templates/blackandwhite.svg"
 ];
 
-// Mapeamento automático de cor de texto por template
+// Cores automáticas por template
 const templateTextColors = {
   "assets/templates/blue.svg": "#ffffff",
   "assets/templates/black.svg": "#ffffff",
@@ -236,7 +251,7 @@ templates.forEach((src, i) => {
   const img = document.createElement("img");
   img.src = src;
   img.onclick = () => {
-    document.getElementById("svgTemplate").setAttribute("href", src);
+    svgTemplate.setAttribute("href", src);
     selectItem(templateSelector, img);
     applyTemplateTextColor(src);
   };
@@ -272,7 +287,7 @@ function selectItem(container, el){
   el.classList.add("selected");
 }
 
-// Atualiza cores automáticas de acordo com template
+// Cores automáticas
 function applyTemplateTextColor(templateSrc){
   const color = templateTextColors[templateSrc] || "#ffffff";
   svgHeadline.setAttribute("fill", color);
@@ -280,7 +295,6 @@ function applyTemplateTextColor(templateSrc){
   [...svgBody.querySelectorAll("tspan")].forEach(tspan =>
     tspan.setAttribute("fill", color)
   );
-  // Atualiza os inputs de cor para refletir a cor automática
   document.getElementById("headlineColor").value = color;
   document.getElementById("bodyColor").value = color;
   document.getElementById("footerColor").value = color;
@@ -294,11 +308,13 @@ document.getElementById("body").oninput = e => {
   const lines = e.target.value.split("\n");
   svgBody.innerHTML = "";
   const color = document.getElementById("bodyColor").value;
+  const size = document.getElementById("bodySize").value;
   lines.forEach((line, i) => {
     const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
     tspan.setAttribute("x", "500");
     tspan.setAttribute("dy", i===0 ? "0" : "32");
     tspan.setAttribute("fill", color);
+    tspan.setAttribute("font-size", size);
     tspan.textContent = line;
     svgBody.appendChild(tspan);
   });
@@ -314,7 +330,7 @@ document.getElementById("headlineFont").onchange = e =>
 document.getElementById("bodyFont").onchange = e =>
   svgBody.setAttribute("font-family", e.target.value);
 
-// Color selectors (manual override)
+// Color selectors (manual)
 document.getElementById("headlineColor").oninput = e =>
   svgHeadline.setAttribute("fill", e.target.value);
 
@@ -326,6 +342,21 @@ document.getElementById("bodyColor").oninput = e => {
 
 document.getElementById("footerColor").oninput = e =>
   svgFooter.setAttribute("fill", e.target.value);
+
+// Size sliders
+document.getElementById("headlineSize").oninput = e =>
+  svgHeadline.setAttribute("font-size", e.target.value);
+
+document.getElementById("bodySize").oninput = e => {
+  const size = e.target.value;
+  [...svgBody.querySelectorAll("tspan")].forEach(tspan =>
+    tspan.setAttribute("font-size", size)
+  );
+};
+
+document.getElementById("footerSize").oninput = e =>
+  svgFooter.setAttribute("font-size", e.target.value);
+
 </script>
 </body>
 </html>
