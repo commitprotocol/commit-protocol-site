@@ -158,9 +158,9 @@ button:hover { opacity: 0.9; }
     <label>Body Font</label>
     <select id="bodyFont">
       <option value="Inter">Inter</option>
-      <option value="'IBM Plex Sans'">IBM Plex Sans</option>
-      <option value="'Space Grotesk'">Space Grotesk</option>
-      <option value="'DM Sans'">DM Sans</option>
+      <option value="IBM Plex Sans">IBM Plex Sans</option>
+      <option value="Space Grotesk">Space Grotesk</option>
+      <option value="DM Sans">DM Sans</option>
       <option value="system-ui">System UI</option>
     </select>
   </div>
@@ -201,6 +201,27 @@ button:hover { opacity: 0.9; }
 
 <script>
 // CONFIG
+
+const FONT_MAP = {
+  "Inter": {
+    family: "Inter",
+    file: "assets/fonts/Inter-Regular.woff2"
+  },
+  "IBM Plex Sans": {
+    family: "IBM Plex Sans",
+    file: "assets/fonts/IBMPlexSans-Regular.woff2"
+  },
+  "Space Grotesk": {
+    family: "Space Grotesk",
+    file: "assets/fonts/SpaceGrotesk-Regular.woff2"
+  },
+  "DM Sans": {
+    family: "DM Sans",
+    file: "assets/fonts/DMSans-Regular.woff2"
+  },
+  "system-ui": null
+};
+
 const templates = [
   "assets/templates/blue.svg",
   "assets/templates/black.svg",
@@ -352,7 +373,7 @@ async function inlineSvgImages(svg) {
   const images = svg.querySelectorAll("image");
 
   for (const img of images) {
-    const href = img.getAttribute("href") || img.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+    const href = img.getAttribute("href");
     if (!href || href.startsWith("data:")) continue;
 
     const res = await fetch(href);
@@ -367,15 +388,36 @@ async function inlineSvgImages(svg) {
     img.setAttribute("href", dataUrl);
   }
 }
-  
-// SHARE PNG
-document.getElementById("sharePNG").onclick = async () => {
-  try {
-    await document.fonts.ready;
-    svgCard.getBBox();
-    await inlineSvgImages(svgCard);
+  async function embedFont(svg, fontKey) {
+  const font = FONT_MAP[fontKey];
+  if (!font) return;
 
-    // FORÇA AS FONTES NO SVG ANTES DE SERIALIZAR
+  const res = await fetch(font.file);
+  const buffer = await res.arrayBuffer();
+  const base64 = btoa(
+    new Uint8Array(buffer).reduce(
+      (data, byte) => data + String.fromCharCode(byte),
+      ""
+    )
+  );
+
+  const style = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "style"
+  );
+
+  style.textContent = `
+    @font-face {
+      font-family: '${font.family}';
+      src: url(data:font/woff2;base64,${base64}) format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+  `;
+
+  svg.insertBefore(style, svg.firstChild);
+}
+  // Garante fontes no SVG
 svgHeadline.setAttribute("font-family", currentHeadlineFont);
 svgFooter.setAttribute("font-family", currentHeadlineFont);
 
@@ -383,65 +425,60 @@ svgFooter.setAttribute("font-family", currentHeadlineFont);
   tspan.setAttribute("font-family", currentBodyFont);
 });
 
-    // 2. Serializa SVG
+// EMBUTE SOMENTE AS FONTES USADAS
+await embedFont(svgCard, currentHeadlineFont);
+await embedFont(svgCard, currentBodyFont);
+
+const serializer = new XMLSerializer();
+const svgStr = serializer.serializeToString(svgCard);
+}
+  
+// SHARE PNG
+document.getElementById("sharePNG").onclick = async () => {
+  try {
+    await document.fonts.ready;
+
+    // 1. força fontes nos elementos
+    svgHeadline.setAttribute("font-family", currentHeadlineFont);
+    svgFooter.setAttribute("font-family", currentHeadlineFont);
+    [...svgBody.querySelectorAll("tspan")].forEach(tspan => {
+      tspan.setAttribute("font-family", currentBodyFont);
+    });
+
+    // 2. inline imagens (templates + logos)
+    await inlineSvgImages(svgCard);
+
+    // 3. EMBUTE AS FONTES NO SVG (ESSENCIAL)
+    await embedFont(svgCard, currentHeadlineFont);
+    await embedFont(svgCard, currentBodyFont);
+
+    // 4. serializa SVG
     const serializer = new XMLSerializer();
     const svgStr = serializer.serializeToString(svgCard);
 
-    // 3. Cria imagem a partir do SVG
-    const svgBlob = new Blob([svgStr], {
-      type: "image/svg+xml;charset=utf-8"
-    });
+    // 5. SVG → Canvas
+    const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(svgBlob);
 
     const img = new Image();
-    img.crossOrigin = "anonymous";
-
     img.onload = () => {
-      // 4. Canvas
       const canvas = document.createElement("canvas");
       canvas.width = 1000;
       canvas.height = 1000;
-
       const ctx = canvas.getContext("2d");
 
-      // fundo branco
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
+      ctx.drawImage(img, 0, 0, 1000, 1000);
       URL.revokeObjectURL(url);
 
-      // 5. Abre nova aba com PNG
       const pngUrl = canvas.toDataURL("image/png");
-
       const win = window.open();
-      if (!win) {
-        alert("Popup bloqueado pelo navegador");
-        return;
-      }
-
-      win.document.write(`
-        <html>
-          <head><title>Export PNG</title></head>
-          <body style="margin:0; background:#f5f5f5; text-align:center;">
-            <p style="font-family:sans-serif; padding:16px;">
-              Clique com o botão direito e escolha <b>Salvar imagem como…</b>
-            </p>
-            <img src="${pngUrl}" style="max-width:95%; height:auto;" />
-          </body>
-        </html>
-      `);
-    };
-
-    img.onerror = e => {
-      console.error("Erro ao carregar SVG", e);
-      alert("Erro ao gerar PNG");
+      win.document.write(`<img src="${pngUrl}" />`);
     };
 
     img.src = url;
+
   } catch (err) {
-    console.error("Erro ao gerar PNG:", err);
+    console.error(err);
     alert("Erro ao gerar PNG — veja o console");
   }
 };
