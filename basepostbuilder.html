@@ -241,6 +241,15 @@ const FONT_MAP = {
   "system-ui": null
 };
 
+async function loadFont(fontKey) {
+  const font = FONT_MAP[fontKey];
+  if (!font) return;
+
+  const f = new FontFace(font.family, `url(${font.file})`);
+  await f.load();
+  document.fonts.add(f);
+}
+
 async function embedFontInSVG(svg, fontKey) {
   const font = FONT_MAP[fontKey];
   if (!font) return;
@@ -409,10 +418,15 @@ document.getElementById("footerSize").oninput=e=>{ svgFooter.setAttribute("font-
 document.getElementById("sharePNG").onclick=async()=>{
   try{
     await document.fonts.ready;
-    await updateSvgFontPreview();
-    await embedFontInSVG(svgCard, currentHeadlineFont, "#svgHeadline");
-    await embedFontInSVG(svgCard, currentBodyFont, "#svgBody tspan");
-    await embedFontInSVG(svgCard, currentBodyFont, "#svgFooter");
+// Carrega as fontes no DOM
+await loadFont(currentHeadlineFont);
+await loadFont(currentBodyFont);
+
+// Aplica as fontes nos elementos
+svgHeadline.setAttribute("font-family", currentHeadlineFont);
+[...svgBody.querySelectorAll("tspan")].forEach(tspan => tspan.setAttribute("font-family", currentBodyFont));
+svgFooter.setAttribute("font-family", currentBodyFont);
+
 
     // inline imagens
     const images=svgCard.querySelectorAll("image");
