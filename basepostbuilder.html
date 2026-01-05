@@ -1,111 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Base Post Generator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<script src="https://cdn.jsdelivr.net/npm/canvg@4.0.24/lib/umd.min.js"></script>
-
+<!-- Fonts recommended by Base -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-/* CSS ORIGINAL — SEM ALTERAÇÕES */
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
   font-family: Inter, system-ui, sans-serif;
-  background: #f5f5f5;
+  background: #ffffff;
   padding: 32px;
   display: flex;
   justify-content: center;
 }
+
 main {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
+  max-width: 1100px;
   width: 100%;
-  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 32px;
 }
+
 .panel {
-  flex: 0 0 360px;
-  background: #fff;
+  border: 1px solid #e6e6e6;
   border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  max-height: 90vh;
-  overflow-y: auto;
+  padding: 20px;
 }
-.section { margin-bottom: 20px; }
-.section h3 {
-  margin-top: 0;
-  font-size: 16px;
+
+label {
+  font-size: 13px;
   font-weight: 600;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 4px;
-  margin-bottom: 8px;
+  display: block;
+  margin-top: 16px;
 }
-label { font-size: 13px; font-weight: 600; display: block; margin-top: 8px; }
+
 input, textarea, select {
   width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #d0d0d0;
+  font-family: Inter;
   font-size: 14px;
 }
-textarea { min-height: 80px; }
+
+textarea {
+  min-height: 80px;
+}
+
 .selector {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-top: 8px;
 }
+
 .selector img {
   width: 100%;
   border-radius: 8px;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
 }
-.selector img:hover { transform: scale(1.05); }
+
 .selector img.selected {
-  border-color: #1da1f2;
-  box-shadow: 0 0 8px rgba(29,161,242,0.5);
+  border-color: #0404e2;
 }
-.preview-wrapper {
-  flex: 1 1 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.card {
-  width: 100%;
-  max-width: 600px;
-  margin-bottom: 16px;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-}
-button {
-  padding: 10px 16px;
-  background: #1da1f2;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  width: 100%;
+
+.radio-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
   margin-top: 8px;
 }
-.slider-wrapper {
+
+.radio-group label {
+  font-size: 13px;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
-.slider-wrapper span {
-  width: 32px;
-  text-align: center;
-  font-size: 13px;
+
+.preview-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  width: 600px;
+  height: 600px;
 }
 </style>
 </head>
@@ -116,132 +106,181 @@ button {
 <section class="panel">
   <h2>Base Post Generator</h2>
 
-  <div class="section">
-    <h3>User Logo / PFP</h3>
-    <input type="file" id="userLogoInput" accept="image/*">
-    <label>Width (px)</label>
-    <input type="number" id="userLogoWidth" value="100">
-    <label>Height (px)</label>
-    <input type="number" id="userLogoHeight" value="100">
-  </div>
+  <label>Headline</label>
+  <input id="headline" placeholder="Building for builders">
 
-  <div class="section">
-    <h3>Headline</h3>
-    <input id="headline" placeholder="Building for builders">
-    <input type="color" id="headlineColor" value="#ffffff">
-    <div class="slider-wrapper">
-      <input type="range" id="headlineSize" min="24" max="100" value="48">
-      <span id="headlineSizeValue">48</span>
-    </div>
-  </div>
+  <label>Body</label>
+  <textarea id="body" placeholder="Composable tools for the Base ecosystem. Use Shift+Enter for line breaks."></textarea>
 
-  <div class="section">
-    <h3>Body</h3>
-    <textarea id="body"></textarea>
-    <input type="color" id="bodyColor" value="#ffffff">
-    <div class="slider-wrapper">
-      <input type="range" id="bodySize" min="14" max="60" value="28">
-      <span id="bodySizeValue">28</span>
-    </div>
-  </div>
+  <label>Footer</label>
+  <input id="footer" placeholder="Permissionless by design">
 
-  <div class="section">
-    <h3>Footer</h3>
-    <input id="footer" placeholder="Permissionless by design">
-    <input type="color" id="footerColor" value="#ffffff">
-    <div class="slider-wrapper">
-      <input type="range" id="footerSize" min="10" max="40" value="16">
-      <span id="footerSizeValue">16</span>
-    </div>
-  </div>
+  <label>Headline Font</label>
+  <select id="headlineFont">
+    <option value="Inter">Inter</option>
+    <option value="'IBM Plex Sans'">IBM Plex Sans</option>
+    <option value="'Space Grotesk'">Space Grotesk</option>
+    <option value="'DM Sans'">DM Sans</option>
+    <option value="system-ui">System UI</option>
+  </select>
 
-  <div class="section">
-    <h3>Fonts</h3>
-    <select id="headlineFont">
-      <option value="Inter">Inter</option>
-      <option value="'IBM Plex Sans'">IBM Plex Sans</option>
-      <option value="'Space Grotesk'">Space Grotesk</option>
-      <option value="'DM Sans'">DM Sans</option>
-    </select>
-    <select id="bodyFont">
-      <option value="Inter">Inter</option>
-      <option value="'IBM Plex Sans'">IBM Plex Sans</option>
-      <option value="'Space Grotesk'">Space Grotesk</option>
-      <option value="'DM Sans'">DM Sans</option>
-    </select>
-  </div>
+  <label>Body Font</label>
+  <select id="bodyFont">
+    <option value="Inter">Inter</option>
+    <option value="'IBM Plex Sans'">IBM Plex Sans</option>
+    <option value="'Space Grotesk'">Space Grotesk</option>
+    <option value="'DM Sans'">DM Sans</option>
+    <option value="system-ui">System UI</option>
+  </select>
 
-  <div class="section">
-    <h3>Template</h3>
-    <div class="selector" id="templateSelector"></div>
-  </div>
+  <label>Template</label>
+  <div class="selector" id="templateSelector"></div>
 
-  <div class="section">
-    <h3>Logo</h3>
-    <div class="selector" id="logoSelector"></div>
-    <select id="logoPosition">
-      <option value="bottom-right">Bottom Right</option>
-      <option value="bottom-left">Bottom Left</option>
-      <option value="bottom-center">Bottom Center</option>
-    </select>
+  <label>Logo</label>
+  <div class="selector" id="logoSelector"></div>
+
+  <label>Logo position</label>
+  <div class="radio-group">
+    <label><input type="radio" name="logoPos" checked onclick="setLogoPosition('bottom-right')"> Bottom Right</label>
+    <label><input type="radio" name="logoPos" onclick="setLogoPosition('bottom-left')"> Bottom Left</label>
+    <label><input type="radio" name="logoPos" onclick="setLogoPosition('bottom-center')"> Bottom Center</label>
+    <label><input type="radio" name="logoPos" onclick="setLogoPosition('top-right')"> Top Right</label>
+    <label><input type="radio" name="logoPos" onclick="setLogoPosition('top-left')"> Top Left</label>
+    <label><input type="radio" name="logoPos" onclick="setLogoPosition('top-center')"> Top Center</label>
   </div>
 </section>
 
 <section class="preview-wrapper">
   <div class="card">
-    <svg id="svgCard" viewBox="0 0 1000 1000">
+    <svg viewBox="0 0 1000 1000" width="100%" height="100%">
 
-      <!-- FIX: crossorigin + xlink -->
-      <image id="svgTemplate"
-             href="assets/templates/blue.svg"
-             xlink:href="assets/templates/blue.svg"
-             width="1000"
-             height="1000"
-             crossorigin="anonymous"/>
+      <!-- Template -->
+      <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
 
-      <image id="svgUserLogo"
-             x="450" y="100"
-             width="100" height="100"
-             crossorigin="anonymous"/>
+      <!-- Headline -->
+      <text id="svgHeadline" x="500" y="260" text-anchor="middle"
+            font-size="48" font-weight="700" fill="#fff"
+            font-family="Inter">Building for builders</text>
 
-      <text id="svgHeadline" x="500" y="260" text-anchor="middle" font-size="48" fill="#fff">Building for builders</text>
-      <text id="svgBody" x="500" y="330" text-anchor="middle" fill="#fff"></text>
-      <text id="svgFooter" x="500" y="820" text-anchor="middle" font-size="16" fill="#fff">Permissionless by design</text>
+      <!-- Body (preserves line breaks) -->
+      <text id="svgBody" x="500" y="330" text-anchor="middle"
+            font-size="28" fill="#fff" font-family="Inter, system-ui">
+      </text>
 
-      <image id="svgLogo"
-             width="160" height="160"
-             crossorigin="anonymous"/>
+      <!-- Footer -->
+      <text id="svgFooter" x="500" y="820" text-anchor="middle"
+            font-size="16" fill="#fff" opacity="0.75"
+            font-family="Inter">Permissionless by design</text>
+
+      <!-- Logo -->
+      <image id="svgLogo" width="160" height="160"/>
     </svg>
   </div>
-
-  <button id="sharePNG">Share PNG</button>
 </section>
 
-<script>
-// SHARE PNG — agora 100% funcional
-document.getElementById("sharePNG").onclick = async () => {
-  const svgData = new XMLSerializer().serializeToString(svgCard);
-
-  const canvas = document.createElement("canvas");
-  canvas.width = 1000;
-  canvas.height = 1000;
-
-  const ctx = canvas.getContext("2d");
-  const v = await Canvg.fromString(ctx, svgData);
-  await v.render();
-
-  const pngDataUrl = canvas.toDataURL("image/png");
-
-  const win = window.open();
-  win.document.write(`
-    <p style="font-family:sans-serif;text-align:center;margin-top:20px">
-      Clique com o botão direito e escolha "Salvar imagem como..."
-    </p>
-    <img src="${pngDataUrl}" style="display:block;margin:20px auto;max-width:90%">
-  `);
-};
-</script>
-
 </main>
+
+<script>
+const templates = [
+  "assets/templates/blue.svg",
+  "assets/templates/black.svg",
+  "assets/templates/blackandblue.svg",
+  "assets/templates/blackandwhite.svg"
+];
+
+const logos = [
+  "assets/logos/Base_basemark_blue.svg",
+  "assets/logos/Base_basemark_black.svg",
+  "assets/logos/Base_basemark_white.svg",
+  "assets/logos/Base_lockup_black.svg",
+  "assets/logos/Base_lockup_white.svg",
+  "assets/logos/Base_lockup_2color.svg"
+];
+
+const logoPositions = {
+  "bottom-right": { x: 760, y: 760 },
+  "bottom-left": { x: 80, y: 760 },
+  "bottom-center": { x: 420, y: 760 },
+  "top-right": { x: 760, y: 80 },
+  "top-left": { x: 80, y: 80 },
+  "top-center": { x: 420, y: 80 }
+};
+
+const svgHeadline = document.getElementById("svgHeadline");
+const svgBody = document.getElementById("svgBody");
+const svgFooter = document.getElementById("svgFooter");
+const svgLogo = document.getElementById("svgLogo");
+
+const templateSelector = document.getElementById("templateSelector");
+const logoSelector = document.getElementById("logoSelector");
+
+// Templates
+templates.forEach((src, i) => {
+  const img = document.createElement("img");
+  img.src = src;
+  img.onclick = () => {
+    document.getElementById("svgTemplate").setAttribute("href", src);
+    selectItem(templateSelector, img);
+  };
+  if(i===0) img.classList.add("selected");
+  templateSelector.appendChild(img);
+});
+
+// Logos
+logos.forEach((src, i) => {
+  const img = document.createElement("img");
+  img.src = src;
+  img.onclick = () => {
+    svgLogo.setAttribute("href", src);
+    selectItem(logoSelector, img);
+  };
+  if(i===0){
+    svgLogo.setAttribute("href", src);
+    img.classList.add("selected");
+  }
+  logoSelector.appendChild(img);
+});
+
+// Logo Position
+function setLogoPosition(pos){
+  const p = logoPositions[pos];
+  svgLogo.setAttribute("x", p.x);
+  svgLogo.setAttribute("y", p.y);
+}
+setLogoPosition("bottom-right");
+
+function selectItem(container, el){
+  [...container.children].forEach(i => i.classList.remove("selected"));
+  el.classList.add("selected");
+}
+
+// Update SVG live
+document.getElementById("headline").oninput = e =>
+  svgHeadline.textContent = e.target.value;
+
+document.getElementById("body").oninput = e => {
+  // Preserve line breaks
+  const lines = e.target.value.split("\n");
+  svgBody.innerHTML = "";
+  lines.forEach((line, i) => {
+    const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
+    tspan.setAttribute("x", "500");
+    tspan.setAttribute("dy", i===0 ? "0" : "32"); // line spacing
+    tspan.textContent = line;
+    svgBody.appendChild(tspan);
+  });
+};
+
+document.getElementById("footer").oninput = e =>
+  svgFooter.textContent = e.target.value;
+
+// Font selectors
+document.getElementById("headlineFont").onchange = e =>
+  svgHeadline.setAttribute("font-family", e.target.value);
+
+document.getElementById("bodyFont").onchange = e =>
+  svgBody.setAttribute("font-family", e.target.value);
+
+</script>
 </body>
 </html>
