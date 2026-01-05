@@ -346,16 +346,25 @@ function applyTemplateTextColor(templateSrc){
 }
 
 // FONT EMBED
-async function embedFont(svg,fontKey){
-  const font=FONT_MAP[fontKey];
-  if(!font) return;
-  const res=await fetch(font.file);
-  const buffer=await res.arrayBuffer();
-  const base64=btoa(new Uint8Array(buffer).reduce((data,byte)=>data+String.fromCharCode(byte),""));
-  const style=document.createElementNS("http://www.w3.org/2000/svg","style");
-  style.setAttribute("data-embedded-font",font.family);
-  style.textContent=`@font-face{font-family:'${font.family}';src:url(data:font/woff2;base64,${base64}) format('woff2');font-weight:normal;font-style:normal;}`;
-  svg.insertBefore(style,svg.firstChild);
+async function embedFontInSVG(svg, fontKey, selector) {
+  const font = FONT_MAP[fontKey];
+  if (!font) return;
+
+  const response = await fetch(font.file);
+  const buffer = await response.arrayBuffer();
+  const base64 = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ""));
+
+  const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+  style.textContent = `
+    @font-face {
+      font-family: '${font.family}';
+      src: url('data:font/woff2;base64,${base64}') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+    ${selector} { font-family: '${font.family}'; }
+  `;
+  svg.insertBefore(style, svg.firstChild);
 }
 
 // UPDATE SVG PREVIEW
@@ -401,8 +410,9 @@ document.getElementById("sharePNG").onclick=async()=>{
   try{
     await document.fonts.ready;
     await updateSvgFontPreview();
-    await embedFontInSVG(svgCard, currentHeadlineFont);
-    await embedFontInSVG(svgCard, currentBodyFont);
+    await embedFontInSVG(svgCard, currentHeadlineFont, "#svgHeadline");
+    await embedFontInSVG(svgCard, currentBodyFont, "#svgBody tspan");
+    await embedFontInSVG(svgCard, currentBodyFont, "#svgFooter");
 
     // inline imagens
     const images=svgCard.querySelectorAll("image");
