@@ -5,8 +5,6 @@
 <title>Base Post Generator - Pixel Perfect</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
-
 <style>
 * { box-sizing: border-box; }
 
@@ -150,9 +148,9 @@ button:hover { opacity: 0.9; }
     <label>Headline Font</label>
     <select id="headlineFont">
       <option value="Inter">Inter</option>
-      <option value="'IBM Plex Sans'">IBM Plex Sans</option>
-      <option value="'Space Grotesk'">Space Grotesk</option>
-      <option value="'DM Sans'">DM Sans</option>
+      <option value="IBM Plex Sans">IBM Plex Sans</option>
+      <option value="Space Grotesk">Space Grotesk</option>
+      <option value="DM Sans">DM Sans</option>
       <option value="system-ui">System UI</option>
     </select>
     <label>Body Font</label>
@@ -333,10 +331,10 @@ function applyTemplateTextColor(templateSrc){
 }
 
 // INPUTS
-document.getElementById("headline").oninput = e => svgHeadline.textContent = e.target.value;
-document.getElementById("body").oninput = e=>{
-  const lines = e.target.value.split("\n");
-  svgBody.innerHTML = "";
+document.getElementById("headline").oninput = e => {
+  svgHeadline.textContent = e.target.value;
+  svgHeadline.setAttribute("font-family", currentHeadlineFont);
+};
   const color = document.getElementById("bodyColor").value;
   const fontSize = parseInt(document.getElementById("bodySize").value);
   const fontFamily = document.getElementById("bodyFont").value;
@@ -351,7 +349,11 @@ document.getElementById("body").oninput = e=>{
     svgBody.appendChild(tspan);
   });
 };
-document.getElementById("footer").oninput = e=> svgFooter.textContent = e.target.value;
+
+document.getElementById("footer").oninput = e => {
+  svgFooter.textContent = e.target.value;
+  svgFooter.setAttribute("font-family", currentBodyFont);
+};
 document.getElementById("headlineFont").onchange = e => {
   currentHeadlineFont = e.target.value;
   svgHeadline.setAttribute("font-family", currentHeadlineFont);
@@ -406,6 +408,8 @@ async function inlineSvgImages(svg) {
     "style"
   );
 
+  style.setAttribute("data-embedded-font", font.family);
+
   style.textContent = `
     @font-face {
       font-family: '${font.family}';
@@ -417,66 +421,52 @@ async function inlineSvgImages(svg) {
 
   svg.insertBefore(style, svg.firstChild);
 }
-  // Garante fontes no SVG
-svgHeadline.setAttribute("font-family", currentHeadlineFont);
-svgFooter.setAttribute("font-family", currentHeadlineFont);
-
-[...svgBody.querySelectorAll("tspan")].forEach(tspan => {
-  tspan.setAttribute("font-family", currentBodyFont);
-});
-
-// EMBUTE SOMENTE AS FONTES USADAS
-await embedFont(svgCard, currentHeadlineFont);
-await embedFont(svgCard, currentBodyFont);
-
-const serializer = new XMLSerializer();
-const svgStr = serializer.serializeToString(svgCard);
-}
   
 // SHARE PNG
 document.getElementById("sharePNG").onclick = async () => {
   try {
     await document.fonts.ready;
 
-    // 1. força fontes nos elementos
     svgHeadline.setAttribute("font-family", currentHeadlineFont);
-    svgFooter.setAttribute("font-family", currentHeadlineFont);
-    [...svgBody.querySelectorAll("tspan")].forEach(tspan => {
-      tspan.setAttribute("font-family", currentBodyFont);
-    });
+    svgFooter.setAttribute("font-family", currentBodyFont);
+    [...svgBody.querySelectorAll("tspan")].forEach(tspan =>
+      tspan.setAttribute("font-family", currentBodyFont)
+    );
 
-    // 2. inline imagens (templates + logos)
     await inlineSvgImages(svgCard);
 
-    // 3. EMBUTE AS FONTES NO SVG (ESSENCIAL)
-    await embedFont(svgCard, currentHeadlineFont);
-    await embedFont(svgCard, currentBodyFont);
+    svgCard
+      .querySelectorAll("style[data-embedded-font]")
+      .forEach(s => s.remove());
 
-    // 4. serializa SVG
+    if (FONT_MAP[currentHeadlineFont]) {
+      await embedFont(svgCard, currentHeadlineFont);
+    }
+    if (FONT_MAP[currentBodyFont]) {
+      await embedFont(svgCard, currentBodyFont);
+    }
+
     const serializer = new XMLSerializer();
     const svgStr = serializer.serializeToString(svgCard);
 
-    // 5. SVG → Canvas
-    const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(svgBlob);
+    const blob = new Blob([svgStr], {
+      type: "image/svg+xml;charset=utf-8"
+    });
+    const url = URL.createObjectURL(blob);
 
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = 1000;
       canvas.height = 1000;
-      const ctx = canvas.getContext("2d");
-
-      ctx.drawImage(img, 0, 0, 1000, 1000);
+      canvas.getContext("2d").drawImage(img, 0, 0);
       URL.revokeObjectURL(url);
 
-      const pngUrl = canvas.toDataURL("image/png");
       const win = window.open();
-      win.document.write(`<img src="${pngUrl}" />`);
+      win.document.write(`<img src="${canvas.toDataURL("image/png")}" />`);
     };
 
     img.src = url;
-
   } catch (err) {
     console.error(err);
     alert("Erro ao gerar PNG — veja o console");
