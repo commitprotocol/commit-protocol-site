@@ -115,7 +115,6 @@ button:hover { opacity: 0.9; }
   font-style: normal;
   font-display: swap;
 }
-  
 </style>
 </head>
 
@@ -214,12 +213,12 @@ button:hover { opacity: 0.9; }
 <section class="preview-wrapper">
   <div class="card">
     <svg
-  id="svgCard"
-  viewBox="0 0 1000 1000"
-  width="1000"
-  height="1000"
-  preserveAspectRatio="xMidYMid meet"
->
+      id="svgCard"
+      viewBox="0 0 1000 1000"
+      width="1000"
+      height="1000"
+      preserveAspectRatio="xMidYMid meet"
+    >
       <rect x="0" y="0" width="1000" height="1000" fill="#fff"/>
       <image id="svgTemplate" href="assets/templates/blue.svg" x="0" y="0" width="1000" height="1000"/>
       <image id="svgUserLogo" x="450" y="100" width="100" height="100" href="" />
@@ -235,301 +234,187 @@ button:hover { opacity: 0.9; }
 
 <script>
 // CONFIG
-
 const FONT_MAP = {
-  "Inter": {
-    family: "Inter",
-    file: "assets/fonts/Inter-Regular.woff2"
-  },
-  "IBM Plex Sans": {
-    family: "IBM Plex Sans",
-    file: "assets/fonts/IBMPlexSans-Regular.woff2"
-  },
-  "Space Grotesk": {
-    family: "Space Grotesk",
-    file: "assets/fonts/SpaceGrotesk-Regular.woff2"
-  },
-  "DM Sans": {
-    family: "DM Sans",
-    file: "assets/fonts/DMSans-Regular.woff2"
-  },
+  "Inter": { family: "Inter", file: "assets/fonts/Inter-Regular.woff2" },
+  "IBM Plex Sans": { family: "IBM Plex Sans", file: "assets/fonts/IBMPlexSans-Regular.woff2" },
+  "Space Grotesk": { family: "Space Grotesk", file: "assets/fonts/SpaceGrotesk-Regular.woff2" },
+  "DM Sans": { family: "DM Sans", file: "assets/fonts/DMSans-Regular.woff2" },
   "system-ui": null
 };
 
-const templates = [
-  "assets/templates/blue.svg",
-  "assets/templates/black.svg",
-  "assets/templates/blackandblue.svg",
-  "assets/templates/blackandwhite.svg"
-];
+const templates = ["assets/templates/blue.svg","assets/templates/black.svg","assets/templates/blackandblue.svg","assets/templates/blackandwhite.svg"];
 const templateTextColors = {
   "assets/templates/blue.svg":"#ffffff",
   "assets/templates/black.svg":"#ffffff",
   "assets/templates/blackandblue.svg":"#ffffff",
   "assets/templates/blackandwhite.svg":"#000000"
 };
-const logos = [
-  "assets/logos/Base_blue.svg",
-  "assets/logos/Base_black.svg",
-  "assets/logos/Base_white.svg",
-  "assets/logos/Base_blue2.svg",
-  "assets/logos/Base_black2.svg",
-  "assets/logos/Base_white2.svg",
-];
-const logoPositions = {
-  "bottom-right": { x: 720, y: 780 },
-  "bottom-left": { x: 120, y: 780 },
-  "bottom-center": { x: 420, y: 780 },
-};
+const logos = ["assets/logos/Base_blue.svg","assets/logos/Base_black.svg","assets/logos/Base_white.svg","assets/logos/Base_blue2.svg","assets/logos/Base_black2.svg","assets/logos/Base_white2.svg"];
+const logoPositions = { "bottom-right":{x:720,y:780}, "bottom-left":{x:120,y:780}, "bottom-center":{x:420,y:780} };
 
 // ELEMENTS
-const svgHeadline = document.getElementById("svgHeadline");
-const svgBody = document.getElementById("svgBody");
-const svgFooter = document.getElementById("svgFooter");
-const svgLogo = document.getElementById("svgLogo");
-const svgTemplate = document.getElementById("svgTemplate");
-const svgCard = document.getElementById("svgCard");
-const userLogoInput = document.getElementById("userLogoInput");
-const svgUserLogo = document.getElementById("svgUserLogo");
-const userLogoWidth = document.getElementById("userLogoWidth");
-const userLogoHeight = document.getElementById("userLogoHeight");
-let currentHeadlineFont = "Inter";
-let currentBodyFont = "Inter";
+const svgHeadline=document.getElementById("svgHeadline");
+const svgBody=document.getElementById("svgBody");
+const svgFooter=document.getElementById("svgFooter");
+const svgLogo=document.getElementById("svgLogo");
+const svgTemplate=document.getElementById("svgTemplate");
+const svgCard=document.getElementById("svgCard");
+const userLogoInput=document.getElementById("userLogoInput");
+const svgUserLogo=document.getElementById("svgUserLogo");
+const userLogoWidth=document.getElementById("userLogoWidth");
+const userLogoHeight=document.getElementById("userLogoHeight");
+let currentHeadlineFont="Inter";
+let currentBodyFont="Inter";
 
 // UPLOAD USER LOGO
-userLogoInput.onchange = e => {
-  const file = e.target.files[0];
+userLogoInput.onchange=e=>{
+  const file=e.target.files[0];
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    svgUserLogo.setAttribute("href", reader.result);
-    svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
+  const reader=new FileReader();
+  reader.onload=()=> {
+    svgUserLogo.setAttribute("href",reader.result);
+    svgUserLogo.setAttribute("x",500-parseFloat(svgUserLogo.getAttribute("width"))/2);
   };
   reader.readAsDataURL(file);
 };
-userLogoWidth.oninput = e => {
-  svgUserLogo.setAttribute("width", e.target.value);
-  svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
-};
-userLogoHeight.oninput = e => svgUserLogo.setAttribute("height", e.target.value);
+userLogoWidth.oninput=e=>{ svgUserLogo.setAttribute("width",e.target.value); svgUserLogo.setAttribute("x",500-parseFloat(svgUserLogo.getAttribute("width"))/2);}
+userLogoHeight.oninput=e=>svgUserLogo.setAttribute("height",e.target.value);
 
 // INIT TEMPLATES
-const templateSelector = document.getElementById("templateSelector");
+const templateSelector=document.getElementById("templateSelector");
 templates.forEach((src,i)=>{
-  const img = document.createElement("img");
-  img.src = src;
-  img.onclick = ()=>{
-    svgTemplate.setAttribute("href", src);
-    selectItem(templateSelector, img);
-    applyTemplateTextColor(src);
-  };
+  const img=document.createElement("img");
+  img.src=src;
+  img.onclick=()=>{svgTemplate.setAttribute("href",src); selectItem(templateSelector,img); applyTemplateTextColor(src);}
   if(i===0) img.classList.add("selected");
   templateSelector.appendChild(img);
 });
 
 // INIT LOGOS
-const logoSelector = document.getElementById("logoSelector");
+const logoSelector=document.getElementById("logoSelector");
 logos.forEach((src,i)=>{
   const img=document.createElement("img");
   img.src=src;
-  img.onclick=()=>{
-    svgLogo.setAttribute("href",src);
-    selectItem(logoSelector,img);
-  };
-  if(i===0){svgLogo.setAttribute("href",src); img.classList.add("selected");}
+  img.onclick=()=>{ svgLogo.setAttribute("href",src); selectItem(logoSelector,img);}
+  if(i===0){ svgLogo.setAttribute("href",src); img.classList.add("selected");}
   logoSelector.appendChild(img);
 });
 
 // LOGO POSITION
-const logoPositionSelect = document.getElementById("logoPosition");
-logoPositionSelect.onchange = e=>{
-  const p = logoPositions[e.target.value];
-  svgLogo.setAttribute("x", p.x);
-  svgLogo.setAttribute("y", p.y);
+const logoPositionSelect=document.getElementById("logoPosition");
+logoPositionSelect.onchange=e=>{
+  const p=logoPositions[e.target.value];
+  svgLogo.setAttribute("x",p.x);
+  svgLogo.setAttribute("y",p.y);
 };
 logoPositionSelect.value="bottom-right";
-svgLogo.setAttribute("x", 720);
-svgLogo.setAttribute("y", 780);
+svgLogo.setAttribute("x",720);
+svgLogo.setAttribute("y",780);
 
-// AUX FUNCTIONS
-function selectItem(container, el){
-  [...container.children].forEach(i=>i.classList.remove("selected"));
-  el.classList.add("selected");
-}
+// AUX
+function selectItem(container,el){ [...container.children].forEach(i=>i.classList.remove("selected")); el.classList.add("selected");}
 function applyTemplateTextColor(templateSrc){
-  const color = templateTextColors[templateSrc] || "#ffffff";
-  svgHeadline.setAttribute("fill", color);
-  svgFooter.setAttribute("fill", color);
+  const color=templateTextColors[templateSrc]||"#ffffff";
+  svgHeadline.setAttribute("fill",color);
+  svgFooter.setAttribute("fill",color);
   [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill",color));
-  document.getElementById("headlineColor").value = color;
-  document.getElementById("bodyColor").value = color;
-  document.getElementById("footerColor").value = color;
+  document.getElementById("headlineColor").value=color;
+  document.getElementById("bodyColor").value=color;
+  document.getElementById("footerColor").value=color;
+}
+
+// FONT EMBED
+async function embedFont(svg,fontKey){
+  const font=FONT_MAP[fontKey];
+  if(!font) return;
+  const res=await fetch(font.file);
+  const buffer=await res.arrayBuffer();
+  const base64=btoa(new Uint8Array(buffer).reduce((data,byte)=>data+String.fromCharCode(byte),""));
+  const style=document.createElementNS("http://www.w3.org/2000/svg","style");
+  style.setAttribute("data-embedded-font",font.family);
+  style.textContent=`@font-face{font-family:'${font.family}';src:url(data:font/woff2;base64,${base64}) format('woff2');font-weight:normal;font-style:normal;}`;
+  svg.insertBefore(style,svg.firstChild);
+}
+
+// UPDATE SVG PREVIEW
+async function updateSvgFontPreview(){
+  svgCard.querySelectorAll("style[data-embedded-font]").forEach(s=>s.remove());
+  if(FONT_MAP[currentHeadlineFont]) await embedFont(svgCard,currentHeadlineFont);
+  if(FONT_MAP[currentBodyFont]) await embedFont(svgCard,currentBodyFont);
+  svgHeadline.setAttribute("font-family",currentHeadlineFont);
+  svgFooter.setAttribute("font-family",currentBodyFont);
+  [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-family",currentBodyFont));
 }
 
 // INPUTS
-document.getElementById("headline").oninput = e => {
-  svgHeadline.textContent = e.target.value;
-  svgHeadline.setAttribute("font-family", currentHeadlineFont);
-};
-document.getElementById("body").oninput = e => {
-  const lines = e.target.value.split("\n");
-  svgBody.innerHTML = "";
-
-  const color = document.getElementById("bodyColor").value;
-  const fontSize = parseInt(document.getElementById("bodySize").value);
-
-  lines.forEach((line, i) => {
-    const tspan = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "tspan"
-    );
-    tspan.setAttribute("x", "500");
-    tspan.setAttribute("dy", i === 0 ? "0" : fontSize * 1.2);
-    tspan.setAttribute("fill", color);
-    tspan.setAttribute("font-size", fontSize);
-    tspan.setAttribute("font-family", currentBodyFont);
-    tspan.textContent = line;
+document.getElementById("headline").oninput=e=>{ svgHeadline.textContent=e.target.value; svgHeadline.setAttribute("font-family",currentHeadlineFont);}
+document.getElementById("body").oninput=e=>{
+  const lines=e.target.value.split("\n");
+  svgBody.innerHTML="";
+  const color=document.getElementById("bodyColor").value;
+  const fontSize=parseInt(document.getElementById("bodySize").value);
+  lines.forEach((line,i)=>{
+    const tspan=document.createElementNS("http://www.w3.org/2000/svg","tspan");
+    tspan.setAttribute("x","500");
+    tspan.setAttribute("dy",i===0?"0":fontSize*1.2);
+    tspan.setAttribute("fill",color);
+    tspan.setAttribute("font-size",fontSize);
+    tspan.setAttribute("font-family",currentBodyFont);
+    tspan.textContent=line;
     svgBody.appendChild(tspan);
   });
-};  
-document.getElementById("footer").oninput = e => {
-  svgFooter.textContent = e.target.value;
-  svgFooter.setAttribute("font-family", currentBodyFont);
 };
-document.getElementById("headlineFont").onchange = e => {
-  currentHeadlineFont = e.target.value;
-  svgHeadline.setAttribute("font-family", currentHeadlineFont);
-};
-document.getElementById("bodyFont").onchange = e => {
-  currentBodyFont = e.target.value;
-  [...svgBody.querySelectorAll("tspan")].forEach(tspan => {
-    tspan.setAttribute("font-family", currentBodyFont);
-  });
-};
-document.getElementById("headlineColor").oninput = e => svgHeadline.setAttribute("fill", e.target.value);
-document.getElementById("bodyColor").oninput = e => [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill", e.target.value));
-document.getElementById("footerColor").oninput = e => svgFooter.setAttribute("fill", e.target.value);
-document.getElementById("headlineSize").oninput = e => { svgHeadline.setAttribute("font-size", e.target.value); document.getElementById("headlineSizeValue").textContent = e.target.value; };
-document.getElementById("bodySize").oninput = e => { [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size", e.target.value)); document.getElementById("bodySizeValue").textContent = e.target.value; };
-document.getElementById("footerSize").oninput = e => { svgFooter.setAttribute("font-size", e.target.value); document.getElementById("footerSizeValue").textContent = e.target.value; };
+document.getElementById("footer").oninput=e=>{ svgFooter.textContent=e.target.value; svgFooter.setAttribute("font-family",currentBodyFont);}
+document.getElementById("headlineFont").onchange=async e=>{ currentHeadlineFont=e.target.value; await updateSvgFontPreview();}
+document.getElementById("bodyFont").onchange=async e=>{ currentBodyFont=e.target.value; await updateSvgFontPreview();}
+document.getElementById("headlineColor").oninput=e=>svgHeadline.setAttribute("fill",e.target.value);
+document.getElementById("bodyColor").oninput=e=>[...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill",e.target.value));
+document.getElementById("footerColor").oninput=e=>svgFooter.setAttribute("fill",e.target.value);
+document.getElementById("headlineSize").oninput=e=>{ svgHeadline.setAttribute("font-size",e.target.value); document.getElementById("headlineSizeValue").textContent=e.target.value;};
+document.getElementById("bodySize").oninput=e=>{ [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size",e.target.value)); document.getElementById("bodySizeValue").textContent=e.target.value;};
+document.getElementById("footerSize").oninput=e=>{ svgFooter.setAttribute("font-size",e.target.value); document.getElementById("footerSizeValue").textContent=e.target.value;};
 
-async function inlineSvgImages(svg) {
-  const images = svg.querySelectorAll("image");
-
-  for (const img of images) {
-    const href = img.getAttribute("href");
-    if (!href || href.startsWith("data:")) continue;
-
-    const res = await fetch(href);
-    const blob = await res.blob();
-
-    const reader = new FileReader();
-    const dataUrl = await new Promise(resolve => {
-      reader.onload = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-
-    img.setAttribute("href", dataUrl);
-  }
-}
-  async function embedFont(svg, fontKey) {
-  const font = FONT_MAP[fontKey];
-  if (!font) return;
-
-  const res = await fetch(font.file);
-  const buffer = await res.arrayBuffer();
-  const base64 = btoa(
-    new Uint8Array(buffer).reduce(
-      (data, byte) => data + String.fromCharCode(byte),
-      ""
-    )
-  );
-
-  const style = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "style"
-  );
-
-  style.setAttribute("data-embedded-font", font.family);
-
-  style.textContent = `
-    @font-face {
-      font-family: '${font.family}';
-      src: url(data:font/woff2;base64,${base64}) format('woff2');
-      font-weight: normal;
-      font-style: normal;
-    }
-  `;
-
-  svg.insertBefore(style, svg.firstChild);
-}
-  
 // SHARE PNG
-document.getElementById("sharePNG").onclick = async () => {
-  try {
+document.getElementById("sharePNG").onclick=async()=>{
+  try{
     await document.fonts.ready;
+    await updateSvgFontPreview();
 
-    svgHeadline.setAttribute("font-family", currentHeadlineFont);
-    svgFooter.setAttribute("font-family", currentBodyFont);
-    [...svgBody.querySelectorAll("tspan")].forEach(tspan =>
-      tspan.setAttribute("font-family", currentBodyFont)
-    );
-
-    await inlineSvgImages(svgCard);
-
-    svgCard
-      .querySelectorAll("style[data-embedded-font]")
-      .forEach(s => s.remove());
-
-    if (FONT_MAP[currentHeadlineFont]) {
-      await embedFont(svgCard, currentHeadlineFont);
-    }
-    if (FONT_MAP[currentBodyFont]) {
-      await embedFont(svgCard, currentBodyFont);
+    // inline imagens
+    const images=svgCard.querySelectorAll("image");
+    for(const img of images){
+      const href=img.getAttribute("href");
+      if(!href||href.startsWith("data:")) continue;
+      const res=await fetch(href);
+      const blob=await res.blob();
+      const reader=new FileReader();
+      const dataUrl=await new Promise(resolve=>{ reader.onload=()=>resolve(reader.result); reader.readAsDataURL(blob); });
+      img.setAttribute("href",dataUrl);
     }
 
-    const serializer = new XMLSerializer();
-    const svgStr = serializer.serializeToString(svgCard);
-
-    const blob = new Blob([svgStr], {
-      type: "image/svg+xml;charset=utf-8"
-    });
-    const url = URL.createObjectURL(blob);
-
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 1000;
-      canvas.height = 1000;
-      canvas.getContext("2d").drawImage(img, 0, 0);
+    // serialize SVG
+    const serializer=new XMLSerializer();
+    const svgStr=serializer.serializeToString(svgCard);
+    const blob=new Blob([svgStr],{type:"image/svg+xml;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement("canvas");
+      canvas.width=1000;
+      canvas.height=1000;
+      canvas.getContext("2d").drawImage(img,0,0);
       URL.revokeObjectURL(url);
-
-      const win = window.open();
+      const win=window.open();
       win.document.write(`<img src="${canvas.toDataURL("image/png")}" />`);
     };
-
-    img.src = url;
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao gerar PNG — veja o console");
-  }
+    img.src=url;
+  }catch(err){console.error(err); alert("Erro ao gerar PNG — veja o console");}
 };
 
 // DRAG USER LOGO
 let isDragging=false, offsetY=0;
-svgUserLogo.addEventListener("mousedown", e=>{
-  isDragging=true;
-  offsetY = e.clientY - parseFloat(svgUserLogo.getAttribute("y"));
-  svgUserLogo.style.cursor = "grabbing";
-});
-window.addEventListener("mousemove", e=>{
-  if(!isDragging) return;
-  let newY = e.clientY - offsetY;
-  if(newY<0) newY=0;
-  if(newY>900)newY=900;
-  svgUserLogo.setAttribute("y", newY);
-  svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
-});
+svgUserLogo.addEventListener("mousedown", e=>{ isDragging=true; offsetY=e.clientY-parseFloat(svgUserLogo.getAttribute("y")); svgUserLogo.style.cursor="grabbing"; });
+window.addEventListener("mousemove", e=>{ if(!isDragging) return; let newY=e.clientY-offsetY; if(newY<0)newY=0; if(newY>900)newY=900; svgUserLogo.setAttribute("y",newY); svgUserLogo.setAttribute("x",500-parseFloat(svgUserLogo.getAttribute("width"))/2); });
 window.addEventListener("mouseup", ()=>{ isDragging=false; svgUserLogo.style.cursor="grab"; });
 </script>
 </body>
