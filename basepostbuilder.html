@@ -335,21 +335,27 @@ document.getElementById("headline").oninput = e => {
   svgHeadline.textContent = e.target.value;
   svgHeadline.setAttribute("font-family", currentHeadlineFont);
 };
+document.getElementById("body").oninput = e => {
+  const lines = e.target.value.split("\n");
+  svgBody.innerHTML = "";
+
   const color = document.getElementById("bodyColor").value;
   const fontSize = parseInt(document.getElementById("bodySize").value);
-  const fontFamily = document.getElementById("bodyFont").value;
-  lines.forEach((line,i)=>{
-    const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
-    tspan.setAttribute("x","500");
-    tspan.setAttribute("dy", i===0?"0":fontSize*1);
+
+  lines.forEach((line, i) => {
+    const tspan = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "tspan"
+    );
+    tspan.setAttribute("x", "500");
+    tspan.setAttribute("dy", i === 0 ? "0" : fontSize * 1.2);
     tspan.setAttribute("fill", color);
     tspan.setAttribute("font-size", fontSize);
-    tspan.setAttribute("font-family", fontFamily);
+    tspan.setAttribute("font-family", currentBodyFont);
     tspan.textContent = line;
     svgBody.appendChild(tspan);
   });
-};
-
+};  
 document.getElementById("footer").oninput = e => {
   svgFooter.textContent = e.target.value;
   svgFooter.setAttribute("font-family", currentBodyFont);
