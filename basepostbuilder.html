@@ -339,9 +339,31 @@ document.getElementById("headlineSize").oninput = e => { svgHeadline.setAttribut
 document.getElementById("bodySize").oninput = e => { [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size", e.target.value)); document.getElementById("bodySizeValue").textContent = e.target.value; };
 document.getElementById("footerSize").oninput = e => { svgFooter.setAttribute("font-size", e.target.value); document.getElementById("footerSizeValue").textContent = e.target.value; };
 
+async function inlineSvgImages(svg) {
+  const images = svg.querySelectorAll("image");
+
+  for (const img of images) {
+    const href = img.getAttribute("href") || img.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+    if (!href || href.startsWith("data:")) continue;
+
+    const res = await fetch(href);
+    const blob = await res.blob();
+
+    const reader = new FileReader();
+    const dataUrl = await new Promise(resolve => {
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+
+    img.setAttribute("href", dataUrl);
+  }
+}
+  
 // SHARE PNG
 document.getElementById("sharePNG").onclick = async () => {
   try {
+    await inlineSvgImages(svgCard);
+
     const svgData = new XMLSerializer().serializeToString(svgCard);
 
     const canvas = document.createElement("canvas");
