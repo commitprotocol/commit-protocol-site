@@ -362,6 +362,7 @@ async function inlineSvgImages(svg) {
 document.getElementById("sharePNG").onclick = async () => {
   try {
     await document.fonts.ready;
+    svgCard.getBBox();
     await inlineSvgImages(svgCard);
 
     // 2. Serializa SVG
