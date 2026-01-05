@@ -389,7 +389,7 @@ document.getElementById("sharePNG").onclick = async () => {
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.drawImage(img, 0, 0);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       URL.revokeObjectURL(url);
 
