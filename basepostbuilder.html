@@ -341,31 +341,46 @@ document.getElementById("footerSize").oninput = e => { svgFooter.setAttribute("f
 
 // SHARE PNG
 document.getElementById("sharePNG").onclick = async () => {
-  // Espera todas as imagens carregarem
-  const imgs = Array.from(svgCard.querySelectorAll("image"));
-  await Promise.all(imgs.map(img => {
-    return new Promise(resolve => {
-      if(img.complete || img.href.baseVal) resolve();
-      else img.onload = resolve;
+  try {
+    const svgData = new XMLSerializer().serializeToString(svgCard);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 1000;
+    canvas.height = 1000;
+
+    const ctx = canvas.getContext("2d");
+
+    const v = await Canvg.fromString(ctx, svgData, {
+      ignoreMouse: true,
+      ignoreAnimation: true,
+      useCORS: true
     });
-  }));
 
-  const svgData = new XMLSerializer().serializeToString(svgCard);
-  const canvas = document.createElement("canvas");
-  canvas.width = 1000;
-  canvas.height = 1000;
-  const ctx = canvas.getContext("2d");
-  const v = await Canvg.fromString(ctx, svgData);
-  await v.render();
-  const pngDataUrl = canvas.toDataURL("image/png");
+    await v.render();
 
-  const win = window.open();
-  win.document.write(`
-    <p style="font-family: sans-serif; text-align: center; font-size:16px; margin-top:20px;">
-      Clique com o botão direito na imagem e escolha "Salvar imagem como..."
-    </p>
-    <img src="${pngDataUrl}" style="display:block; margin:20px auto; max-width:90%; height:auto; border:1px solid #ccc;"/>
-  `);
+    const pngDataUrl = canvas.toDataURL("image/png");
+
+    const win = window.open("about:blank");
+    if (!win) {
+      alert("Popup bloqueado pelo navegador");
+      return;
+    }
+
+    win.document.write(`
+      <html>
+        <head><title>Export PNG</title></head>
+        <body style="margin:0; text-align:center; background:#f5f5f5;">
+          <p style="font-family:sans-serif; margin:16px;">
+            Clique com o botão direito e escolha “Salvar imagem como…”
+          </p>
+          <img src="${pngDataUrl}" style="max-width:95%; height:auto;"/>
+        </body>
+      </html>
+    `);
+  } catch (err) {
+    console.error("Erro ao gerar PNG:", err);
+    alert("Erro ao gerar PNG — veja o console");
+  }
 };
 
 // DRAG USER LOGO
