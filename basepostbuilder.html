@@ -238,6 +238,8 @@ const userLogoInput = document.getElementById("userLogoInput");
 const svgUserLogo = document.getElementById("svgUserLogo");
 const userLogoWidth = document.getElementById("userLogoWidth");
 const userLogoHeight = document.getElementById("userLogoHeight");
+let currentHeadlineFont = "Inter";
+let currentBodyFont = "Inter";
 
 // UPLOAD USER LOGO
 userLogoInput.onchange = e => {
@@ -329,8 +331,16 @@ document.getElementById("body").oninput = e=>{
   });
 };
 document.getElementById("footer").oninput = e=> svgFooter.textContent = e.target.value;
-document.getElementById("headlineFont").onchange = e => svgHeadline.setAttribute("font-family", e.target.value);
-document.getElementById("bodyFont").onchange = e => [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-family", e.target.value));
+document.getElementById("headlineFont").onchange = e => {
+  currentHeadlineFont = e.target.value;
+  svgHeadline.setAttribute("font-family", currentHeadlineFont);
+};
+document.getElementById("bodyFont").onchange = e => {
+  currentBodyFont = e.target.value;
+  [...svgBody.querySelectorAll("tspan")].forEach(tspan => {
+    tspan.setAttribute("font-family", currentBodyFont);
+  });
+};
 document.getElementById("headlineColor").oninput = e => svgHeadline.setAttribute("fill", e.target.value);
 document.getElementById("bodyColor").oninput = e => [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill", e.target.value));
 document.getElementById("footerColor").oninput = e => svgFooter.setAttribute("fill", e.target.value);
@@ -364,6 +374,14 @@ document.getElementById("sharePNG").onclick = async () => {
     await document.fonts.ready;
     svgCard.getBBox();
     await inlineSvgImages(svgCard);
+
+    // FORÇA AS FONTES NO SVG ANTES DE SERIALIZAR
+svgHeadline.setAttribute("font-family", currentHeadlineFont);
+svgFooter.setAttribute("font-family", currentHeadlineFont);
+
+[...svgBody.querySelectorAll("tspan")].forEach(tspan => {
+  tspan.setAttribute("font-family", currentBodyFont);
+});
 
     // 2. Serializa SVG
     const serializer = new XMLSerializer();
