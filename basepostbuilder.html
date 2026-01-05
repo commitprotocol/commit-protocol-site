@@ -361,7 +361,7 @@ async function inlineSvgImages(svg) {
 // SHARE PNG
 document.getElementById("sharePNG").onclick = async () => {
   try {
-    // 1. Inline imagens (templates + logos)
+    await document.fonts.ready;
     await inlineSvgImages(svgCard);
 
     // 2. Serializa SVG
@@ -385,7 +385,7 @@ document.getElementById("sharePNG").onclick = async () => {
 
       const ctx = canvas.getContext("2d");
 
-      // fundo branco (mantém o template visível)
+      // fundo branco
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
