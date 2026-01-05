@@ -10,7 +10,6 @@
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
   background: #f5f5f5;
   padding: 32px;
   display: flex;
@@ -242,6 +241,29 @@ const FONT_MAP = {
   "system-ui": null
 };
 
+async function embedFontInSVG(svg, fontKey) {
+  const font = FONT_MAP[fontKey];
+  if (!font) return;
+
+  const response = await fetch(font.file);
+  const buffer = await response.arrayBuffer();
+  const base64 = btoa(
+    new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
+  );
+
+  const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+  style.textContent = `
+    @font-face {
+      font-family: '${font.family}';
+      src: url('data:font/woff2;base64,${base64}') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+    text { font-family: '${font.family}'; }
+  `;
+  svg.insertBefore(style, svg.firstChild);
+}
+
 const templates = ["assets/templates/blue.svg","assets/templates/black.svg","assets/templates/blackandblue.svg","assets/templates/blackandwhite.svg"];
 const templateTextColors = {
   "assets/templates/blue.svg":"#ffffff",
@@ -379,6 +401,8 @@ document.getElementById("sharePNG").onclick=async()=>{
   try{
     await document.fonts.ready;
     await updateSvgFontPreview();
+    await embedFontInSVG(svgCard, currentHeadlineFont);
+    await embedFontInSVG(svgCard, currentBodyFont);
 
     // inline imagens
     const images=svgCard.querySelectorAll("image");
