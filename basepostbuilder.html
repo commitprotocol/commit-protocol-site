@@ -2,275 +2,196 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Base Post Generator — Canvas PNG</title>
+<title>Base Post Generator - Pixel Perfect</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-* { box-sizing: border-box; }
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5f5;padding:32px;display:flex;justify-content:center}
+main{display:flex;gap:24px;flex-wrap:wrap;width:100%;max-width:1200px}
+.panel{flex:0 0 360px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,.05);max-height:90vh;overflow-y:auto}
+.section{margin-bottom:20px}
+.section h3{margin:0 0 8px;font-size:16px;font-weight:600;border-bottom:1px solid #ddd;padding-bottom:4px}
+label{font-size:13px;font-weight:600;display:block;margin-top:8px}
+input,textarea,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #ccc;font-size:14px}
+textarea{min-height:80px}
+.selector{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.selector img{width:100%;border-radius:8px;border:2px solid transparent;cursor:pointer;transition:.2s}
+.selector img.selected{border-color:#1da1f2;box-shadow:0 0 8px rgba(29,161,242,.5)}
+.preview-wrapper{flex:1 1 600px;display:flex;flex-direction:column;align-items:center}
+.card{width:100%;max-width:600px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+button{padding:10px 16px;background:#1da1f2;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;width:100%;margin-top:8px}
+.slider-wrapper{display:flex;align-items:center;gap:8px}
+.slider-wrapper span{width:32px;text-align:center;font-size:13px}
 
-body {
-  margin: 0;
-  background: #f5f5f5;
-  padding: 32px;
-  display: flex;
-  justify-content: center;
-  font-family: system-ui;
-}
-
-main {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  width: 100%;
-  max-width: 1200px;
-}
-
-.panel {
-  flex: 0 0 360px;
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.section { margin-bottom: 20px; }
-.section h3 {
-  margin: 0 0 8px;
-  font-size: 16px;
-  font-weight: 600;
-  border-bottom: 1px solid #ddd;
-}
-
-label {
-  font-size: 13px;
-  font-weight: 600;
-  display: block;
-  margin-top: 8px;
-}
-
-input, textarea, select {
-  width: 100%;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
-textarea { min-height: 80px; }
-
-.selector {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.selector img {
-  width: 100%;
-  border-radius: 8px;
-  cursor: pointer;
-  border: 2px solid transparent;
-}
-
-.selector img.selected {
-  border-color: #1da1f2;
-}
-
-.preview-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-canvas {
-  width: 600px;
-  height: 600px;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  background: #000;
-}
-
-button {
-  margin-top: 16px;
-  width: 600px;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: #1da1f2;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-}
+/* Fonts */
+@font-face{font-family:Inter;src:url("assets/fonts/Inter-Regular.woff2") format("woff2");font-display:swap}
+@font-face{font-family:"IBM Plex Sans";src:url("assets/fonts/IBMPlexSans-Regular.woff2") format("woff2");font-display:swap}
+@font-face{font-family:"Space Grotesk";src:url("assets/fonts/SpaceGrotesk-Regular.woff2") format("woff2");font-display:swap}
+@font-face{font-family:"DM Sans";src:url("assets/fonts/DMSans-Regular.woff2") format("woff2");font-display:swap}
 </style>
 </head>
 
 <body>
 <main>
 
+<!-- PANEL -->
 <section class="panel">
-  <h2>Base Post Generator</h2>
+<h2>Base Post Generator</h2>
 
-  <div class="section">
-    <h3>Headline</h3>
-    <input id="headline" value="Building for builders">
-    <input type="color" id="headlineColor" value="#ffffff">
-    <select id="headlineFont">
-      <option>Inter</option>
-      <option>IBM Plex Sans</option>
-      <option>Space Grotesk</option>
-      <option>DM Sans</option>
-      <option value="system-ui">System UI</option>
-    </select>
-  </div>
+<div class="section">
+<h3>User Logo / PFP</h3>
+<input type="file" id="userLogoInput" accept="image/*">
+<label>Width</label><input type="number" id="userLogoWidth" value="100">
+<label>Height</label><input type="number" id="userLogoHeight" value="100">
+</div>
 
-  <div class="section">
-    <h3>Body</h3>
-    <textarea id="body">Composable tools for the Base ecosystem.</textarea>
-    <input type="color" id="bodyColor" value="#ffffff">
-    <select id="bodyFont">
-      <option>Inter</option>
-      <option>IBM Plex Sans</option>
-      <option>Space Grotesk</option>
-      <option>DM Sans</option>
-      <option value="system-ui">System UI</option>
-    </select>
-  </div>
+<div class="section">
+<h3>Headline</h3>
+<input id="headline" placeholder="Building for builders">
+<input type="color" id="headlineColor" value="#ffffff">
+<div class="slider-wrapper">
+<input type="range" id="headlineSize" min="24" max="100" value="48">
+<span id="headlineSizeValue">48</span>
+</div>
+</div>
 
-  <div class="section">
-    <h3>Template</h3>
-    <div class="selector" id="templateSelector"></div>
-  </div>
+<div class="section">
+<h3>Body</h3>
+<textarea id="body"></textarea>
+<input type="color" id="bodyColor" value="#ffffff">
+<div class="slider-wrapper">
+<input type="range" id="bodySize" min="14" max="60" value="28">
+<span id="bodySizeValue">28</span>
+</div>
+</div>
 
-  <div class="section">
-    <h3>Logo</h3>
-    <div class="selector" id="logoSelector"></div>
-  </div>
+<div class="section">
+<h3>Footer</h3>
+<input id="footer" value="Permissionless by design">
+<input type="color" id="footerColor" value="#ffffff">
+<div class="slider-wrapper">
+<input type="range" id="footerSize" min="10" max="40" value="16">
+<span id="footerSizeValue">16</span>
+</div>
+</div>
+
+<div class="section">
+<h3>Fonts</h3>
+<select id="headlineFont">
+<option>Inter</option><option>IBM Plex Sans</option><option>Space Grotesk</option><option>DM Sans</option><option>system-ui</option>
+</select>
+<select id="bodyFont">
+<option>Inter</option><option>IBM Plex Sans</option><option>Space Grotesk</option><option>DM Sans</option><option>system-ui</option>
+</select>
+</div>
+
+<div class="section">
+<h3>Template</h3>
+<div class="selector" id="templateSelector"></div>
+</div>
+
+<div class="section">
+<h3>Logo</h3>
+<div class="selector" id="logoSelector"></div>
+<select id="logoPosition">
+<option value="bottom-right">Bottom Right</option>
+<option value="bottom-left">Bottom Left</option>
+<option value="bottom-center">Bottom Center</option>
+</select>
+</div>
 </section>
 
+<!-- PREVIEW -->
 <section class="preview-wrapper">
-  <canvas id="card" width="1000" height="1000"></canvas>
-  <button id="sharePNG">Share PNG</button>
+<div class="card">
+<canvas id="canvas" width="1000" height="1000" style="width:100%"></canvas>
+</div>
+<button id="sharePNG" style="max-width:600px">Share PNG</button>
 </section>
 
 </main>
 
 <script>
-// ===== FONTS =====
-const FONT_FILES = {
-  "Inter": "assets/fonts/Inter-Regular.woff2",
-  "IBM Plex Sans": "assets/fonts/IBMPlexSans-Regular.woff2",
-  "Space Grotesk": "assets/fonts/SpaceGrotesk-Regular.woff2",
-  "DM Sans": "assets/fonts/DMSans-Regular.woff2"
+const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
+
+const state={
+template:"assets/templates/blue.png",
+logo:"assets/logos/Base_blue.png",
+logoPos:{x:720,y:780},
+headline:"Building for builders",
+body:"",
+footer:"Permissionless by design",
+headlineColor:"#fff",
+bodyColor:"#fff",
+footerColor:"#fff",
+headlineSize:48,
+bodySize:28,
+footerSize:16,
+headlineFont:"Inter",
+bodyFont:"Inter",
+userLogo:null,
+userLogoX:450,userLogoY:100,userLogoW:100,userLogoH:100
 };
 
-async function loadFont(name) {
-  if (name === "system-ui") return;
-  if ([...document.fonts].some(f => f.family === name)) return;
-  const font = new FontFace(name, `url(${FONT_FILES[name]})`);
-  await font.load();
-  document.fonts.add(font);
+async function draw(){
+ctx.clearRect(0,0,1000,1000);
+const bg=new Image();bg.src=state.template;await bg.decode();
+ctx.drawImage(bg,0,0,1000,1000);
+
+if(state.userLogo)ctx.drawImage(state.userLogo,state.userLogoX,state.userLogoY,state.userLogoW,state.userLogoH);
+
+ctx.fillStyle=state.headlineColor;
+ctx.font=`700 ${state.headlineSize}px ${state.headlineFont}`;
+ctx.textAlign="center";
+ctx.fillText(state.headline,500,260);
+
+ctx.fillStyle=state.bodyColor;
+ctx.font=`${state.bodySize}px ${state.bodyFont}`;
+state.body.split("\n").forEach((l,i)=>ctx.fillText(l,500,330+i*(state.bodySize*1.2)));
+
+ctx.globalAlpha=.75;
+ctx.fillStyle=state.footerColor;
+ctx.font=`${state.footerSize}px ${state.bodyFont}`;
+ctx.fillText(state.footer,500,820);
+ctx.globalAlpha=1;
+
+const logo=new Image();logo.src=state.logo;await logo.decode();
+ctx.drawImage(logo,state.logoPos.x,state.logoPos.y,160,160);
 }
 
-// ===== CANVAS =====
-const canvas = document.getElementById("card");
-const ctx = canvas.getContext("2d");
+draw();
 
-// ===== STATE =====
-let templateImg = new Image();
-let logoImg = new Image();
+/* INPUTS */
+headline.oninput=e=>{state.headline=e.target.value;draw()}
+body.oninput=e=>{state.body=e.target.value;draw()}
+footer.oninput=e=>{state.footer=e.target.value;draw()}
+headlineColor.oninput=e=>{state.headlineColor=e.target.value;draw()}
+bodyColor.oninput=e=>{state.bodyColor=e.target.value;draw()}
+footerColor.oninput=e=>{state.footerColor=e.target.value;draw()}
+headlineSize.oninput=e=>{state.headlineSize=e.target.value;headlineSizeValue.textContent=e.target.value;draw()}
+bodySize.oninput=e=>{state.bodySize=e.target.value;bodySizeValue.textContent=e.target.value;draw()}
+footerSize.oninput=e=>{state.footerSize=e.target.value;footerSizeValue.textContent=e.target.value;draw()}
+headlineFont.onchange=e=>{state.headlineFont=e.target.value;draw()}
+bodyFont.onchange=e=>{state.bodyFont=e.target.value;draw()}
 
-let state = {
-  headline: "Building for builders",
-  body: "Composable tools for the Base ecosystem.",
-  headlineFont: "Inter",
-  bodyFont: "Inter",
-  headlineColor: "#fff",
-  bodyColor: "#fff"
+/* USER LOGO */
+userLogoInput.onchange=e=>{
+const img=new Image();
+img.onload=()=>{state.userLogo=img;draw()}
+img.src=URL.createObjectURL(e.target.files[0]);
 };
+userLogoWidth.oninput=e=>{state.userLogoW=e.target.value;draw()}
+userLogoHeight.oninput=e=>{state.userLogoH=e.target.value;draw()}
 
-// ===== RENDER =====
-async function render() {
-  await loadFont(state.headlineFont);
-  await loadFont(state.bodyFont);
+/* DRAG */
+let drag=false,offY=0;
+canvas.onmousedown=e=>{drag=true;offY=e.offsetY-state.userLogoY}
+window.onmousemove=e=>{if(!drag)return;state.userLogoY=Math.max(0,Math.min(900,e.offsetY-offY));draw()}
+window.onmouseup=()=>drag=false;
 
-  ctx.clearRect(0,0,1000,1000);
-
-  if (templateImg.complete) ctx.drawImage(templateImg,0,0,1000,1000);
-
-  ctx.fillStyle = state.headlineColor;
-  ctx.font = `700 64px '${state.headlineFont}'`;
-  ctx.textAlign = "center";
-  ctx.fillText(state.headline,500,260);
-
-  ctx.fillStyle = state.bodyColor;
-  ctx.font = `400 32px '${state.bodyFont}'`;
-  ctx.fillText(state.body,500,340);
-
-  if (logoImg.complete) ctx.drawImage(logoImg,720,780,160,160);
-}
-
-// ===== TEMPLATES =====
-const templates = [
-  "assets/templates/blue.png",
-  "assets/templates/black.png",
-  "assets/templates/blackandblue.png",
-  "assets/templates/blackandwhite.png"
-];
-
-const templateSelector = document.getElementById("templateSelector");
-templates.forEach((src,i)=>{
-  const img = document.createElement("img");
-  img.src = src;
-  img.onclick = ()=>{
-    templateImg.src = src;
-    render();
-    document.querySelectorAll("#templateSelector img").forEach(i=>i.classList.remove("selected"));
-    img.classList.add("selected");
-  };
-  if(i===0){ img.classList.add("selected"); templateImg.src = src; }
-  templateSelector.appendChild(img);
-});
-
-// ===== LOGOS =====
-const logos = [
-  "assets/logos/Base_blue.png",
-  "assets/logos/Base_black.png",
-  "assets/logos/Base_white.png"
-];
-
-const logoSelector = document.getElementById("logoSelector");
-logos.forEach((src,i)=>{
-  const img = document.createElement("img");
-  img.src = src;
-  img.onclick = ()=>{
-    logoImg.src = src;
-    render();
-    document.querySelectorAll("#logoSelector img").forEach(i=>i.classList.remove("selected"));
-    img.classList.add("selected");
-  };
-  if(i===0){ img.classList.add("selected"); logoImg.src = src; }
-  logoSelector.appendChild(img);
-});
-
-// ===== INPUTS =====
-headline.oninput = e => { state.headline = e.target.value; render(); };
-body.oninput = e => { state.body = e.target.value; render(); };
-headlineFont.onchange = e => { state.headlineFont = e.target.value; render(); };
-bodyFont.onchange = e => { state.bodyFont = e.target.value; render(); };
-headlineColor.oninput = e => { state.headlineColor = e.target.value; render(); };
-bodyColor.oninput = e => { state.bodyColor = e.target.value; render(); };
-
-// ===== SHARE PNG =====
-sharePNG.onclick = () => {
-  const url = canvas.toDataURL("image/png");
-  const win = window.open();
-  win.document.write(`<img src="${url}" />`);
-};
-
-templateImg.onload = render;
-logoImg.onload = render;
+/* SHARE */
+sharePNG.onclick=()=>{const w=window.open();w.document.write(`<img src="${canvas.toDataURL()}">`)};
 </script>
-
 </body>
 </html>
