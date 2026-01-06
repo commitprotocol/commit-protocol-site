@@ -335,16 +335,21 @@ async function draw(){
       logoScale = 0.14; // reduz 2~5% para suavizar bordas
     }
 
-    const logoWidth = canvas.width * logoScale;
-    const logoHeight = logoWidth * (img.height / img.width);
+    // Mantém proporção e suaviza bordas desenhando em tamanho maior e reduzindo
+const scale = 0.16; // 16% do canvas
+const logoWidth = canvas.width * scale * 2; // desenha 2x
+const logoHeight = logoWidth * (img.height / img.width);
 
-    ctx.drawImage(
-      img,
-      state.logoPos.x,
-      state.logoPos.y,
-      logoWidth,
-      logoHeight
-    );
+ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = "high";
+
+ctx.drawImage(
+  img,
+  state.logoPos.x,
+  state.logoPos.y,
+  logoWidth / 2,  // reduz metade ao desenhar
+  logoHeight / 2
+);
   }
 }
 
