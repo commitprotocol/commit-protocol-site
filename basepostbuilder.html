@@ -254,12 +254,7 @@ async function draw(){
   ctx.font=`${state.footerSize}px ${state.bodyFont}`;
   ctx.fillText(state.footer,500,820);
 
-  if(state.logo){
-    const img = images[state.logo];
-    const w = 160;
-    const h = w * (img.height / img.width);
-    ctx.drawImage(img,420,760,w,h);
-  }
+  if(state.logo) ctx.drawImage(images[state.logo],state.logoPos.x,state.logoPos.y,160,160);
 }
 
 function buildSelector(list,el,key){
