@@ -68,7 +68,7 @@ textarea{min-height:80px}
 }
 .preview-wrapper {
   width: 100%;
-  max-width: 640px;  
+  max-width: 640px;
   aspect-ratio: 1 / 1;
   margin: 0 auto;
 }
@@ -132,7 +132,7 @@ button{
 
   .preview-area {
     width: 100%;
-    order: -1; 
+    order: -1;
   }
 }
 
@@ -318,41 +318,91 @@ async function draw(){
   ctx.font=`${state.footerSize}px ${state.bodyFont}`;
   ctx.fillText(state.footer,500,820);
 
+  // 🔹 Ajuste das logos para suavizar as 3 problemáticas
   if (state.logo && images[state.logo]) {
     const img = images[state.logo];
     if (!img.width || !img.height) return;
 
-    const scale = 0.16; // 16% do canvas
-    const logoWidth = canvas.width * scale;
+    let logoScale = 0.16;
+    if (
+      state.logo === "assets/logos/Base_blue.png" || 
+      state.logo === "assets/logos/Base_black.png" || 
+      state.logo === "assets/logos/Base_white.png" || 
+      state.logo === "assets/logos/Base_blue2.png" || 
+      state.logo === "assets/logos/Base_black2.png" || 
+      state.logo === "assets/logos/Base_white2.png"
+    ) {
+      logoScale = 0.14; // reduz 2~5% para suavizar bordas
+    }
+
+    const logoWidth = canvas.width * logoScale;
     const logoHeight = logoWidth * (img.height / img.width);
 
-    ctx.drawImage(img, state.logoPos.x, state.logoPos.y, logoWidth, logoHeight);
+    ctx.drawImage(
+      img,
+      state.logoPos.x,
+      state.logoPos.y,
+      logoWidth,
+      logoHeight
+    );
   }
 }
 
-const headlineSizeSlider = document.getElementById("headlineSize");
-const headlineSizeValue = document.getElementById("headlineSizeValue");
-const bodySizeSlider = document.getElementById("bodySize");
-const bodySizeValue = document.getElementById("bodySizeValue");
-const footerSizeSlider = document.getElementById("footerSize");
-const footerSizeValue = document.getElementById("footerSizeValue");
+function buildSelector(list, el, key) {
+  list.forEach((src, i) => {
+    load(src);
 
-headlineSizeSlider.addEventListener("input", e => {
-  state.headlineSize = Number(e.target.value);
-  headlineSizeValue.textContent = e.target.value;
-  draw();
-});
-bodySizeSlider.addEventListener("input", e => {
-  state.bodySize = Number(e.target.value);
-  bodySizeValue.textContent = e.target.value;
-  draw();
-});
-footerSizeSlider.addEventListener("input", e => {
-  state.footerSize = Number(e.target.value);
-  footerSizeValue.textContent = e.target.value;
-  draw();
+    const img = document.createElement("img");
+    img.src = src;
+
+    img.onclick = () => {
+      state[key] = src;
+
+      if (key === "template") {
+        state.userChangedColor = false;
+      }
+
+      if (key === "template" && templateTextColors[src] && !state.userChangedColor) {
+        state.headlineColor = templateTextColors[src];
+        state.bodyColor = templateTextColors[src];
+        state.footerColor = templateTextColors[src];
+      }
+
+      [...el.children].forEach(c => c.classList.remove("selected"));
+      img.classList.add("selected");
+      draw();
+    };
+
+    if (i === 0) {
+      state[key] = src;
+      img.classList.add("selected");
+
+      if (key === "template" && templateTextColors[src] && !state.userChangedColor) {
+        state.headlineColor = templateTextColors[src];
+        state.bodyColor = templateTextColors[src];
+        state.footerColor = templateTextColors[src];
+      }
+    }
+
+    el.appendChild(img);
+  });
+}
+
+buildSelector(templates,document.getElementById("templateSelector"),"template");
+buildSelector(logos,document.getElementById("logoSelector"),"logo");
+state.template = templates[0];
+state.logo = logos[0];
+
+Promise.all([
+  ...templates.map(load),
+  ...logos.map(load)
+]).then(() => {
+    document.fonts.ready.then(() => { draw(); });
 });
 
+headlineSize.oninput = e => { state.headlineSize = Number(e.target.value); headlineSizeValue.textContent = e.target.value; draw(); };
+bodySize.oninput = e => { state.bodySize = Number(e.target.value); bodySizeValue.textContent = e.target.value; draw(); };
+footerSize.oninput = e => { state.footerSize = Number(e.target.value); footerSizeValue.textContent = e.target.value; draw(); };
 headlineColor.oninput = e => { state.headlineColor = e.target.value; state.userChangedColor = true; draw(); };
 bodyColor.oninput = e => { state.bodyColor = e.target.value; state.userChangedColor = true; draw(); };
 footerColor.oninput = e => { state.footerColor = e.target.value; state.userChangedColor = true; draw(); };
@@ -360,16 +410,12 @@ footerColor.oninput = e => { state.footerColor = e.target.value; state.userChang
 headline.oninput = e => { state.headline = e.target.value; draw(); };
 body.oninput = e => { state.body = e.target.value; draw(); };
 footer.oninput = e => { state.footer = e.target.value; draw(); };
-headlineFont.onchange = e => { state.headlineFont = e.target.value; draw(); };
-bodyFont.onchange = e => { state.bodyFont = e.target.value; draw(); };
+headlineFont.onchange=e=>{state.headlineFont=e.target.value;draw()};
+bodyFont.onchange=e=>{state.bodyFont=e.target.value;draw()};
 
-userLogoInput.onchange = e => {
-  const r = new FileReader();
-  r.onload = () => { 
-    const i = new Image();
-    i.onload = () => { state.userLogo = i; draw(); };
-    i.src = r.result;
-  };
+userLogoInput.onchange=e=>{
+  const r=new FileReader();
+  r.onload=()=>{const i=new Image();i.onload=()=>{state.userLogo=i;draw()};i.src=r.result};
   r.readAsDataURL(e.target.files[0]);
 };
 
@@ -378,56 +424,26 @@ userLogoHeight.oninput = e => { state.userLogoH = Number(e.target.value); draw()
 
 logoPosition.onchange = e => { state.logoPos = logoPositions[e.target.value]; draw(); };
 
-let drag=false, offY=0;
-canvas.onmousedown = e => { if(!state.userLogo) return; drag=true; offY=e.offsetY-state.userLogoY; };
-window.onmousemove = e => { if(!drag) return; const rect = canvas.getBoundingClientRect(); state.userLogoY = Math.max(0, Math.min(900, e.clientY-rect.top-offY)); draw(); };
-window.onmouseup = () => drag=false;
-
-const templateSelector = document.getElementById("templateSelector");
-const logoSelector = document.getElementById("logoSelector");
-
-function buildSelector(list, el, key) {
-  list.forEach((src,i)=>{
-    load(src);
-    const img=document.createElement("img");
-    img.src=src;
-    img.onclick=()=>{
-      state[key]=src;
-      if(key==="template") state.userChangedColor=false;
-      if(key==="template" && templateTextColors[src] && !state.userChangedColor){
-        state.headlineColor=templateTextColors[src];
-        state.bodyColor=templateTextColors[src];
-        state.footerColor=templateTextColors[src];
-      }
-      [...el.children].forEach(c=>c.classList.remove("selected"));
-      img.classList.add("selected");
-      draw();
-    };
-    if(i===0){
-      state[key]=src;
-      img.classList.add("selected");
-      if(key==="template" && templateTextColors[src] && !state.userChangedColor){
-        state.headlineColor=templateTextColors[src];
-        state.bodyColor=templateTextColors[src];
-        state.footerColor=templateTextColors[src];
-      }
-    }
-    el.appendChild(img);
-  });
-}
-
-buildSelector(templates, templateSelector, "template");
-buildSelector(logos, logoSelector, "logo");
-state.template=templates[0];
-state.logo=logos[0];
-
-Promise.all([...templates.map(load),...logos.map(load)]).then(()=>{ document.fonts.ready.then(()=>{ draw(); }); });
+let drag=false,offY=0;
+canvas.onmousedown=e=>{
+  if(!state.userLogo)return;
+  drag=true;
+  offY=e.offsetY-state.userLogoY;
+};
+window.onmousemove = e => {
+  if(!drag) return;
+  const rect = canvas.getBoundingClientRect();
+  state.userLogoY = Math.max(0, Math.min(900, e.clientY - rect.top - offY));
+  draw();
+};
+window.onmouseup=()=>drag=false;
 
 sharePNG.onclick=()=>{
   const url = canvas.toDataURL("image/png");
   const win = window.open();
   win.document.write(`<p>Long press or right click the image to save.</p><img src="${url}" style="max-width:100%">`);
 };
+
 </script>
 </body>
 </html>
