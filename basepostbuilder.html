@@ -5,6 +5,8 @@
 <title>Base Post Generator - Pixel Perfect</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
 *{box-sizing:border-box}
 body{
@@ -91,11 +93,6 @@ button{
 .slider-wrapper{display:flex;gap:8px;align-items:center}
 .slider-wrapper span{width:32px;text-align:center}
 
-/* fonts */
-@font-face{font-family:Inter;src:url("assets/fonts/Inter-Regular.woff2") format("woff2");font-display:swap}
-@font-face{font-family:"IBM Plex Sans";src:url("assets/fonts/IBMPlexSans-Regular.woff2") format("woff2");font-display:swap}
-@font-face{font-family:"Space Grotesk";src:url("assets/fonts/SpaceGrotesk-Regular.woff2") format("woff2");font-display:swap}
-@font-face{font-family:"DM Sans";src:url("assets/fonts/DMSans-Regular.woff2") format("woff2");font-display:swap}
 </style>
 </head>
 
@@ -146,18 +143,21 @@ button{
 
   <div class="section">
     <h3>Fonts</h3>
+    <label>Headline Font</label>
     <select id="headlineFont">
-      <option>Inter</option>
-      <option>IBM Plex Sans</option>
-      <option>Space Grotesk</option>
-      <option>DM Sans</option>
+      <option value="Inter">Inter</option>
+      <option value="'IBM Plex Sans'">IBM Plex Sans</option>
+      <option value="'Space Grotesk'">Space Grotesk</option>
+      <option value="'DM Sans'">DM Sans</option>
       <option value="system-ui">System UI</option>
     </select>
+
+    <label>Body Font</label>
     <select id="bodyFont">
-      <option>Inter</option>
-      <option>IBM Plex Sans</option>
-      <option>Space Grotesk</option>
-      <option>DM Sans</option>
+      <option value="Inter">Inter</option>
+      <option value="'IBM Plex Sans'">IBM Plex Sans</option>
+      <option value="'Space Grotesk'">Space Grotesk</option>
+      <option value="'DM Sans'">DM Sans</option>
       <option value="system-ui">System UI</option>
     </select>
   </div>
