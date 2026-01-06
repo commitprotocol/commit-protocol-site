@@ -93,6 +93,12 @@ button{
 .slider-wrapper{display:flex;gap:8px;align-items:center}
 .slider-wrapper span{width:32px;text-align:center}
 
+#canvas{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
 </style>
 </head>
 
@@ -254,18 +260,7 @@ async function draw(){
   ctx.font=`${state.footerSize}px ${state.bodyFont}`;
   ctx.fillText(state.footer,500,820);
 
-  if (state.logo) {
-  const img = images[state.logo];
-  const logoWidth = 160;
-  const logoHeight = logoWidth * (img.height / img.width);
-
-  ctx.drawImage(
-    img,
-    state.logoPos.x,
-    state.logoPos.y,
-    logoWidth,
-    logoHeight
-  );
+  if(state.logo) ctx.drawImage(images[state.logo],state.logoPos.x,state.logoPos.y,1281,325);
 }
 
 function buildSelector(list,el,key){
