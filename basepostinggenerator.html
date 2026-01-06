@@ -326,15 +326,15 @@ async function draw(){
   ctx.textAlign="center";
   ctx.fillStyle=state.headlineColor;
   ctx.font=`700 ${state.headlineSize}px ${state.headlineFont}`;
-  ctx.fillText(state.headline,500,260);
+  ctx.fillText(state.headline,500,240);
 
   ctx.fillStyle=state.bodyColor;
   ctx.font=`${state.bodySize}px ${state.bodyFont}`;
-  state.body.split("\n").forEach((l,i)=>ctx.fillText(l,500,330+i*state.bodySize*1.2));
+  state.body.split("\n").forEach((l,i)=>ctx.fillText(l,500,310+i*state.bodySize*1.2));
 
   ctx.fillStyle=state.footerColor;
   ctx.font=`${state.footerSize}px ${state.bodyFont}`;
-  ctx.fillText(state.footer,500,820);
+  ctx.fillText(state.footer,500,800);
 
   if (state.logo && images[state.logo]) {
     const img = images[state.logo];
