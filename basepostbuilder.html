@@ -2,21 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Base Post Generator</title>
+<title>Base Post Generator — Canvas PNG</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
   background: #f5f5f5;
   padding: 32px;
   display: flex;
   justify-content: center;
+  font-family: system-ui;
 }
 
 main {
@@ -27,7 +25,6 @@ main {
   max-width: 1200px;
 }
 
-/* PAINEL COM SCROLL */
 .panel {
   flex: 0 0 360px;
   background: #fff;
@@ -40,406 +37,240 @@ main {
 
 .section { margin-bottom: 20px; }
 .section h3 {
-  margin-top: 0;
+  margin: 0 0 8px;
   font-size: 16px;
   font-weight: 600;
   border-bottom: 1px solid #ddd;
-  padding-bottom: 4px;
-  margin-bottom: 8px;
 }
 
-label { font-size: 13px; font-weight: 600; display: block; margin-top: 8px; }
+label {
+  font-size: 13px;
+  font-weight: 600;
+  display: block;
+  margin-top: 8px;
+}
 
-input, textarea, select { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #ccc; font-size: 14px; }
+input, textarea, select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
 
 textarea { min-height: 80px; }
 
-.selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+.selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
 .selector img {
   width: 100%;
   border-radius: 8px;
-  border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  border: 2px solid transparent;
 }
-.selector img:hover { transform: scale(1.05); }
-.selector img.selected { border-color: #1da1f2; box-shadow: 0 0 8px rgba(29,161,242,0.5); }
+
+.selector img.selected {
+  border-color: #1da1f2;
+}
 
 .preview-wrapper {
-  flex: 1 1 600px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.card { width: 100%; max-width: 600px; height: auto; margin-bottom: 16px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+canvas {
+  width: 600px;
+  height: 600px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  background: #000;
+}
 
 button {
-  padding: 10px 16px;
+  margin-top: 16px;
+  width: 600px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
   background: #1da1f2;
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
   font-weight: 600;
-  width: 100%;
-  margin-top: 8px;
-  transition: 0.2s;
+  cursor: pointer;
 }
-button:hover { opacity: 0.9; }
-
-.slider-wrapper { display: flex; align-items: center; gap: 8px; }
-.slider-wrapper span { width: 32px; text-align: center; font-size: 13px; }
 </style>
 </head>
 
 <body>
 <main>
 
-<!-- PAINEL -->
 <section class="panel">
   <h2>Base Post Generator</h2>
 
   <div class="section">
-    <h3>User Logo / PFP</h3>
-    <input type="file" id="userLogoInput" accept="image/*">
-    <label>Width (px)</label>
-    <input type="number" id="userLogoWidth" value="100" min="20" max="300">
-    <label>Height (px)</label>
-    <input type="number" id="userLogoHeight" value="100" min="20" max="300">
-  </div>
-
-  <!-- HEADLINE -->
-  <div class="section">
     <h3>Headline</h3>
-    <label>Text</label>
-    <input id="headline" placeholder="Building for builders">
-
-    <label>Color</label>
+    <input id="headline" value="Building for builders">
     <input type="color" id="headlineColor" value="#ffffff">
-
-    <label>Size</label>
-    <div class="slider-wrapper">
-      <input type="range" id="headlineSize" min="24" max="100" value="48">
-      <span id="headlineSizeValue">48</span>
-    </div>
+    <select id="headlineFont">
+      <option>Inter</option>
+      <option>IBM Plex Sans</option>
+      <option>Space Grotesk</option>
+      <option>DM Sans</option>
+      <option value="system-ui">System UI</option>
+    </select>
   </div>
 
-  <!-- BODY -->
   <div class="section">
     <h3>Body</h3>
-    <label>Text</label>
-    <textarea id="body" placeholder="Composable tools for the Base ecosystem. Use Shift+Enter for line breaks."></textarea>
-
-    <label>Color</label>
+    <textarea id="body">Composable tools for the Base ecosystem.</textarea>
     <input type="color" id="bodyColor" value="#ffffff">
-
-    <label>Size</label>
-    <div class="slider-wrapper">
-      <input type="range" id="bodySize" min="14" max="60" value="28">
-      <span id="bodySizeValue">28</span>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <div class="section">
-    <h3>Footer</h3>
-    <input id="footer" placeholder="Permissionless by design">
-
-    <label>Color</label>
-    <input type="color" id="footerColor" value="#ffffff">
-
-    <label>Size</label>
-    <div class="slider-wrapper">
-      <input type="range" id="footerSize" min="10" max="40" value="16">
-      <span id="footerSizeValue">16</span>
-    </div>
-  </div>
-
-  <!-- FONTS -->
-  <div class="section">
-    <h3>Fonts</h3>
-    <label>Headline Font</label>
-    <select id="headlineFont">
-      <option value="Inter">Inter</option>
-      <option value="'IBM Plex Sans'">IBM Plex Sans</option>
-      <option value="'Space Grotesk'">Space Grotesk</option>
-      <option value="'DM Sans'">DM Sans</option>
-      <option value="system-ui">System UI</option>
-    </select>
-
-    <label>Body Font</label>
     <select id="bodyFont">
-      <option value="Inter">Inter</option>
-      <option value="'IBM Plex Sans'">IBM Plex Sans</option>
-      <option value="'Space Grotesk'">Space Grotesk</option>
-      <option value="'DM Sans'">DM Sans</option>
+      <option>Inter</option>
+      <option>IBM Plex Sans</option>
+      <option>Space Grotesk</option>
+      <option>DM Sans</option>
       <option value="system-ui">System UI</option>
     </select>
   </div>
 
-  <!-- TEMPLATE -->
   <div class="section">
     <h3>Template</h3>
     <div class="selector" id="templateSelector"></div>
   </div>
 
-  <!-- LOGO -->
   <div class="section">
     <h3>Logo</h3>
     <div class="selector" id="logoSelector"></div>
-
-    <label>Logo Position</label>
-    <select id="logoPosition">
-      <option value="bottom-right">Bottom Right</option>
-      <option value="bottom-left">Bottom Left</option>
-      <option value="bottom-center">Bottom Center</option>
-    </select>
   </div>
 </section>
 
-<!-- PREVIEW -->
 <section class="preview-wrapper">
-  <div class="card">
-    <svg id="svgCard" viewBox="0 0 1000 1000" width="100%" height="100%">
-      <!-- TEMPLATE (primeiro) -->
-      <image id="svgTemplate" href="assets/templates/blue.svg" width="1000" height="1000"/>
-
-      <!-- Logo do usuário arrastável (depois do template) -->
-      <image id="svgUserLogo" x="450" y="100" width="100" height="100" href="" />
-
-      <!-- Headline -->
-      <text id="svgHeadline" x="500" y="260" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" font-family="Inter">Building for builders</text>
-
-      <!-- Body -->
-      <text id="svgBody" x="500" y="330" text-anchor="middle" font-size="28" fill="#fff" font-family="Inter, system-ui"></text>
-
-      <!-- Footer -->
-      <text id="svgFooter" x="500" y="820" text-anchor="middle" font-size="16" fill="#fff" opacity="0.75" font-family="Inter">Permissionless by design</text>
-
-      <!-- Logo Base -->
-      <image id="svgLogo" width="160" height="160"/>
-    </svg>
-  </div>
-
-  <!-- BOTÃO SHARE ABAIXO -->
-  <button id="downloadPNG" style="max-width:600px; margin-top:16px;">Download PNG</button>
-  
+  <canvas id="card" width="1000" height="1000"></canvas>
+  <button id="sharePNG">Share PNG</button>
 </section>
+
+</main>
 
 <script>
-// CONFIGURAÇÃO
+// ===== FONTS =====
+const FONT_FILES = {
+  "Inter": "assets/fonts/Inter-Regular.woff2",
+  "IBM Plex Sans": "assets/fonts/IBMPlexSans-Regular.woff2",
+  "Space Grotesk": "assets/fonts/SpaceGrotesk-Regular.woff2",
+  "DM Sans": "assets/fonts/DMSans-Regular.woff2"
+};
+
+async function loadFont(name) {
+  if (name === "system-ui") return;
+  if ([...document.fonts].some(f => f.family === name)) return;
+  const font = new FontFace(name, `url(${FONT_FILES[name]})`);
+  await font.load();
+  document.fonts.add(font);
+}
+
+// ===== CANVAS =====
+const canvas = document.getElementById("card");
+const ctx = canvas.getContext("2d");
+
+// ===== STATE =====
+let templateImg = new Image();
+let logoImg = new Image();
+
+let state = {
+  headline: "Building for builders",
+  body: "Composable tools for the Base ecosystem.",
+  headlineFont: "Inter",
+  bodyFont: "Inter",
+  headlineColor: "#fff",
+  bodyColor: "#fff"
+};
+
+// ===== RENDER =====
+async function render() {
+  await loadFont(state.headlineFont);
+  await loadFont(state.bodyFont);
+
+  ctx.clearRect(0,0,1000,1000);
+
+  if (templateImg.complete) ctx.drawImage(templateImg,0,0,1000,1000);
+
+  ctx.fillStyle = state.headlineColor;
+  ctx.font = `700 64px '${state.headlineFont}'`;
+  ctx.textAlign = "center";
+  ctx.fillText(state.headline,500,260);
+
+  ctx.fillStyle = state.bodyColor;
+  ctx.font = `400 32px '${state.bodyFont}'`;
+  ctx.fillText(state.body,500,340);
+
+  if (logoImg.complete) ctx.drawImage(logoImg,720,780,160,160);
+}
+
+// ===== TEMPLATES =====
 const templates = [
-  "assets/templates/blue.svg",
-  "assets/templates/black.svg",
-  "assets/templates/blackandblue.svg",
-  "assets/templates/blackandwhite.svg"
+  "assets/templates/blue.png",
+  "assets/templates/black.png",
+  "assets/templates/blackandblue.png",
+  "assets/templates/blackandwhite.png"
 ];
-const templateTextColors = {
-  "assets/templates/blue.svg":"#ffffff",
-  "assets/templates/black.svg":"#ffffff",
-  "assets/templates/blackandblue.svg":"#ffffff",
-  "assets/templates/blackandwhite.svg":"#000000"
-};
-const logos = [
-  "assets/logos/Base_basemark_blue.svg",
-  "assets/logos/Base_basemark_black.svg",
-  "assets/logos/Base_basemark_white.svg",
-  "assets/logos/Base_lockup_black.svg",
-  "assets/logos/Base_lockup_white.svg",
-  "assets/logos/Base_lockup_2color.svg"
-];
-const logoPositions = {
-  "bottom-right": { x: 720, y: 780 },
-  "bottom-left": { x: 120, y: 780 },
-  "bottom-center": { x: 420, y: 780 },
-};
-
-// ELEMENTOS
-const svgHeadline = document.getElementById("svgHeadline");
-const svgBody = document.getElementById("svgBody");
-const svgFooter = document.getElementById("svgFooter");
-const svgLogo = document.getElementById("svgLogo");
-const svgTemplate = document.getElementById("svgTemplate");
-const svgCard = document.getElementById("svgCard");
-const userLogoInput = document.getElementById("userLogoInput");
-const svgUserLogo = document.getElementById("svgUserLogo");
-const userLogoWidth = document.getElementById("userLogoWidth");
-const userLogoHeight = document.getElementById("userLogoHeight");
-
-// Função de upload do usuário
-userLogoInput.onchange = e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    svgUserLogo.setAttribute("href", reader.result);
-    // centraliza horizontalmente
-    svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
-  };
-  reader.readAsDataURL(file);
-};
-
-// Alterar tamanho em tempo real
-userLogoWidth.oninput = e => {
-  svgUserLogo.setAttribute("width", e.target.value);
-  svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
-};
-userLogoHeight.oninput = e => svgUserLogo.setAttribute("height", e.target.value);
 
 const templateSelector = document.getElementById("templateSelector");
-const logoSelector = document.getElementById("logoSelector");
-
-// INICIALIZA TEMPLATES
 templates.forEach((src,i)=>{
-  const img=document.createElement("img");
-  img.src=src;
-  img.onclick=()=>{
-    svgTemplate.setAttribute("href",src);
-    selectItem(templateSelector,img);
-    applyTemplateTextColor(src);
+  const img = document.createElement("img");
+  img.src = src;
+  img.onclick = ()=>{
+    templateImg.src = src;
+    render();
+    document.querySelectorAll("#templateSelector img").forEach(i=>i.classList.remove("selected"));
+    img.classList.add("selected");
   };
-  if(i===0) img.classList.add("selected");
+  if(i===0){ img.classList.add("selected"); templateImg.src = src; }
   templateSelector.appendChild(img);
 });
 
-// INICIALIZA LOGOS
+// ===== LOGOS =====
+const logos = [
+  "assets/logos/Base_blue.png",
+  "assets/logos/Base_black.png",
+  "assets/logos/Base_white.png"
+];
+
+const logoSelector = document.getElementById("logoSelector");
 logos.forEach((src,i)=>{
-  const img=document.createElement("img");
-  img.src=src;
-  img.onclick=()=>{
-    svgLogo.setAttribute("href",src);
-    selectItem(logoSelector,img);
+  const img = document.createElement("img");
+  img.src = src;
+  img.onclick = ()=>{
+    logoImg.src = src;
+    render();
+    document.querySelectorAll("#logoSelector img").forEach(i=>i.classList.remove("selected"));
+    img.classList.add("selected");
   };
-  if(i===0){svgLogo.setAttribute("href",src); img.classList.add("selected");}
+  if(i===0){ img.classList.add("selected"); logoImg.src = src; }
   logoSelector.appendChild(img);
 });
 
-// LOGO POSITION
-const logoPositionSelect = document.getElementById("logoPosition");
-logoPositionSelect.onchange = e=>{
-  const p=logoPositions[e.target.value];
-  svgLogo.setAttribute("x",p.x);
-  svgLogo.setAttribute("y",p.y);
-};
-logoPositionSelect.value="bottom-right";
-const setLogoPosition=(pos)=>{
-  const p=logoPositions[pos];
-  svgLogo.setAttribute("x",p.x);
-  svgLogo.setAttribute("y",p.y);
-};
-setLogoPosition("bottom-right");
+// ===== INPUTS =====
+headline.oninput = e => { state.headline = e.target.value; render(); };
+body.oninput = e => { state.body = e.target.value; render(); };
+headlineFont.onchange = e => { state.headlineFont = e.target.value; render(); };
+bodyFont.onchange = e => { state.bodyFont = e.target.value; render(); };
+headlineColor.oninput = e => { state.headlineColor = e.target.value; render(); };
+bodyColor.oninput = e => { state.bodyColor = e.target.value; render(); };
 
-// FUNÇÕES AUX
-function selectItem(container,el){
-  [...container.children].forEach(i=>i.classList.remove("selected"));
-  el.classList.add("selected");
-}
-function applyTemplateTextColor(templateSrc){
-  const color=templateTextColors[templateSrc]||"#ffffff";
-  svgHeadline.setAttribute("fill",color);
-  svgFooter.setAttribute("fill",color);
-  [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill",color));
-  document.getElementById("headlineColor").value=color;
-  document.getElementById("bodyColor").value=color;
-  document.getElementById("footerColor").value=color;
-}
-
-// INPUTS
-document.getElementById("headline").oninput=e=>svgHeadline.textContent=e.target.value;
-document.getElementById("body").oninput = e => {
-  const lines = e.target.value.split("\n");
-  svgBody.innerHTML = "";
-  const color = document.getElementById("bodyColor").value;
-  const fontSize = parseInt(document.getElementById("bodySize").value);
-  lines.forEach((line, i) => {
-    const tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
-    tspan.setAttribute("x", "500");
-    tspan.setAttribute("dy", i===0 ? "0" : fontSize * 1);
-    tspan.setAttribute("fill", color);
-    tspan.setAttribute("font-size", fontSize);
-    tspan.textContent = line;
-    svgBody.appendChild(tspan);
-  });
-};
-document.getElementById("footer").oninput=e=>svgFooter.textContent=e.target.value;
-
-document.getElementById("headlineFont").onchange=e=>svgHeadline.setAttribute("font-family",e.target.value);
-document.getElementById("bodyFont").onchange=e=>svgBody.setAttribute("font-family",e.target.value);
-
-document.getElementById("headlineColor").oninput=e=>svgHeadline.setAttribute("fill",e.target.value);
-document.getElementById("bodyColor").oninput=e=>[...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("fill",e.target.value));
-document.getElementById("footerColor").oninput=e=>svgFooter.setAttribute("fill",e.target.value);
-
-document.getElementById("headlineSize").oninput=e=>{
-  svgHeadline.setAttribute("font-size",e.target.value);
-  document.getElementById("headlineSizeValue").textContent=e.target.value;
-};
-document.getElementById("bodySize").oninput=e=>{
-  [...svgBody.querySelectorAll("tspan")].forEach(tspan=>tspan.setAttribute("font-size",e.target.value));
-  document.getElementById("bodySizeValue").textContent=e.target.value;
-};
-document.getElementById("footerSize").oninput=e=>{
-  svgFooter.setAttribute("font-size",e.target.value);
-  document.getElementById("footerSizeValue").textContent=e.target.value;
+// ===== SHARE PNG =====
+sharePNG.onclick = () => {
+  const url = canvas.toDataURL("image/png");
+  const win = window.open();
+  win.document.write(`<img src="${url}" />`);
 };
 
-// SHARE PNG SEGURO
-document.getElementById("downloadPNG").onclick = async () => {
-  const svgData = new XMLSerializer().serializeToString(svgCard);
-
-  // Cria um blob SVG
-  const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(svgBlob);
-
-  // Cria imagem a partir do blob
-  const img = new Image();
-  img.crossOrigin = "anonymous"; // importante para evitar problemas de CORS
-  img.src = url;
-
-  img.onload = () => {
-    // Cria canvas do tamanho do SVG
-    const canvas = document.createElement("canvas");
-    canvas.width = 1000;
-    canvas.height = 1000;
-    const ctx = canvas.getContext("2d");
-
-    // Desenha a imagem no canvas
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    // Gera o link de download
-    const link = document.createElement("a");
-    link.download = "base_post.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-
-    URL.revokeObjectURL(url);
-  };
-};
-
-// DRAG LOGO DO USUÁRIO
-let isDragging = false;
-let offsetY = 0;
-
-svgUserLogo.addEventListener("mousedown", e => {
-  isDragging = true;
-  offsetY = e.clientY - parseFloat(svgUserLogo.getAttribute("y"));
-  svgUserLogo.style.cursor = "grabbing";
-});
-
-window.addEventListener("mousemove", e => {
-  if (!isDragging) return;
-  let newY = e.clientY - offsetY;
-  if (newY < 0) newY = 0;
-  if (newY > 900) newY = 900;
-  svgUserLogo.setAttribute("y", newY);
-  svgUserLogo.setAttribute("x", 500 - parseFloat(svgUserLogo.getAttribute("width"))/2);
-});
-
-window.addEventListener("mouseup", () => {
-  isDragging = false;
-  svgUserLogo.style.cursor = "grab";
-});
+templateImg.onload = render;
+logoImg.onload = render;
 </script>
+
 </body>
 </html>
