@@ -2,94 +2,90 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Base Post Generator - Pixel Perfect</title>
+<title>Base Post Generator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 *{box-sizing:border-box}
 body{
   margin:0;
-  background:#f5f5f5;
-  padding:32px;
+  padding:24px;
+  background:#f4f4f4;
   display:flex;
   justify-content:center;
 }
 main{
   display:flex;
   gap:24px;
-  flex-wrap:wrap;
   width:100%;
   max-width:1200px;
 }
 .panel{
-  flex:0 0 360px;
+  width:360px;
   background:#fff;
   border-radius:16px;
   padding:16px;
-  box-shadow:0 4px 12px rgba(0,0,0,.05);
-  max-height:90vh;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
   overflow-y:auto;
 }
 .section{margin-bottom:20px}
 .section h3{
   margin:0 0 8px;
-  font-size:16px;
-  font-weight:600;
+  font-size:15px;
   border-bottom:1px solid #ddd;
-  padding-bottom:4px;
 }
-label{font-size:13px;font-weight:600;margin-top:8px;display:block}
+label{font-size:12px;font-weight:600}
 input,textarea,select{
   width:100%;
-  padding:10px 12px;
-  border-radius:10px;
+  margin-top:6px;
+  padding:8px 10px;
+  border-radius:8px;
   border:1px solid #ccc;
-  font-size:14px;
 }
 textarea{min-height:80px}
 .selector{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:8px;
-  margin-top:8px;
 }
 .selector img{
   width:100%;
   border-radius:8px;
-  border:2px solid transparent;
   cursor:pointer;
-  transition:.2s;
+  border:2px solid transparent;
 }
 .selector img.selected{
   border-color:#1da1f2;
-  box-shadow:0 0 8px rgba(29,161,242,.5);
 }
-.preview-wrapper{
-  flex:1 1 600px;
+.preview{
+  flex:1;
   display:flex;
   flex-direction:column;
   align-items:center;
 }
 .card{
   width:100%;
-  max-width:600px;
+  max-width:520px;
+  background:#000;
   border-radius:16px;
   overflow:hidden;
-  box-shadow:0 4px 16px rgba(0,0,0,.1);
+}
+canvas{
+  width:100%;
+  height:auto;
+  display:block;
 }
 button{
   margin-top:16px;
   width:100%;
-  padding:10px 16px;
-  background:#1da1f2;
-  color:#fff;
+  padding:10px;
   border:none;
   border-radius:8px;
+  background:#1da1f2;
+  color:#fff;
   font-weight:600;
   cursor:pointer;
 }
-.slider-wrapper{display:flex;gap:8px;align-items:center}
-.slider-wrapper span{width:32px;text-align:center}
 
 /* fonts */
 @font-face{font-family:Inter;src:url("assets/fonts/Inter-Regular.woff2") format("woff2");font-display:swap}
@@ -103,49 +99,10 @@ button{
 <main>
 
 <section class="panel">
-  <h2>Base Post Generator</h2>
-
-  <div class="section">
-    <h3>User Logo / PFP</h3>
-    <input type="file" id="userLogoInput" accept="image/*">
-    <label>Width</label>
-    <input type="number" id="userLogoWidth" value="100">
-    <label>Height</label>
-    <input type="number" id="userLogoHeight" value="100">
-  </div>
-
   <div class="section">
     <h3>Headline</h3>
-    <input id="headline" placeholder="Building for builders">
-    <input type="color" id="headlineColor" value="#ffffff">
-    <div class="slider-wrapper">
-      <input type="range" id="headlineSize" min="24" max="100" value="48">
-      <span id="headlineSizeValue">48</span>
-    </div>
-  </div>
-
-  <div class="section">
-    <h3>Body</h3>
-    <textarea id="body"></textarea>
-    <input type="color" id="bodyColor" value="#ffffff">
-    <div class="slider-wrapper">
-      <input type="range" id="bodySize" min="14" max="60" value="28">
-      <span id="bodySizeValue">28</span>
-    </div>
-  </div>
-
-  <div class="section">
-    <h3>Footer</h3>
-    <input id="footer" placeholder="Permissionless by design">
-    <input type="color" id="footerColor" value="#ffffff">
-    <div class="slider-wrapper">
-      <input type="range" id="footerSize" min="10" max="40" value="16">
-      <span id="footerSizeValue">16</span>
-    </div>
-  </div>
-
-  <div class="section">
-    <h3>Fonts</h3>
+    <input id="headline" value="Building for builders">
+    <input type="color" id="headlineColor">
     <select id="headlineFont">
       <option>Inter</option>
       <option>IBM Plex Sans</option>
@@ -153,6 +110,12 @@ button{
       <option>DM Sans</option>
       <option value="system-ui">System UI</option>
     </select>
+  </div>
+
+  <div class="section">
+    <h3>Body</h3>
+    <textarea id="body"></textarea>
+    <input type="color" id="bodyColor">
     <select id="bodyFont">
       <option>Inter</option>
       <option>IBM Plex Sans</option>
@@ -168,54 +131,41 @@ button{
   </div>
 
   <div class="section">
-    <h3>Logo</h3>
+    <h3>Base Logo</h3>
     <div class="selector" id="logoSelector"></div>
-    <select id="logoPosition">
-      <option value="br">Bottom Right</option>
-      <option value="bl">Bottom Left</option>
-      <option value="bc">Bottom Center</option>
-    </select>
   </div>
 </section>
 
-<section class="preview-wrapper">
+<section class="preview">
   <div class="card">
     <canvas id="canvas" width="1000" height="1000"></canvas>
   </div>
   <button id="sharePNG">Share PNG</button>
 </section>
 
-<script>
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
+</main>
 
-const state={
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const state = {
   template:null,
+  templateTheme:"dark",
   logo:null,
-  userLogo:null,
-  userLogoX:450,
-  userLogoY:100,
-  userLogoW:100,
-  userLogoH:100,
   headline:"Building for builders",
   body:"",
-  footer:"Permissionless by design",
-  headlineSize:48,
-  bodySize:28,
-  footerSize:16,
-  headlineColor:"#fff",
-  bodyColor:"#fff",
-  footerColor:"#fff",
+  headlineColor:"#ffffff",
+  bodyColor:"#ffffff",
   headlineFont:"Inter",
-  bodyFont:"Inter",
-  logoPos:{x:720,y:780}
+  bodyFont:"Inter"
 };
 
-const templates=[
-  "assets/templates/blue.png",
-  "assets/templates/black.png",
-  "assets/templates/blackandblue.png",
-  "assets/templates/blackandwhite.png"
+const templates = [
+  {src:"assets/templates/black.png",theme:"dark"},
+  {src:"assets/templates/blue.png",theme:"dark"},
+  {src:"assets/templates/blackandblue.png",theme:"dark"},
+  {src:"assets/templates/blackandwhite.png",theme:"light"}
 ];
 
 const logos=[
@@ -227,8 +177,9 @@ const logos=[
   "assets/logos/Base_white2.png"
 ];
 
-const images={};
-function load(src){
+const images = {};
+
+function loadImage(src){
   return new Promise(r=>{
     const i=new Image();
     i.onload=()=>{images[src]=i;r()};
@@ -236,93 +187,86 @@ function load(src){
   });
 }
 
-async function draw(){
-  ctx.clearRect(0,0,1000,1000);
-  if(state.template) ctx.drawImage(images[state.template],0,0,1000,1000);
-  if(state.userLogo) ctx.drawImage(state.userLogo,state.userLogoX,state.userLogoY,state.userLogoW,state.userLogoH);
-
-  ctx.textAlign="center";
-  ctx.fillStyle=state.headlineColor;
-  ctx.font=`700 ${state.headlineSize}px ${state.headlineFont}`;
-  ctx.fillText(state.headline,500,260);
-
-  ctx.fillStyle=state.bodyColor;
-  ctx.font=`${state.bodySize}px ${state.bodyFont}`;
-  state.body.split("\n").forEach((l,i)=>ctx.fillText(l,500,330+i*state.bodySize*1.2));
-
-  ctx.fillStyle=state.footerColor;
-  ctx.font=`${state.footerSize}px ${state.bodyFont}`;
-  ctx.fillText(state.footer,500,820);
-
-  if(state.logo) ctx.drawImage(images[state.logo],state.logoPos.x,state.logoPos.y,160,160);
+async function ensureFonts(){
+  await Promise.all([
+    document.fonts.load("48px Inter"),
+    document.fonts.load("48px IBM Plex Sans"),
+    document.fonts.load("48px Space Grotesk"),
+    document.fonts.load("48px DM Sans")
+  ]);
 }
 
-function buildSelector(list,el,key){
-  list.forEach((src,i)=>{
-    load(src).then(draw);
+async function draw(){
+  ctx.clearRect(0,0,1000,1000);
+
+  if(state.template)
+    ctx.drawImage(images[state.template],0,0,1000,1000);
+
+  ctx.textAlign="center";
+
+  ctx.fillStyle=state.headlineColor;
+  ctx.font=`700 56px ${state.headlineFont}`;
+  ctx.fillText(state.headline,500,300);
+
+  ctx.fillStyle=state.bodyColor;
+  ctx.font=`32px ${state.bodyFont}`;
+  ctx.fillText(state.body,500,380);
+
+  if(state.logo){
+    const img = images[state.logo];
+    const w = 160;
+    const h = w * (img.height / img.width);
+    ctx.drawImage(img,420,760,w,h);
+  }
+}
+
+function buildSelector(list,el,cb){
+  list.forEach((item,i)=>{
+    const src = item.src || item;
+    loadImage(src).then(draw);
     const img=document.createElement("img");
     img.src=src;
     img.onclick=()=>{
-      state[key]=src;
       [...el.children].forEach(c=>c.classList.remove("selected"));
       img.classList.add("selected");
+      cb(item);
       draw();
     };
-    if(i===0){state[key]=src;img.classList.add("selected")}
+    if(i===0) img.classList.add("selected");
     el.appendChild(img);
   });
 }
 
-buildSelector(templates,document.getElementById("templateSelector"),"template");
-buildSelector(logos,document.getElementById("logoSelector"),"logo");
+buildSelector(templates,templateSelector,(t)=>{
+  state.template=t.src;
+  state.templateTheme=t.theme;
+  if(t.theme==="dark"){
+    state.headlineColor="#ffffff";
+    state.bodyColor="#ffffff";
+  }else{
+    state.headlineColor="#000000";
+    state.bodyColor="#000000";
+  }
+  headlineColor.value=state.headlineColor;
+  bodyColor.value=state.bodyColor;
+});
+
+buildSelector(logos,logoSelector,(src)=>state.logo=src);
 
 headline.oninput=e=>{state.headline=e.target.value;draw()};
 body.oninput=e=>{state.body=e.target.value;draw()};
-footer.oninput=e=>{state.footer=e.target.value;draw()};
 headlineColor.oninput=e=>{state.headlineColor=e.target.value;draw()};
 bodyColor.oninput=e=>{state.bodyColor=e.target.value;draw()};
-footerColor.oninput=e=>{state.footerColor=e.target.value;draw()};
-headlineSize.oninput=e=>{state.headlineSize=e.target.value;headlineSizeValue.textContent=e.target.value;draw()};
-bodySize.oninput=e=>{state.bodySize=e.target.value;bodySizeValue.textContent=e.target.value;draw()};
-footerSize.oninput=e=>{state.footerSize=e.target.value;footerSizeValue.textContent=e.target.value;draw()};
 headlineFont.onchange=e=>{state.headlineFont=e.target.value;draw()};
 bodyFont.onchange=e=>{state.bodyFont=e.target.value;draw()};
 
-userLogoInput.onchange=e=>{
-  const r=new FileReader();
-  r.onload=()=>{const i=new Image();i.onload=()=>{state.userLogo=i;draw()};i.src=r.result};
-  r.readAsDataURL(e.target.files[0]);
-};
-
-userLogoWidth.oninput=e=>{state.userLogoW=e.target.value;draw()};
-userLogoHeight.oninput=e=>{state.userLogoH=e.target.value;draw()};
-
-logoPosition.onchange=e=>{
-  state.logoPos={br:{x:720,y:780},bl:{x:120,y:780},bc:{x:420,y:780}}[e.target.value];
-  draw();
-};
-
-let drag=false,offY=0;
-canvas.onmousedown=e=>{
-  if(!state.userLogo)return;
-  drag=true;
-  offY=e.offsetY-state.userLogoY;
-};
-window.onmousemove=e=>{
-  if(!drag)return;
-  state.userLogoY=Math.max(0,Math.min(900,e.offsetY-offY));
-  draw();
-};
-window.onmouseup=()=>drag=false;
-
 sharePNG.onclick=()=>{
-  const a=document.createElement("a");
-  a.download="post.png";
-  a.href=canvas.toDataURL("image/png");
-  a.click();
+  const url = canvas.toDataURL("image/png");
+  const win = window.open();
+  win.document.write(`<p>Long press or right click the image to save.</p><img src="${url}" style="max-width:100%">`);
 };
 
-draw();
+ensureFonts().then(draw);
 </script>
 </body>
 </html>
