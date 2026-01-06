@@ -299,9 +299,8 @@ function load(src) {
 
 async function draw(){
   ctx.clearRect(0,0,1000,1000);
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
   ctx.textBaseline = "top";
+  
   if(state.template) ctx.drawImage(images[state.template],0,0,1000,1000);
   if(state.userLogo) ctx.drawImage(state.userLogo,state.userLogoX,state.userLogoY,state.userLogoW,state.userLogoH);
 
@@ -318,7 +317,6 @@ async function draw(){
   ctx.font=`${state.footerSize}px ${state.bodyFont}`;
   ctx.fillText(state.footer,500,820);
 
-  // 🔹 Ajuste das logos para suavizar as 3 problemáticas
   if (state.logo && images[state.logo]) {
     const img = images[state.logo];
     if (!img.width || !img.height) return;
@@ -332,24 +330,20 @@ async function draw(){
       state.logo === "assets/logos/Base_black2.png" || 
       state.logo === "assets/logos/Base_white2.png"
     ) {
-      logoScale = 0.14; // reduz 2~5% para suavizar bordas
+      logoScale = 0.14; 
     }
 
-    // Mantém proporção e suaviza bordas desenhando em tamanho maior e reduzindo
-const scale = 0.16; // 16% do canvas
-const logoWidth = canvas.width * scale * 2; // desenha 2x
-const logoHeight = logoWidth * (img.height / img.width);
+    const scale = 0.16;
+    const logoWidth = canvas.width * scale * 2;
+    const logoHeight = logoWidth * (img.height / img.width);
 
-ctx.imageSmoothingEnabled = true;
-ctx.imageSmoothingQuality = "high";
-
-ctx.drawImage(
-  img,
-  state.logoPos.x,
-  state.logoPos.y,
-  logoWidth / 2,  // reduz metade ao desenhar
-  logoHeight / 2
-);
+    ctx.drawImage(
+      img,
+      state.logoPos.x,
+      state.logoPos.y,
+      logoWidth / 2,
+      logoHeight / 2
+    );
   }
 }
 
