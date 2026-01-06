@@ -112,6 +112,30 @@ button{
   display:block;
 }
 
+.preview-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  main {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .preview-area {
+    width: 100%;
+    order: -1; /* preview sobe */
+  }
+}
+
 </style>
 </head>
 
@@ -197,7 +221,8 @@ button{
   </div>
 </section>
 
-<div class="preview-wrapper">
+<section class="preview-area">
+  <div class="preview-wrapper">
     <canvas id="previewCanvas" width="1000" height="1000"></canvas>
   </div>
   <button id="sharePNG">Share PNG</button>
@@ -388,9 +413,6 @@ headlineSize.onchange = headlineSize.oninput;
 bodySize.onchange = bodySize.oninput;
 footerSize.onchange = footerSize.oninput;
 
-headlineSize.oninput=e=>{state.headlineSize=e.target.value;headlineSizeValue.textContent=e.target.value;draw()};
-bodySize.oninput=e=>{state.bodySize=e.target.value;bodySizeValue.textContent=e.target.value;draw()};
-footerSize.oninput=e=>{state.footerSize=e.target.value;footerSizeValue.textContent=e.target.value;draw()};
 headlineFont.onchange=e=>{state.headlineFont=e.target.value;draw()};
 bodyFont.onchange=e=>{state.bodyFont=e.target.value;draw()};
 
