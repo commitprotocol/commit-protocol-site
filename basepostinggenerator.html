@@ -5,6 +5,8 @@
 <title>Base Post Generator - Pixel Perfect</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
 *{box-sizing:border-box}
 body{
@@ -299,6 +301,7 @@ async function draw(){
   ctx.clearRect(0,0,1000,1000);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
+  ctx.textBaseline = "top";
   if(state.template) ctx.drawImage(images[state.template],0,0,1000,1000);
   if(state.userLogo) ctx.drawImage(state.userLogo,state.userLogoX,state.userLogoY,state.userLogoW,state.userLogoH);
 
@@ -423,10 +426,6 @@ footerColor.oninput = e => {
   state.userChangedColor = true;
   draw();
 };
-
-headlineSize.onchange = headlineSize.oninput;
-bodySize.onchange = bodySize.oninput;
-footerSize.onchange = footerSize.oninput;
 
 headline.oninput = e => {
   state.headline = e.target.value;
