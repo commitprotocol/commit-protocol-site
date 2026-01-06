@@ -214,7 +214,7 @@ const state={
   footerColor:"#fff",
   headlineFont:"Inter",
   bodyFont:"Inter",
-  logoPos:{x:720,y:780}
+  logoPos:{x:720,y:780},
   userChangedColor: false,
 };
 
@@ -295,38 +295,42 @@ async function draw(){
   );
 }
 }
-function buildSelector(list,el,key){
-  list.forEach((src,i)=>{
+function buildSelector(list, el, key) {
+  list.forEach((src, i) => {
     load(src).then(draw);
-    const img=document.createElement("img");
-    img.src=src;
+
+    const img = document.createElement("img");
+    img.src = src;
+
     img.onclick = () => {
-  state[key] = src;
+      state[key] = src;
 
-  if (key === "template" && templateTextColors[src]) {
-    state.headlineColor = templateTextColors[src];
-    state.bodyColor = templateTextColors[src];
-    state.footerColor = templateTextColors[src];
-  }
+      if (key === "template" && templateTextColors[src] && !state.userChangedColor) {
+        state.headlineColor = templateTextColors[src];
+        state.bodyColor = templateTextColors[src];
+        state.footerColor = templateTextColors[src];
+      }
 
-  [...el.children].forEach(c => c.classList.remove("selected"));
-  img.classList.add("selected");
-  draw();
-};
+      [...el.children].forEach(c => c.classList.remove("selected"));
+      img.classList.add("selected");
+      draw();
+    };
 
     if (i === 0) {
-  state[key] = src;
-  img.classList.add("selected");
+      state[key] = src;
+      img.classList.add("selected");
 
-  if (key === "template" && templateTextColors[src] && !state.userChangedColor) {
-  state.headlineColor = templateTextColors[src];
-  state.bodyColor = templateTextColors[src];
-  state.footerColor = templateTextColors[src];
-}
-}
+      if (key === "template" && templateTextColors[src] && !state.userChangedColor) {
+        state.headlineColor = templateTextColors[src];
+        state.bodyColor = templateTextColors[src];
+        state.footerColor = templateTextColors[src];
+      }
+    }
+
     el.appendChild(img);
   });
 }
+
 
 buildSelector(templates,document.getElementById("templateSelector"),"template");
 buildSelector(logos,document.getElementById("logoSelector"),"logo");
