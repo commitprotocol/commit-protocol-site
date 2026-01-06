@@ -316,47 +316,36 @@ function load(src) {
   });
 }
 
-async function draw() {
-  ctx.clearRect(0, 0, 1000, 1000);
+async function draw(){
+  ctx.clearRect(0,0,1000,1000);
   ctx.textBaseline = "top";
 
-  if (state.template) ctx.drawImage(images[state.template], 0, 0, 1000, 1000);
+  if(state.template) ctx.drawImage(images[state.template],0,0,1000,1000);
 
-  if (state.userLogo) {
-    ctx.drawImage(
-      state.userLogo,
-      state.userLogoX,
-      state.userLogoY,
-      state.userLogoW,
-      state.userLogoH
-    );
-  }
+  if(state.userLogo) ctx.drawImage(state.userLogo,state.userLogoX,state.userLogoY,state.userLogoW,state.userLogoH);
 
-  ctx.textAlign = "center";
-  ctx.fillStyle = state.headlineColor;
-  ctx.font = `700 ${state.headlineSize}px ${state.headlineFont}`;
-  ctx.fillText(state.headline, 500, 240);
+  ctx.textAlign="center";
+  ctx.fillStyle=state.headlineColor;
+  ctx.font=`700 ${state.headlineSize}px ${state.headlineFont}`;
+  ctx.fillText(state.headline,500,240);
 
-  ctx.fillStyle = state.bodyColor;
-  ctx.font = `${state.bodySize}px ${state.bodyFont}`;
-  state.body.split("\n").forEach((l, i) =>
-    ctx.fillText(l, 500, 310 + i * state.bodySize * 1.2)
-  );
+  ctx.fillStyle=state.bodyColor;
+  ctx.font=`${state.bodySize}px ${state.bodyFont}`;
+  state.body.split("\n").forEach((l,i)=>ctx.fillText(l,500,310+i*state.bodySize*1.2));
 
-  ctx.fillStyle = state.footerColor;
-  ctx.font = `${state.footerSize}px ${state.bodyFont}`;
-  ctx.fillText(state.footer, 500, 800);
+  ctx.fillStyle=state.footerColor;
+  ctx.font=`${state.footerSize}px ${state.bodyFont}`;
+  ctx.fillText(state.footer,500,800);
 
   if (state.logo && images[state.logo]) {
     const img = images[state.logo];
-    if (!img.width || !img.height) return;
-
+    
     ctx.drawImage(
-      img,
-      state.logoPos.x,
-      state.logoPos.y,
-      state.userLogoW,
-      state.userLogoH
+        img,
+        state.logoPos.x,
+        state.logoPos.y,
+        160,
+        160
     );
   }
 }
