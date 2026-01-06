@@ -323,7 +323,9 @@ async function draw(){
 
   if (!img.width || !img.height) return;
 
-  const logoWidth = 160;
+  // Mantendo proporção original e escalando relativo ao canvas
+  const scale = 0.16; // 16% do canvas
+  const logoWidth = canvas.width * scale;
   const logoHeight = logoWidth * (img.height / img.width);
 
   ctx.drawImage(
@@ -393,21 +395,18 @@ Promise.all([
 headlineSize.oninput = e => {
   const v = Number(e.target.value);
   state.headlineSize = v;
-  headlineSize.value = v;
   headlineSizeValue.textContent = v;
   draw();
 };
 bodySize.oninput = e => {
   const v = Number(e.target.value);
   state.bodySize = v;
-  bodySize.value = v;
   bodySizeValue.textContent = v;
   draw();
 };
 footerSize.oninput = e => {
   const v = Number(e.target.value);
   state.footerSize = v;
-  footerSize.value = v;
   footerSizeValue.textContent = v;
   draw();
 };
