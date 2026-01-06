@@ -341,8 +341,13 @@ buildSelector(logos,document.getElementById("logoSelector"),"logo");
 state.template = templates[0];
 state.logo = logos[0];
 
-document.fonts.ready.then(() => {
-  draw();
+Promise.all([
+  ...templates.map(load),
+  ...logos.map(load)
+]).then(() => {
+  document.fonts.ready.then(() => {
+    draw();
+  });
 });
 
 headline.oninput=e=>{state.headline=e.target.value;draw()};
