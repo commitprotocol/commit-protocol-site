@@ -7,24 +7,91 @@
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f5f5f5;padding:32px;display:flex;justify-content:center}
-main{display:flex;gap:24px;flex-wrap:wrap;width:100%;max-width:1200px}
-.panel{flex:0 0 360px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,.05);max-height:90vh;overflow-y:auto}
+body{
+  margin:0;
+  background:#f5f5f5;
+  padding:32px;
+  display:flex;
+  justify-content:center;
+}
+main{
+  display:flex;
+  gap:24px;
+  flex-wrap:wrap;
+  width:100%;
+  max-width:1200px;
+}
+.panel{
+  flex:0 0 360px;
+  background:#fff;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 4px 12px rgba(0,0,0,.05);
+  max-height:90vh;
+  overflow-y:auto;
+}
 .section{margin-bottom:20px}
-.section h3{margin:0 0 8px;font-size:16px;font-weight:600;border-bottom:1px solid #ddd;padding-bottom:4px}
-label{font-size:13px;font-weight:600;display:block;margin-top:8px}
-input,textarea,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #ccc;font-size:14px}
+.section h3{
+  margin:0 0 8px;
+  font-size:16px;
+  font-weight:600;
+  border-bottom:1px solid #ddd;
+  padding-bottom:4px;
+}
+label{font-size:13px;font-weight:600;margin-top:8px;display:block}
+input,textarea,select{
+  width:100%;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
 textarea{min-height:80px}
-.selector{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-.selector img{width:100%;border-radius:8px;border:2px solid transparent;cursor:pointer;transition:.2s}
-.selector img.selected{border-color:#1da1f2;box-shadow:0 0 8px rgba(29,161,242,.5)}
-.preview-wrapper{flex:1 1 600px;display:flex;flex-direction:column;align-items:center}
-.card{width:100%;max-width:600px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)}
-button{padding:10px 16px;background:#1da1f2;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;width:100%;margin-top:8px}
-.slider-wrapper{display:flex;align-items:center;gap:8px}
-.slider-wrapper span{width:32px;text-align:center;font-size:13px}
+.selector{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:8px;
+}
+.selector img{
+  width:100%;
+  border-radius:8px;
+  border:2px solid transparent;
+  cursor:pointer;
+  transition:.2s;
+}
+.selector img.selected{
+  border-color:#1da1f2;
+  box-shadow:0 0 8px rgba(29,161,242,.5);
+}
+.preview-wrapper{
+  flex:1 1 600px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.card{
+  width:100%;
+  max-width:600px;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 4px 16px rgba(0,0,0,.1);
+}
+button{
+  margin-top:16px;
+  width:100%;
+  padding:10px 16px;
+  background:#1da1f2;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+}
+.slider-wrapper{display:flex;gap:8px;align-items:center}
+.slider-wrapper span{width:32px;text-align:center}
 
-/* Fonts */
+/* fonts */
 @font-face{font-family:Inter;src:url("assets/fonts/Inter-Regular.woff2") format("woff2");font-display:swap}
 @font-face{font-family:"IBM Plex Sans";src:url("assets/fonts/IBMPlexSans-Regular.woff2") format("woff2");font-display:swap}
 @font-face{font-family:"Space Grotesk";src:url("assets/fonts/SpaceGrotesk-Regular.woff2") format("woff2");font-display:swap}
@@ -35,163 +102,227 @@ button{padding:10px 16px;background:#1da1f2;color:#fff;border:none;border-radius
 <body>
 <main>
 
-<!-- PANEL -->
 <section class="panel">
-<h2>Base Post Generator</h2>
+  <h2>Base Post Generator</h2>
 
-<div class="section">
-<h3>User Logo / PFP</h3>
-<input type="file" id="userLogoInput" accept="image/*">
-<label>Width</label><input type="number" id="userLogoWidth" value="100">
-<label>Height</label><input type="number" id="userLogoHeight" value="100">
-</div>
+  <div class="section">
+    <h3>User Logo / PFP</h3>
+    <input type="file" id="userLogoInput" accept="image/*">
+    <label>Width</label>
+    <input type="number" id="userLogoWidth" value="100">
+    <label>Height</label>
+    <input type="number" id="userLogoHeight" value="100">
+  </div>
 
-<div class="section">
-<h3>Headline</h3>
-<input id="headline" placeholder="Building for builders">
-<input type="color" id="headlineColor" value="#ffffff">
-<div class="slider-wrapper">
-<input type="range" id="headlineSize" min="24" max="100" value="48">
-<span id="headlineSizeValue">48</span>
-</div>
-</div>
+  <div class="section">
+    <h3>Headline</h3>
+    <input id="headline" placeholder="Building for builders">
+    <input type="color" id="headlineColor" value="#ffffff">
+    <div class="slider-wrapper">
+      <input type="range" id="headlineSize" min="24" max="100" value="48">
+      <span id="headlineSizeValue">48</span>
+    </div>
+  </div>
 
-<div class="section">
-<h3>Body</h3>
-<textarea id="body"></textarea>
-<input type="color" id="bodyColor" value="#ffffff">
-<div class="slider-wrapper">
-<input type="range" id="bodySize" min="14" max="60" value="28">
-<span id="bodySizeValue">28</span>
-</div>
-</div>
+  <div class="section">
+    <h3>Body</h3>
+    <textarea id="body"></textarea>
+    <input type="color" id="bodyColor" value="#ffffff">
+    <div class="slider-wrapper">
+      <input type="range" id="bodySize" min="14" max="60" value="28">
+      <span id="bodySizeValue">28</span>
+    </div>
+  </div>
 
-<div class="section">
-<h3>Footer</h3>
-<input id="footer" value="Permissionless by design">
-<input type="color" id="footerColor" value="#ffffff">
-<div class="slider-wrapper">
-<input type="range" id="footerSize" min="10" max="40" value="16">
-<span id="footerSizeValue">16</span>
-</div>
-</div>
+  <div class="section">
+    <h3>Footer</h3>
+    <input id="footer" placeholder="Permissionless by design">
+    <input type="color" id="footerColor" value="#ffffff">
+    <div class="slider-wrapper">
+      <input type="range" id="footerSize" min="10" max="40" value="16">
+      <span id="footerSizeValue">16</span>
+    </div>
+  </div>
 
-<div class="section">
-<h3>Fonts</h3>
-<select id="headlineFont">
-<option>Inter</option><option>IBM Plex Sans</option><option>Space Grotesk</option><option>DM Sans</option><option>system-ui</option>
-</select>
-<select id="bodyFont">
-<option>Inter</option><option>IBM Plex Sans</option><option>Space Grotesk</option><option>DM Sans</option><option>system-ui</option>
-</select>
-</div>
+  <div class="section">
+    <h3>Fonts</h3>
+    <select id="headlineFont">
+      <option>Inter</option>
+      <option>IBM Plex Sans</option>
+      <option>Space Grotesk</option>
+      <option>DM Sans</option>
+      <option value="system-ui">System UI</option>
+    </select>
+    <select id="bodyFont">
+      <option>Inter</option>
+      <option>IBM Plex Sans</option>
+      <option>Space Grotesk</option>
+      <option>DM Sans</option>
+      <option value="system-ui">System UI</option>
+    </select>
+  </div>
 
-<div class="section">
-<h3>Template</h3>
-<div class="selector" id="templateSelector"></div>
-</div>
+  <div class="section">
+    <h3>Template</h3>
+    <div class="selector" id="templateSelector"></div>
+  </div>
 
-<div class="section">
-<h3>Logo</h3>
-<div class="selector" id="logoSelector"></div>
-<select id="logoPosition">
-<option value="bottom-right">Bottom Right</option>
-<option value="bottom-left">Bottom Left</option>
-<option value="bottom-center">Bottom Center</option>
-</select>
-</div>
+  <div class="section">
+    <h3>Logo</h3>
+    <div class="selector" id="logoSelector"></div>
+    <select id="logoPosition">
+      <option value="br">Bottom Right</option>
+      <option value="bl">Bottom Left</option>
+      <option value="bc">Bottom Center</option>
+    </select>
+  </div>
 </section>
 
-<!-- PREVIEW -->
 <section class="preview-wrapper">
-<div class="card">
-<canvas id="canvas" width="1000" height="1000" style="width:100%"></canvas>
-</div>
-<button id="sharePNG" style="max-width:600px">Share PNG</button>
+  <div class="card">
+    <canvas id="canvas" width="1000" height="1000"></canvas>
+  </div>
+  <button id="sharePNG">Share PNG</button>
 </section>
-
-</main>
 
 <script>
-const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
 const state={
-template:"assets/templates/blue.png",
-logo:"assets/logos/Base_blue.png",
-logoPos:{x:720,y:780},
-headline:"Building for builders",
-body:"",
-footer:"Permissionless by design",
-headlineColor:"#fff",
-bodyColor:"#fff",
-footerColor:"#fff",
-headlineSize:48,
-bodySize:28,
-footerSize:16,
-headlineFont:"Inter",
-bodyFont:"Inter",
-userLogo:null,
-userLogoX:450,userLogoY:100,userLogoW:100,userLogoH:100
+  template:null,
+  logo:null,
+  userLogo:null,
+  userLogoX:450,
+  userLogoY:100,
+  userLogoW:100,
+  userLogoH:100,
+  headline:"Building for builders",
+  body:"",
+  footer:"Permissionless by design",
+  headlineSize:48,
+  bodySize:28,
+  footerSize:16,
+  headlineColor:"#fff",
+  bodyColor:"#fff",
+  footerColor:"#fff",
+  headlineFont:"Inter",
+  bodyFont:"Inter",
+  logoPos:{x:720,y:780}
 };
 
-async function draw(){
-ctx.clearRect(0,0,1000,1000);
-const bg=new Image();bg.src=state.template;await bg.decode();
-ctx.drawImage(bg,0,0,1000,1000);
+const templates=[
+  "assets/templates/blue.png",
+  "assets/templates/black.png",
+  "assets/templates/blackandblue.png",
+  "assets/templates/blackandwhite.png"
+];
 
-if(state.userLogo)ctx.drawImage(state.userLogo,state.userLogoX,state.userLogoY,state.userLogoW,state.userLogoH);
+const logos=[
+  "assets/logos/Base_blue.png",
+  "assets/logos/Base_black.png",
+  "assets/logos/Base_white.png",
+  "assets/logos/Base_blue2.png",
+  "assets/logos/Base_black2.png",
+  "assets/logos/Base_white2.png"
+];
 
-ctx.fillStyle=state.headlineColor;
-ctx.font=`700 ${state.headlineSize}px ${state.headlineFont}`;
-ctx.textAlign="center";
-ctx.fillText(state.headline,500,260);
-
-ctx.fillStyle=state.bodyColor;
-ctx.font=`${state.bodySize}px ${state.bodyFont}`;
-state.body.split("\n").forEach((l,i)=>ctx.fillText(l,500,330+i*(state.bodySize*1.2)));
-
-ctx.globalAlpha=.75;
-ctx.fillStyle=state.footerColor;
-ctx.font=`${state.footerSize}px ${state.bodyFont}`;
-ctx.fillText(state.footer,500,820);
-ctx.globalAlpha=1;
-
-const logo=new Image();logo.src=state.logo;await logo.decode();
-ctx.drawImage(logo,state.logoPos.x,state.logoPos.y,160,160);
+const images={};
+function load(src){
+  return new Promise(r=>{
+    const i=new Image();
+    i.onload=()=>{images[src]=i;r()};
+    i.src=src;
+  });
 }
 
-draw();
+async function draw(){
+  ctx.clearRect(0,0,1000,1000);
+  if(state.template) ctx.drawImage(images[state.template],0,0,1000,1000);
+  if(state.userLogo) ctx.drawImage(state.userLogo,state.userLogoX,state.userLogoY,state.userLogoW,state.userLogoH);
 
-/* INPUTS */
-headline.oninput=e=>{state.headline=e.target.value;draw()}
-body.oninput=e=>{state.body=e.target.value;draw()}
-footer.oninput=e=>{state.footer=e.target.value;draw()}
-headlineColor.oninput=e=>{state.headlineColor=e.target.value;draw()}
-bodyColor.oninput=e=>{state.bodyColor=e.target.value;draw()}
-footerColor.oninput=e=>{state.footerColor=e.target.value;draw()}
-headlineSize.oninput=e=>{state.headlineSize=e.target.value;headlineSizeValue.textContent=e.target.value;draw()}
-bodySize.oninput=e=>{state.bodySize=e.target.value;bodySizeValue.textContent=e.target.value;draw()}
-footerSize.oninput=e=>{state.footerSize=e.target.value;footerSizeValue.textContent=e.target.value;draw()}
-headlineFont.onchange=e=>{state.headlineFont=e.target.value;draw()}
-bodyFont.onchange=e=>{state.bodyFont=e.target.value;draw()}
+  ctx.textAlign="center";
+  ctx.fillStyle=state.headlineColor;
+  ctx.font=`700 ${state.headlineSize}px ${state.headlineFont}`;
+  ctx.fillText(state.headline,500,260);
 
-/* USER LOGO */
+  ctx.fillStyle=state.bodyColor;
+  ctx.font=`${state.bodySize}px ${state.bodyFont}`;
+  state.body.split("\n").forEach((l,i)=>ctx.fillText(l,500,330+i*state.bodySize*1.2));
+
+  ctx.fillStyle=state.footerColor;
+  ctx.font=`${state.footerSize}px ${state.bodyFont}`;
+  ctx.fillText(state.footer,500,820);
+
+  if(state.logo) ctx.drawImage(images[state.logo],state.logoPos.x,state.logoPos.y,160,160);
+}
+
+function buildSelector(list,el,key){
+  list.forEach((src,i)=>{
+    load(src).then(draw);
+    const img=document.createElement("img");
+    img.src=src;
+    img.onclick=()=>{
+      state[key]=src;
+      [...el.children].forEach(c=>c.classList.remove("selected"));
+      img.classList.add("selected");
+      draw();
+    };
+    if(i===0){state[key]=src;img.classList.add("selected")}
+    el.appendChild(img);
+  });
+}
+
+buildSelector(templates,document.getElementById("templateSelector"),"template");
+buildSelector(logos,document.getElementById("logoSelector"),"logo");
+
+headline.oninput=e=>{state.headline=e.target.value;draw()};
+body.oninput=e=>{state.body=e.target.value;draw()};
+footer.oninput=e=>{state.footer=e.target.value;draw()};
+headlineColor.oninput=e=>{state.headlineColor=e.target.value;draw()};
+bodyColor.oninput=e=>{state.bodyColor=e.target.value;draw()};
+footerColor.oninput=e=>{state.footerColor=e.target.value;draw()};
+headlineSize.oninput=e=>{state.headlineSize=e.target.value;headlineSizeValue.textContent=e.target.value;draw()};
+bodySize.oninput=e=>{state.bodySize=e.target.value;bodySizeValue.textContent=e.target.value;draw()};
+footerSize.oninput=e=>{state.footerSize=e.target.value;footerSizeValue.textContent=e.target.value;draw()};
+headlineFont.onchange=e=>{state.headlineFont=e.target.value;draw()};
+bodyFont.onchange=e=>{state.bodyFont=e.target.value;draw()};
+
 userLogoInput.onchange=e=>{
-const img=new Image();
-img.onload=()=>{state.userLogo=img;draw()}
-img.src=URL.createObjectURL(e.target.files[0]);
+  const r=new FileReader();
+  r.onload=()=>{const i=new Image();i.onload=()=>{state.userLogo=i;draw()};i.src=r.result};
+  r.readAsDataURL(e.target.files[0]);
 };
-userLogoWidth.oninput=e=>{state.userLogoW=e.target.value;draw()}
-userLogoHeight.oninput=e=>{state.userLogoH=e.target.value;draw()}
 
-/* DRAG */
+userLogoWidth.oninput=e=>{state.userLogoW=e.target.value;draw()};
+userLogoHeight.oninput=e=>{state.userLogoH=e.target.value;draw()};
+
+logoPosition.onchange=e=>{
+  state.logoPos={br:{x:720,y:780},bl:{x:120,y:780},bc:{x:420,y:780}}[e.target.value];
+  draw();
+};
+
 let drag=false,offY=0;
-canvas.onmousedown=e=>{drag=true;offY=e.offsetY-state.userLogoY}
-window.onmousemove=e=>{if(!drag)return;state.userLogoY=Math.max(0,Math.min(900,e.offsetY-offY));draw()}
+canvas.onmousedown=e=>{
+  if(!state.userLogo)return;
+  drag=true;
+  offY=e.offsetY-state.userLogoY;
+};
+window.onmousemove=e=>{
+  if(!drag)return;
+  state.userLogoY=Math.max(0,Math.min(900,e.offsetY-offY));
+  draw();
+};
 window.onmouseup=()=>drag=false;
 
-/* SHARE */
-sharePNG.onclick=()=>{const w=window.open();w.document.write(`<img src="${canvas.toDataURL()}">`)};
+sharePNG.onclick=()=>{
+  const a=document.createElement("a");
+  a.download="post.png";
+  a.href=canvas.toDataURL("image/png");
+  a.click();
+};
+
+draw();
 </script>
 </body>
 </html>
