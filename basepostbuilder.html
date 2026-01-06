@@ -297,13 +297,17 @@ async function draw(){
 }
 function buildSelector(list, el, key) {
   list.forEach((src, i) => {
-    load(src).then(draw);
+    load(src);
 
     const img = document.createElement("img");
     img.src = src;
 
     img.onclick = () => {
       state[key] = src;
+
+      if (key === "template") {
+        state.userChangedColor = false;
+      }
 
       if (key === "template" && templateTextColors[src] && !state.userChangedColor) {
         state.headlineColor = templateTextColors[src];
@@ -334,6 +338,12 @@ function buildSelector(list, el, key) {
 
 buildSelector(templates,document.getElementById("templateSelector"),"template");
 buildSelector(logos,document.getElementById("logoSelector"),"logo");
+state.template = templates[0];
+state.logo = logos[0];
+
+document.fonts.ready.then(() => {
+  draw();
+});
 
 headline.oninput=e=>{state.headline=e.target.value;draw()};
 body.oninput=e=>{state.body=e.target.value;draw()};
@@ -379,9 +389,13 @@ canvas.onmousedown=e=>{
   drag=true;
   offY=e.offsetY-state.userLogoY;
 };
-window.onmousemove=e=>{
-  if(!drag)return;
-  state.userLogoY=Math.max(0,Math.min(900,e.offsetY-offY));
+window.onmousemove = e => {
+  if(!drag) return;
+  const rect = canvas.getBoundingClientRect();
+  state.userLogoY = Math.max(
+    0,
+    Math.min(900, e.clientY - rect.top - offY)
+  );
   draw();
 };
 window.onmouseup=()=>drag=false;
@@ -392,7 +406,6 @@ sharePNG.onclick=()=>{
   win.document.write(`<p>Long press or right click the image to save.</p><img src="${url}" style="max-width:100%">`);
 };
 
-draw();
 </script>
 </body>
 </html>
