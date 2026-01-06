@@ -163,7 +163,7 @@ button{
 <main>
 
 <section class="panel">
-  <h2>Base Post Generator</h2>
+  <h2>Baseposting Generator</h2>
 
   <div class="section">
     <h3>User Logo / PFP</h3>
@@ -247,49 +247,48 @@ button{
   </div>
   <button id="sharePNG">Share PNG</button>
 </section>
-
 <script>
-const canvas = document.getElementById("previewCanvas");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("previewCanvas");
+const ctx=canvas.getContext("2d");
 
-const state = {
-  template: null,
-  logo: null,
-  userLogo: null,
-  userLogoX: 450,
-  userLogoY: 100,
-  userLogoW: 100,
-  userLogoH: 100,
-  headline: "Building for builders",
-  body: "",
-  footer: "Permissionless by design",
-  headlineSize: 48,
-  bodySize: 28,
-  footerSize: 16,
-  headlineColor: "#fff",
-  bodyColor: "#fff",
-  footerColor: "#fff",
-  headlineFont: "Inter",
-  bodyFont: "Inter",
-  logoPos: { x: 720, y: 840 },
+const state={
+  template:null,
+  logo:null,
+  userLogo:null,
+  userLogoX:450,
+  userLogoY:100,
+  userLogoW:100,
+  userLogoH:100,
+  headline:"Building for builders",
+  body:"",
+  footer:"Permissionless by design",
+  headlineSize:48,
+  bodySize:28,
+  footerSize:16,
+  headlineColor:"#fff",
+  bodyColor:"#fff",
+  footerColor:"#fff",
+  headlineFont:"Inter",
+  bodyFont:"Inter",
+  logoPos:{x:720,y:820},
   userChangedColor: false
 };
 
-const templates = [
+const templates=[
   "assets/templates/blue.png",
   "assets/templates/black.png",
   "assets/templates/blackandblue.png",
   "assets/templates/blackandwhite.png"
 ];
 
-const templateTextColors = {
-  "assets/templates/blue.png": "#ffffff",
-  "assets/templates/black.png": "#ffffff",
-  "assets/templates/blackandblue.png": "#ffffff",
-  "assets/templates/blackandwhite.png": "#000000"
+const templateTextColors={
+  "assets/templates/blue.png":"#ffffff",
+  "assets/templates/black.png":"#ffffff",
+  "assets/templates/blackandblue.png":"#ffffff",
+  "assets/templates/blackandwhite.png":"#000000"
 };
 
-const logos = [
+const logos=[
   "assets/logos/Base_blue.svg",
   "assets/logos/Base_black.svg",
   "assets/logos/Base_white.svg",
@@ -299,9 +298,9 @@ const logos = [
 ];
 
 const logoPositions = {
-  br: { x: 720, y: 840 },
-  bl: { x: 120, y: 840 },
-  bc: { x: 420, y: 840 }
+  br: { x: 720, y: 820 },
+  bl: { x: 120, y: 820 },
+  bc: { x: 420, y: 820 }
 };
 
 const images = {};
@@ -317,32 +316,45 @@ function load(src) {
   });
 }
 
-async function draw() {
-  ctx.clearRect(0, 0, 1000, 1000);
+async function draw(){
+  ctx.clearRect(0,0,1000,1000);
   ctx.textBaseline = "top";
+  
+  if(state.template) ctx.drawImage(images[state.template],0,0,1000,1000);
+  if(state.userLogo) ctx.drawImage(state.userLogo,state.userLogoX,state.userLogoY,state.userLogoW,state.userLogoH);
 
-  if (state.template) ctx.drawImage(images[state.template], 0, 0, 1000, 1000);
-  if (state.userLogo) ctx.drawImage(state.userLogo, state.userLogoX, state.userLogoY, state.userLogoW, state.userLogoH);
+  ctx.textAlign="center";
+  ctx.fillStyle=state.headlineColor;
+  ctx.font=`700 ${state.headlineSize}px ${state.headlineFont}`;
+  ctx.fillText(state.headline,500,240);
 
-  ctx.textAlign = "center";
-  ctx.fillStyle = state.headlineColor;
-  ctx.font = `700 ${state.headlineSize}px ${state.headlineFont}`;
-  ctx.fillText(state.headline, 500, 240);
+  ctx.fillStyle=state.bodyColor;
+  ctx.font=`${state.bodySize}px ${state.bodyFont}`;
+  state.body.split("\n").forEach((l,i)=>ctx.fillText(l,500,310+i*state.bodySize*1.2));
 
-  ctx.fillStyle = state.bodyColor;
-  ctx.font = `${state.bodySize}px ${state.bodyFont}`;
-  state.body.split("\n").forEach((line, i) => {
-    ctx.fillText(line, 500, 310 + i * state.bodySize * 1.2);
-  });
+  ctx.fillStyle=state.footerColor;
+  ctx.font=`${state.footerSize}px ${state.bodyFont}`;
+  ctx.fillText(state.footer,500,800);
 
-  ctx.fillStyle = state.footerColor;
-  ctx.font = `${state.footerSize}px ${state.bodyFont}`;
-  ctx.fillText(state.footer, 500, 800);
-
-  // Logo SVG direto, sem ajuste de PNG
   if (state.logo && images[state.logo]) {
     const img = images[state.logo];
-    ctx.drawImage(img, state.logoPos.x, state.logoPos.y, 160, 80);
+    if (!img.width || !img.height) return;
+
+    const logoMaxWidth = 160;
+    const logoMaxHeight = 80;
+
+    const scale = Math.min(logoMaxWidth / img.width, logoMaxHeight / img.height);
+
+    const logoWidth = img.width * scale;
+    const logoHeight = img.height * scale;
+
+    ctx.drawImage(
+      img,
+      state.logoPos.x - logoWidth / 2,
+      state.logoPos.y - logoHeight / 2,
+      logoWidth,
+      logoHeight
+    );
   }
 }
 
@@ -357,6 +369,7 @@ function buildSelector(list, el, key) {
       state[key] = src;
 
       if (key === "template") state.userChangedColor = false;
+
       if (key === "template" && templateTextColors[src] && !state.userChangedColor) {
         state.headlineColor = templateTextColors[src];
         state.bodyColor = templateTextColors[src];
@@ -371,6 +384,7 @@ function buildSelector(list, el, key) {
     if (i === 0) {
       state[key] = src;
       img.classList.add("selected");
+
       if (key === "template" && templateTextColors[src] && !state.userChangedColor) {
         state.headlineColor = templateTextColors[src];
         state.bodyColor = templateTextColors[src];
@@ -382,11 +396,16 @@ function buildSelector(list, el, key) {
   });
 }
 
-buildSelector(templates, document.getElementById("templateSelector"), "template");
-buildSelector(logos, document.getElementById("logoSelector"), "logo");
+buildSelector(templates,document.getElementById("templateSelector"),"template");
+buildSelector(logos,document.getElementById("logoSelector"),"logo");
+state.template = templates[0];
+state.logo = logos[0];
 
-Promise.all([...templates.map(load), ...logos.map(load)]).then(() => {
-  document.fonts.ready.then(() => draw());
+Promise.all([
+  ...templates.map(load),
+  ...logos.map(load)
+]).then(() => {
+    document.fonts.ready.then(() => { draw(); });
 });
 
 headlineSize.oninput = e => { state.headlineSize = Number(e.target.value); headlineSizeValue.textContent = e.target.value; draw(); };
@@ -399,16 +418,12 @@ footerColor.oninput = e => { state.footerColor = e.target.value; state.userChang
 headline.oninput = e => { state.headline = e.target.value; draw(); };
 body.oninput = e => { state.body = e.target.value; draw(); };
 footer.oninput = e => { state.footer = e.target.value; draw(); };
-headlineFont.onchange = e => { state.headlineFont = e.target.value; draw(); };
-bodyFont.onchange = e => { state.bodyFont = e.target.value; draw(); };
+headlineFont.onchange=e=>{state.headlineFont=e.target.value;draw()};
+bodyFont.onchange=e=>{state.bodyFont=e.target.value;draw()};
 
-userLogoInput.onchange = e => {
-  const r = new FileReader();
-  r.onload = () => {
-    const i = new Image();
-    i.onload = () => { state.userLogo = i; draw(); };
-    i.src = r.result;
-  };
+userLogoInput.onchange=e=>{
+  const r=new FileReader();
+  r.onload=()=>{const i=new Image();i.onload=()=>{state.userLogo=i;draw()};i.src=r.result};
   r.readAsDataURL(e.target.files[0]);
 };
 
@@ -417,16 +432,26 @@ userLogoHeight.oninput = e => { state.userLogoH = Number(e.target.value); draw()
 
 logoPosition.onchange = e => { state.logoPos = logoPositions[e.target.value]; draw(); };
 
-let drag = false, offY = 0;
-canvas.onmousedown = e => { if(!state.userLogo) return; drag = true; offY = e.offsetY - state.userLogoY; };
-window.onmousemove = e => { if(!drag) return; const rect = canvas.getBoundingClientRect(); state.userLogoY = Math.max(0, Math.min(900, e.clientY - rect.top - offY)); draw(); };
-window.onmouseup = () => drag = false;
+let drag=false,offY=0;
+canvas.onmousedown=e=>{
+  if(!state.userLogo)return;
+  drag=true;
+  offY=e.offsetY-state.userLogoY;
+};
+window.onmousemove = e => {
+  if(!drag) return;
+  const rect = canvas.getBoundingClientRect();
+  state.userLogoY = Math.max(0, Math.min(900, e.clientY - rect.top - offY));
+  draw();
+};
+window.onmouseup=()=>drag=false;
 
-sharePNG.onclick = () => {
+sharePNG.onclick=()=>{
   const url = canvas.toDataURL("image/png");
   const win = window.open();
   win.document.write(`<p>Long press or right click the image to save.</p><img src="${url}" style="max-width:100%">`);
 };
+
 </script>
 </body>
 </html>
