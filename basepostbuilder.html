@@ -350,9 +350,32 @@ Promise.all([
   });
 });
 
-headline.oninput=e=>{state.headline=e.target.value;draw()};
-body.oninput=e=>{state.body=e.target.value;draw()};
-footer.oninput=e=>{state.footer=e.target.value;draw()};
+headlineSize.oninput = e => {
+  const v = Number(e.target.value);
+  state.headlineSize = v;
+  headlineSize.value = v;
+  headlineSizeValue.textContent = v;
+  draw();
+};
+bodySize.oninput = e => {
+  const v = Number(e.target.value);
+  state.bodySize = v;
+  bodySize.value = v;
+  bodySizeValue.textContent = v;
+  draw();
+};
+footerSize.oninput = e => {
+  const v = Number(e.target.value);
+  state.footerSize = v;
+  footerSize.value = v;
+  footerSizeValue.textContent = v;
+  draw();
+};
+
+headlineSize.onchange = headlineSize.oninput;
+bodySize.onchange = bodySize.oninput;
+footerSize.onchange = footerSize.oninput;
+
 headlineColor.oninput = e => {
   state.headlineColor = e.target.value;
   state.userChangedColor = true;
