@@ -408,11 +408,38 @@ footerSize.oninput = e => {
   footerSizeValue.textContent = v;
   draw();
 };
+headlineColor.oninput = e => {
+  state.headlineColor = e.target.value;
+  state.userChangedColor = true;
+  draw();
+};
+bodyColor.oninput = e => {
+  state.bodyColor = e.target.value;
+  state.userChangedColor = true;
+  draw();
+};
+footerColor.oninput = e => {
+  state.footerColor = e.target.value;
+  state.userChangedColor = true;
+  draw();
+};
 
 headlineSize.onchange = headlineSize.oninput;
 bodySize.onchange = bodySize.oninput;
 footerSize.onchange = footerSize.oninput;
 
+headline.oninput = e => {
+  state.headline = e.target.value;
+  draw();
+};
+body.oninput = e => {
+  state.body = e.target.value;
+  draw();
+};
+footer.oninput = e => {
+  state.footer = e.target.value;
+  draw();
+};
 headlineFont.onchange=e=>{state.headlineFont=e.target.value;draw()};
 bodyFont.onchange=e=>{state.bodyFont=e.target.value;draw()};
 
@@ -422,8 +449,14 @@ userLogoInput.onchange=e=>{
   r.readAsDataURL(e.target.files[0]);
 };
 
-userLogoWidth.oninput=e=>{state.userLogoW=e.target.value;draw()};
-userLogoHeight.oninput=e=>{state.userLogoH=e.target.value;draw()};
+userLogoWidth.oninput = e => {
+  state.userLogoW = Number(e.target.value);
+  draw();
+};
+userLogoHeight.oninput = e => {
+  state.userLogoH = Number(e.target.value);
+  draw();
+};
 
 logoPosition.onchange = e => {
   state.logoPos = logoPositions[e.target.value];
