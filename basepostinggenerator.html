@@ -299,6 +299,8 @@ function load(src) {
 
 async function draw(){
   ctx.clearRect(0,0,1000,1000);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
   if(state.template) ctx.drawImage(images[state.template],0,0,1000,1000);
   if(state.userLogo) ctx.drawImage(state.userLogo,state.userLogoX,state.userLogoY,state.userLogoW,state.userLogoH);
 
