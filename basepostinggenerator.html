@@ -247,6 +247,7 @@ button{
   </div>
   <button id="sharePNG">Share PNG</button>
 </section>
+
 <script>
 const canvas=document.getElementById("previewCanvas");
 const ctx=canvas.getContext("2d");
@@ -288,13 +289,14 @@ const templateTextColors={
   "assets/templates/blackandwhite.png":"#000000"
 };
 
+// 🔹 Usando as 6 logos SVG
 const logos=[
-  "assets/logos/Base_blue.png",
-  "assets/logos/Base_black.png",
-  "assets/logos/Base_white.png",
-  "assets/logos/Base_blue2.png",
-  "assets/logos/Base_black2.png",
-  "assets/logos/Base_white2.png"
+  "assets/logos/Base_blue.svg",
+  "assets/logos/Base_black.svg",
+  "assets/logos/Base_white.svg",
+  "assets/logos/Base_blue2.svg",
+  "assets/logos/Base_black2.svg",
+  "assets/logos/Base_white2.svg"
 ];
 
 const logoPositions = {
@@ -340,22 +342,11 @@ async function draw(){
     const img = images[state.logo];
     if (!img.width || !img.height) return;
 
-    let logoScale = 0.16;
-    if (
-      state.logo === "assets/logos/Base_blue.png" || 
-      state.logo === "assets/logos/Base_black.png" || 
-      state.logo === "assets/logos/Base_white.png" || 
-      state.logo === "assets/logos/Base_blue2.png" || 
-      state.logo === "assets/logos/Base_black2.png" || 
-      state.logo === "assets/logos/Base_white2.png"
-    ) {
-      logoScale = 0.14; 
-    }
-
     const scale = 0.16;
     const logoWidth = canvas.width * scale * 2;
     const logoHeight = logoWidth * (img.height / img.width);
 
+    ctx.imageSmoothingEnabled = false; // ❌ remove anti-aliasing
     ctx.drawImage(
       img,
       state.logoPos.x,
