@@ -5,7 +5,7 @@
 <title>Base Post Generator - Pixel Perfect</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;600&family=Space+Grotesk:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 *{box-sizing:border-box}
@@ -15,6 +15,7 @@ body{
   padding:32px;
   display:flex;
   justify-content:center;
+  font-family:'Inter', sans-serif;
 }
 main{
   display:flex;
@@ -27,26 +28,46 @@ main{
   flex:0 0 360px;
   background:#fff;
   border-radius:16px;
-  padding:16px;
-  box-shadow:0 4px 12px rgba(0,0,0,.05);
+  padding:24px;
+  box-shadow:0 6px 20px rgba(0,0,0,.06);
   max-height:90vh;
   overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
 }
-.section{margin-bottom:20px}
+.panel h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+.section{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
 .section h3{
-  margin:0 0 8px;
+  margin:0;
   font-size:16px;
   font-weight:600;
+  font-family:'DM Sans', sans-serif;
   border-bottom:1px solid #ddd;
   padding-bottom:4px;
 }
-label{font-size:13px;font-weight:600;margin-top:8px;display:block}
+label{font-size:14px;font-weight:500;margin-top:8px;display:block;font-family:'Inter',sans-serif}
 input,textarea,select{
   width:100%;
   padding:10px 12px;
   border-radius:10px;
-  border:1px solid #ccc;
+  border:1px solid #ddd;
   font-size:14px;
+  font-family:'Inter', sans-serif;
+  transition:border-color 0.2s;
+}
+input:focus, textarea:focus, select:focus{
+  border-color:#1da1f2;
+  outline:none;
 }
 textarea{min-height:80px}
 .selector{
@@ -60,11 +81,11 @@ textarea{min-height:80px}
   border-radius:8px;
   border:2px solid transparent;
   cursor:pointer;
-  transition:.2s;
+  transition:all 0.2s ease;
 }
 .selector img.selected{
   border-color:#1da1f2;
-  box-shadow:0 0 8px rgba(29,161,242,.5);
+  box-shadow:0 0 10px rgba(29,161,242,.4);
 }
 .preview-wrapper {
   width: 100%;
@@ -135,7 +156,6 @@ button{
     order: -1;
   }
 }
-
 </style>
 </head>
 
@@ -227,7 +247,6 @@ button{
   </div>
   <button id="sharePNG">Share PNG</button>
 </section>
-
 <script>
 const canvas=document.getElementById("previewCanvas");
 const ctx=canvas.getContext("2d");
