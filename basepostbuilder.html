@@ -260,9 +260,24 @@ async function draw(){
   ctx.font=`${state.footerSize}px ${state.bodyFont}`;
   ctx.fillText(state.footer,500,820);
 
-  if(state.logo) ctx.drawImage(images[state.logo],state.logoPos.x,state.logoPos.y,1281,325);
-}
+  if (state.logo && images[state.logo]) {
+  const img = images[state.logo];
 
+  // garante que a imagem já tem dimensões válidas
+  if (!img.width || !img.height) return;
+
+  const logoWidth = 160;
+  const logoHeight = logoWidth * (img.height / img.width);
+
+  ctx.drawImage(
+    img,
+    state.logoPos.x,
+    state.logoPos.y,
+    logoWidth,
+    logoHeight
+  );
+}
+}
 function buildSelector(list,el,key){
   list.forEach((src,i)=>{
     load(src).then(draw);
