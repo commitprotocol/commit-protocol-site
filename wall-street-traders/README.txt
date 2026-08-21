@@ -13,6 +13,12 @@ The page uses these existing root files from Commit Protocol:
 - /menu.css
 - /menu.html
 
-Before launch, add the official marketplace and verified collection contract links.
+Official collection contract:
+0x7a5f95f898cf968cac3f9d6231f03f36c3da5b0d
+
+Official deployer wallet:
+0xc63904D71fB1fed5bB90a148A3aeA661bc85875B
+
+Before launch, add the official marketplace link.
 
 The official treasury address is already documented in docs/index.html.
