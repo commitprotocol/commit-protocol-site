@@ -28,9 +28,9 @@ main{width:100%;max-width:1040px;margin:0 auto}
 .page{background:rgba(17,17,17,.96);border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.55)}
 .hero{padding:66px 44px 48px;text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
 .hero:after{content:"WST / 444";position:absolute;right:-15px;bottom:-25px;font:800 88px/1 'JetBrains Mono';color:rgba(255,255,255,.025);white-space:nowrap}
-.eyebrow{display:inline-flex;align-items:center;gap:9px;font:700 12px/1 'JetBrains Mono';letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin-bottom:20px}
+.eyebrow{display:flex;width:max-content;align-items:center;gap:9px;font:700 12px/1 'JetBrains Mono';letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin:0 auto 20px}
 .dot{width:7px;height:7px;background:var(--green);border-radius:50%;box-shadow:0 0 14px var(--green)}
-.hero-logo{width:70px;height:70px;object-fit:contain;margin-bottom:17px;filter:grayscale(1) brightness(2)}
+.hero-logo{display:block;width:70px;height:70px;object-fit:contain;margin:0 auto 17px;filter:grayscale(1) brightness(2)}
 h1{font-size:clamp(38px,7vw,72px);line-height:.98;letter-spacing:-.055em;margin:0 auto 20px;max-width:820px}
 .lead{font-size:clamp(16px,2.2vw,20px);line-height:1.65;color:var(--muted);max-width:680px;margin:0 auto 28px}
 .hero-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:12px}
@@ -50,8 +50,8 @@ h1{font-size:clamp(38px,7vw,72px);line-height:.98;letter-spacing:-.055em;margin:
 h2{font-size:clamp(24px,3vw,34px);letter-spacing:-.035em}
 .kicker{font:700 11px/1 'JetBrains Mono';letter-spacing:.15em;color:#777;text-transform:uppercase;margin-bottom:10px}
 .section-copy{color:var(--muted);font-size:15px;line-height:1.75;max-width:760px}
-.gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.portrait{position:relative;overflow:hidden;background:#000;border:1px solid var(--line);aspect-ratio:1;border-radius:12px}
+.gallery{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.portrait{position:relative;overflow:hidden;flex:0 1 calc(25% - 8px);background:#000;border:1px solid var(--line);aspect-ratio:1;border-radius:12px}
 .portrait img{width:100%;height:100%;display:block;object-fit:cover;image-rendering:auto;transition:transform .35s,filter .35s}
 .portrait:hover img{transform:scale(1.035);filter:contrast(1.08)}
 .portrait span{position:absolute;left:10px;bottom:10px;background:rgba(0,0,0,.78);border:1px solid #333;border-radius:6px;padding:5px 7px;font:700 9px/1 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase}
@@ -64,7 +64,7 @@ h2{font-size:clamp(24px,3vw,34px);letter-spacing:-.035em}
 .rarity{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.rarity-card{border:1px solid var(--line);border-radius:12px;padding:18px;background:#0d0d0d}.rarity-card small{display:block;color:#777;font:700 10px/1 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}.rarity-card strong{display:block;font-size:17px;margin-bottom:7px}.rarity-card p{font-size:12px;color:var(--muted);line-height:1.5}
 .statement{border:1px solid #363636;border-radius:16px;padding:32px;background:linear-gradient(135deg,#191919,#0d0d0d);text-align:center}.statement p{font-size:clamp(20px,3vw,30px);font-weight:700;line-height:1.35;letter-spacing:-.025em;max-width:780px;margin:auto}.statement footer{margin-top:16px;color:var(--green);font:700 11px/1.4 'JetBrains Mono';text-transform:uppercase;letter-spacing:.12em}
 .footer{padding:25px 44px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:18px;color:#6f6f6b;font:500 11px/1.5 'JetBrains Mono';text-transform:uppercase;letter-spacing:.06em}
-@media(max-width:800px){.hero{padding:54px 24px 40px}.content{padding:38px 24px}.stats{grid-template-columns:repeat(2,1fr)}.stat:nth-child(2){border-right:0}.stat:nth-child(-n+2){border-bottom:1px solid var(--line)}.gallery{grid-template-columns:repeat(2,1fr)}.distribution{grid-template-columns:1fr}.rarity{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.hero{padding:54px 24px 40px}.content{padding:38px 24px}.stats{grid-template-columns:repeat(2,1fr)}.stat:nth-child(2){border-right:0}.stat:nth-child(-n+2){border-bottom:1px solid var(--line)}.portrait{flex-basis:calc(50% - 5px)}.distribution{grid-template-columns:1fr}.rarity{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){body{padding:8px}.page{border-radius:17px}.hero{padding:44px 18px 34px}.content{padding:34px 18px}.hero-actions{flex-direction:column}.button{width:100%}.section-heading{align-items:start;flex-direction:column}.traits,.rarity{grid-template-columns:1fr}.row{grid-template-columns:92px 1fr 36px}.footer{padding:22px 18px;flex-direction:column}.hero:after{font-size:55px}}
 </style>
 </head>
@@ -74,8 +74,8 @@ h2{font-size:clamp(24px,3vw,34px);letter-spacing:-.035em}
 <main>
 <article class="page">
   <header class="hero">
-    <div class="eyebrow"><span class="dot"></span>Coming to Robinhood Chain</div>
     <img src="/logo.png" class="hero-logo" alt="Commit Protocol logo">
+    <div class="eyebrow"><span class="dot"></span>Coming to Robinhood Chain</div>
     <h1>Wall Street Traders</h1>
     <p class="lead">444 monochrome traders. Built with AI, curated by Commit Protocol, and dressed for the market.</p>
     <div class="hero-actions">
@@ -96,14 +96,13 @@ h2{font-size:clamp(24px,3vw,34px);letter-spacing:-.035em}
     <section class="section" id="collection">
       <div class="section-heading"><div><div class="kicker">Collection preview</div><h2>Meet the traders</h2></div><p class="section-copy">A small selection from the final collection.</p></div>
       <div class="gallery">
-        <figure class="portrait"><img src="assets/trader-01.png" alt="Wall Street Trader man portrait" loading="lazy"><span>Human</span></figure>
-        <figure class="portrait"><img src="assets/trader-02.png" alt="Wall Street Trader man portrait" loading="lazy"><span>Human</span></figure>
-        <figure class="portrait"><img src="assets/trader-03.png" alt="Wall Street Trader woman portrait" loading="lazy"><span>Human</span></figure>
-        <figure class="portrait"><img src="assets/trader-04.png" alt="Wall Street Trader woman portrait" loading="lazy"><span>Human</span></figure>
-        <figure class="portrait"><img src="assets/trader-05.png" alt="Wall Street Trader alien portrait" loading="lazy"><span>Alien</span></figure>
-        <figure class="portrait"><img src="assets/trader-06.png" alt="Wall Street Trader alien portrait" loading="lazy"><span>Alien</span></figure>
-        <figure class="portrait"><img src="assets/trader-07.png" alt="Wall Street Trader alien portrait" loading="lazy"><span>Alien</span></figure>
-        <figure class="portrait"><img src="assets/trader-08.png" alt="Wall Street Trader alien portrait" loading="lazy"><span>Alien</span></figure>
+        <figure class="portrait"><img src="assets/trader-01.png" alt="Wall Street Trader male portrait" loading="lazy"><span>Male</span></figure>
+        <figure class="portrait"><img src="assets/trader-02.png" alt="Wall Street Trader female portrait" loading="lazy"><span>Female</span></figure>
+        <figure class="portrait"><img src="assets/trader-03.png" alt="Wall Street Trader pop culture portrait" loading="lazy"><span>Pop Culture</span></figure>
+        <figure class="portrait"><img src="assets/trader-04.png" alt="Wall Street Trader alien portrait" loading="lazy"><span>Alien</span></figure>
+        <figure class="portrait"><img src="assets/trader-05.png" alt="Wall Street Trader ape portrait" loading="lazy"><span>Ape</span></figure>
+        <figure class="portrait"><img src="assets/trader-06.png" alt="Wall Street Trader skeleton portrait" loading="lazy"><span>Skeleton</span></figure>
+        <figure class="portrait"><img src="assets/trader-07.png" alt="Wall Street Trader baghead portrait" loading="lazy"><span>Baghead</span></figure>
       </div>
     </section>
 
