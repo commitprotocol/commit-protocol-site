@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Wall Street Traders | Commit Protocol</title>
+<title>Wall Street Traders — Commit Protocol</title>
 <meta name="description" content="Wall Street Traders is a collection of 444 monochrome traders created by Commit Protocol, coming to Robinhood Chain.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#080808">
@@ -12,6 +12,7 @@
 <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/assets/trader-01.png">
 <meta name="twitter:card" content="summary_large_image">
 
+<link rel="stylesheet" href="/menu.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -69,6 +70,7 @@ h2{font-size:clamp(24px,3vw,34px);letter-spacing:-.035em}
 </head>
 
 <body>
+<div id="global-menu"></div>
 <main>
 <article class="page">
   <header class="hero">
@@ -77,10 +79,11 @@ h2{font-size:clamp(24px,3vw,34px);letter-spacing:-.035em}
     <h1>Wall Street Traders</h1>
     <p class="lead">444 monochrome traders. Built with AI, curated by Commit Protocol, and dressed for the market.</p>
     <div class="hero-actions">
-      <a class="button" href="https://opensea.io/collection/wall-street-traders-bycommitprotocol">Explore the collection</a>
+      <a class="button" href="#collection">Explore the collection</a>
+      <a class="button secondary" href="docs/">Read the Docs</a>
       <a class="button secondary" href="/docs.html">Discover Commit Protocol</a>
     </div>
-    <p class="status">Contract and launch details will be published here</p>
+    <p class="status">Minting Monday on OpenSea · Reveal after sold out</p>
   </header>
 
   <section class="stats" aria-label="Collection statistics">
@@ -141,6 +144,11 @@ h2{font-size:clamp(24px,3vw,34px);letter-spacing:-.035em}
     </section>
 
     <section class="section statement">
+      <p>From Trader to Executive. The next chapter will be written on-chain.</p>
+      <footer><a href="docs/">Explore the roadmap →</a></footer>
+    </section>
+
+    <section class="section statement">
       <p>No accessories. No distractions. Just identities, expressions and suits.</p>
       <footer>Created with AI · Curated by Commit Protocol</footer>
     </section>
@@ -149,5 +157,17 @@ h2{font-size:clamp(24px,3vw,34px);letter-spacing:-.035em}
   <footer class="footer"><span>wall-street-traders://444</span><span>Commit Protocol · 2026</span></footer>
 </article>
 </main>
+
+<script>
+fetch('/menu.html').then(r=>r.text()).then(html=>{
+  document.getElementById('global-menu').innerHTML=html;
+  const toggle=document.getElementById('menuToggle');
+  const menu=document.getElementById('dropdownMenu');
+  if(toggle&&menu){
+    toggle.addEventListener('click',e=>{e.stopPropagation();menu.style.display=menu.style.display==='flex'?'none':'flex'});
+    document.addEventListener('click',e=>{if(!menu.contains(e.target)&&!toggle.contains(e.target))menu.style.display='none'});
+  }
+}).catch(()=>{});
+</script>
 </body>
 </html>

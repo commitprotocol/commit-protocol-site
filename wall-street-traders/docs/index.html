@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wall Street Traders — Documentation</title>
+<meta name="description" content="Official documentation, roadmap, treasury information and FAQs for Wall Street Traders on Robinhood Chain.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#080808">
+<meta property="og:title" content="Wall Street Traders — Documentation">
+<meta property="og:description" content="444 monochrome traders. Read the roadmap, Promotion Desk concept and treasury policy.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://commitprotocol.org/wall-street-traders/assets/trader-01.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="/menu.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{--bg:#080808;--card:#111;--soft:#171717;--line:#2a2a2a;--text:#f5f5f1;--muted:#a7a7a1;--green:#6dff8b}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:16px}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% -10%,rgba(255,255,255,.09),transparent 35%);z-index:-1}
+a{color:inherit;text-decoration:none}
+.shell{width:100%;max-width:1180px;margin:0 auto;background:rgba(17,17,17,.97);border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.top{padding:58px 48px 42px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.top:after{content:"DOCS / 01";position:absolute;right:-12px;bottom:-22px;font:800 76px/1 'JetBrains Mono';color:rgba(255,255,255,.025);white-space:nowrap}
+.back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font:700 11px/1 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase;margin-bottom:30px}
+.back:hover{color:#fff}
+.eyebrow{display:flex;align-items:center;gap:9px;font:700 11px/1 'JetBrains Mono';letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin-bottom:18px}
+.dot{width:7px;height:7px;background:var(--green);border-radius:50%;box-shadow:0 0 14px var(--green)}
+h1{font-size:clamp(40px,7vw,70px);line-height:1;letter-spacing:-.055em;margin-bottom:18px}
+.lead{max-width:720px;color:var(--muted);font-size:17px;line-height:1.7}
+.layout{display:grid;grid-template-columns:245px minmax(0,1fr)}
+.sidebar{border-right:1px solid var(--line);padding:32px 24px}
+.sidebar nav{position:sticky;top:24px;display:grid;gap:7px}
+.nav-label{color:#666;font:700 10px/1 'JetBrains Mono';letter-spacing:.14em;text-transform:uppercase;margin:5px 10px 12px}
+.sidebar a{color:var(--muted);font-size:13px;padding:10px;border-radius:8px;transition:.2s}
+.sidebar a:hover{color:#fff;background:#1b1b1b}
+.docs{padding:46px 48px 64px;min-width:0}
+.doc-section{padding-bottom:54px;margin-bottom:54px;border-bottom:1px solid var(--line)}
+.doc-section:last-child{border-bottom:0;padding-bottom:0;margin-bottom:0}
+.kicker{font:700 11px/1 'JetBrains Mono';letter-spacing:.15em;color:var(--green);text-transform:uppercase;margin-bottom:11px}
+h2{font-size:clamp(26px,4vw,38px);letter-spacing:-.035em;margin-bottom:18px}
+h3{font-size:18px;margin:28px 0 10px}
+p{color:var(--muted);font-size:15px;line-height:1.78;margin-bottom:15px}
+p:last-child{margin-bottom:0}
+strong{color:var(--text)}
+.callout{border:1px solid #3a3a3a;border-radius:14px;background:linear-gradient(135deg,#191919,#0d0d0d);padding:24px;margin:24px 0}
+.callout p{font-size:17px;color:#e8e8e3}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px}
+.card{border:1px solid var(--line);background:#0d0d0d;border-radius:12px;padding:20px}
+.card small{display:block;color:var(--green);font:700 10px/1 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.card h3{font-size:16px;margin:0 0 7px}
+.card p{font-size:13px;line-height:1.58}
+.list{display:grid;gap:9px;margin:16px 0 0;list-style:none}
+.list li{position:relative;color:var(--muted);font-size:14px;line-height:1.65;padding-left:20px}
+.list li:before{content:"▸";position:absolute;left:0;color:var(--green)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin-top:20px}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line);font-size:13px}
+th{color:#777;font:700 10px/1 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase;background:#0d0d0d}
+td{color:var(--muted)}td strong{font-family:'JetBrains Mono';font-size:12px}
+tr:last-child td{border-bottom:0}
+.roadmap{display:grid;gap:14px;margin-top:24px}
+.phase{display:grid;grid-template-columns:125px minmax(0,1fr);gap:22px;border:1px solid var(--line);border-radius:14px;padding:22px;background:#0d0d0d}
+.phase-meta{font:700 10px/1.5 'JetBrains Mono';letter-spacing:.08em;text-transform:uppercase;color:#777}
+.phase-meta span{display:block;color:var(--green);margin-top:8px}
+.phase h3{margin:0 0 8px;font-size:18px}
+.phase p{font-size:13px;line-height:1.65;margin:0}
+.address{display:block;overflow-wrap:anywhere;background:#080808;border:1px solid #303030;border-radius:9px;padding:14px;margin:16px 0;font:600 12px/1.55 'JetBrains Mono';color:#f4f4ef}
+.link{color:var(--green);text-decoration:underline;text-underline-offset:3px}
+.faq{display:grid;gap:10px;margin-top:20px}
+details{border:1px solid var(--line);border-radius:11px;background:#0d0d0d;padding:17px 18px}
+summary{cursor:pointer;font-weight:700;font-size:14px}
+details p{font-size:13px;margin:13px 0 0}
+.footer{padding:25px 48px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:18px;color:#6f6f6b;font:500 11px/1.5 'JetBrains Mono';text-transform:uppercase;letter-spacing:.06em}
+@media(max-width:800px){.top{padding:46px 26px 36px}.layout{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid var(--line);padding:18px 20px;overflow:auto}.sidebar nav{position:static;display:flex;min-width:max-content}.nav-label{display:none}.sidebar a{white-space:nowrap}.docs{padding:38px 26px 52px}.grid{grid-template-columns:1fr}.phase{grid-template-columns:1fr;gap:10px}.phase-meta span{display:inline;margin:0 0 0 8px}}
+@media(max-width:520px){body{padding:8px}.shell{border-radius:17px}.top{padding:38px 18px 30px}.docs{padding:32px 18px 44px}.footer{padding:22px 18px;flex-direction:column}.top:after{font-size:48px}}
+</style>
+</head>
+
+<body>
+<div id="global-menu"></div>
+<main class="shell">
+  <header class="top">
+    <a class="back" href="../">← Wall Street Traders</a>
+    <div class="eyebrow"><span class="dot"></span>Official documentation</div>
+    <h1>Building the Trading Floor.</h1>
+    <p class="lead">The collection, roadmap and transparency framework behind 444 monochrome traders on Robinhood Chain.</p>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <nav aria-label="Documentation navigation">
+        <div class="nav-label">Contents</div>
+        <a href="#overview">Overview</a>
+        <a href="#collection">Collection</a>
+        <a href="#traits">Traits &amp; Rarity</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#promotion">Promotion Desk</a>
+        <a href="#treasury">Treasury</a>
+        <a href="#contracts">Contracts</a>
+        <a href="#faq">FAQ</a>
+        <a href="#disclaimer">Disclaimer</a>
+      </nav>
+    </aside>
+
+    <article class="docs">
+      <section class="doc-section" id="overview">
+        <div class="kicker">01 / Overview</div>
+        <h2>What is Wall Street Traders?</h2>
+        <p>Wall Street Traders is a collection of 444 fully revealed monochrome NFTs built with AI and individually curated by Commit Protocol. Every trader shares the same black suit while preserving a distinct identity through faces, silhouettes and special classes.</p>
+        <p>The collection is launching on Robinhood Chain through OpenSea. Its long-term direction is built around identity, creative evolution and transparent on-chain experimentation.</p>
+        <div class="callout"><p><strong>StonkBrokers turned NFTs into infrastructure. Normies turned NFTs into creative material. Wall Street Traders aims to turn NFTs into on-chain careers.</strong></p></div>
+      </section>
+
+      <section class="doc-section" id="collection">
+        <div class="kicker">02 / Collection</div>
+        <h2>444 identities. One trading floor.</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Category</th><th>Supply</th><th>Role</th></tr></thead>
+            <tbody>
+              <tr><td>Men</td><td><strong>202</strong></td><td>Core collection</td></tr>
+              <tr><td>Women</td><td><strong>180</strong></td><td>Core collection</td></tr>
+              <tr><td>Pop Culture</td><td><strong>31</strong></td><td>Tribute class</td></tr>
+              <tr><td>Aliens</td><td><strong>21</strong></td><td>Rare class</td></tr>
+              <tr><td>Skeletons</td><td><strong>4</strong></td><td>Legendary class</td></tr>
+              <tr><td>Apes</td><td><strong>3</strong></td><td>Legendary tribute</td></tr>
+              <tr><td>Bagheads</td><td><strong>2</strong></td><td>Legendary tribute</td></tr>
+              <tr><td>Satoshi</td><td><strong>1</strong></td><td>Unique 1/1</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid">
+          <article class="card"><small>Network</small><h3>Robinhood Chain</h3><p>Deployed for the Robinhood Chain ecosystem and distributed through OpenSea.</p></article>
+          <article class="card"><small>Reveal</small><h3>After sold out</h3><p>The final artwork and metadata are revealed after the last trader clocks in.</p></article>
+          <article class="card"><small>Artwork</small><h3>AI + curation</h3><p>Created with AI and manually selected, corrected and organized by Commit Protocol.</p></article>
+          <article class="card"><small>Uniform</small><h3>Wall Street Black</h3><p>One consistent suit anchors every identity to the same monochrome world.</p></article>
+        </div>
+      </section>
+
+      <section class="doc-section" id="traits">
+        <div class="kicker">03 / Traits &amp; Rarity</div>
+        <h2>Readable by design.</h2>
+        <p>Metadata is intentionally concise. It describes meaningful identity and rarity information without filling the collection with repetitive attributes.</p>
+        <div class="grid">
+          <article class="card"><small>Tier 01</small><h3>Common</h3><p>The core human trading floor.</p></article>
+          <article class="card"><small>Tier 02</small><h3>Rare</h3><p>Aliens and Pop Culture tributes.</p></article>
+          <article class="card"><small>Tier 03</small><h3>Legendary</h3><p>Apes, Skeletons, Bagheads and selected special traders.</p></article>
+          <article class="card"><small>Tier 04</small><h3>1/1</h3><p>One Satoshi. No duplicate.</p></article>
+        </div>
+      </section>
+
+      <section class="doc-section" id="roadmap">
+        <div class="kicker">04 / Roadmap</div>
+        <h2>From Trader to Executive.</h2>
+        <p>The roadmap uses product states rather than artificial deadlines. Features move forward only when their design, contracts and security requirements are ready.</p>
+        <div class="roadmap">
+          <article class="phase"><div class="phase-meta">Phase 01<span>Live</span></div><div><h3>Opening Bell</h3><p>Mint 444 Wall Street Traders, reveal after sellout, publish verified metadata, establish official channels and begin community collaborations.</p></div></article>
+          <article class="phase"><div class="phase-meta">Phase 02<span>Next</span></div><div><h3>The Trading Floor</h3><p>Build a holder gallery, rarity explorer, downloadable social assets, holder verification and community voting for future experiments.</p></div></article>
+          <article class="phase"><div class="phase-meta">Phase 03<span>Planned</span></div><div><h3>The Promotion Desk</h3><p>Explore a burn-to-evolve system in which selected Traders can be permanently promoted into a new executive class.</p></div></article>
+          <article class="phase"><div class="phase-meta">Phase 04<span>Exploring</span></div><div><h3>The Generator</h3><p>Develop holder tools for producing posters, banners and new scenes while preserving each Trader's identity.</p></div></article>
+          <article class="phase"><div class="phase-meta">Phase 05<span>Exploring</span></div><div><h3>The Market Token</h3><p>Research a native ecosystem token only after meaningful utility, distribution and security requirements have been defined.</p></div></article>
+        </div>
+      </section>
+
+      <section class="doc-section" id="promotion">
+        <div class="kicker">05 / Promotion Desk</div>
+        <h2>Careers can become permanent.</h2>
+        <p>The Promotion Desk is a proposed burn-to-evolve mechanic. A holder would make an irreversible decision to retire an original Wall Street Trader and mint an evolved NFT from a separate executive collection.</p>
+        <ul class="list">
+          <li>The original Trader would be permanently burned.</li>
+          <li>The promoted NFT would preserve the origin and ID of the retired Trader.</li>
+          <li>The first program is expected to be capped at a maximum of 44 promotions.</li>
+          <li>Final artwork would combine AI generation with individual human curation.</li>
+          <li>Exact rules, costs and contracts will be published before activation.</li>
+        </ul>
+        <div class="callout"><p><strong>The Trader does not disappear. The Trader gets promoted.</strong></p></div>
+        <p>This mechanism is not active at launch. Its final implementation remains subject to development, testing, security review and community feedback.</p>
+      </section>
+
+      <section class="doc-section" id="treasury">
+        <div class="kicker">06 / Treasury &amp; Transparency</div>
+        <h2>Funding the roadmap.</h2>
+        <p>Wall Street Traders has configured <strong>10% creator earnings on eligible secondary NFT sales</strong>. Creator earnings are sent to the official project treasury.</p>
+        <span class="address">0x30c1DCD3Ac985889CCECA78e19aB2FC0a2c246C9</span>
+        <p><a class="link" href="https://robinhoodchain.blockscout.com/address/0x30c1DCD3Ac985889CCECA78e19aB2FC0a2c246C9" target="_blank" rel="noopener noreferrer">View the treasury on Robinhood Chain Explorer ↗</a></p>
+        <p>The treasury is separate from the wallet used to deploy and administer the collection's smart contract. Treasury activity is publicly verifiable on Robinhood Chain.</p>
+        <h3>Intended uses</h3>
+        <ul class="list">
+          <li>Smart contract development and security reviews.</li>
+          <li>Website infrastructure and holder tools.</li>
+          <li>The Promotion Desk and future artwork.</li>
+          <li>Community initiatives and collaborations.</li>
+          <li>Operational, ecosystem and legal expenses.</li>
+          <li>Execution of the Wall Street Traders roadmap.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="contracts">
+        <div class="kicker">07 / Contracts</div>
+        <h2>Verify. Do not trust.</h2>
+        <p>Only contract addresses published on the official website and official Wall Street Traders channels should be treated as authentic.</p>
+        <div class="grid">
+          <article class="card"><small>Collection contract</small><h3>Official address</h3><p>The verified collection contract and explorer link will be published here.</p></article>
+          <article class="card"><small>Administrative wallet</small><h3>Separate deployer</h3><p>The deployer and treasury are intentionally maintained as separate wallets.</p></article>
+        </div>
+      </section>
+
+      <section class="doc-section" id="faq">
+        <div class="kicker">08 / FAQ</div>
+        <h2>Frequently asked questions.</h2>
+        <div class="faq">
+          <details><summary>How many Wall Street Traders exist?</summary><p>The fixed collection contains 444 NFTs.</p></details>
+          <details><summary>When will the collection reveal?</summary><p>The final artwork and metadata will reveal after the mint sells out — when the last trader clocks in.</p></details>
+          <details><summary>Was the collection created with AI?</summary><p>Yes. The artwork was built with AI and then manually curated, reviewed, corrected and organized by Commit Protocol.</p></details>
+          <details><summary>Is the Promotion Desk active?</summary><p>No. It is a planned roadmap concept. Full mechanics and contracts will be published before any holder is asked to burn an NFT.</p></details>
+          <details><summary>Will Wall Street Traders launch a token?</summary><p>A token is being explored, not promised. No token will be introduced before its utility, distribution, security and legal considerations are defined.</p></details>
+          <details><summary>Do holders own the treasury?</summary><p>No. Holding an NFT does not represent ownership of treasury assets, company equity, revenue or intellectual property beyond any rights explicitly published by the project.</p></details>
+        </div>
+      </section>
+
+      <section class="doc-section" id="disclaimer">
+        <div class="kicker">09 / Disclaimer</div>
+        <h2>Collect responsibly.</h2>
+        <p>Wall Street Traders NFTs are digital collectibles. They do not represent equity, debt, ownership of treasury funds, guaranteed utility, revenue rights or a promise of financial return.</p>
+        <p>Roadmap items describe current intentions and may change as technical, security, legal or ecosystem conditions evolve. Participation in future mechanics, including burning, upgrading or token-related experiments, will always be optional and subject to separate terms when applicable.</p>
+      </section>
+    </article>
+  </div>
+
+  <footer class="footer"><span>wall-street-traders://docs</span><span>Last updated · August 2026</span></footer>
+</main>
+
+<script>
+fetch('/menu.html').then(r=>r.text()).then(html=>{
+  document.getElementById('global-menu').innerHTML=html;
+  const toggle=document.getElementById('menuToggle');
+  const menu=document.getElementById('dropdownMenu');
+  if(toggle&&menu){
+    toggle.addEventListener('click',e=>{e.stopPropagation();menu.style.display=menu.style.display==='flex'?'none':'flex'});
+    document.addEventListener('click',e=>{if(!menu.contains(e.target)&&!toggle.contains(e.target))menu.style.display='none'});
+  }
+}).catch(()=>{});
+</script>
+</body>
+</html>
