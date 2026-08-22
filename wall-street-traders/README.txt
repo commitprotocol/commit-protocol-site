@@ -8,6 +8,9 @@ https://commitprotocol.org/wall-street-traders/
 Documentation URL:
 https://commitprotocol.org/wall-street-traders/docs/
 
+Collab Kit URL:
+https://commitprotocol.org/wall-street-traders/collabs/
+
 The page uses these existing root files from Commit Protocol:
 - /logo.png
 - /menu.css
