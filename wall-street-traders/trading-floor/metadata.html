@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Local metadata editor for Wall Street Traders.">
+  <title>Metadata Desk — Wall Street Traders</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="floor-site metadata-site">
+  <div class="market-tape" aria-label="Metadata Desk status"><div class="tape-track">
+    <span class="tape-group"><span>WST <b>444</b></span><i>◆</i><span>TOOL <b>METADATA DESK</b></span><i>◆</i><span>STORAGE <b>THIS BROWSER ONLY</b></span><i>◆</i><span>EXPORT <b>CSV + JSON</b></span><i>◆</i></span>
+    <span class="tape-group" aria-hidden="true"><span>WST <b>444</b></span><i>◆</i><span>TOOL <b>METADATA DESK</b></span><i>◆</i><span>STORAGE <b>THIS BROWSER ONLY</b></span><i>◆</i><span>EXPORT <b>CSV + JSON</b></span><i>◆</i></span>
+  </div></div>
+  <header class="site-header">
+    <a class="wordmark" href="./"><span>WST</span><small>METADATA DESK</small></a>
+    <nav aria-label="Primary navigation"><a href="./">THE FLOOR</a><a href="../docs/">DOCS</a></nav>
+    <span class="header-cta">LOCAL TOOL</span>
+  </header>
+
+  <section class="desk-intro">
+    <div><p class="eyebrow"><span class="signal-dot"></span> COLLECTION CONTROL / 444</p><h1>METADATA<br><em>DESK.</em></h1></div>
+    <div class="desk-copy"><b>CORRECT. SAVE. EXPORT.</b><p>Compare each Trader with OpenSea and correct the fields below. Changes are saved only in this browser until you export a new file.</p><div class="privacy-note">Nothing is sent to a server. This page cannot change OpenSea or the NFT contract.</div></div>
+  </section>
+
+  <section class="metadata-workspace" aria-busy="true">
+    <div class="desk-toolbar">
+      <label><span>GO TO TOKEN ID</span><input id="token-search" type="number" min="1" max="444" value="1"></label>
+      <div class="desk-nav"><button id="previous-token">← PREVIOUS</button><button id="next-token">NEXT →</button></div>
+      <label class="import-control"><span>IMPORT ANOTHER CSV</span><input id="csv-import" type="file" accept=".csv,text/csv"></label>
+      <div class="export-actions"><button id="export-csv" class="primary-action">EXPORT CSV</button><button id="export-json" class="secondary-action">EXPORT JSON</button></div>
+    </div>
+    <div class="save-status" aria-live="polite"><span id="load-status">LOADING METADATA…</span><span id="change-count">0 UNSAVED EXPORT CHANGES</span></div>
+
+    <div class="editor-layout" hidden>
+      <aside class="trader-preview">
+        <p id="record-label">PUBLIC FILE / WST-001</p>
+        <img id="record-image" src="traders/1.png" alt="Wall Street Trader #1">
+        <h2 id="record-title">WALL STREET TRADER #1</h2>
+        <a id="opensea-link" href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noreferrer">OPEN OPENSEA ↗</a>
+      </aside>
+      <form class="trait-editor" id="trait-editor"></form>
+    </div>
+    <div class="desk-error" id="desk-error" hidden><b>METADATA COULD NOT BE LOADED.</b><p>Use “Import another CSV” and select your metadata file.</p></div>
+    <div class="danger-row"><button id="reset-draft">RESET LOCAL DRAFT</button><p>Clears only the edits saved by this page in this browser. Your original CSV is never modified.</p></div>
+  </section>
+</main>
+<script src="metadata.js"></script>
+</body>
+</html>
