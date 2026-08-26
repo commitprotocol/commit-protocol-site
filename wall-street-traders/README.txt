@@ -1,27 +1,85 @@
 WALL STREET TRADERS — GITHUB PAGES
 
-Upload the entire "wall-street-traders" folder to the root of your GitHub Pages repository.
+Official website package for Wall Street Traders by Commit Protocol.
 
-Expected URL:
-https://commitprotocol.org/wall-street-traders/
+Installation
 
-Documentation URL:
-https://commitprotocol.org/wall-street-traders/docs/
+Upload the entire wall-street-traders folder to the root of your GitHub Pages repository.
 
-Collab Kit URL:
-https://commitprotocol.org/wall-street-traders/collabs/
+Because the trading-floor/traders directory contains 444 images, the GitHub web uploader may reject the folder or limit uploads to fewer than 100 files at a time. Use GitHub Desktop or Git from the command line to upload the complete project in one commit.
 
-The page uses these existing root files from Commit Protocol:
-- /logo.png
-- /menu.css
-- /menu.html
+Do not upload the ZIP file directly to the repository. GitHub Pages does not extract ZIP archives automatically.
 
-Official collection contract:
+Official pages
+
+Website: https://commitprotocol.org/wall-street-traders/
+
+Documentation: https://commitprotocol.org/wall-street-traders/docs/
+
+Collab Kit: https://commitprotocol.org/wall-street-traders/collabs/
+
+The Trading Floor: https://commitprotocol.org/wall-street-traders/trading-floor/
+
+Metadata Desk: https://commitprotocol.org/wall-street-traders/trading-floor/metadata.html
+
+The Trading Floor
+
+The Trading Floor contains the public gallery for all 444 Wall Street Traders.
+
+Required files inside wall-street-traders/trading-floor/:
+
+index.html
+
+styles.css
+
+app.js
+
+metadata.html
+
+metadata.js
+
+data/metadata.csv
+
+traders/1.png through traders/444.png
+
+Metadata Desk
+
+The Metadata Desk is a browser-based local editor for reviewing and correcting collection traits.
+
+Edits are saved only in the current browser. The editor does not update OpenSea, the NFT contract or any remote server automatically. After completing the corrections, export the updated metadata as CSV or JSON and preserve the exported file as the new authoritative metadata source.
+
+The original data/metadata.csv file is not modified by the editor.
+
+Existing Commit Protocol assets
+
+The website uses these existing files from the root of the Commit Protocol repository:
+
+/logo.png
+
+/menu.css
+
+/menu.html
+
+Official addresses
+
+Collection contract:
 0x7a5f95f898cf968cac3f9d6231f03f36c3da5b0d
 
-Official deployer wallet:
+Deployer wallet:
 0xc63904D71fB1fed5bB90a148A3aeA661bc85875B
 
-Before launch, add the official marketplace link.
+The official treasury address is documented in wall-street-traders/docs/index.html.
 
-The official treasury address is already documented in docs/index.html.
+Before launch
+
+Confirm that all 444 Trader images are available inside the traders directory.
+
+Review and export the corrected collection metadata.
+
+Add or confirm the official marketplace link.
+
+Verify the collection contract, deployer wallet and treasury address.
+
+Test the website, documentation, Collab Kit, Trading Floor and Metadata Desk URLs after deployment.
+
+Only links and addresses published through the official Wall Street Traders and Commit Protocol channels should be considered authentic.
