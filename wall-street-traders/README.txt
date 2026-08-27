@@ -36,6 +36,10 @@ data/metadata.csv
 
 traders/1.png through traders/444.png
 
+trader/1/index.html through trader/444/index.html
+
+Each individual Trader page contains its own Open Graph and X metadata. These pages allow the correct NFT image, title and description to appear when a Trader link is shared. Sharing uses the official X intent URL and does not require an X API key.
+
 Existing Commit Protocol assets
 
 The website uses these existing files from the root of the Commit Protocol repository:
