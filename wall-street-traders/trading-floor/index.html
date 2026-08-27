@@ -24,11 +24,12 @@
     <div class="masthead-copy"><span>ALL TRADERS / ONE MARKET</span><p>Explore every Wall Street Trader. Search the complete collection, open an individual public file and download the original artwork.</p><dl><div><dt>SUPPLY</dt><dd>444 / 444</dd></div><div><dt>NETWORK</dt><dd>ROBINHOOD CHAIN</dd></div><div><dt>STATUS</dt><dd>REVEALED</dd></div></dl></div>
   </section>
   <section class="directory" id="gallery">
-    <div class="directory-head"><div><p class="section-index">TRADER DIRECTORY / 01</p><h2>444 IDENTITIES.<br>ONE FLOOR.</h2></div><div class="controls" role="search"><label><span>SEARCH TOKEN ID</span><input id="search" inputmode="numeric" placeholder="e.g. 35" aria-label="Search by Trader token ID"></label><label><span>ORDER</span><select id="order" aria-label="Sort Traders"><option value="asc">ID: LOW TO HIGH</option><option value="desc">ID: HIGH TO LOW</option></select></label></div></div>
-    <div class="result-line" aria-live="polite"><span id="result-count">DISPLAYING 24 OF 444</span><span>TRAIT &amp; RARITY DATA / PENDING FINAL METADATA</span></div>
-    <div class="trader-grid" id="trader-grid"></div>
-    <div class="empty-state" id="empty-state" hidden><span>NO MATCH</span><h3>No Trader found.</h3><button id="clear-search">CLEAR SEARCH</button></div>
-    <button class="load-more" id="load-more">LOAD 24 MORE TRADERS</button>
+    <div class="directory-head"><div><p class="section-index">TRADER DIRECTORY / 01</p><h2>444 IDENTITIES.<br>ONE FLOOR.</h2></div><div class="controls" role="search"><label><span>SEARCH NAME OR TOKEN ID</span><input id="search" placeholder="e.g. Trader #35" aria-label="Search by Trader name or token ID"></label><label><span>ORDER</span><select id="order" aria-label="Sort Traders"><option value="asc">ID: LOW TO HIGH</option><option value="desc">ID: HIGH TO LOW</option></select></label></div></div>
+    <div class="result-line" aria-live="polite"><span id="result-count">LOADING 444 TRADERS…</span><button id="clear-filters" hidden>CLEAR ALL FILTERS</button><span>OFFICIAL TRAIT &amp; RARITY DATA</span></div>
+    <div class="public-explorer">
+      <aside class="public-filters" aria-label="Trait filters"><div class="public-filters-title"><b>FILTER BY TRAITS</b><span id="active-filter-count">0 ACTIVE</span></div><div id="public-filter-groups"></div></aside>
+      <div class="public-results"><div class="trader-grid" id="trader-grid"></div><div class="empty-state" id="empty-state" hidden><span>NO MATCH</span><h3>No Trader found.</h3><button id="clear-search">CLEAR FILTERS</button></div><button class="load-more" id="load-more">LOAD 24 MORE TRADERS</button></div>
+    </div>
   </section>
   <aside class="floor-note"><b>CAREER LEDGER / NEXT</b><p>The gallery is the first layer of the Trading Floor. Verified ownership, Market Seasons, Career Points, ranks and badges will be introduced only when their contracts and data systems are ready.</p></aside>
   <footer class="site-footer"><div class="footer-mark">WST<span>/FLOOR</span></div><p>444 IDENTITIES.<br>PERMANENT ON-CHAIN CAREERS.</p><div class="footer-links"><a href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noreferrer">OPENSEA ↗</a><a href="../docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026</small></footer>
@@ -36,7 +37,7 @@
 <dialog class="trader-dialog" id="trader-dialog">
   <button class="dialog-close" id="dialog-close" aria-label="Close">×</button>
   <p class="dialog-kicker" id="dialog-kicker"></p><h2 class="dialog-title" id="dialog-title"></h2>
-  <div class="dialog-layout"><img id="dialog-image" alt=""><div class="file-data"><dl><div><dt>NETWORK</dt><dd>ROBINHOOD CHAIN</dd></div><div><dt>COLLECTION</dt><dd>WALL STREET TRADERS</dd></div><div><dt>TOKEN ID</dt><dd id="dialog-token"></dd></div><div><dt>CAREER STATUS</dt><dd>NOT YET CLOCKED IN</dd></div></dl><a class="primary-action" id="download-link" download>DOWNLOAD ORIGINAL</a><a class="secondary-action" href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noreferrer">VIEW COLLECTION ON OPENSEA ↗</a></div></div>
+  <div class="dialog-layout"><img id="dialog-image" alt=""><div class="file-data"><dl><div><dt>NETWORK</dt><dd>ROBINHOOD CHAIN</dd></div><div><dt>COLLECTION</dt><dd>WALL STREET TRADERS</dd></div><div><dt>TOKEN ID</dt><dd id="dialog-token"></dd></div><div><dt>RARITY TIER</dt><dd id="dialog-rarity"></dd></div></dl><section class="public-traits"><h3>OFFICIAL TRAITS</h3><div id="dialog-traits"></div></section><a class="primary-action" id="download-link" download>DOWNLOAD ORIGINAL</a><a class="secondary-action" href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noreferrer">VIEW COLLECTION ON OPENSEA ↗</a></div></div>
 </dialog>
 <script src="app.js"></script>
 </body>
