@@ -20,8 +20,6 @@ Collab Kit: https://commitprotocol.org/wall-street-traders/collabs/
 
 The Trading Floor: https://commitprotocol.org/wall-street-traders/trading-floor/
 
-Metadata Desk: https://commitprotocol.org/wall-street-traders/trading-floor/metadata.html
-
 The Trading Floor
 
 The Trading Floor contains the public gallery for all 444 Wall Street Traders.
@@ -34,21 +32,9 @@ styles.css
 
 app.js
 
-metadata.html
-
-metadata.js
-
 data/metadata.csv
 
 traders/1.png through traders/444.png
-
-Metadata Desk
-
-The Metadata Desk is a browser-based local editor for reviewing and correcting collection traits.
-
-Edits are saved only in the current browser. The editor does not update OpenSea, the NFT contract or any remote server automatically. After completing the corrections, export the updated metadata as CSV or JSON and preserve the exported file as the new authoritative metadata source.
-
-The original data/metadata.csv file is not modified by the editor.
 
 Existing Commit Protocol assets
 
@@ -74,12 +60,12 @@ Before launch
 
 Confirm that all 444 Trader images are available inside the traders directory.
 
-Review and export the corrected collection metadata.
+Confirm that data/metadata.csv contains the final metadata for all 444 Traders.
 
 Add or confirm the official marketplace link.
 
 Verify the collection contract, deployer wallet and treasury address.
 
-Test the website, documentation, Collab Kit, Trading Floor and Metadata Desk URLs after deployment.
+Test the website, documentation, Collab Kit and Trading Floor URLs after deployment.
 
 Only links and addresses published through the official Wall Street Traders and Commit Protocol channels should be considered authentic.
