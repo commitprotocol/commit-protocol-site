@@ -2,6 +2,7 @@ const SOURCE_URL = "data/metadata.csv";
 const PAGE_SIZE = 24;
 const TRAIT_PREFIX = "attributes[";
 const SITE_ROOT = "https://commitprotocol.org/wall-street-traders/trading-floor/";
+const OPENSEA_ASSET_ROOT = "https://opensea.io/assets/robinhood/0x7a5f95f898cf968cac3f9d6231f03f36c3da5b0d";
 const FAVORITES_KEY = "wst-trading-floor-favorites-v1";
 let records = [];
 let headers = [];
@@ -238,6 +239,9 @@ function openTrader(tokenId, updateUrl = true) {
   const download = document.querySelector("#download-link");
   download.href = `traders/${record.tokenID}.png`;
   download.download = `wall-street-trader-${record.tokenID}.png`;
+  const openseaLink = document.querySelector("#opensea-token-link");
+  openseaLink.href = `${OPENSEA_ASSET_ROOT}/${record.tokenID}`;
+  openseaLink.setAttribute("aria-label", `View ${record.name} on OpenSea`);
   updateProfileActions();
   if (!dialog.open) dialog.showModal();
   if (updateUrl) syncUrl(record.tokenID);
@@ -252,7 +256,7 @@ function render() {
     const character = traitValue(record, "attributes[Character Type]");
     const card = document.createElement("button");
     card.className = "trader-card";
-    card.innerHTML = `<span class="card-image"><img src="traders/${record.tokenID}.png" alt="${record.name}" loading="lazy"><i aria-hidden="true"></i><b class="rarity-stamp">${rarity}</b><span class="favorite-stamp" role="button" tabindex="0" aria-label="Favorite ${record.name}">${favorites.has(record.tokenID) ? "★" : "☆"}</span></span><span class="card-copy"><small>PUBLIC FILE / WST-${record.tokenID.padStart(3, "0")}</small><strong>TRADER #${record.tokenID}</strong><em>RANK #${record.rarityRank} / ${character} ↗</em></span>`;
+    card.innerHTML = `<span class="card-image"><img src="traders/${record.tokenID}.png" alt="${record.name}" loading="lazy" decoding="async"><i aria-hidden="true"></i><b class="rarity-stamp">${rarity}</b><span class="favorite-stamp" role="button" tabindex="0" aria-label="Favorite ${record.name}">${favorites.has(record.tokenID) ? "★" : "☆"}</span></span><span class="card-copy"><small>PUBLIC FILE / WST-${record.tokenID.padStart(3, "0")}</small><strong>TRADER #${record.tokenID}</strong><em>RANK #${record.rarityRank} / ${character} ↗</em></span>`;
     const favorite = card.querySelector(".favorite-stamp");
     favorite.addEventListener("click", event => { event.stopPropagation(); toggleFavorite(record.tokenID); });
     favorite.addEventListener("keydown", event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); toggleFavorite(record.tokenID); } });
@@ -295,7 +299,7 @@ function renderComparison() {
   target.replaceChildren();
   [...compareTokens].map(id => records.find(record => record.tokenID === id)).filter(Boolean).forEach(record => {
     const article = document.createElement("article");
-    article.innerHTML = `<img src="traders/${record.tokenID}.png" alt="${record.name}"><h3>TRADER #${record.tokenID}</h3><p>RANK #${record.rarityRank} · ${record.rarityScore.toFixed(2)} PTS</p><dl>${traitHeaders().map(header => `<div><dt>${traitName(header)}</dt><dd>${traitValue(record, header)}</dd></div>`).join("")}</dl><button data-remove="${record.tokenID}">REMOVE</button>`;
+    article.innerHTML = `<img src="traders/${record.tokenID}.png" alt="${record.name}" loading="lazy" decoding="async"><h3>TRADER #${record.tokenID}</h3><p>RANK #${record.rarityRank} · ${record.rarityScore.toFixed(2)} PTS</p><dl>${traitHeaders().map(header => `<div><dt>${traitName(header)}</dt><dd>${traitValue(record, header)}</dd></div>`).join("")}</dl><button data-remove="${record.tokenID}">REMOVE</button>`;
     article.querySelector("button").onclick = () => { compareTokens.delete(record.tokenID); updateCompareStatus(); renderComparison(); };
     target.append(article);
   });
@@ -346,8 +350,7 @@ fetch(SOURCE_URL)
   })
   .catch(() => {
     resultCount.textContent = "METADATA COULD NOT BE LOADED";
-    emptyState.hidden = false;
-    emptyState.querySelector("h3").textContent = "The official metadata is temporarily unavailable.";
-    clearSearch.hidden = true;
+    document.querySelector("#load-error").hidden = false;
+    emptyState.hidden = true;
     loadMore.hidden = true;
   });

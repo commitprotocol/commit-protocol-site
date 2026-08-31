@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Explore all 444 Wall Street Traders on Robinhood Chain.">
   <title>The Trading Floor — Wall Street Traders</title>
+  <link rel="canonical" href="https://commitprotocol.org/wall-street-traders/trading-floor/">
+  <meta property="og:title" content="The Trading Floor — Wall Street Traders">
+  <meta property="og:description" content="Explore all 444 revealed Wall Street Traders, official traits and rarity rankings on Robinhood Chain.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://commitprotocol.org/wall-street-traders/trading-floor/">
+  <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Trading Floor — Wall Street Traders">
+  <meta name="twitter:description" content="Explore all 444 revealed Wall Street Traders, official traits and rarity rankings.">
+  <meta name="twitter:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="stylesheet" href="styles.css?v=20260827-3">
@@ -13,12 +23,12 @@
 <main class="floor-site">
   <a class="skip-link" href="#gallery">Skip to the gallery</a>
   <div class="market-tape" aria-label="Trading Floor status"><div class="tape-track">
-    <span class="tape-item"><b>WST</b><em>444</em><i aria-hidden="true">◆</i></span><span class="tape-item"><b>FLOOR</b><em>OPEN</em><i aria-hidden="true">◆</i></span><span class="tape-item"><b>NETWORK</b><em>ROBINHOOD CHAIN</em><i aria-hidden="true">◆</i></span><span class="tape-item"><b>COLLECTION</b><em>REVEALED</em><i aria-hidden="true">◆</i></span><span class="tape-item"><b>STATUS</b><em>THE FLOOR IS OPEN</em><i aria-hidden="true">◆</i></span>
-    <span class="tape-item" aria-hidden="true"><b>WST</b><em>444</em><i>◆</i></span><span class="tape-item" aria-hidden="true"><b>FLOOR</b><em>OPEN</em><i>◆</i></span><span class="tape-item" aria-hidden="true"><b>NETWORK</b><em>ROBINHOOD CHAIN</em><i>◆</i></span><span class="tape-item" aria-hidden="true"><b>COLLECTION</b><em>REVEALED</em><i>◆</i></span><span class="tape-item" aria-hidden="true"><b>STATUS</b><em>THE FLOOR IS OPEN</em><i>◆</i></span>
+    <span class="tape-item"><b>WST</b><em>444</em><i aria-hidden="true">◆</i></span><span class="tape-item"><b>FLOOR</b><em>OPEN</em><i aria-hidden="true">◆</i></span><span class="tape-item"><b>NETWORK</b><em>ROBINHOOD CHAIN</em><i aria-hidden="true">◆</i></span><span class="tape-item"><b>COLLECTION</b><em>REVEALED</em><i aria-hidden="true">◆</i></span><span class="tape-item"><b>RARITY RANKINGS</b><em>LIVE ON OPENSEA</em><i aria-hidden="true">◆</i></span>
+    <span class="tape-item" aria-hidden="true"><b>WST</b><em>444</em><i>◆</i></span><span class="tape-item" aria-hidden="true"><b>FLOOR</b><em>OPEN</em><i>◆</i></span><span class="tape-item" aria-hidden="true"><b>NETWORK</b><em>ROBINHOOD CHAIN</em><i>◆</i></span><span class="tape-item" aria-hidden="true"><b>COLLECTION</b><em>REVEALED</em><i>◆</i></span><span class="tape-item" aria-hidden="true"><b>RARITY RANKINGS</b><em>LIVE ON OPENSEA</em><i>◆</i></span>
   </div></div>
   <header class="site-header">
     <a class="wordmark" href="/wall-street-traders/"><span>WST</span><small>THE TRADING FLOOR</small></a>
-    <nav aria-label="Primary navigation"><a href="/wall-street-traders/">THE FLOOR</a><a href="/wall-street-traders/docs/">DOCS</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noreferrer">X ↗</a></nav>
+    <nav aria-label="Primary navigation"><a href="/wall-street-traders/">HOME</a><a href="/wall-street-traders/docs/">DOCS</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></nav>
     <a class="header-cta" href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noreferrer">OPENSEA ↗</a>
   </header>
   <section class="floor-masthead">
@@ -30,19 +40,47 @@
     <div class="result-line" aria-live="polite"><span id="result-count">LOADING 444 TRADERS…</span><div class="directory-actions"><button id="random-trader">RANDOM TRADER</button><button id="show-favorites">FAVORITES</button><button id="show-stats">COLLECTION STATS</button><button id="open-compare" hidden>COMPARE <b id="compare-count">0</b></button><button id="clear-filters" hidden>CLEAR ALL FILTERS</button></div><span>OFFICIAL TRAIT &amp; RARITY DATA</span></div>
     <div class="public-explorer">
       <aside class="public-filters" aria-label="Trait filters"><div class="public-filters-title"><b>FILTER BY TRAITS</b><span id="active-filter-count">0 ACTIVE</span></div><div id="public-filter-groups"></div></aside>
-      <div class="public-results"><div class="trader-grid" id="trader-grid"></div><div class="empty-state" id="empty-state" hidden><span>NO MATCH</span><h3>No Trader found.</h3><button id="clear-search">CLEAR FILTERS</button></div><button class="load-more" id="load-more">LOAD 24 MORE TRADERS</button></div>
+      <div class="public-results"><div class="trader-grid" id="trader-grid"></div><div class="empty-state" id="empty-state" hidden><span>NO MATCH</span><h3>No Trader found.</h3><button id="clear-search">CLEAR FILTERS</button></div><div class="empty-state" id="load-error" hidden role="alert"><span>CONNECTION INTERRUPTED</span><h3>The Trading Floor could not be loaded.</h3><p>Check your connection and try again.</p><button id="retry-load">RETRY</button></div><button class="load-more" id="load-more">LOAD 24 MORE TRADERS</button></div>
     </div>
   </section>
-  <aside class="floor-note"><b>CAREER LEDGER / NEXT</b><p>The gallery is the first layer of the Trading Floor. Verified ownership, Market Seasons, Career Points, ranks and badges will be introduced only when their contracts and data systems are ready.</p></aside>
-  <footer class="site-footer"><div class="footer-mark">WST<span>/FLOOR</span></div><p>444 IDENTITIES.<br>PERMANENT ON-CHAIN CAREERS.</p><div class="footer-links"><a href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noreferrer">OPENSEA ↗</a><a href="/wall-street-traders/docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026</small></footer>
+  <aside class="floor-note"><b>CAREER LEDGER / NEXT</b><p>The gallery is the first layer of the Trading Floor. Verified ownership, Market Seasons, Career Points, career ranks and badges will be introduced only when their contracts and data systems are ready.</p></aside>
+  <footer class="site-footer"><div class="footer-mark">WST<span>/FLOOR</span></div><p>444 IDENTITIES.<br>ONE TRADING FLOOR.</p><div class="footer-links"><a href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noopener noreferrer">OPENSEA ↗</a><a href="/wall-street-traders/docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026</small></footer>
 </main>
 <dialog class="trader-dialog" id="trader-dialog">
   <button class="dialog-close" id="dialog-close" aria-label="Close">×</button>
   <p class="dialog-kicker" id="dialog-kicker"></p><h2 class="dialog-title" id="dialog-title"></h2>
-  <div class="dialog-layout"><img id="dialog-image" alt=""><div class="file-data"><dl><div><dt>NETWORK</dt><dd>ROBINHOOD CHAIN</dd></div><div><dt>COLLECTION</dt><dd>WALL STREET TRADERS</dd></div><div><dt>TOKEN ID</dt><dd id="dialog-token"></dd></div><div><dt>RARITY TIER</dt><dd id="dialog-rarity"></dd></div><div><dt>RARITY RANK</dt><dd id="dialog-rank"></dd></div><div><dt>RARITY SCORE</dt><dd id="dialog-score"></dd></div></dl><section class="public-traits"><h3>OFFICIAL TRAITS</h3><div id="dialog-traits"></div></section><div class="profile-actions"><button id="share-x">SHARE ON X ↗</button><button id="copy-link">COPY LINK</button><button id="favorite-trader">☆ FAVORITE</button><button id="compare-trader">＋ COMPARE</button></div><a class="primary-action" id="download-link" download>DOWNLOAD ORIGINAL</a><a class="secondary-action" href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noreferrer">VIEW COLLECTION ON OPENSEA ↗</a></div></div>
+  <div class="dialog-layout"><img id="dialog-image" alt="" decoding="async"><div class="file-data"><dl><div><dt>NETWORK</dt><dd>ROBINHOOD CHAIN</dd></div><div><dt>COLLECTION</dt><dd>WALL STREET TRADERS</dd></div><div><dt>TOKEN ID</dt><dd id="dialog-token"></dd></div><div><dt>RARITY TIER</dt><dd id="dialog-rarity"></dd></div><div><dt>RARITY RANK</dt><dd id="dialog-rank"></dd></div><div><dt>RARITY SCORE</dt><dd id="dialog-score"></dd></div></dl><section class="public-traits"><h3>OFFICIAL TRAITS</h3><div id="dialog-traits"></div></section><div class="profile-actions"><button id="share-x">SHARE ON X ↗</button><button id="copy-link">COPY LINK</button><button id="favorite-trader">☆ FAVORITE</button><button id="compare-trader">＋ COMPARE</button></div><a class="primary-action" id="download-link" download>DOWNLOAD ORIGINAL</a><a class="secondary-action" id="opensea-token-link" href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noopener noreferrer">VIEW ON OPENSEA ↗</a></div></div>
 </dialog>
 <dialog class="utility-dialog" id="stats-dialog"><button class="dialog-close" data-close="stats-dialog" aria-label="Close">×</button><p class="dialog-kicker">OFFICIAL COLLECTION DATA</p><h2 class="dialog-title">COLLECTION STATS</h2><div class="stats-grid" id="stats-grid"></div></dialog>
 <dialog class="utility-dialog" id="compare-dialog"><button class="dialog-close" data-close="compare-dialog" aria-label="Close">×</button><p class="dialog-kicker">TRADER COMPARISON / MAX 4</p><h2 class="dialog-title">COMPARE TRADERS</h2><div class="compare-grid" id="compare-grid"></div><button class="secondary-action utility-clear" id="clear-compare">CLEAR COMPARISON</button></dialog>
-<script src="app.js?v=20260827-3"></script>
+<script src="app.js?v=20260831-1"></script>
+<script>
+  (() => {
+    const grid = document.getElementById('trader-grid');
+    const error = document.getElementById('load-error');
+    const loadingText = document.getElementById('result-count');
+    const loadMore = document.getElementById('load-more');
+    const optimizeImages = root => root.querySelectorAll('img').forEach(img => {
+      img.loading = 'lazy';
+      img.decoding = 'async';
+    });
+    const observer = new MutationObserver(() => {
+      optimizeImages(grid);
+      if (grid.childElementCount) error.hidden = true;
+    });
+    observer.observe(grid, { childList: true, subtree: true });
+    const loadWatchdog = window.setTimeout(() => {
+      if (!grid.childElementCount && loadingText.textContent.includes('LOADING')) {
+        error.hidden = false;
+        loadMore.hidden = true;
+      }
+    }, 20000);
+    observer.observe(loadingText, { childList: true, characterData: true, subtree: true });
+    document.getElementById('retry-load').addEventListener('click', () => location.reload());
+    window.addEventListener('load', () => {
+      if (grid.childElementCount || !loadingText.textContent.includes('LOADING')) clearTimeout(loadWatchdog);
+    });
+  })();
+</script>
 </body>
 </html>
