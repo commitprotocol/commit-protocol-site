@@ -56,26 +56,49 @@ function parseCsv(text) {
 }
 
 function traitHeaders() { return headers.filter(header => header.startsWith(TRAIT_PREFIX)); }
-function scoredTraitHeaders() { return traitHeaders().filter(header => header !== "attributes[Rarity Tier]"); }
 function traitName(header) { return header.slice(TRAIT_PREFIX.length, -1); }
 function traitValue(record, header) { return record[header] || "None"; }
 
 function calculateRarity() {
+  const rarityHeaders = traitHeaders();
   const frequency = {};
-  scoredTraitHeaders().forEach(header => {
+  rarityHeaders.forEach(header => {
     frequency[header] = {};
     records.forEach(record => {
       const value = traitValue(record, header);
       frequency[header][value] = (frequency[header][value] || 0) + 1;
     });
   });
+
   records.forEach(record => {
-    record.rarityScore = scoredTraitHeaders().reduce((score, header) =>
-      score + records.length / frequency[header][traitValue(record, header)], 0
+    record.rarityScore = rarityHeaders.reduce((score, header) =>
+      score + Math.log2(records.length / frequency[header][traitValue(record, header)]), 0
+    );
+    record.uniqueTraitCount = rarityHeaders.reduce((count, header) =>
+      count + (frequency[header][traitValue(record, header)] === 1 ? 1 : 0), 0
     );
   });
-  [...records].sort((a, b) => b.rarityScore - a.rarityScore || Number(a.tokenID) - Number(b.tokenID))
-    .forEach((record, index) => { record.rarityRank = index + 1; });
+
+  const ranked = [...records].sort((a, b) =>
+    b.uniqueTraitCount - a.uniqueTraitCount ||
+    b.rarityScore - a.rarityScore ||
+    Number(a.tokenID) - Number(b.tokenID)
+  );
+
+  let previousUniqueTraitCount = null;
+  let previousScore = null;
+  let currentRank = 0;
+
+  ranked.forEach((record, index) => {
+    const isTie =
+      record.uniqueTraitCount === previousUniqueTraitCount &&
+      Math.abs(record.rarityScore - previousScore) < 1e-12;
+
+    if (!isTie) currentRank = index + 1;
+    record.rarityRank = currentRank;
+    previousUniqueTraitCount = record.uniqueTraitCount;
+    previousScore = record.rarityScore;
+  });
 }
 
 function filteredRecords() {
