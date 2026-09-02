@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Local metadata editor for Wall Street Traders.">
+  <title>Metadata Desk — Wall Street Traders</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="metadata-body">
+<main class="collection-editor">
+  <header class="editor-topbar">
+    <a class="editor-brand" href="./"><span>WST</span><b>METADATA DESK</b></a>
+    <label class="collection-search"><span>⌕</span><input id="collection-search" placeholder="Search by name or token ID" aria-label="Search collection"></label>
+    <div class="topbar-actions">
+      <label class="compact-import">IMPORT CSV<input id="csv-import" type="file" accept=".csv,text/csv"></label>
+      <button id="export-csv" class="export-button">EXPORT CSV</button>
+      <button id="export-json">JSON</button>
+    </div>
+  </header>
+  <div class="editor-statusbar" aria-live="polite">
+    <span id="load-status">LOADING METADATA…</span><span id="result-status">444 ITEMS</span><span id="change-count">0 CHANGED FIELDS</span><button id="clear-filters" hidden>CLEAR FILTERS</button>
+  </div>
+  <div class="collection-shell">
+    <aside class="trait-sidebar" id="trait-sidebar">
+      <div class="sidebar-title"><b>Traits</b><button id="toggle-sidebar" aria-label="Collapse trait filters">«</button></div>
+      <div id="filter-groups"></div>
+      <div class="sidebar-bottom"><button id="reset-draft">RESET LOCAL DRAFT</button><small>Edits stay in this browser until export.</small></div>
+    </aside>
+    <section class="collection-results">
+      <div class="collection-grid" id="collection-grid"></div>
+      <div class="collection-empty" id="collection-empty" hidden><b>NO TRADERS FOUND</b><button id="empty-clear">CLEAR FILTERS</button></div>
+    </section>
+  </div>
+</main>
+<dialog class="metadata-dialog" id="metadata-dialog">
+  <button class="metadata-dialog-close" id="dialog-close" aria-label="Close editor">×</button>
+  <div class="metadata-dialog-layout">
+    <aside class="dialog-preview">
+      <p id="dialog-file-label">PUBLIC FILE / WST-001</p><img id="dialog-image" src="traders/1.png" alt="Wall Street Trader #1">
+      <div class="record-navigation"><button id="previous-token">← PREVIOUS</button><button id="next-token">NEXT →</button></div>
+    </aside>
+    <section class="dialog-editor">
+      <div class="record-heading"><div><h1 id="dialog-title">Wall Street Trader #1</h1><p><span>ERC721</span><span>ROBINHOOD CHAIN</span><span id="dialog-token-tag">TOKEN #1</span></p></div><a href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noreferrer">OPENSEA ↗</a></div>
+      <section class="trait-panel"><div class="panel-heading"><b>✦ &nbsp;Traits</b><span id="trait-total">9 traits</span><button id="add-trait">＋ ADD TRAIT</button></div><div class="trait-card-grid" id="trait-editor"></div></section>
+      <section class="about-panel"><div class="panel-heading"><b>☷ &nbsp;About</b></div><strong id="about-title">About Wall Street Trader #1</strong><p>Wall Street Traders — 444 monochrome traders built with AI and curated by Commit Protocol.</p><a href="https://commitprotocol.org/wall-street-traders/" target="_blank" rel="noreferrer">https://commitprotocol.org/wall-street-traders/</a></section>
+      <div class="dialog-footer"><span id="dialog-save-state">LOCAL DRAFT</span><button id="dialog-done">DONE</button></div>
+    </section>
+  </div>
+</dialog>
+<div class="desk-error" id="desk-error" hidden><b>METADATA COULD NOT BE LOADED.</b><p>Use “Import CSV” and select your metadata file.</p></div>
+<script src="metadata.js"></script>
+</body>
+</html>
