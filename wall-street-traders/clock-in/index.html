@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src https://kgtksjxfcwnmyeqddpug.supabase.co; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Clock In — Wall Street Traders</title>
@@ -27,6 +27,7 @@
     #main-content{border-inline:1px solid var(--line);max-width:1480px;margin:0 auto}
     .hero{border-bottom:1px solid var(--line);grid-template-columns:1.12fr .88fr;min-height:710px;display:grid}.hero-copy{border-right:1px solid var(--line);background:radial-gradient(circle at 10% 10%,#78f29a0d,#0000 34%);padding:70px clamp(34px,5vw,84px) 58px;position:relative}.terminal-line{color:var(--green);letter-spacing:.13em;align-items:center;gap:9px;font-size:11px;font-weight:700;display:flex}.signal-dot{background:var(--green);width:7px;height:7px;box-shadow:0 0 16px var(--green);border-radius:50%}.folio{color:#777b75;letter-spacing:.14em;margin:50px 0 18px;font-size:11px}.hero h1,.section-head h2{font-family:var(--serif);letter-spacing:-.055em;margin:0;font-weight:700}.hero h1{max-width:850px;font-size:clamp(58px,7.1vw,116px);line-height:.83}.hero h1 span{color:var(--green);font-style:italic;font-weight:400}.hero-lead{color:var(--dim);font:400 14px/1.85 var(--mono);max-width:680px;margin:34px 0 31px}.notice{display:inline-flex;align-items:center;gap:10px;border:1px solid #31513a;padding:12px 14px;color:var(--green);font-size:11px;font-weight:700;letter-spacing:.1em}.notice i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}.microcopy{color:#6f746d;letter-spacing:.1em;margin:23px 0 0;font-size:10px}
     .career-preview{display:flex;align-items:center;justify-content:center;padding:30px;background:var(--panel)}.terminal{width:min(100%,540px);border:1px solid var(--line2);background:#030403;box-shadow:14px 14px #0d120e}.terminal-head{display:flex;justify-content:space-between;padding:14px 16px;border-bottom:1px dashed var(--line2);color:#777d75;font-size:10px;letter-spacing:.1em}.terminal-head b{color:var(--green)}.profile{display:grid;grid-template-columns:160px 1fr;gap:20px;padding:20px;border-bottom:1px solid var(--line)}.profile img{width:160px;aspect-ratio:1;object-fit:cover;border:1px solid var(--line)}.profile small{color:var(--green);font-size:9px;letter-spacing:.12em}.profile h2{margin:18px 0 8px;font:700 28px/1 var(--serif)}.profile p{margin:0;color:#858a83;font-size:11px}.ledger{margin:0;padding:8px 16px 16px}.ledger div{display:flex;justify-content:space-between;gap:18px;padding:12px 0;border-bottom:1px solid var(--line)}.ledger dt{color:#6d726b;font-size:10px}.ledger dd{margin:0;text-align:right;font-size:11px;font-weight:700}.ledger .green{color:var(--green)}.preview-tag{display:block;padding:15px;text-align:center;background:#0d130e;color:var(--green);font-size:10px;font-weight:700;letter-spacing:.12em}
+    .clock-actions{padding:16px;border-top:1px solid var(--line)}.clock-button,.clock-select{width:100%;min-height:46px;border:1px solid #31513a;background:#0d130e;color:var(--green);font:700 11px/1 var(--mono);letter-spacing:.1em}.clock-button{cursor:pointer;padding:0 16px}.clock-button:hover:not(:disabled){background:var(--green);color:var(--ink)}.clock-button:disabled{cursor:not-allowed;color:#6d726b;border-color:var(--line);background:#080908}.clock-select{margin:10px 0;padding:0 12px;color:var(--paper);background:#050605}.clock-message{min-height:34px;margin:12px 0 0;color:#8e938c;font-size:10px;line-height:1.55}.clock-message[data-state="error"]{color:#ff8e8e}.clock-message[data-state="success"]{color:var(--green)}
     .status-grid{border-bottom:1px solid var(--line);grid-template-columns:repeat(4,1fr);padding:32px 38px;display:grid}.status-grid article{border-right:1px solid var(--line);flex-direction:column;min-height:118px;padding:12px 24px;display:flex}.status-grid article:last-child{border:0}.status-grid span{color:#777b75;letter-spacing:.12em;font-size:10px}.status-grid strong{font:700 clamp(25px,3vw,42px)/1 var(--mono);margin:auto 0 12px}.status-grid small{color:var(--green);letter-spacing:.13em;font-size:10px}
     .section{border-bottom:1px solid var(--line);padding:96px clamp(28px,5vw,76px)}.section-head{grid-template-columns:1.1fr .9fr;align-items:end;gap:clamp(36px,8vw,130px);margin-bottom:52px;display:grid}.index{color:#737871;letter-spacing:.14em;margin:0 0 16px;font-size:11px;font-weight:700}.section-head h2{font-size:clamp(43px,5.5vw,86px);line-height:.9}.section-head>p{color:var(--dim);font:400 13px/1.8 var(--mono);max-width:650px;margin:0}
     .steps,.modules{display:grid;border-top:1px solid var(--line2);border-left:1px solid var(--line2)}.steps{grid-template-columns:repeat(4,1fr)}.steps article,.modules article{position:relative;min-height:250px;padding:24px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.steps b,.modules b{color:#5f655e;font-size:10px}.steps span,.modules span{display:block;margin:48px 0 12px;color:var(--green);font-size:10px;font-weight:700;letter-spacing:.12em}.steps h3,.modules h3{margin:0 0 14px;font:700 27px/1 var(--serif)}.steps p,.modules p{margin:0;color:#90958e;font-size:13px;line-height:1.7}
@@ -64,28 +65,34 @@
   <div id="main-content">
     <section class="hero">
       <div class="hero-copy">
-        <div class="terminal-line"><span class="signal-dot"></span> PHASE 03 / PRODUCT PREVIEW</div>
+        <div class="terminal-line"><span class="signal-dot"></span> PHASE 03 / SEASON 0 MVP</div>
         <p class="folio">ISSUE 003 · ROBINHOOD CHAIN · 2026</p>
         <h1>CLOCK<br><span>IN.</span></h1>
-        <p class="hero-lead">Your Trader's career starts here. Clock In connects a permanent, non-custodial career record to Market Seasons, virtual portfolios and transparent WST reward pools funded before each competition begins.</p>
-        <div class="notice"><i></i>STATUS: IN DEVELOPMENT</div>
-        <p class="microcopy">DEVELOPMENT PREVIEW · SEASON RULES AND FUNDED POOLS WILL BE VERIFIABLE</p>
+        <p class="hero-lead">Connect your wallet, sign a gasless authentication message and select one eligible Wall Street Trader. Season 0 is a seven-day beta using a USD 10,000 virtual portfolio and Career Points only.</p>
+        <div class="notice"><i></i>STATUS: AUTHENTICATION LIVE</div>
+        <p class="microcopy">NON-CUSTODIAL · NO APPROVAL · NO TRANSFER · REGISTRATION OPENS SEPARATELY</p>
       </div>
       <div class="career-preview">
         <article class="terminal" aria-label="Career record interface preview">
-          <div class="terminal-head"><span>CAREER RECORD / PREVIEW</span><b>NOT CLOCKED IN</b></div>
+          <div class="terminal-head"><span>SEASON 0 / CLOCK IN</span><b id="wallet-state">NOT CONNECTED</b></div>
           <div class="profile">
             <img src="../trading-floor/traders/160.png" alt="Wall Street Trader 160" loading="eager">
-            <div><small>PUBLIC FILE / WST-160</small><h2>TRADER #160</h2><p>INTERFACE PREVIEW</p></div>
+            <div><small id="trader-file">ELIGIBLE COLLECTION / 444</small><h2 id="trader-name">SELECT TRADER</h2><p id="wallet-label">CONNECT WALLET TO BEGIN</p></div>
           </div>
           <dl class="ledger">
-            <div><dt>CAREER STATUS</dt><dd>NOT ACTIVE</dd></div>
+            <div><dt>CAREER STATUS</dt><dd id="career-status">NOT REGISTERED</dd></div>
             <div><dt>LIFETIME CAREER POINTS</dt><dd>0 CP</dd></div>
             <div><dt>SEASONS COMPLETED</dt><dd>0</dd></div>
             <div><dt>CURRENT RANK</dt><dd class="green">FLOOR TRADER</dd></div>
             <div><dt>BADGES</dt><dd>NONE</dd></div>
           </dl>
-          <span class="preview-tag">INTERFACE PREVIEW · NOT A LIVE APPLICATION</span>
+          <div class="clock-actions">
+            <button class="clock-button" id="connect-wallet" type="button">CONNECT &amp; SIGN</button>
+            <select class="clock-select" id="token-select" hidden aria-label="Select your Wall Street Trader"><option value="">SELECT AN ELIGIBLE TRADER</option></select>
+            <button class="clock-button" id="register-trader" type="button" hidden disabled>REGISTER FOR SEASON 0</button>
+            <p class="clock-message" id="clock-message" role="status">The signature only proves wallet ownership. It cannot move funds or NFTs.</p>
+          </div>
+          <span class="preview-tag">LIVE OWNERSHIP VERIFICATION · SEASON 0 REGISTRATION CLOSED</span>
         </article>
       </div>
     </section>
@@ -93,8 +100,8 @@
     <section class="status-grid" aria-label="Clock In status">
       <article><span>PRODUCT</span><strong>CLOCK IN</strong><small>CAREER + SEASONS</small></article>
       <article><span>COLLECTION</span><strong>444 TRADERS</strong><small>CONTRACT UNCHANGED</small></article>
-      <article><span>SEASON FORMAT</span><strong>14 DAYS</strong><small>VIRTUAL PORTFOLIOS</small></article>
-      <article><span>REWARD MODEL</span><strong>PRE-FUNDED</strong><small>WST POOL VERIFIED FIRST</small></article>
+      <article><span>SEASON FORMAT</span><strong>7 DAYS</strong><small>USD 10K VIRTUAL</small></article>
+      <article><span>BETA REWARD</span><strong>0 WST</strong><small>CAREER POINTS ONLY</small></article>
     </section>
 
     <section class="section" id="flow">
@@ -112,7 +119,7 @@
       <div class="modules">
         <article><b>DEPLOYED</b><span>WST NFT</span><h3>Identity Contract</h3><p>Confirms ownership, token IDs, supply and transfers. The original collection remains unchanged.</p></article>
         <article><b>PLANNED</b><span>CAREER REGISTRY</span><h3>Career Ledger</h3><p>Records Lifetime Career Points, ranks, seasons, badges and milestones by WST token ID.</p></article>
-        <article><b>PLANNED</b><span>SEASON ENGINE</span><h3>Competition Layer</h3><p>Runs 14-day virtual portfolio competitions under rules published before each season.</p></article>
+        <article><b>FOUNDATION LIVE</b><span>SEASON ENGINE</span><h3>Competition Layer</h3><p>Season 0 runs for seven days with USD 10,000 virtual portfolios and immutable entry allocations.</p></article>
         <article><b>MARKET TOKEN</b><span>WST</span><h3>Pons Launch</h3><p>WST is planned as a fixed-supply market token launched through permissionless Pons infrastructure on Robinhood Chain.</p></article>
         <article><b>PRE-FUNDED</b><span>SEASON DISTRIBUTOR</span><h3>Reward Layer</h3><p>Holds the announced WST pool before a season opens and distributes it by eligible Season Points.</p></article>
       </div>
@@ -147,8 +154,8 @@
     <section class="final">
       <p>CLOCK IN / MARKET SEASONS</p>
       <h2>BUILD THE CAREER. COMPETE FOR THE SEASON.</h2>
-      <span class="disabled" aria-disabled="true">CLOCK IN · COMING SOON</span>
-      <small>No action is required at this stage. WST market details, funded pool addresses, season rules and activation instructions will only be published through official WST channels. Pons is permissionless infrastructure; no partnership is implied.</small>
+      <a class="disabled" href="#main-content">CONNECT WALLET · VERIFY OWNERSHIP</a>
+      <small>Authentication is live. Season 0 registration remains closed until the official opening is announced. The beta distributes Career Points only and does not distribute WST.</small>
     </section>
   </div>
   <footer class="site-footer">
@@ -157,5 +164,122 @@
     <div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div>
     <small>BUILT BY COMMIT PROTOCOL · 2026</small>
   </footer>
+  <script>
+    (() => {
+      "use strict";
+      const API = "https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/clock-in-auth";
+      const CHAIN_HEX = "0x1237";
+      const connectButton = document.getElementById("connect-wallet");
+      const registerButton = document.getElementById("register-trader");
+      const tokenSelect = document.getElementById("token-select");
+      const message = document.getElementById("clock-message");
+      const walletState = document.getElementById("wallet-state");
+      const walletLabel = document.getElementById("wallet-label");
+      const traderName = document.getElementById("trader-name");
+      const traderFile = document.getElementById("trader-file");
+      const traderImage = document.querySelector(".profile img");
+      const careerStatus = document.getElementById("career-status");
+      let wallet = "";
+      let sessionToken = sessionStorage.getItem("wstClockInSession") || "";
+
+      function setMessage(text, state = "") {
+        message.textContent = text;
+        message.dataset.state = state;
+      }
+      function short(address) {
+        return address.slice(0, 6) + "..." + address.slice(-4);
+      }
+      async function api(path, body = {}, authenticated = false) {
+        const headers = { "Content-Type": "application/json" };
+        if (authenticated && sessionToken) headers.Authorization = "Bearer " + sessionToken;
+        const response = await fetch(API + "/" + path, { method: "POST", headers, body: JSON.stringify(body) });
+        const data = await response.json().catch(() => ({ error: "invalid_response" }));
+        if (!response.ok) throw new Error(data.error || "request_failed");
+        return data;
+      }
+      async function switchChain() {
+        try {
+          await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_HEX }] });
+        } catch (error) {
+          if (error && error.code === 4902) {
+            await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{ chainId: CHAIN_HEX, chainName: "Robinhood Chain", nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: ["https://rpc.mainnet.chain.robinhood.com"] }] });
+          } else {
+            throw error;
+          }
+        }
+      }
+      async function loadOwned() {
+        setMessage("Checking all 444 token IDs on Robinhood Chain...");
+        const result = await api("owned", {}, true);
+        tokenSelect.innerHTML = '<option value="">SELECT AN ELIGIBLE TRADER</option>';
+        result.tokenIds.forEach((id) => {
+          const option = document.createElement("option");
+          option.value = String(id);
+          option.textContent = "WALL STREET TRADER #" + id;
+          tokenSelect.appendChild(option);
+        });
+        tokenSelect.hidden = false;
+        registerButton.hidden = false;
+        walletState.textContent = "VERIFIED";
+        careerStatus.textContent = "ELIGIBLE";
+        if (result.tokenIds.length) {
+          setMessage(result.tokenIds.length + " eligible Trader" + (result.tokenIds.length === 1 ? "" : "s") + " found. Select one to continue.", "success");
+        } else {
+          setMessage("No Wall Street Traders were found in this wallet.", "error");
+        }
+      }
+      connectButton.addEventListener("click", async () => {
+        if (!window.ethereum) {
+          setMessage("A browser wallet compatible with Robinhood Chain is required.", "error");
+          return;
+        }
+        connectButton.disabled = true;
+        try {
+          await switchChain();
+          const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+          wallet = accounts[0];
+          walletLabel.textContent = short(wallet).toUpperCase();
+          setMessage("Preparing the gasless sign-in message...");
+          const nonce = await api("nonce", { wallet });
+          const signature = await window.ethereum.request({ method: "personal_sign", params: [nonce.message, wallet] });
+          const verified = await api("verify", { wallet, nonceId: nonce.nonceId, signature });
+          sessionToken = verified.token;
+          sessionStorage.setItem("wstClockInSession", sessionToken);
+          connectButton.textContent = "WALLET VERIFIED";
+          await loadOwned();
+        } catch (error) {
+          sessionStorage.removeItem("wstClockInSession");
+          sessionToken = "";
+          connectButton.disabled = false;
+          setMessage(error.message === "User rejected the request." ? "Wallet request cancelled." : "Could not verify the wallet: " + error.message, "error");
+        }
+      });
+      tokenSelect.addEventListener("change", () => {
+        const id = tokenSelect.value;
+        registerButton.disabled = !id;
+        if (!id) return;
+        traderName.textContent = "TRADER #" + id;
+        traderFile.textContent = "PUBLIC FILE / WST-" + id;
+        traderImage.src = "../trading-floor/traders/" + id + ".png";
+        traderImage.alt = "Wall Street Trader " + id;
+      });
+      registerButton.addEventListener("click", async () => {
+        if (!tokenSelect.value) return;
+        registerButton.disabled = true;
+        setMessage("Submitting Season 0 registration...");
+        try {
+          await api("registration", { tokenId: Number(tokenSelect.value) }, true);
+          careerStatus.textContent = "REGISTERED";
+          registerButton.textContent = "SEASON 0 REGISTERED";
+          setMessage("Your Trader is registered for Season 0.", "success");
+        } catch (error) {
+          registerButton.disabled = false;
+          if (error.message === "registration_closed") setMessage("Season 0 registration is not open yet.", "error");
+          else if (error.message === "wallet_or_token_already_registered") setMessage("This wallet or Trader is already registered.", "error");
+          else setMessage("Registration failed: " + error.message, "error");
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
