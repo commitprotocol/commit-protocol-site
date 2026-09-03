@@ -430,9 +430,9 @@
         }
         connectButton.disabled = true;
         try {
-          await switchChain();
           const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
           wallet = accounts[0];
+          await switchChain();
           walletLabel.textContent = short(wallet).toUpperCase();
           setMessage("Preparing the gasless sign-in message...");
           const nonce = await api("nonce", { wallet });
