@@ -45,17 +45,9 @@
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to Clock In</a>
-  <div class="market-tape" aria-label="Phase 3 status ticker"><div class="tape-track">
-    <span class="tape-item"><b>WST</b><em>PHASE 03</em><i aria-hidden="true">◆</i></span>
-    <span class="tape-item"><b>PRODUCT</b><em>CLOCK IN</em><i aria-hidden="true">◆</i></span>
-    <span class="tape-item"><b>MODEL</b><em>SEASON FLYWHEEL</em><i aria-hidden="true">◆</i></span>
-    <span class="tape-item"><b>NETWORK</b><em>ROBINHOOD CHAIN</em><i aria-hidden="true">◆</i></span>
-    <span class="tape-item"><b>REWARDS</b><em>PRE-FUNDED WST</em><i aria-hidden="true">◆</i></span>
-    <span class="tape-item"><b>WST</b><em>PHASE 03</em><i aria-hidden="true">◆</i></span>
-    <span class="tape-item"><b>PRODUCT</b><em>CLOCK IN</em><i aria-hidden="true">◆</i></span>
-    <span class="tape-item"><b>MODEL</b><em>SEASON FLYWHEEL</em><i aria-hidden="true">◆</i></span>
-    <span class="tape-item"><b>NETWORK</b><em>ROBINHOOD CHAIN</em><i aria-hidden="true">◆</i></span>
-    <span class="tape-item"><b>REWARDS</b><em>PRE-FUNDED WST</em><i aria-hidden="true">◆</i></span>
+  <div class="market-tape" aria-label="Live Chainlink market prices"><div class="tape-track" id="price-tape">
+    <span class="tape-item"><b>CHAINLINK</b><em>LOADING MARKET DATA</em><i aria-hidden="true">◆</i></span>
+    <span class="tape-item"><b>CHAINLINK</b><em>LOADING MARKET DATA</em><i aria-hidden="true">◆</i></span>
   </div></div>
   <header class="site-header">
     <a class="wordmark" href="../" aria-label="Wall Street Traders home"><span>WST</span><small>WALL STREET TRADERS</small></a>
@@ -92,7 +84,7 @@
             <button class="clock-button" id="register-trader" type="button" hidden disabled>REGISTER FOR SEASON 0</button>
             <p class="clock-message" id="clock-message" role="status">The signature only proves wallet ownership. It cannot move funds or NFTs.</p>
           </div>
-          <span class="preview-tag">LIVE OWNERSHIP VERIFICATION · SEASON 0 REGISTRATION CLOSED</span>
+          <span class="preview-tag">LIVE OWNERSHIP VERIFICATION · SEASON 0 REGISTRATION OPEN</span>
         </article>
       </div>
     </section>
@@ -155,7 +147,7 @@
       <p>CLOCK IN / MARKET SEASONS</p>
       <h2>BUILD THE CAREER. COMPETE FOR THE SEASON.</h2>
       <a class="disabled" href="#main-content">CONNECT WALLET · VERIFY OWNERSHIP</a>
-      <small>Authentication is live. Season 0 registration remains closed until the official opening is announced. The beta distributes Career Points only and does not distribute WST.</small>
+      <small>Season 0 registration is now open to verified holders. The beta distributes Career Points only and does not distribute WST.</small>
     </section>
   </div>
   <footer class="site-footer">
@@ -167,8 +159,9 @@
   <script>
     (() => {
       "use strict";
-      const API = "https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/clock-in-auth";
+      const API = "https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/clock-in-api";
       const CHAIN_HEX = "0x1237";
+      const priceTape = document.getElementById("price-tape");
       const connectButton = document.getElementById("connect-wallet");
       const registerButton = document.getElementById("register-trader");
       const tokenSelect = document.getElementById("token-select");
@@ -196,6 +189,30 @@
         const data = await response.json().catch(() => ({ error: "invalid_response" }));
         if (!response.ok) throw new Error(data.error || "request_failed");
         return data;
+      }
+      function renderPrices(assets) {
+        priceTape.replaceChildren();
+        [...assets, ...assets].forEach((asset) => {
+          const item = document.createElement("span");
+          item.className = "tape-item";
+          const symbol = document.createElement("b");
+          symbol.textContent = asset.symbol;
+          const price = document.createElement("em");
+          price.textContent = "$" + Number(asset.price).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          const separator = document.createElement("i");
+          separator.setAttribute("aria-hidden", "true");
+          separator.textContent = "◆";
+          item.append(symbol, price, separator);
+          priceTape.appendChild(item);
+        });
+      }
+      async function loadPrices() {
+        try {
+          const market = await api("prices");
+          if (Array.isArray(market.assets) && market.assets.length) renderPrices(market.assets);
+        } catch (_) {
+          priceTape.innerHTML = '<span class="tape-item"><b>CHAINLINK</b><em>MARKET DATA UNAVAILABLE</em><i aria-hidden="true">◆</i></span><span class="tape-item"><b>CHAINLINK</b><em>MARKET DATA UNAVAILABLE</em><i aria-hidden="true">◆</i></span>';
+        }
       }
       async function switchChain() {
         try {
@@ -279,6 +296,8 @@
           else setMessage("Registration failed: " + error.message, "error");
         }
       });
+      loadPrices();
+      setInterval(loadPrices, 30000);
     })();
   </script>
 </body>
