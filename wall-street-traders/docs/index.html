@@ -117,7 +117,7 @@
 <h2>WHAT IS WALL STREET TRADERS?</h2>
 <p>Wall Street Traders is a collection of 444 monochrome NFTs built with AI and individually curated by Commit Protocol. Every trader shares the same black suit while preserving a distinct identity through faces, silhouettes and special classes.</p>
 <p>Wall Street Traders is an independent creative project. It does not represent or claim affiliation with any newspaper, stock exchange, financial institution, brokerage, government agency or other organization using “Wall Street” in its name.</p>
-<p>The collection launched on Robinhood Chain through OpenSea and all 444 traders are now revealed. Clock In is live in beta and is already processing independent virtual portfolios and a continuously changing leaderboard. The official WST token is live through Pons; the paid Season contracts that will connect WST to Clock In remain in testnet and are not yet active on mainnet.</p>
+<p>The collection launched on Robinhood Chain through OpenSea and all 444 traders are now revealed. Clock In is live in beta and is already processing independent virtual portfolios and a continuously changing leaderboard. The official WST token is live through Pons. The reusable paid-Season architecture has completed its principal automated and manual testnet flows, but the Factory, production Safe and Season Vaults are not yet active on mainnet.</p>
 <blockquote>
 <span>COLLECTION THESIS</span>“StonkBrokers turned NFTs into infrastructure. Normies turned NFTs into creative material. Wall Street Traders aims to turn NFTs into on-chain careers.”</blockquote>
 </section>
@@ -275,18 +275,18 @@
 <article>
 <div>
 <b>PHASE <!-- -->05</b>
-<em>VALIDATION DESIGN</em>
+<em>TESTNET VALIDATION</em>
 </div>
 <h3>Career Ledger</h3>
-<p>Publish reproducible opening and closing snapshots, portfolio results, Lifetime Career Points, ranks and badges. After a public review window, the final Top 10 is approved through multisig and committed for on-chain claims.</p>
+<p>Publish reproducible opening and closing snapshots, locked portfolios, results, Lifetime Career Points, ranks and badges. The game backend calculates the provisional ranking; after review, the final Top 10 NFT IDs are approved through the production Safe and committed to the Season Vault for on-chain claims.</p>
 </article>
 <article>
 <div>
 <b>PHASE <!-- -->06</b>
-<em>IN DEVELOPMENT</em>
+<em>FINAL TESTNET STAGE</em>
 </div>
 <h3>WST Production</h3>
-<p>Integrate the official Pons-issued WST token with a non-custodial Season contract. Entry fees, cancellation refunds, final ranking and Top 10 distribution remain in testnet before production deployment and source verification.</p>
+<p>Integrate the official Pons-issued WST token with a permanent Factory controlled by a 2-of-3 Safe. The Factory creates one new immutable Vault per Season, preserving prior Season history while allowing the fee, minimum entries and timing of each new Season to be published independently.</p>
 </article>
 </div>
 </section>
@@ -306,11 +306,12 @@
 <li>For the first paid Season, each NFT entry is planned to cost exactly 500,000 WST. One wallet may enter every eligible NFT it owns.</li>
 <li>A paid Season requires at least 20 valid entries. If it is cancelled or the minimum is not reached, each original payer can recover the exact entry fee.</li>
 <li>One hundred percent of entry fees forms the Season reward pool. The finalized Top 10 receives the entire pool; no portion is burned.</li>
+<li>Sponsored WST and WST transferred directly to the active Vault are included in that Season&#x27;s distributable pool.</li>
 </ul>
 <blockquote>
 <span>CAREER LOOP</span>“Clock in. Choose your desk. Build your record. Earn your promotion.”</blockquote>
 <p><a class="terminal-link" href="../clock-in/">OPEN THE CLOCK IN BETA ↗</a></p>
-<p>Beta rankings are indicative and exist to test wallet compatibility, ownership verification, portfolio locking, price updates and scoring. Beta participation does not create a right to future WST. Paid WST Seasons begin only after the production Season contract, rules, validation procedure, Safe and official address are published.</p>
+<p>Beta rankings are indicative and exist to test wallet compatibility, ownership verification, portfolio locking, price updates and scoring. Beta participation does not create a right to future WST. Paid WST Seasons begin only after the production Factory, Safe, first Vault, rules, validation procedure and official addresses are published.</p>
 </section>
 <section class="doc-section" id="wst-token">
 <div class="doc-label">
@@ -336,7 +337,7 @@
 <article>
 <span>FIRST PAID SEASON</span>
 <h3>500,000 WST / NFT</h3>
-<p>The planned initial entry fee. Every eligible NFT creates one independent portfolio and one pool contribution.</p>
+<p>The planned fee for the first paid Season. Later Seasons may publish a different fee before registration opens.</p>
 </article>
 <article>
 <span>REWARD MODEL</span>
@@ -352,13 +353,13 @@
 <div class="data-row"><strong>Total supply</strong><b>FIXED</b><span>1,000,000,000 WST</span></div>
 <div class="data-row"><strong>Paired asset</strong><b>ETH</b><span>WST / ETH market</span></div>
 <div class="data-row"><strong>Clock In minting</strong><b>NONE</b><span>Existing tokens only</span></div>
-<div class="data-row"><strong>Paid Seasons</strong><b>TESTNET</b><span>Production contract pending</span></div>
+<div class="data-row"><strong>Paid Seasons</strong><b>TESTNET</b><span>Factory + Vault validation complete; mainnet pending</span></div>
 </div>
 <h3 class="subhead">TOKEN PRINCIPLES</h3>
 <ul class="ledger-list">
 <li>No automatic holder airdrop is part of the current Clock In design.</li>
 <li>Clock In uses entry fees contributed by participants; it does not create or inflate WST.</li>
-<li>For the first paid Season, the planned fee is 500,000 WST for each registered NFT.</li>
+<li>For the first paid Season, the planned fee is 500,000 WST for each registered NFT. The Factory permits a newly published fee for later Seasons.</li>
 <li>One hundred percent of paid entry fees is allocated to the finalized Top 10 reward pool.</li>
 <li>The Pons fee recipient is the operational treasury. Any use of claimed creator fees to acquire WST for later Seasons is a disclosed treasury action, not an automatic protocol guarantee.</li>
 <li>Career Points remain non-transferable records and never carry a permanent WST conversion rate.</li>
@@ -374,7 +375,7 @@
 <i>WST / PAID SEASON PROTOCOL</i>
 </div>
 <h2>ENTER. COMPETE.<br/>WIN THE POOL.</h2>
-<p>The paid Season model is self-funded by participation. Each NFT pays the published WST entry fee into the Season contract. After 14 days and final validation, the complete pool is divided among the Top 10. The first paid Season is planned with a 500,000 WST fee per NFT and a minimum of 20 valid entries.</p>
+<p>The paid Season model is self-funded by participation. A permanent Factory creates one immutable Vault for each Season. Every entered NFT pays the fee published for that Vault. After the production 14-day competition and final validation, the complete available pool is divided among the Top 10. The first paid Season is planned with a 500,000 WST fee per NFT and a minimum of 20 valid entries.</p>
 <div class="roadmap">
 <article>
 <div><b>STEP 01</b><em>REGISTER</em></div>
@@ -389,7 +390,7 @@
 <article>
 <div><b>STEP 03</b><em>VALIDATE</em></div>
 <h3>Finalize the Top 10</h3>
-<p>Opening and closing prices, portfolios and calculations are published. A review window and independent recomputation precede multisig approval.</p>
+<p>The backend produces the provisional ranking from the locked portfolios and published price snapshots. Review and independent recomputation precede the 2-of-3 Safe commitment of exactly ten unique registered NFT IDs.</p>
 </article>
 <article>
 <div><b>STEP 04</b><em>CLAIM</em></div>
@@ -406,12 +407,13 @@
 <blockquote>
 <span>POOL FORMULA</span>#1 30% · #2 20% · #3 15% · #4 10% · #5 7% · #6 5% · #7 4% · #8 3.5% · #9 3% · #10 2.5%</blockquote>
 <ul class="ledger-list">
-<li>The pool grows with the number of paid entries and any separately disclosed sponsored WST deposited before finalization.</li>
+<li>The pool grows with paid entries, separately disclosed sponsorships and any WST transferred directly to the Vault before finalization.</li>
 <li>The entry fee, minimum participation, rank percentages and Season dates are published before registration.</li>
 <li>No profit, token price, minimum pool size beyond collected entries or recurring return is guaranteed.</li>
 <li>All Wall Street Traders IDs 1 through 444 are eligible subject to live ownership verification and published season rules.</li>
 <li>The wallet owning a winning NFT at the final ownership snapshot is recorded as the reward recipient.</li>
 <li>Rules, data sources, eligible assets, timestamps, scoring, tie-breakers and challenge periods are published before each production season.</li>
+<li>A new Season can be created only after the current Season is finalized or cancelled. Previous Vaults remain independently readable in the Factory history.</li>
 </ul>
 </section>
 <section class="doc-section" id="promotion-desk">
@@ -505,12 +507,20 @@
 <a class="terminal-link" href="https://robinhoodchain.blockscout.com/address/0x8e2826680cfa975603eb615469a95a2e20e56139" target="_blank" rel="noreferrer">VERIFY WST CONTRACT ↗</a>
 </article>
 <article>
-<span>PAID SEASON CONTRACT</span>
-<h3>TESTNET VALIDATION</h3>
-<code class="address">PRODUCTION SEASON CONTRACT + MAINNET SAFE NOT YET DEPLOYED</code>
+<span>CLOCK IN FACTORY + SAFE</span>
+<h3>MAINNET DEPLOYMENT PENDING</h3>
+<code class="address">OFFICIAL FACTORY, SAFE AND FIRST SEASON VAULT WILL BE PUBLISHED HERE</code>
 </article>
 </div>
-<p>The collection contract, deployer wallet, treasury wallet and official WST token serve separate roles and can be independently verified on the Robinhood Chain explorer. Earlier custom-token experiments and all testnet deployments are not the official WST token. The production Season contract and its mainnet Safe will be added here only after final testing, deployment and source verification.</p>
+<h3 class="subhead">PAID-SEASON CONTRACT ARCHITECTURE</h3>
+<ul class="ledger-list">
+<li><strong>Factory:</strong> permanent registry that creates the next Season only after the current Vault is finalized or cancelled and preserves paginated Season history.</li>
+<li><strong>Season Vault:</strong> one immutable contract per Season containing its token, collection, fee, minimum entries, registration window, competition duration, pool and claims.</li>
+<li><strong>2-of-3 Safe:</strong> production controller for sensitive Factory and Vault actions. No single signer can create, start, finalize or administratively cancel a Season alone.</li>
+<li><strong>Game backend:</strong> locks portfolios, records price snapshots and calculates the provisional leaderboard. The smart contracts do not fetch market prices or calculate portfolio returns.</li>
+<li><strong>On-chain settlement:</strong> the Safe commits exactly ten unique registered NFT IDs after review; the Vault fixes rewards and prevents duplicate claims.</li>
+</ul>
+<p>The collection contract, deployer wallet, treasury wallet and official WST token serve separate roles and can be independently verified on the Robinhood Chain explorer. Earlier custom-token experiments and every testnet deployment are non-production. The production Factory, its mainnet Safe and each official Season Vault will be added here only after deployment and source verification.</p>
 </section>
 <section class="doc-section" id="faq">
 <div class="doc-label">
@@ -548,7 +558,7 @@
 <details>
 <summary>How will Market Seasons work?<span>+</span>
 </summary>
-<p>Each eligible NFT receives US$10,000 in virtual capital and builds a simulated portfolio of three to five approved assets totaling exactly 100%. Production seasons are planned for 14 days. No real asset or trading capital is held or traded by the game.</p>
+<p>Each eligible NFT receives US$10,000 in virtual capital and builds a simulated portfolio of three to five approved assets totaling exactly 100%. Production seasons are planned for 14 days. A permanent Factory creates a separate immutable Vault for every Season; no real asset or trading capital is held or traded by the game.</p>
 </details>
 <details>
 <summary>Do Market Seasons pay financial rewards?<span>+</span>
@@ -568,7 +578,7 @@
 <details>
 <summary>How is the WST reward pool created?<span>+</span>
 </summary>
-<p>Each paid NFT entry contributes the published WST fee to the Season contract. One hundred percent of those fees forms the Top 10 pool. A sponsor or the treasury may add WST separately when that contribution is disclosed.</p>
+<p>Each paid NFT entry contributes the published WST fee to that Season&#x27;s Vault. The available Top 10 pool includes all entry fees, disclosed sponsored WST and any WST transferred directly to the Vault. The Vault distributes the complete available pool under the fixed rank schedule.</p>
 </details>
 <details>
 <summary>What is the Clock In Flywheel?<span>+</span>
@@ -583,12 +593,22 @@
 <details>
 <summary>How is the Top 10 validated?<span>+</span>
 </summary>
-<p>Opening and closing prices, locked portfolios, calculations and the preliminary ranking are published for review. After a challenge window and independent recomputation, the Safe multisig approves the final on-chain claim commitment.</p>
+<p>The backend calculates a provisional ranking from opening and closing price snapshots and locked portfolios. After the published review process, the 2-of-3 Safe commits exactly ten unique registered NFT IDs to the Vault. The Vault then fixes the claims using the pre-published percentage schedule.</p>
 </details>
 <details>
 <summary>What happens if a paid Season is cancelled?<span>+</span>
 </summary>
 <p>If the required minimum is not reached or the Season is cancelled before activation, each original payer can recover the exact WST entry fee through the contract.</p>
+</details>
+<details>
+<summary>What happens if a winning NFT is sold during a Season?<span>+</span>
+</summary>
+<p>NFT ownership is resolved when the Season is finalized. The wallet that owns the winning NFT at that final snapshot is assigned the WST reward, even if another wallet originally registered and paid for the entry.</p>
+</details>
+<details>
+<summary>Can the entry fee change?<span>+</span>
+</summary>
+<p>Yes, but never inside an already-created Vault. Each Vault is immutable. The Safe may create a later Season with a different fee, minimum entry count or timing, and those parameters must be published before registration.</p>
 </details>
 <details>
 <summary>Do holders own the treasury?<span>+</span>
