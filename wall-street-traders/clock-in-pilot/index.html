@@ -31,6 +31,7 @@
     .clock-actions{padding:16px;border-top:1px solid var(--line)}.clock-button,.clock-select{width:100%;min-height:46px;border:1px solid #31513a;background:#0d130e;color:var(--green);font:700 11px/1 var(--mono);letter-spacing:.1em}.clock-button{cursor:pointer;padding:0 16px}.clock-button:hover:not(:disabled){background:var(--green);color:var(--ink)}.clock-button:disabled{cursor:not-allowed;color:#6d726b;border-color:var(--line);background:#080908}.clock-select{margin:10px 0;padding:0 12px;color:var(--paper);background:#050605}.clock-message{min-height:34px;margin:12px 0 0;color:#8e938c;font-size:10px;line-height:1.55}.clock-message[data-state="error"]{color:#ff8e8e}.clock-message[data-state="success"]{color:var(--green)}
     .portfolio-builder{margin-top:16px;border-top:1px dashed var(--line2);padding-top:16px}.portfolio-head,.portfolio-total{display:flex;align-items:center;justify-content:space-between;gap:15px;font-size:10px;letter-spacing:.1em}.portfolio-head strong,.portfolio-total strong{color:var(--green);font-size:15px}.asset-list{margin:14px 0}.asset-row{display:grid;grid-template-columns:24px 1fr 90px;align-items:center;gap:10px;min-height:49px;border-top:1px solid var(--line)}.asset-row:last-child{border-bottom:1px solid var(--line)}.asset-row label{font-size:11px;font-weight:700}.asset-row label small{display:block;margin-top:4px;color:#737871;font-size:9px;font-weight:400}.asset-row input[type="checkbox"]{accent-color:var(--green)}.asset-row input[type="number"]{width:100%;height:32px;border:1px solid var(--line2);background:#050605;color:var(--paper);padding:0 7px;text-align:right;font:700 11px var(--mono)}.asset-row input[type="number"]:disabled{opacity:.35}.portfolio-total{padding:13px 0}.portfolio-rules{color:#71766f;font-size:9px;line-height:1.55}.portfolio-submit{margin-top:10px}
     .status-grid{border-bottom:1px solid var(--line);grid-template-columns:repeat(4,1fr);padding:32px 38px;display:grid}.status-grid article{border-right:1px solid var(--line);flex-direction:column;min-height:118px;padding:12px 24px;display:flex}.status-grid article:last-child{border:0}.status-grid span{color:#777b75;letter-spacing:.12em;font-size:10px}.status-grid strong{font:700 clamp(25px,3vw,42px)/1 var(--mono);margin:auto 0 12px}.status-grid small{color:var(--green);letter-spacing:.13em;font-size:10px}
+    .status-grid article:nth-child(4n){border-right:0}.status-grid article:nth-child(-n+4){border-bottom:1px solid var(--line)}.season-progress{height:4px;background:#182019;margin:0 0 12px;overflow:hidden}.season-progress i{display:block;height:100%;width:0;background:var(--green);transition:width .35s ease}.status-address{font-size:12px!important;overflow-wrap:anywhere}.portfolio-desk{display:grid;gap:12px}.trader-position{border:1px solid var(--line2);background:#060806}.trader-position-head{display:grid;grid-template-columns:1fr repeat(3,auto);align-items:center;gap:24px;padding:18px 20px;border-bottom:1px solid var(--line)}.trader-position-head h3{margin:0;font:700 24px var(--serif)}.trader-position-head small{display:block;color:#747972;font-size:9px;letter-spacing:.11em;margin-top:5px}.position-stat{text-align:right}.position-stat span{display:block;color:#747972;font-size:9px;letter-spacing:.1em}.position-stat strong{display:block;margin-top:7px;font-size:13px}.position-assets{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border-top:0}.position-asset{background:#080a08;padding:14px}.position-asset b{display:block;color:var(--green);font-size:12px}.position-asset span{display:block;color:#a1a59e;font-size:10px;margin-top:7px}.position-empty{padding:20px;color:#777d75;font-size:10px}.status-pill{display:inline-flex!important;width:max-content;margin-top:7px;padding:5px 8px;border:1px solid #31513a;color:var(--green)!important}.status-pill.pending{color:#d8c779!important;border-color:#625b32}
     .section{border-bottom:1px solid var(--line);padding:96px clamp(28px,5vw,76px)}.section-head{grid-template-columns:1.1fr .9fr;align-items:end;gap:clamp(36px,8vw,130px);margin-bottom:52px;display:grid}.index{color:#737871;letter-spacing:.14em;margin:0 0 16px;font-size:11px;font-weight:700}.section-head h2{font-size:clamp(43px,5.5vw,86px);line-height:.9}.section-head>p{color:var(--dim);font:400 13px/1.8 var(--mono);max-width:650px;margin:0}
     .steps,.modules{display:grid;border-top:1px solid var(--line2);border-left:1px solid var(--line2)}.steps{grid-template-columns:repeat(4,1fr)}.steps article,.modules article{position:relative;min-height:250px;padding:24px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.steps b,.modules b{color:#5f655e;font-size:10px}.steps span,.modules span{display:block;margin:48px 0 12px;color:var(--green);font-size:10px;font-weight:700;letter-spacing:.12em}.steps h3,.modules h3{margin:0 0 14px;font:700 27px/1 var(--serif)}.steps p,.modules p{margin:0;color:#90958e;font-size:13px;line-height:1.7}
     .modules{grid-template-columns:repeat(5,1fr)}.modules article{min-height:290px}.modules h3{font-size:23px}.modules article:first-child{background:#0b100c}.modules article:first-child span{color:var(--paper)}
@@ -40,8 +41,8 @@
     .final{padding:100px clamp(28px,5vw,76px);text-align:center;background:radial-gradient(circle at 50%,#78f29a10,transparent 38%)}.final p{margin:0 0 20px;color:var(--green);font-size:11px;font-weight:700;letter-spacing:.14em}.final h2{max-width:950px;margin:0 auto 38px;font:700 clamp(43px,5.5vw,86px)/.9 var(--serif);letter-spacing:-.055em}.disabled{display:inline-flex;min-height:47px;align-items:center;justify-content:center;border:1px solid #464946;padding:0 17px;color:#858a83;font-size:11px;font-weight:700;letter-spacing:.1em}.final small{display:block;max-width:660px;margin:22px auto 0;color:#676c66;font-size:10px;line-height:1.7}
     .site-footer{border-inline:1px solid var(--line);grid-template-columns:1fr 1fr 1fr;align-items:start;gap:30px;max-width:1480px;margin:0 auto;padding:58px 38px 28px;display:grid}.footer-mark{font:900 52px/1 var(--mono);letter-spacing:-.08em}.footer-mark span{color:var(--green);margin-left:8px;font-size:16px}.site-footer>p{color:#9b9f98;margin:5px 0 0;font-size:11px;line-height:1.7}.footer-links{letter-spacing:.1em;color:var(--green);justify-content:flex-end;gap:20px;font-size:10px;display:flex}.site-footer small{border-top:1px solid var(--line);color:#565b55;letter-spacing:.12em;grid-column:1/-1;margin-top:34px;padding-top:24px;font-size:10px}
     @media(max-width:1050px){.modules{grid-template-columns:repeat(2,1fr)}.modules article:last-child{grid-column:1/-1}.steps{grid-template-columns:repeat(2,1fr)}.status-grid{grid-template-columns:repeat(2,1fr)}.status-grid article:nth-child(2){border-right:0}.status-grid article:nth-child(-n+2){border-bottom:1px solid var(--line)}}
-    @media(max-width:900px){.site-header{grid-template-columns:1fr auto;padding:0 20px}.site-header nav{display:none}.clock-workspace{grid-template-columns:1fr}.clock-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:12px}.clock-sidebar>p{margin:5px 8px 10px}.clock-nav{display:flex;overflow-x:auto}.clock-nav button{min-width:155px;border-right:1px solid var(--line)}.hero{grid-template-columns:1fr}.hero-copy{border-right:0;border-bottom:1px solid var(--line)}.career-preview{min-height:700px}.section-head{grid-template-columns:1fr;align-items:start;gap:24px}.security{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,1fr)}.metric-grid article:nth-child(2){border-right:0}.rule-grid{grid-template-columns:1fr}.progress-row{grid-template-columns:1fr 140px}.progress-row p{display:none}}
-    @media(max-width:640px){.site-header{height:64px}.wordmark small{display:none}.hero-copy{padding:52px 22px 42px}.hero h1{font-size:clamp(52px,17vw,78px)}.career-preview{min-height:510px;padding:12px}.profile{grid-template-columns:105px 1fr}.profile img{width:105px}.profile h2{font-size:22px}.status-grid{grid-template-columns:repeat(2,1fr);padding:28px 20px}.status-grid article{border-bottom:1px solid var(--line)}.status-grid article:nth-child(2n){border-right:0}.section,.security,.final{padding:72px 22px}.section-head h2,.security h2{font-size:48px}.steps,.modules,.separation{grid-template-columns:1fr}.steps article,.modules article{min-height:230px}.modules article:last-child{grid-column:auto}.separation article:first-child{border-right:0;border-bottom:1px solid var(--line)}.progress-row{grid-template-columns:1fr 110px}.progress-row>*{padding:0 10px}.progress-row strong{font-size:12px}.progress-row em{font-size:8px}.site-footer{grid-template-columns:1fr;padding:44px 22px 24px}.footer-links{justify-content:flex-start}}
+    @media(max-width:900px){.site-header{grid-template-columns:1fr auto;padding:0 20px}.site-header nav{display:none}.clock-workspace{grid-template-columns:1fr}.clock-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:12px}.clock-sidebar>p{margin:5px 8px 10px}.clock-nav{display:flex;overflow-x:auto}.clock-nav button{min-width:155px;border-right:1px solid var(--line)}.hero{grid-template-columns:1fr}.hero-copy{border-right:0;border-bottom:1px solid var(--line)}.career-preview{min-height:700px}.section-head{grid-template-columns:1fr;align-items:start;gap:24px}.security{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,1fr)}.metric-grid article:nth-child(2){border-right:0}.rule-grid{grid-template-columns:1fr}.progress-row{grid-template-columns:1fr 140px}.progress-row p{display:none}.trader-position-head{grid-template-columns:1fr 1fr}.position-assets{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:640px){.site-header{height:64px}.wordmark small{display:none}.hero-copy{padding:52px 22px 42px}.hero h1{font-size:clamp(52px,17vw,78px)}.career-preview{min-height:510px;padding:12px}.profile{grid-template-columns:105px 1fr}.profile img{width:105px}.profile h2{font-size:22px}.status-grid{grid-template-columns:repeat(2,1fr);padding:28px 20px}.status-grid article{border-bottom:1px solid var(--line)}.status-grid article:nth-child(2n){border-right:0}.section,.security,.final{padding:72px 22px}.section-head h2,.security h2{font-size:48px}.steps,.modules,.separation{grid-template-columns:1fr}.steps article,.modules article{min-height:230px}.modules article:last-child{grid-column:auto}.separation article:first-child{border-right:0;border-bottom:1px solid var(--line)}.progress-row{grid-template-columns:1fr 110px}.progress-row>*{padding:0 10px}.progress-row strong{font-size:12px}.progress-row em{font-size:8px}.site-footer{grid-template-columns:1fr;padding:44px 22px 24px}.footer-links{justify-content:flex-start}.trader-position-head{grid-template-columns:1fr}.position-stat{text-align:left}.position-assets{grid-template-columns:repeat(2,1fr)}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.tape-track{animation:32s linear infinite ticker}}
   </style>
 </head>
@@ -107,18 +108,21 @@
       </div>
     </section>
 
-    <section class="status-grid" id="season-status" aria-label="Clock In status">
-      <article><span>PRODUCT</span><strong>CLOCK IN</strong><small>CAREER + SEASONS</small></article>
-      <article><span>COLLECTION</span><strong>444 TRADERS</strong><small>CONTRACT UNCHANGED</small></article>
-      <article><span>PILOT FORMAT</span><strong>24 HOURS</strong><small>AFTER 24H REGISTRATION</small></article>
-      <article><span>ENTRY FEE</span><strong>1 WEI WST</strong><small>PER NFT · ON-CHAIN</small></article>
+    <section class="status-grid" id="season-status" aria-label="Mainnet Pilot status">
+      <article><span>SEASON PHASE</span><strong id="overview-phase">AWAITING</strong><small id="overview-phase-detail">SEASON NOT CREATED</small></article>
+      <article><span>NFT ENTRIES</span><strong id="overview-entries">0 / 10</strong><div class="season-progress" aria-hidden="true"><i id="entry-progress"></i></div><small id="overview-entry-detail">MINIMUM PROGRESS</small></article>
+      <article><span>MINIMUM STATUS</span><strong id="overview-minimum">PENDING</strong><small id="overview-minimum-detail">10 REQUIRED</small></article>
+      <article><span>SEASON CLOCK</span><strong id="overview-clock">—</strong><small id="overview-clock-detail">AWAITING ON-CHAIN SEASON</small></article>
+      <article><span>TOTAL IN VAULT</span><strong id="overview-total-pool">0 WST</strong><small>ENTRY + SPONSORED POOLS</small></article>
+      <article><span>ENTRY POOL</span><strong id="overview-entry-pool">0 WST</strong><small>PAID REGISTRATIONS</small></article>
+      <article><span>SPONSORED POOL</span><strong id="overview-sponsored-pool">0 WST</strong><small>ADDED BEFORE FINALIZATION</small></article>
+      <article><span>SEASON VAULT</span><strong class="status-address" id="overview-vault">NOT CREATED</strong><small>IMMUTABLE SEASON CONTRACT</small></article>
     </section>
 
     <section class="dashboard-panel" id="performance">
-      <div class="dash-head"><p>02 / LIVE PERFORMANCE</p><h2>MY PORTFOLIO.</h2><small>Indicative performance from the official Mainnet Pilot opening snapshot. Market data refreshes every 30 seconds.</small></div>
-      <div class="metric-grid"><article><span>SEASON STATUS</span><strong id="live-season-status">LOADING</strong></article><article><span>SEASON CLOCK</span><strong class="countdown" id="season-countdown">—</strong></article><article><span>VIRTUAL VALUE</span><strong id="my-value">US$ —</strong></article><article><span>TRADER RANK</span><strong id="my-rank">#—</strong></article></div>
-      <div class="metric-grid"><article><span>PORTFOLIO RETURN</span><strong id="my-return">—</strong></article><article><span>BETA POINTS</span><strong id="my-points">—</strong></article><article><span>TRADER</span><strong id="my-token">#—</strong></article><article><span>PRICE UPDATE</span><strong id="my-freshness">—</strong></article></div>
-      <div class="allocation-cards" id="my-allocations"><div class="empty-state">CONNECT AND SIGN YOUR WALLET TO VIEW THE LOCKED PORTFOLIO.</div></div>
+      <div class="dash-head"><p>02 / WALLET POSITIONS</p><h2>MY PORTFOLIOS.</h2><small>Every registered NFT has an independent status, allocation, virtual value and rank. Market data refreshes every 30 seconds.</small></div>
+      <div class="metric-grid"><article><span>SEASON STATUS</span><strong id="live-season-status">LOADING</strong></article><article><span>SEASON CLOCK</span><strong class="countdown" id="season-countdown">—</strong></article><article><span>REGISTERED NFTS</span><strong id="my-registered-count">0</strong></article><article><span>LOCKED PORTFOLIOS</span><strong id="my-locked-count">0</strong></article></div>
+      <div class="portfolio-desk" id="my-portfolio-desk"><div class="empty-state">CONNECT AND SIGN YOUR WALLET TO VIEW EVERY REGISTERED NFT.</div></div>
     </section>
 
     <section class="dashboard-panel" id="leaderboard">
@@ -220,6 +224,7 @@
       const leaderboardWrap = document.getElementById("leaderboard-wrap");
       let seasonStartsAt = null;
       let seasonClosesAt = null;
+      let registrationClosesAt = null;
       let seasonStatus = "";
       let entries = new Map();
       let wallet = "";
@@ -286,21 +291,93 @@
         const number = Number(value);
         return (number >= 0 ? "+" : "") + number.toFixed(2) + "%";
       }
-      function updateCountdown() {
-        const beforeStart = seasonStatus === "registration" && seasonStartsAt && Date.now() < Date.parse(seasonStartsAt);
-        const target = beforeStart ? seasonStartsAt : seasonClosesAt;
-        if (!target) return;
+      function countdownText(target) {
         const remaining = Math.max(0, Date.parse(target) - Date.now());
         const days = Math.floor(remaining / 86400000);
         const hours = Math.floor((remaining % 86400000) / 3600000);
         const minutes = Math.floor((remaining % 3600000) / 60000);
-        const clock = (days ? days + "D " : "") + String(hours).padStart(2, "0") + "H " + String(minutes).padStart(2, "0") + "M";
-        seasonCountdown.textContent = remaining ? (beforeStart ? "STARTS IN " : "ENDS IN ") + clock : (beforeStart ? "STARTING" : "CLOSED");
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        return { remaining, text: (days ? days + "D " : "") + String(hours).padStart(2, "0") + "H " + String(minutes).padStart(2, "0") + "M " + String(seconds).padStart(2, "0") + "S" };
+      }
+      function decimalToWei(value) {
+        const [whole = "0", fraction = ""] = String(value || "0").split(".");
+        return BigInt(whole || "0") * 10n ** 18n + BigInt((fraction + "0".repeat(18)).slice(0, 18));
+      }
+      function formatWei(value) {
+        const whole = value / 10n ** 18n;
+        const fraction = (value % 10n ** 18n).toString().padStart(18, "0").replace(/0+$/, "");
+        return whole + (fraction ? "." + fraction : "") + " WST";
+      }
+      function renderSeasonOverview(season) {
+        const phase = document.getElementById("overview-phase");
+        const phaseDetail = document.getElementById("overview-phase-detail");
+        const clock = document.getElementById("overview-clock");
+        const clockDetail = document.getElementById("overview-clock-detail");
+        if (!season) {
+          phase.textContent = "AWAITING"; phaseDetail.textContent = "SEASON NOT CREATED";
+          clock.textContent = "—"; clockDetail.textContent = "AWAITING ON-CHAIN SEASON";
+          document.getElementById("overview-entries").textContent = "0 / 10";
+          document.getElementById("entry-progress").style.width = "0%";
+          document.getElementById("overview-entry-detail").textContent = "MINIMUM PROGRESS";
+          document.getElementById("overview-minimum").textContent = "PENDING";
+          document.getElementById("overview-minimum-detail").textContent = "10 REQUIRED";
+          document.getElementById("overview-total-pool").textContent = "0 WST";
+          document.getElementById("overview-entry-pool").textContent = "0 WST";
+          document.getElementById("overview-sponsored-pool").textContent = "0 WST";
+          document.getElementById("overview-vault").textContent = "NOT CREATED";
+          return;
+        }
+        const count = Number(season.entryCount || 0); const minimum = Number(season.minimumEntries || 0);
+        const minimumMet = minimum > 0 && count >= minimum;
+        document.getElementById("overview-entries").textContent = count + " / " + minimum;
+        document.getElementById("entry-progress").style.width = Math.min(100, minimum ? count / minimum * 100 : 0) + "%";
+        document.getElementById("overview-entry-detail").textContent = minimumMet ? "MINIMUM REACHED" : Math.max(0, minimum - count) + " MORE REQUIRED";
+        document.getElementById("overview-minimum").textContent = minimumMet ? "REACHED" : "PENDING";
+        document.getElementById("overview-minimum-detail").textContent = count + " OF " + minimum + " ENTRIES";
+        const entryPool = decimalToWei(season.entryPoolWst); const sponsoredPool = decimalToWei(season.sponsoredPoolWst); const finalizedPool = decimalToWei(season.finalizedPoolWst);
+        document.getElementById("overview-entry-pool").textContent = formatWei(entryPool);
+        document.getElementById("overview-sponsored-pool").textContent = formatWei(sponsoredPool);
+        document.getElementById("overview-total-pool").textContent = formatWei(finalizedPool > 0n ? finalizedPool : entryPool + sponsoredPool);
+        document.getElementById("overview-vault").textContent = season.vault ? short(season.vault).toUpperCase() : "NOT CREATED";
+        const registrationOpen = season.status === "registration" && season.registrationClosesAt && Date.now() < Date.parse(season.registrationClosesAt);
+        if (registrationOpen) {
+          const timer = countdownText(season.registrationClosesAt);
+          phase.textContent = "REGISTRATION"; phaseDetail.textContent = "ON-CHAIN ENTRY WINDOW OPEN";
+          clock.textContent = timer.text; clockDetail.textContent = "UNTIL REGISTRATION CLOSES";
+        } else if (season.status === "registration") {
+          phase.textContent = minimumMet ? "AWAITING SAFE" : "MINIMUM NOT MET";
+          phaseDetail.textContent = minimumMet ? "REGISTRATION COMPLETE" : "REGISTRATION CLOSED";
+          clock.textContent = minimumMet ? "AWAITING SAFE" : "CLOSED";
+          clockDetail.textContent = minimumMet ? "SEASON START TRANSACTION" : "MINIMUM WAS NOT REACHED";
+        } else if (season.status === "live") {
+          const timer = season.closesAt ? countdownText(season.closesAt) : null;
+          phase.textContent = "LIVE"; phaseDetail.textContent = "PORTFOLIOS IN COMPETITION";
+          clock.textContent = timer?.text || "—"; clockDetail.textContent = "UNTIL SEASON ENDS";
+        } else {
+          phase.textContent = String(season.status || "UNKNOWN").toUpperCase();
+          phaseDetail.textContent = season.status === "finalized" ? "RESULTS FINALIZED" : "SEASON NOT ACTIVE";
+          clock.textContent = "CLOSED"; clockDetail.textContent = "NO ACTIVE COUNTDOWN";
+        }
+      }
+      function updateCountdown() {
+        if (currentSeason) renderSeasonOverview(currentSeason);
+        const registrationOpen = seasonStatus === "registration" && registrationClosesAt && Date.now() < Date.parse(registrationClosesAt);
+        const minimumMet = Number(currentSeason?.entryCount || 0) >= Number(currentSeason?.minimumEntries || 0);
+        const target = registrationOpen ? registrationClosesAt : (seasonStatus === "live" ? seasonClosesAt : null);
+        if (!target) {
+          if (seasonStatus === "registration") seasonCountdown.textContent = minimumMet ? "AWAITING SAFE" : "REGISTRATION CLOSED";
+          else if (["finalized", "cancelled", "validating"].includes(seasonStatus)) seasonCountdown.textContent = "CLOSED";
+          else seasonCountdown.textContent = "—";
+          return;
+        }
+        const timer = countdownText(target);
+        seasonCountdown.textContent = timer.remaining ? (registrationOpen ? "REGISTRATION " : "SEASON ") + timer.text : "CLOSED";
       }
       function renderLeaderboard(data) {
         const rows = data.leaderboard || [];
         const season = data.season || {};
         currentSeason = data.season || null;
+        renderSeasonOverview(currentSeason);
         if (!currentSeason) {
           liveSeasonStatus.textContent = "AWAITING SEASON";
           seasonCountdown.textContent = "NOT CREATED";
@@ -311,6 +388,7 @@
         }
         seasonStartsAt = season.startsAt || null;
         seasonClosesAt = season.closesAt || null;
+        registrationClosesAt = season.registrationClosesAt || null;
         seasonStatus = season.status || "";
         liveSeasonStatus.textContent = String(season.status || "UNKNOWN").toUpperCase();
         document.getElementById("season-start").textContent = season.startsAt ? new Date(season.startsAt).toLocaleDateString("en-US", { month: "short", day: "2-digit", timeZone: "America/Sao_Paulo" }).toUpperCase() : "—";
@@ -338,22 +416,59 @@
       async function loadSeason() {
         try { renderLeaderboard(await api("season")); } catch (_) { liveSeasonStatus.textContent = "DATA UNAVAILABLE"; }
       }
+      function positionStatus(entry, trader) {
+        if (trader?.status === "finalized" || entry?.status === "finalized") return { label: "FINALIZED", pending: false };
+        if (trader?.status === "active" || entry?.status === "active" || seasonStatus === "live") return { label: "LIVE", pending: false };
+        if (["submitted", "active", "finalized"].includes(entry?.status)) return { label: "PORTFOLIO LOCKED", pending: false };
+        return { label: "PORTFOLIO REQUIRED", pending: true };
+      }
+      function portfolioAllocations(entry, trader) {
+        if (Array.isArray(trader?.allocations) && trader.allocations.length) return trader.allocations;
+        return (entry?.allocations || []).map((item) => ({
+          symbol: item.season_assets?.symbol || item.symbol || "ASSET",
+          weightPercent: Number(item.weight_bps ?? item.weightBps ?? 0) / 100,
+          startPrice: null,
+          currentPrice: null,
+        }));
+      }
+      function renderPortfolioDesk(traders = []) {
+        const desk = document.getElementById("my-portfolio-desk");
+        const ranked = new Map((traders || []).map((trader) => [String(trader.tokenId), trader]));
+        const positions = [...entries.values()].sort((a, b) => Number(a.token_id) - Number(b.token_id));
+        document.getElementById("my-registered-count").textContent = String(positions.length);
+        document.getElementById("my-locked-count").textContent = String(positions.filter((entry) => ["submitted", "active", "finalized"].includes(entry.status)).length);
+        desk.replaceChildren();
+        if (!sessionToken) {
+          const empty = document.createElement("div"); empty.className = "empty-state"; empty.textContent = "CONNECT AND SIGN YOUR WALLET TO VIEW EVERY REGISTERED NFT."; desk.appendChild(empty); return;
+        }
+        if (!positions.length) {
+          const empty = document.createElement("div"); empty.className = "empty-state"; empty.textContent = currentSeason ? "NO NFT FROM THIS WALLET IS REGISTERED IN THE CURRENT SEASON." : "NO ON-CHAIN SEASON HAS BEEN CREATED YET."; desk.appendChild(empty); return;
+        }
+        positions.forEach((entry) => {
+          const tokenId = String(entry.token_id); const trader = ranked.get(tokenId); const status = positionStatus(entry, trader); const allocations = portfolioAllocations(entry, trader);
+          const card = document.createElement("article"); card.className = "trader-position";
+          const head = document.createElement("div"); head.className = "trader-position-head";
+          const identity = document.createElement("div"); const title = document.createElement("h3"); title.textContent = "TRADER #" + tokenId;
+          const pill = document.createElement("small"); pill.className = "status-pill" + (status.pending ? " pending" : ""); pill.textContent = status.label; identity.append(title, pill); head.appendChild(identity);
+          const stats = [["RANK", trader?.rank ? "#" + trader.rank : "—"], ["RETURN", trader ? formatChange(trader.returnPercent) : "—"], ["VIRTUAL VALUE", trader ? "US$ " + Number(trader.currentValue).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "US$ 10,000.00"]];
+          stats.forEach(([label, value]) => { const stat = document.createElement("div"); stat.className = "position-stat"; const name = document.createElement("span"); name.textContent = label; const amount = document.createElement("strong"); amount.textContent = value; if (label === "RETURN" && trader) amount.style.color = Number(trader.returnPercent) >= 0 ? "var(--green)" : "#ff8e8e"; stat.append(name, amount); head.appendChild(stat); });
+          card.appendChild(head);
+          if (!allocations.length) {
+            const empty = document.createElement("div"); empty.className = "position-empty"; empty.textContent = "REGISTERED ON-CHAIN · VIRTUAL PORTFOLIO HAS NOT BEEN LOCKED YET."; card.appendChild(empty);
+          } else {
+            const assets = document.createElement("div"); assets.className = "position-assets";
+            allocations.forEach((item) => { const asset = document.createElement("div"); asset.className = "position-asset"; const symbol = document.createElement("b"); symbol.textContent = item.symbol; const weight = document.createElement("span"); weight.textContent = Number(item.weightPercent).toFixed(0) + "% ALLOCATION"; const prices = document.createElement("span"); prices.textContent = item.startPrice && item.currentPrice ? "OPEN $" + Number(item.startPrice).toFixed(2) + " · LIVE $" + Number(item.currentPrice).toFixed(2) : "PRICES AVAILABLE AT START"; asset.append(symbol, weight, prices); assets.appendChild(asset); });
+            card.appendChild(assets);
+          }
+          desk.appendChild(card);
+        });
+      }
       async function loadMyPerformance() {
-        if (!sessionToken) return;
+        if (!sessionToken) { renderPortfolioDesk(); return; }
         try {
-          const selectedId = Number(tokenSelect.value);
-          const data = await api("me", { tokenId: Number.isInteger(selectedId) ? selectedId : null }, true); const trader = data.trader;
-          if (!trader) return;
-          document.getElementById("my-value").textContent = "US$ " + Number(trader.currentValue).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-          document.getElementById("my-rank").textContent = "#" + trader.rank;
-          document.getElementById("my-return").textContent = formatChange(trader.returnPercent);
-          document.getElementById("my-return").style.color = trader.returnPercent >= 0 ? "var(--green)" : "#ff8e8e";
-          document.getElementById("my-points").textContent = trader.betaSeasonPoints + " PTS";
-          document.getElementById("my-token").textContent = "#" + trader.tokenId;
-          document.getElementById("my-freshness").textContent = data.fetchedAt ? new Date(data.fetchedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "—";
-          const container = document.getElementById("my-allocations"); container.replaceChildren();
-          trader.allocations.forEach((item) => { const card = document.createElement("div"); card.className = "allocation-card"; const symbol = document.createElement("b"); symbol.textContent = item.symbol; const weight = document.createElement("span"); weight.textContent = item.weightPercent + "% · OPEN $" + Number(item.startPrice).toFixed(2); const current = document.createElement("span"); current.textContent = "LIVE $" + Number(item.currentPrice).toFixed(2); card.append(symbol, weight, current); container.appendChild(card); });
-        } catch (_) { /* Session may have expired; reconnecting safely restores this view. */ }
+          const data = await api("me", {}, true);
+          renderPortfolioDesk(data.traders || []);
+        } catch (_) { renderPortfolioDesk([]); }
       }
       function renderPrices(assets) {
         marketAssets = assets;
@@ -476,6 +591,7 @@
           const entry = entries.get(option.value);
           option.textContent = "WALL STREET TRADER #" + option.value + (entry ? (["submitted", "active", "finalized"].includes(entry.status) ? " · PORTFOLIO LOCKED" : " · REGISTERED") : " · AVAILABLE");
         });
+        renderPortfolioDesk();
       }
       async function switchChain() {
         try {
@@ -555,7 +671,8 @@
         assetList.replaceChildren();
         registerButton.textContent = "APPROVE 1 WEI + REGISTER ON-CHAIN";
         registerButton.hidden = !id;
-        registerButton.disabled = !id || !currentSeason || currentSeason.status !== "registration";
+        const registrationOpen = currentSeason?.status === "registration" && currentSeason.registrationClosesAt && Date.now() < Date.parse(currentSeason.registrationClosesAt);
+        registerButton.disabled = !id || !registrationOpen;
         if (!id) return;
         traderName.textContent = "TRADER #" + id;
         traderFile.textContent = "PUBLIC FILE / WST-" + id;
@@ -577,6 +694,7 @@
           registerButton.textContent = "PILOT REGISTERED ON-CHAIN";
           entries.set(String(registration.token_id), registration);
           showPortfolio(registration);
+          renderPortfolioDesk();
         } catch (error) {
           registerButton.disabled = false;
           if (error.message === "registration_closed") setMessage("Mainnet Pilot registration is currently closed.", "error");
@@ -603,10 +721,11 @@
       });
       loadPrices();
       loadSeason();
-      loadMyPerformance();
+      if (sessionToken) loadEntries().then(loadMyPerformance).catch(() => renderPortfolioDesk([]));
+      else loadMyPerformance();
       setInterval(loadPrices, 30000);
-      setInterval(() => { loadSeason(); loadMyPerformance(); }, 30000);
-      setInterval(updateCountdown, 30000);
+      setInterval(() => { loadSeason(); if (sessionToken) loadEntries().then(loadMyPerformance).catch(() => renderPortfolioDesk([])); }, 30000);
+      setInterval(updateCountdown, 1000);
       if (location.hash && document.getElementById(location.hash.slice(1))?.closest(".workspace-content")) showPanel(location.hash.slice(1));
     })();
   </script>
