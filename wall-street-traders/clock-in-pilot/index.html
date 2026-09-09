@@ -301,8 +301,17 @@
         return { remaining, text: (days ? days + "D " : "") + String(hours).padStart(2, "0") + "H " + String(minutes).padStart(2, "0") + "M " + String(seconds).padStart(2, "0") + "S" };
       }
       function decimalToWei(value) {
-        const [whole = "0", fraction = ""] = String(value || "0").split(".");
-        return BigInt(whole || "0") * 10n ** 18n + BigInt((fraction + "0".repeat(18)).slice(0, 18));
+        const text = String(value ?? "0").trim().toLowerCase();
+        const match = text.match(/^([+-]?)(\d+)(?:\.(\d*))?(?:e([+-]?\d+))?$/);
+        if (!match) return 0n;
+        const negative = match[1] === "-";
+        const whole = match[2];
+        const fraction = match[3] || "";
+        const exponent = Number(match[4] || 0);
+        const digits = BigInt((whole + fraction).replace(/^0+(?=\d)/, "") || "0");
+        const scale = 18 + exponent - fraction.length;
+        const wei = scale >= 0 ? digits * 10n ** BigInt(scale) : digits / 10n ** BigInt(-scale);
+        return negative ? -wei : wei;
       }
       function formatWei(value) {
         const whole = value / 10n ** 18n;
