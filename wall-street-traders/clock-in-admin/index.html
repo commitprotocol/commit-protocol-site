@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src https://rpc.mainnet.chain.robinhood.com https://kgtksjxfcwnmyeqddpug.supabase.co; base-uri 'none'; form-action 'none'">
+  <title>Clock In Operations — Mainnet</title>
+  <style>
+    :root{color-scheme:dark;--bg:#050605;--panel:#090b09;--line:#293029;--line2:#425044;--green:#78f29a;--paper:#eeeade;--muted:#969d96;--red:#ff8989;--yellow:#e8cf78;--mono:"Courier New",monospace;--serif:Georgia,serif}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--paper);font:16px/1.55 var(--mono)}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.35}.shell{width:min(1320px,calc(100% - 28px));margin:24px auto 70px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:20px;border:1px solid var(--line2);padding:18px 20px}.brand{font-weight:900;letter-spacing:.08em}.brand b{color:var(--green)}.network{font-size:14px;color:var(--green)}h1{font:700 clamp(42px,7vw,82px)/.9 var(--serif);letter-spacing:-.05em;margin:52px 0 18px}.lead{max-width:850px;color:var(--muted);margin:0 0 32px}.warning{border:1px solid #6a5d2e;background:#141207;color:var(--yellow);padding:16px 18px;margin-bottom:24px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line2);margin-bottom:18px}.metric{min-height:118px;padding:18px;border-right:1px solid var(--line)}.metric:last-child{border:0}.metric span,.label{display:block;color:var(--muted);font-size:13px;letter-spacing:.08em;margin-bottom:14px}.metric strong{display:block;font-size:18px;overflow-wrap:anywhere}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{border:1px solid var(--line2);background:var(--panel);padding:22px}.panel.wide{grid-column:1/-1}.eyebrow{color:var(--green);font-size:13px;letter-spacing:.12em}.panel h2{font:700 29px/1 var(--serif);margin:12px 0 20px}.fields{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.field{display:grid;gap:7px;color:var(--muted);font-size:14px}.field.full{grid-column:1/-1}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line2);background:#030403;color:var(--paper);padding:13px}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.action{border:1px solid var(--green);background:transparent;color:var(--green);padding:13px 16px;font-weight:700}.action:hover:not(:disabled){background:var(--green);color:#000}.action.danger{border-color:var(--red);color:var(--red)}.action.secondary{border-color:var(--line2);color:var(--paper)}.plan{border-top:1px solid var(--line);margin-top:18px;padding-top:15px;color:var(--muted);overflow-wrap:anywhere}.plan b{color:var(--paper)}.status{display:inline-flex;border:1px solid var(--line2);padding:5px 8px;color:var(--muted)}.status.ok{border-color:#315f3d;color:var(--green)}.status.bad{border-color:#704040;color:var(--red)}.winner-table{width:100%;border-collapse:collapse;margin-top:16px}.winner-table th,.winner-table td{text-align:left;padding:12px;border-bottom:1px solid var(--line);font-size:14px}.winner-table th{color:var(--muted)}.winner-table td:nth-child(4),.winner-table th:nth-child(4){text-align:right}.activity{position:sticky;bottom:0;border:1px solid var(--line2);background:#070a07;padding:17px 20px;margin-top:18px;box-shadow:0 -12px 30px #000}.activity.error{color:var(--red)}.activity.success{color:var(--green)}.micro{color:var(--muted);font-size:13px}.address{overflow-wrap:anywhere}.hidden{display:none!important}@media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}.metric:nth-child(2){border-right:0}.metric:nth-child(-n+2){border-bottom:1px solid var(--line)}.grid{grid-template-columns:1fr}.panel.wide{grid-column:auto}}@media(max-width:620px){.shell{width:min(100% - 18px,1320px);margin-top:9px}.topbar{align-items:flex-start;flex-direction:column}.metrics,.fields{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--line)}.metric:last-child{border-bottom:0}.field.full{grid-column:auto}.panel{padding:17px}.winner-table{display:block;overflow-x:auto}}
+  </style>
+</head>
+<body><main class="shell">
+  <header class="topbar"><div class="brand"><b>WST</b> / CLOCK IN OPERATIONS</div><div class="network">ROBINHOOD CHAIN MAINNET · 4663</div></header>
+  <h1>SEASON<br>CONTROL.</h1>
+  <p class="lead">Owner-restricted operational surface for the Clock In controller Safe. Every sensitive action requires matching approval from two Safe owners before execution.</p>
+  <div class="warning"><b>START DEADLINE:</b> the deployed Vault only permits <code>startSeason()</code> before the registration deadline. Approve and execute while the countdown is still running.</div>
+
+  <section class="metrics">
+    <article class="metric"><span>CONNECTED WALLET</span><strong id="wallet">NOT CONNECTED</strong></article>
+    <article class="metric"><span>SAFE CONTROL</span><strong id="safe-state">NOT CHECKED</strong></article>
+    <article class="metric"><span>CURRENT VAULT</span><strong id="vault-address">NOT CREATED</strong></article>
+    <article class="metric"><span>SEASON STATE</span><strong id="season-state">NONE</strong></article>
+  </section>
+  <div class="buttons"><button class="action" id="connect">CONNECT WALLET</button><button class="action secondary" id="refresh" disabled>REFRESH ALL DATA</button></div>
+
+  <div class="grid">
+    <section class="panel wide">
+      <div class="eyebrow">01 / CURRENT SEASON</div><h2>On-chain status</h2>
+      <div class="metrics">
+        <article class="metric"><span>ENTRIES / MINIMUM</span><strong id="entries">0 / 10</strong></article>
+        <article class="metric"><span>REGISTRATION CLOCK</span><strong id="registration-clock">—</strong></article>
+        <article class="metric"><span>SEASON CLOCK</span><strong id="season-clock">—</strong></article>
+        <article class="metric"><span>TOTAL POOL</span><strong id="pool">0 WST</strong></article>
+      </div>
+      <p class="micro">Factory: <span class="address" id="factory-address">0xfd45C7016f24A69EEf943e8BBAA81AAB7CF2F28a</span><br>Controller: <span class="address" id="controller-address">—</span></p>
+    </section>
+
+    <section class="panel">
+      <div class="eyebrow">02 / CREATE</div><h2>Create pilot Season</h2>
+      <div class="fields">
+        <label class="field full">SEASON NAME<input id="season-name" value="Clock In Mainnet Pilot 01"></label>
+        <label class="field">ENTRY FEE (WEI WST)<input id="entry-fee" type="number" min="1" step="1" value="1"></label>
+        <label class="field">MINIMUM NFTS<input id="minimum" type="number" min="10" max="444" value="10"></label>
+        <label class="field">REGISTRATION HOURS<input id="registration-hours" type="number" min="1" step="1" value="24"></label>
+        <label class="field">SEASON HOURS<input id="season-hours" type="number" min="1" step="1" value="24"></label>
+      </div>
+      <div class="plan" id="create-plan"><b>SAFE TRANSACTION:</b> connect to calculate.</div>
+      <div class="buttons"><button class="action" id="approve-create" disabled>1. APPROVE CREATE</button><button class="action" id="execute-create" disabled>2. EXECUTE CREATE</button></div>
+    </section>
+
+    <section class="panel">
+      <div class="eyebrow">03 / START</div><h2>Start current Season</h2>
+      <p class="micro">Available only after the minimum is reached and before registration expires. Starting closes registration immediately and begins the fixed 24-hour competition.</p>
+      <div class="plan" id="start-plan"><b>SAFE TRANSACTION:</b> no current Season.</div>
+      <div class="buttons"><button class="action" id="approve-start" disabled>1. APPROVE START</button><button class="action" id="execute-start" disabled>2. EXECUTE START</button></div>
+    </section>
+
+    <section class="panel">
+      <div class="eyebrow">04 / REWARD FUNDING</div><h2>Add sponsored WST</h2>
+      <p class="micro">Optional and only available while the Season is live. This sends WST from the connected wallet and permanently adds it to the Top 10 pool.</p>
+      <label class="field">AMOUNT WST<input id="fund-amount" value="0"></label>
+      <div class="buttons"><button class="action" id="approve-funding" disabled>1. APPROVE WST</button><button class="action" id="execute-funding" disabled>2. FUND VAULT</button></div>
+    </section>
+
+    <section class="panel">
+      <div class="eyebrow">05 / CANCEL</div><h2>Cancel registration</h2>
+      <p class="micro">Safe-controlled cancellation while the Vault is in Registration. Registered payers can then claim their exact entry fee refund.</p>
+      <div class="plan" id="cancel-plan"><b>SAFE TRANSACTION:</b> no current Season.</div>
+      <div class="buttons"><button class="action danger" id="approve-cancel" disabled>1. APPROVE CANCEL</button><button class="action danger" id="execute-cancel" disabled>2. EXECUTE CANCEL</button></div>
+    </section>
+
+    <section class="panel wide">
+      <div class="eyebrow">06 / FINAL RESULT</div><h2>Load and finalize Top 10</h2>
+      <p class="micro">After the Season clock reaches zero, load the final backend ranking. Review all ten NFT IDs in exact rank order before either owner approves.</p>
+      <label class="field full">WINNING NFT IDS — EXACT RANK ORDER<textarea id="winner-ids" rows="3" placeholder="1,2,3,4,5,6,7,8,9,10"></textarea></label>
+      <div class="buttons"><button class="action secondary" id="load-winners" disabled>LOAD TOP 10 FROM FINAL RANKING</button></div>
+      <div class="plan" id="finalize-plan"><b>SAFE TRANSACTION:</b> enter exactly ten winners.</div>
+      <div class="buttons"><button class="action" id="approve-finalize" disabled>1. APPROVE FINALIZE</button><button class="action" id="execute-finalize" disabled>2. EXECUTE FINALIZE</button></div>
+    </section>
+
+    <section class="panel wide">
+      <div class="eyebrow">07 / WINNER PAYMENTS</div><h2>Assignments and claims</h2>
+      <p class="micro">Finalization assigns 100% of the Vault balance. Winners claim from the Vault themselves; the Safe does not push individual payments.</p>
+      <div id="winner-results" class="micro">Finalize the Season to display reward assignments.</div>
+      <div class="buttons"><button class="action" id="claim-reward" disabled>CLAIM CONNECTED WALLET REWARD</button></div>
+    </section>
+  </div>
+  <div class="activity" id="activity" role="status">Connect one Safe owner wallet to begin.</div>
+</main>
+<script src="ethers.umd.min.js"></script>
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const CHAIN_HEX = "0x1237", CHAIN_ID = 4663, ZERO = ethers.ZeroAddress;
+  const FACTORY_ADDRESS = "0xfd45C7016f24A69EEf943e8BBAA81AAB7CF2F28a";
+  const WST_ADDRESS = "0x8e2826680cfa975603eb615469a95a2e20e56139";
+  const API = "https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/clock-in-mainnet";
+  const FACTORY = ["function currentSeason() view returns(address)","function seasonCount() view returns(uint256)","function controller() view returns(address)","function createSeason(bytes32,uint256,uint256,uint256,uint256) returns(address)"];
+  const VAULT = ["function state() view returns(uint8)","function entryCount() view returns(uint256)","function minimumEntries() view returns(uint256)","function registrationClosesAt() view returns(uint256)","function startedAt() view returns(uint256)","function endsAt() view returns(uint256)","function entryPool() view returns(uint256)","function sponsoredPool() view returns(uint256)","function finalizedPool() view returns(uint256)","function isRegistered(uint256) view returns(bool)","function startSeason()","function cancelSeason()","function fundRewards(uint256)","function finalize(uint256[10])","function winningTokenIds(uint256) view returns(uint256)","function winnerRecipients(uint256) view returns(address)","function rewardOf(address) view returns(uint256)","function claimedBy(address) view returns(uint256)","function claimReward()"];
+  const ERC20 = ["function approve(address,uint256) returns(bool)","function balanceOf(address) view returns(uint256)"];
+  const SAFE = ["function nonce() view returns(uint256)","function getOwners() view returns(address[])","function getThreshold() view returns(uint256)","function approvedHashes(address,bytes32) view returns(uint256)","function approveHash(bytes32)","function getTransactionHash(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,uint256) view returns(bytes32)","function execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes) returns(bool)","event ExecutionSuccess(bytes32 indexed txHash,uint256 payment)","event ExecutionFailure(bytes32 indexed txHash,uint256 payment)"];
+  let provider, signer, account, factory, safe, vault, vaultAddress = ZERO, controller = ZERO, owners = [], threshold = 0, seasonState = -1, registrationDeadline = 0, seasonEnd = 0;
+  const plans = {};
+  const stateNames = ["REGISTRATION","LIVE","CANCELLED","FINALIZED"];
+  function log(text, type="") { $("activity").textContent = text; $("activity").className = "activity " + type; }
+  function message(error) { return error?.revert?.args?.[0] || error?.reason || error?.shortMessage || error?.message || String(error); }
+  function short(address) { return address && address !== ZERO ? address.slice(0,6) + "..." + address.slice(-4) : "NOT CREATED"; }
+  function timer(target) { if (!target) return "—"; const left = target * 1000 - Date.now(); if (left <= 0) return "CLOSED"; const h = Math.floor(left / 3600000), m = Math.floor(left % 3600000 / 60000), s = Math.floor(left % 60000 / 1000); return String(h).padStart(2,"0") + "H " + String(m).padStart(2,"0") + "M " + String(s).padStart(2,"0") + "S"; }
+  function winners() { const list = $("winner-ids").value.split(/[\s,]+/).filter(Boolean).map(Number); if (list.length !== 10 || list.some((id) => !Number.isInteger(id) || id < 1 || id > 444) || new Set(list).size !== 10) throw Error("Enter exactly 10 unique NFT IDs between 1 and 444."); return list; }
+  function createParameters() { const name = $("season-name").value.trim(), fee = $("entry-fee").value.trim(), minimum = Number($("minimum").value), registrationHours = Number($("registration-hours").value), seasonHours = Number($("season-hours").value); if (!name) throw Error("Enter a Season name."); if (!/^\d+$/.test(fee) || BigInt(fee) < 1n) throw Error("Entry fee must be a positive whole number of wei."); if (!Number.isInteger(minimum) || minimum < 10 || minimum > 444) throw Error("Minimum must be between 10 and 444."); if (!Number.isInteger(registrationHours) || registrationHours < 1 || !Number.isInteger(seasonHours) || seasonHours < 1) throw Error("Durations must be whole hours greater than zero."); return [ethers.id(name), BigInt(fee), minimum, registrationHours * 3600, seasonHours * 3600]; }
+  async function makePlan(key, target, data) { const nonce = await safe.nonce(), hash = await safe.getTransactionHash(target,0,data,0,0,0,0,ZERO,ZERO,nonce); const approved = []; for (const owner of owners) if (await safe.approvedHashes(owner,hash) > 0n) approved.push(owner); plans[key] = { key,target,data,nonce,hash,approved }; return plans[key]; }
+  function planText(plan) { return `NONCE ${plan.nonce} · ${plan.approved.length} OF ${threshold} APPROVALS · HASH ${plan.hash}`; }
+  async function buildPlans() {
+    const create = await makePlan("create", FACTORY_ADDRESS, factory.interface.encodeFunctionData("createSeason", createParameters())); $("create-plan").innerHTML = "<b>SAFE TRANSACTION:</b> " + planText(create);
+    if (vaultAddress === ZERO) { $("start-plan").innerHTML = "<b>SAFE TRANSACTION:</b> no current Season."; $("cancel-plan").innerHTML = "<b>SAFE TRANSACTION:</b> no current Season."; return; }
+    const start = await makePlan("start", vaultAddress, vault.interface.encodeFunctionData("startSeason")); $("start-plan").innerHTML = "<b>SAFE TRANSACTION:</b> " + planText(start);
+    const cancel = await makePlan("cancel", vaultAddress, vault.interface.encodeFunctionData("cancelSeason")); $("cancel-plan").innerHTML = "<b>SAFE TRANSACTION:</b> " + planText(cancel);
+    try { const finalize = await makePlan("finalize", vaultAddress, vault.interface.encodeFunctionData("finalize", [winners()])); $("finalize-plan").innerHTML = "<b>SAFE TRANSACTION:</b> " + planText(finalize); } catch (error) { delete plans.finalize; $("finalize-plan").innerHTML = "<b>SAFE TRANSACTION:</b> " + message(error); }
+  }
+  function signatures(plan) { return "0x" + plan.approved.sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase())).slice(0,threshold).map((owner) => ethers.zeroPadValue(owner,32).slice(2) + ethers.zeroPadValue("0x00",32).slice(2) + "01").join(""); }
+  async function approvePlan(key) { const plan = plans[key]; if (!plan) throw Error("Transaction plan is not available."); if (!owners.some((owner) => owner.toLowerCase() === account.toLowerCase())) throw Error("Connected wallet is not a Safe owner."); if (await safe.approvedHashes(account,plan.hash) > 0n) throw Error("This owner already approved this exact transaction."); log("Confirm the exact Safe hash approval in your wallet..."); await (await safe.approveHash(plan.hash)).wait(); await refresh(); log("Approval recorded. Connect another Safe owner and approve the exact same operation.","success"); }
+  async function executePlan(key) { const plan = plans[key]; if (!plan) throw Error("Transaction plan is not available."); const latest = await makePlan(key,plan.target,plan.data); if (latest.approved.length < threshold) throw Error(`Only ${latest.approved.length} of ${threshold} required approvals.`); log("Confirm Safe execution in your wallet..."); const receipt = await (await safe.execTransaction(latest.target,0,latest.data,0,0,0,0,ZERO,ZERO,signatures(latest))).wait(); let success = false, failure = false; for (const item of receipt.logs) { try { const event = safe.interface.parseLog(item)?.name; if (event === "ExecutionSuccess") success = true; if (event === "ExecutionFailure") failure = true; } catch {} } if (failure) throw Error("Safe execution failed inside the target contract."); if (!success) throw Error("Transaction mined without a Safe success event. Verify the current state."); if (["start","finalize"].includes(key)) { const synced=await fetch(API+"/season",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}); if(!synced.ok)throw Error("On-chain action succeeded, but backend synchronization failed. Refresh before continuing."); } await refresh(); log("Safe transaction executed and backend synchronized successfully.","success"); }
+  async function renderWinners() { const wrap = $("winner-results"); if (!vault || seasonState !== 3) { wrap.textContent = "Finalize the Season to display reward assignments."; $("claim-reward").disabled = true; return; } const rows = [], bps=[3000n,2000n,1500n,1000n,700n,500n,400n,350n,300n,250n], pool=await vault.finalizedPool(); let claimable=0n, distributed=0n; for (let i=0;i<10;i++) { const id=await vault.winningTokenIds(i), recipient=await vault.winnerRecipients(i), totalAssigned=await vault.rewardOf(recipient), claimed=await vault.claimedBy(recipient), amount=i===9?pool-distributed:pool*bps[i]/10000n; distributed+=amount; if(recipient.toLowerCase()===account.toLowerCase())claimable=totalAssigned-claimed; rows.push(`<tr><td>#${i+1}</td><td>TRADER #${id}</td><td>${short(recipient)}</td><td>${ethers.formatUnits(amount,18)} WST</td><td>${claimed>=totalAssigned?"CLAIMED":"AVAILABLE"}</td></tr>`); } wrap.innerHTML=`<table class="winner-table"><thead><tr><th>RANK</th><th>NFT</th><th>RECIPIENT</th><th>ASSIGNED</th><th>STATUS</th></tr></thead><tbody>${rows.join("")}</tbody></table>`; $("claim-reward").disabled=claimable<=0n; }
+  async function refresh() {
+    if (!provider) return;
+    vaultAddress = await factory.currentSeason(); controller = await factory.controller(); safe = new ethers.Contract(controller,SAFE,signer); owners = await safe.getOwners(); threshold = Number(await safe.getThreshold());
+    $("controller-address").textContent = controller; $("safe-state").textContent = owners.some((owner) => owner.toLowerCase() === account.toLowerCase()) ? `OWNER · ${threshold} OF ${owners.length}` : `NOT OWNER · ${threshold} OF ${owners.length}`; $("safe-state").style.color = owners.some((owner) => owner.toLowerCase() === account.toLowerCase()) ? "var(--green)" : "var(--red)"; $("vault-address").textContent = short(vaultAddress);
+    if (vaultAddress === ZERO) { vault = null; seasonState = -1; registrationDeadline = seasonEnd = 0; $("season-state").textContent = "NONE"; $("entries").textContent = "0 / 10"; $("pool").textContent = "0 WST"; } else { vault = new ethers.Contract(vaultAddress,VAULT,signer); const [state,count,minimum,deadline,ends,entryPool,sponsored,finalized] = await Promise.all([vault.state(),vault.entryCount(),vault.minimumEntries(),vault.registrationClosesAt(),vault.endsAt(),vault.entryPool(),vault.sponsoredPool(),vault.finalizedPool()]); seasonState=Number(state); registrationDeadline=Number(deadline); seasonEnd=Number(ends); $("season-state").textContent=stateNames[seasonState]; $("entries").textContent=`${count} / ${minimum}`; $("pool").textContent=ethers.formatUnits(finalized > 0n ? finalized : entryPool+sponsored,18)+" WST"; }
+    $("registration-clock").textContent=timer(registrationDeadline); $("season-clock").textContent=timer(seasonEnd); await buildPlans(); await renderWinners(); updateButtons();
+  }
+  function updateButtons() { const connected=Boolean(account), owner=owners.some((x)=>x.toLowerCase()===account?.toLowerCase()), registrationOpen=seasonState===0 && Date.now()<=registrationDeadline*1000, ended=seasonState===1 && Date.now()>=seasonEnd*1000; $("approve-create").disabled=$("execute-create").disabled=!connected||!owner||(vaultAddress!==ZERO&&!([2,3].includes(seasonState))); $("approve-start").disabled=$("execute-start").disabled=!owner||!registrationOpen; $("approve-cancel").disabled=$("execute-cancel").disabled=!owner||seasonState!==0; $("approve-funding").disabled=$("execute-funding").disabled=seasonState!==1; $("load-winners").disabled=!ended; $("approve-finalize").disabled=$("execute-finalize").disabled=!owner||!ended||!plans.finalize; }
+  async function connect() { if (!window.ethereum) throw Error("A compatible browser wallet is required."); try { await ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:CHAIN_HEX}]}); } catch (error) { if (error?.code!==4902) throw error; await ethereum.request({method:"wallet_addEthereumChain",params:[{chainId:CHAIN_HEX,chainName:"Robinhood Chain",nativeCurrency:{name:"Ether",symbol:"ETH",decimals:18},rpcUrls:["https://rpc.mainnet.chain.robinhood.com"]}]}); } provider=new ethers.BrowserProvider(ethereum); signer=await provider.getSigner(); account=await signer.getAddress(); factory=new ethers.Contract(FACTORY_ADDRESS,FACTORY,signer); $("wallet").textContent=short(account); $("refresh").disabled=false; await refresh(); log("Connected. Verify every parameter and Safe hash before approving.","success"); }
+  async function loadTop10() { const response=await fetch(API+"/leaderboard",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}); const data=await response.json(); if(!response.ok) throw Error(data.error||"Could not load ranking."); const list=(data.leaderboard||[]).slice(0,10); if(list.length!==10) throw Error(`Final ranking returned only ${list.length} eligible portfolios.`); $("winner-ids").value=list.map((row)=>row.tokenId).join(","); localStorage.setItem("wst-mainnet-winners",$("winner-ids").value); await buildPlans(); updateButtons(); log("Top 10 loaded. Review the exact order before approving finalization.","success"); }
+  function bind(id,fn){$(id).onclick=async()=>{try{await fn()}catch(error){log(message(error),"error")}}}
+  bind("connect",connect); bind("refresh",async()=>{await refresh();log("All on-chain data refreshed.","success")}); bind("approve-create",()=>approvePlan("create")); bind("execute-create",()=>executePlan("create")); bind("approve-start",()=>approvePlan("start")); bind("execute-start",()=>executePlan("start")); bind("approve-cancel",()=>approvePlan("cancel")); bind("execute-cancel",()=>executePlan("cancel")); bind("load-winners",loadTop10); bind("approve-finalize",()=>approvePlan("finalize")); bind("execute-finalize",()=>executePlan("finalize"));
+  bind("approve-funding",async()=>{if(!vault)throw Error("No current Vault.");const amount=ethers.parseUnits($("fund-amount").value,18);if(amount<=0n)throw Error("Enter an amount greater than zero.");log("Confirm WST approval in your wallet...");await(await new ethers.Contract(WST_ADDRESS,ERC20,signer).approve(vaultAddress,amount)).wait();log("WST approval confirmed. You can now fund the Vault.","success")});
+  bind("execute-funding",async()=>{const amount=ethers.parseUnits($("fund-amount").value,18);if(amount<=0n)throw Error("Enter an amount greater than zero.");log("Confirm sponsored reward funding...");await(await vault.fundRewards(amount)).wait();await refresh();log("Sponsored WST added permanently to the Season pool.","success")});
+  bind("claim-reward",async()=>{log("Confirm reward claim in the connected winner wallet...");await(await vault.claimReward()).wait();await refresh();log("Reward claimed successfully.","success")});
+  for(const id of ["season-name","entry-fee","minimum","registration-hours","season-hours","winner-ids"]) $(id).addEventListener("input",()=>{if(!safe)return;localStorage.setItem("wst-mainnet-winners",$("winner-ids").value);buildPlans().then(updateButtons).catch((error)=>log(message(error),"error"))});
+  $("winner-ids").value=localStorage.getItem("wst-mainnet-winners")||""; setInterval(()=>{$("registration-clock").textContent=timer(registrationDeadline);$("season-clock").textContent=timer(seasonEnd);updateButtons()},1000); window.ethereum?.on?.("accountsChanged",()=>location.reload()); window.ethereum?.on?.("chainChanged",()=>location.reload());
+})();
+</script></body></html>
