@@ -6,14 +6,14 @@
   <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Clock In Season 1 — Wall Street Traders</title>
-  <meta name="description" content="Clock In is the non-custodial career and Market Seasons layer of Wall Street Traders, connected to a pre-funded WST reward flywheel.">
+  <meta name="description" content="Clock In is the non-custodial Market Seasons layer of Wall Street Traders, with on-chain entry and fixed Top 10 WST rewards.">
   <meta property="og:title" content="Clock In — Wall Street Traders">
-  <meta property="og:description" content="Build a permanent Trader career, compete with virtual portfolios and earn from verifiable pre-funded Season Pools.">
+  <meta property="og:description" content="Compete with virtual portfolios for 14 days and earn fixed Top 10 shares from a verifiable WST Season Pool.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="../og.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Clock In — Wall Street Traders">
-  <meta name="twitter:description" content="Permanent Trader careers, Market Seasons and transparent pre-funded WST reward pools.">
+  <meta name="twitter:description" content="Fourteen-day Market Seasons with transparent on-chain WST entry and fixed Top 10 reward shares.">
   <meta name="twitter:image" content="../og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
@@ -77,7 +77,7 @@
         <h1>CLOCK<br><span>IN.</span></h1>
         <p class="hero-lead">Connect your wallet and register every Wall Street Trader you own. Each NFT enters independently with its own USD 10,000 virtual portfolio and leaderboard position.</p>
         <div class="notice"><i></i>STATUS: SEASON 1 OFFICIAL</div>
-        <p class="microcopy">NON-CUSTODIAL · WST ENTRY · NFT NEVER LEAVES YOUR WALLET</p>
+        <p class="microcopy">NON-CUSTODIAL · 250 WST ENTRY PER NFT · NFT NEVER LEAVES YOUR WALLET</p>
       </div>
       <div class="career-preview">
         <article class="terminal" aria-label="Clock In career record interface">
@@ -96,7 +96,7 @@
           <div class="clock-actions">
             <button class="clock-button" id="connect-wallet" type="button">CONNECT &amp; SIGN</button>
             <select class="clock-select" id="token-select" hidden aria-label="Select your Wall Street Trader"><option value="">SELECT AN ELIGIBLE TRADER</option></select>
-            <button class="clock-button" id="register-trader" type="button" hidden disabled>APPROVE WST + REGISTER ON-CHAIN</button>
+            <button class="clock-button" id="register-trader" type="button" hidden disabled>APPROVE 250 WST + REGISTER ON-CHAIN</button>
             <p class="clock-message" id="clock-message" role="status">The signature only proves wallet ownership. It cannot move funds or NFTs.</p>
             <div class="portfolio-builder" id="portfolio-builder" hidden>
               <div class="portfolio-head"><span>VIRTUAL CAPITAL</span><strong>US$ 10,000.00</strong></div>
@@ -113,8 +113,8 @@
 
     <section class="status-grid" id="season-status" aria-label="Season 1 status">
       <article><span>SEASON PHASE</span><strong id="overview-phase">AWAITING</strong><small id="overview-phase-detail">SEASON NOT CREATED</small></article>
-      <article><span>NFT ENTRIES</span><strong id="overview-entries">0 / 10</strong><div class="season-progress" aria-hidden="true"><i id="entry-progress"></i></div><small id="overview-entry-detail">MINIMUM PROGRESS</small></article>
-      <article><span>MINIMUM STATUS</span><strong id="overview-minimum">PENDING</strong><small id="overview-minimum-detail">10 REQUIRED</small></article>
+      <article><span>NFT ENTRIES</span><strong id="overview-entries">0 / 50</strong><div class="season-progress" aria-hidden="true"><i id="entry-progress"></i></div><small id="overview-entry-detail">MINIMUM PROGRESS</small></article>
+      <article><span>MINIMUM STATUS</span><strong id="overview-minimum">PENDING</strong><small id="overview-minimum-detail">50 REQUIRED</small></article>
       <article><span>SEASON CLOCK</span><strong id="overview-clock">—</strong><small id="overview-clock-detail">AWAITING ON-CHAIN SEASON</small></article>
       <article><span>TOTAL IN VAULT</span><strong id="overview-total-pool">0 WST</strong><small>ENTRY + SPONSORED POOLS</small></article>
       <article><span>ENTRY POOL</span><strong id="overview-entry-pool">0 WST</strong><small>PAID REGISTRATIONS</small></article>
@@ -154,7 +154,7 @@
         <article><b>01</b><span>VERIFY OWNERSHIP</span><h3>Confirm the holder.</h3><p>Read the official WST contract to confirm which wallet currently owns the selected token ID.</p></article>
         <article><b>02</b><span>SELECT A TRADER</span><h3>Choose the identity.</h3><p>The holder selects which Wall Street Trader will begin an on-chain career.</p></article>
         <article><b>03</b><span>BUILD A PORTFOLIO</span><h3>Enter the season.</h3><p>Compete with a virtual portfolio using real market price feeds. No real Stock Token is purchased or held by the protocol.</p></article>
-        <article><b>04</b><span>EARN SEASON POINTS</span><h3>Grow the career.</h3><p>Results generate Season Points for the funded pool and permanent Career Points for ranks, badges and milestones.</p></article>
+        <article><b>04</b><span>FINISH IN THE TOP 10</span><h3>Earn a fixed share.</h3><p>The final ranking determines each winner's published percentage of the WST Season Pool. Season Points remain part of the Trader's competition record.</p></article>
       </div>
     </section>
 
@@ -165,33 +165,33 @@
         <article><b>PLANNED</b><span>CAREER REGISTRY</span><h3>Career Ledger</h3><p>Records Lifetime Career Points, ranks, seasons, badges and milestones by WST token ID.</p></article>
         <article><b>SEASON 1 READY</b><span>SEASON ENGINE</span><h3>Competition Layer</h3><p>Season 1 runs with USD 10,000 virtual portfolios, real market prices and immutable entry allocations.</p></article>
         <article><b>LIVE</b><span>WST</span><h3>Pons Token</h3><p>WST is the fixed-supply ecosystem token launched through permissionless Pons infrastructure on Robinhood Chain.</p></article>
-        <article><b>PRE-FUNDED</b><span>SEASON DISTRIBUTOR</span><h3>Reward Layer</h3><p>Holds the announced WST pool before a season opens and distributes it by eligible Season Points.</p></article>
+        <article><b>DEPLOYED</b><span>SEASON VAULT</span><h3>Reward Layer</h3><p>Holds entry fees and sponsored WST, then assigns the complete final pool through the published fixed Top 10 percentages.</p></article>
       </div>
     </section>
 
     <section class="section" id="records">
-      <div class="section-head"><div><p class="index">03 / TWO POINT SYSTEMS</p><h2>SEASONS PAY.<br>CAREERS REMEMBER.</h2></div><p>Season Points determine one competition's funded reward share. Lifetime Career Points remain permanent, non-transferable progression and never create a fixed claim on WST.</p></div>
+      <div class="section-head"><div><p class="index">03 / RANK AND CAREER</p><h2>SEASONS PAY.<br>CAREERS REMEMBER.</h2></div><p>Final placement determines the fixed WST reward share for one Season. Lifetime Career Points remain permanent, non-transferable progression and never create an additional claim on WST.</p></div>
       <div class="separation">
-        <article><small>SEASON RECORD</small><h3>Season Points</h3><p>Created from eligible performance during one Market Season. They determine the proportional share of that season's pre-funded pool.</p><ul><li>Reset for each new season</li><li>Rules published before entry</li><li>Share = your points ÷ eligible points</li></ul></article>
+        <article><small>SEASON RESULT</small><h3>Final Placement</h3><p>Calculated from eligible portfolio performance during one Market Season. The final Top 10 receives the contract's fixed reward shares.</p><ul><li>Ranking resets for each new Season</li><li>Rules published before entry</li><li>Top 10 shares: 30%, 20%, 15%, 10%, 7%, 5%, 4%, 3.5%, 3%, 2.5%</li></ul></article>
         <article><small>PERMANENT RECORD</small><h3>Career Points</h3><p>Lifetime, non-transferable progression attached to the Trader identity. Career Points unlock status, not a guaranteed token conversion.</p><ul><li>Ranks, badges and milestones</li><li>Season history and reputation</li><li>No fixed CP-to-WST exchange rate</li></ul></article>
       </div>
     </section>
 
     <section class="section security" id="security">
       <div><p class="index">04 / FAIRNESS PRINCIPLES</p><h2>FUNDED FIRST.<br>RULES FIRST.</h2></div>
-      <div><p>Clock In separates identity, competition and rewards. Every announced Season Pool must be deposited and verifiable before the season begins.</p><ul class="security-list"><li>The holder's WST NFT remains in the holder's wallet</li><li>No real stocks or Stock Tokens are purchased or custodied</li><li>Primary leaderboards cannot be bought with WST</li><li>Reward shares follow published eligible Season Points</li><li>No guaranteed yield, profit, reward value or financial return</li></ul></div>
+      <div><p>Clock In separates identity, competition and rewards. Entry fees and sponsored WST remain secured in the dedicated Season Vault until finalization and winner claims.</p><ul class="security-list"><li>The holder's WST NFT remains in the holder's wallet</li><li>No real stocks or Stock Tokens are purchased or custodied</li><li>Primary leaderboards cannot be bought with WST</li><li>Final Top 10 rewards follow fixed percentages published before entry</li><li>No guaranteed yield, profit, reward value or financial return</li></ul></div>
     </section>
 
     <section class="section" id="progress">
-      <div class="section-head"><div><p class="index">05 / CLOCK IN FLYWHEEL</p><h2>MARKET ACTIVITY.<br>FUTURE SEASONS.</h2></div><p>Actual creator-side proceeds from WST market activity may be routed into a Season Treasury, used to acquire WST from the market and pre-fund future Season Distributors.</p></div>
+      <div class="section-head"><div><p class="index">05 / CLOCK IN FLYWHEEL</p><h2>MARKET ACTIVITY.<br>FUTURE SEASONS.</h2></div><p>Creator-side proceeds from WST market activity may be routed into the Season Treasury, used to acquire WST from the market and fund future Season Vaults.</p></div>
       <div class="progress">
-        <div class="progress-row"><strong>WST MARKET</strong><em class="planned">PLANNED</em><p>WST is launched through Pons; only tokens actually acquired by the project can fund protocol programs.</p></div>
+        <div class="progress-row"><strong>WST MARKET</strong><em>LIVE</em><p>WST is live through Pons; only tokens actually acquired by the project can fund protocol programs.</p></div>
         <div class="progress-row"><strong>SEASON TREASURY</strong><em class="planned">PLANNED</em><p>Receives disclosed creator-side proceeds designated for future seasons.</p></div>
         <div class="progress-row"><strong>MARKET ACQUISITION</strong><em class="planned">PLANNED</em><p>The treasury may acquire WST from the open market under published operating rules.</p></div>
-        <div class="progress-row"><strong>SEASON DISTRIBUTOR</strong><em class="planned">PLANNED</em><p>A fixed WST pool is deposited and made verifiable before a season is announced.</p></div>
-        <div class="progress-row"><strong>MARKET SEASON</strong><em class="planned">PLANNED</em><p>Traders compete for 14 days with virtual portfolios and real market price feeds.</p></div>
-        <div class="progress-row"><strong>PROPORTIONAL CLAIM</strong><em class="planned">PLANNED</em><p>Eligible rewards follow each Trader's share of total eligible Season Points.</p></div>
-        <div class="progress-row"><strong>SPONSORED DESKS</strong><em class="planned">FUTURE</em><p>Partners may pre-fund separate event pools under their own published rules.</p></div>
+        <div class="progress-row"><strong>SEASON VAULT</strong><em>DEPLOYED</em><p>Each Season uses a dedicated Vault for entry fees, sponsored funding and winner claims.</p></div>
+        <div class="progress-row"><strong>MARKET SEASON</strong><em>READY</em><p>Traders compete for 14 days with virtual portfolios and real market price feeds.</p></div>
+        <div class="progress-row"><strong>TOP 10 CLAIM</strong><em>DEPLOYED</em><p>Winning wallets claim fixed shares of 30%, 20%, 15%, 10%, 7%, 5%, 4%, 3.5%, 3% and 2.5%.</p></div>
+        <div class="progress-row"><strong>SPONSORED FUNDING</strong><em>AVAILABLE</em><p>Sponsored WST can be added to the active Season before finalization and becomes part of its reward pool.</p></div>
       </div>
     </section>
 
@@ -199,7 +199,7 @@
       <p>CLOCK IN / MARKET SEASONS</p>
       <h2>BUILD THE CAREER. COMPETE FOR THE SEASON.</h2>
       <a class="disabled" href="#main-content">CONNECT WALLET · VERIFY OWNERSHIP</a>
-      <small>Season 1 uses the deployed WST token and a dedicated Season Vault. The current entry fee and complete reward pool are always displayed from on-chain data.</small>
+      <small>Season 1 uses the deployed WST token and a dedicated Season Vault. Entry costs 250 WST per NFT plus network gas; the contract value and complete reward pool are displayed from on-chain data.</small>
     </section>
     </div>
   </div>
@@ -405,11 +405,11 @@
         if (!season) {
           phase.textContent = "AWAITING"; phaseDetail.textContent = "SEASON NOT CREATED";
           clock.textContent = "—"; clockDetail.textContent = "AWAITING ON-CHAIN SEASON";
-          document.getElementById("overview-entries").textContent = "0 / 10";
+          document.getElementById("overview-entries").textContent = "0 / 50";
           document.getElementById("entry-progress").style.width = "0%";
           document.getElementById("overview-entry-detail").textContent = "MINIMUM PROGRESS";
           document.getElementById("overview-minimum").textContent = "PENDING";
-          document.getElementById("overview-minimum-detail").textContent = "10 REQUIRED";
+          document.getElementById("overview-minimum-detail").textContent = "50 REQUIRED";
           document.getElementById("overview-total-pool").textContent = "0 WST";
           document.getElementById("overview-entry-pool").textContent = "0 WST";
           document.getElementById("overview-sponsored-pool").textContent = "0 WST";
@@ -785,7 +785,7 @@
         const id = tokenSelect.value;
         portfolioBuilder.hidden = true;
         assetList.replaceChildren();
-        registerButton.textContent = currentSeason?.entryFeeWst ? "APPROVE " + currentSeason.entryFeeWst + " WST + REGISTER ON-CHAIN" : "APPROVE WST + REGISTER ON-CHAIN";
+        registerButton.textContent = currentSeason?.entryFeeWst ? "APPROVE " + currentSeason.entryFeeWst + " WST + REGISTER ON-CHAIN" : "APPROVE 250 WST + REGISTER ON-CHAIN";
         registerButton.hidden = !id;
         const registrationOpen = currentSeason?.status === "registration" && currentSeason.registrationClosesAt && Date.now() < Date.parse(currentSeason.registrationClosesAt);
         registerButton.disabled = !id || !registrationOpen;
