@@ -77,7 +77,7 @@
         <h1>CLOCK<br><span>IN.</span></h1>
         <p class="hero-lead">Connect your wallet and register every Wall Street Trader you own. Each NFT enters independently with its own USD 10,000 virtual portfolio and leaderboard position.</p>
         <div class="notice"><i></i>STATUS: SEASON 1 OFFICIAL</div>
-        <p class="microcopy">NON-CUSTODIAL · 250 WST ENTRY PER NFT · NFT NEVER LEAVES YOUR WALLET</p>
+        <p class="microcopy">NON-CUSTODIAL · 250,000 WST ENTRY PER NFT · NFT NEVER LEAVES YOUR WALLET</p>
       </div>
       <div class="career-preview">
         <article class="terminal" aria-label="Clock In career record interface">
@@ -96,7 +96,7 @@
           <div class="clock-actions">
             <button class="clock-button" id="connect-wallet" type="button">CONNECT &amp; SIGN</button>
             <select class="clock-select" id="token-select" hidden aria-label="Select your Wall Street Trader"><option value="">SELECT AN ELIGIBLE TRADER</option></select>
-            <button class="clock-button" id="register-trader" type="button" hidden disabled>APPROVE 250 WST + REGISTER ON-CHAIN</button>
+            <button class="clock-button" id="register-trader" type="button" hidden disabled>APPROVE 250,000 WST + REGISTER ON-CHAIN</button>
             <p class="clock-message" id="clock-message" role="status">The signature only proves wallet ownership. It cannot move funds or NFTs.</p>
             <div class="portfolio-builder" id="portfolio-builder" hidden>
               <div class="portfolio-head"><span>VIRTUAL CAPITAL</span><strong>US$ 10,000.00</strong></div>
@@ -199,7 +199,7 @@
       <p>CLOCK IN / MARKET SEASONS</p>
       <h2>BUILD THE CAREER. COMPETE FOR THE SEASON.</h2>
       <a class="disabled" href="#main-content">CONNECT WALLET · VERIFY OWNERSHIP</a>
-      <small>Season 1 uses the deployed WST token and a dedicated Season Vault. Entry costs 250 WST per NFT plus network gas; the contract value and complete reward pool are displayed from on-chain data.</small>
+      <small>Season 1 uses the deployed WST token and a dedicated Season Vault. Entry costs 250,000 WST per NFT plus network gas; the contract value and complete reward pool are displayed from on-chain data.</small>
     </section>
     </div>
   </div>
@@ -309,6 +309,12 @@
       function formatChange(value) {
         const number = Number(value);
         return (number >= 0 ? "+" : "") + number.toFixed(2) + "%";
+      }
+      function formatTokenAmount(value) {
+        const [whole = "0", fraction = ""] = String(value).split(".");
+        const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        const trimmedFraction = fraction.replace(/0+$/, "");
+        return trimmedFraction ? grouped + "." + trimmedFraction : grouped;
       }
       function countdownText(target) {
         const remaining = Math.max(0, Date.parse(target) - Date.now());
@@ -785,7 +791,7 @@
         const id = tokenSelect.value;
         portfolioBuilder.hidden = true;
         assetList.replaceChildren();
-        registerButton.textContent = currentSeason?.entryFeeWst ? "APPROVE " + currentSeason.entryFeeWst + " WST + REGISTER ON-CHAIN" : "APPROVE 250 WST + REGISTER ON-CHAIN";
+        registerButton.textContent = currentSeason?.entryFeeWst ? "APPROVE " + formatTokenAmount(currentSeason.entryFeeWst) + " WST + REGISTER ON-CHAIN" : "APPROVE 250,000 WST + REGISTER ON-CHAIN";
         registerButton.hidden = !id;
         const registrationOpen = currentSeason?.status === "registration" && currentSeason.registrationClosesAt && Date.now() < Date.parse(currentSeason.registrationClosesAt);
         registerButton.disabled = !id || !registrationOpen;
