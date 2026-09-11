@@ -72,15 +72,15 @@
     </nav></aside><div class="workspace-content">
     <section class="hero active-panel" id="clockin">
       <div class="hero-copy">
-        <div class="terminal-line"><span class="signal-dot"></span> PHASE 03 / SEASON 1 OFFICIAL</div>
-        <p class="folio">ISSUE 003 · ROBINHOOD CHAIN · 2026</p>
+        <div class="terminal-line"><span class="signal-dot"></span> CLOCK IN / SEASON 1 OFFICIAL</div>
+        <p class="folio">SEASON 01 · ROBINHOOD CHAIN · 2026</p>
         <h1>CLOCK<br><span>IN.</span></h1>
         <p class="hero-lead">Connect your wallet and register every Wall Street Trader you own. Each NFT enters independently with its own USD 10,000 virtual portfolio and leaderboard position.</p>
         <div class="notice"><i></i>STATUS: SEASON 1 OFFICIAL</div>
         <p class="microcopy">NON-CUSTODIAL · WST ENTRY · NFT NEVER LEAVES YOUR WALLET</p>
       </div>
       <div class="career-preview">
-        <article class="terminal" aria-label="Career record interface preview">
+        <article class="terminal" aria-label="Clock In career record interface">
           <div class="terminal-head"><span>SEASON 1 / CLOCK IN</span><b id="wallet-state">NOT CONNECTED</b></div>
           <div class="profile">
             <img src="../trading-floor/traders/160.png" alt="Wall Street Trader 160" loading="eager">
@@ -164,7 +164,7 @@
         <article><b>DEPLOYED</b><span>WST NFT</span><h3>Identity Contract</h3><p>Confirms ownership, token IDs, supply and transfers. The original collection remains unchanged.</p></article>
         <article><b>PLANNED</b><span>CAREER REGISTRY</span><h3>Career Ledger</h3><p>Records Lifetime Career Points, ranks, seasons, badges and milestones by WST token ID.</p></article>
         <article><b>SEASON 1 READY</b><span>SEASON ENGINE</span><h3>Competition Layer</h3><p>Season 1 runs with USD 10,000 virtual portfolios, real market prices and immutable entry allocations.</p></article>
-        <article><b>MARKET TOKEN</b><span>WST</span><h3>Pons Launch</h3><p>WST is planned as a fixed-supply market token launched through permissionless Pons infrastructure on Robinhood Chain.</p></article>
+        <article><b>LIVE</b><span>WST</span><h3>Pons Token</h3><p>WST is the fixed-supply ecosystem token launched through permissionless Pons infrastructure on Robinhood Chain.</p></article>
         <article><b>PRE-FUNDED</b><span>SEASON DISTRIBUTOR</span><h3>Reward Layer</h3><p>Holds the announced WST pool before a season opens and distributes it by eligible Season Points.</p></article>
       </div>
     </section>
@@ -205,7 +205,7 @@
   </div>
   <footer class="site-footer">
     <div class="footer-mark">WST<span>/03</span></div>
-    <p>PHASE 03 DEVELOPMENT FILE<br>PUBLIC PREVIEW / SEP 2026</p>
+    <p>CLOCK IN · SEASON 1 OFFICIAL<br>LIVE ON ROBINHOOD CHAIN</p>
     <div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div>
     <small>BUILT BY COMMIT PROTOCOL · 2026</small>
   </footer>
@@ -284,7 +284,7 @@
           setMessage("Step 1/2: confirm the exact WST approval in your wallet...");
           await sendTransaction(WST, "0x095ea7b3" + addressWord(currentSeason.vault) + word(fee));
         }
-        setMessage("Step 2/2: confirm this NFT's Pilot registration in your wallet...");
+        setMessage("Step 2/2: confirm this NFT's Season 1 registration in your wallet...");
         await sendTransaction(currentSeason.vault, "0xf207564e" + word(tokenId));
       }
       async function api(path, body = {}, authenticated = false) {
@@ -501,7 +501,7 @@
           const traderNameEl = document.createElement("span"); traderNameEl.textContent = "TRADER #" + row.tokenId; traderWrap.append(avatar, traderNameEl); traderCell.appendChild(traderWrap);
           const performanceCell = document.createElement("td"); performanceCell.textContent = formatChange(row.returnPercent);
           const valueCell = document.createElement("td"); valueCell.textContent = "US$ " + Number(row.currentValue).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-          const pointsCell = document.createElement("td"); pointsCell.textContent = row.betaSeasonPoints + " PTS";
+          const pointsCell = document.createElement("td"); pointsCell.textContent = (row.seasonPoints ?? row.betaSeasonPoints ?? 0) + " PTS";
           tr.append(rankCell, traderCell, performanceCell, valueCell, pointsCell); tbody.appendChild(tr);
         });
         table.appendChild(tbody); leaderboardWrap.replaceChildren(table);
