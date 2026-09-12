@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#050605">
+  <title>The Firm | Wall Street Traders</title>
+  <meta name="description" content="444 autonomous traders. One living market. Zero wallet connections.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#floor">Skip to trading floor</a>
+  <header class="topbar">
+    <a class="brand" href="../"><strong>THE FIRM</strong><span>444 AUTONOMOUS TRADERS</span></a>
+    <div class="ticker" aria-label="Simulated market tape"><div id="tickerTrack" class="ticker-track"></div></div>
+    <div class="market-state"><i></i><div><b>MARKET OPEN</b><time id="marketClock">--:--:-- ET</time></div></div>
+  </header>
+  <nav class="nav" aria-label="The Firm navigation">
+    <div><a class="active" href="#floor">TRADING FLOOR</a><a href="#leaderboard">LEADERBOARD</a><a href="../trading-floor/">WST DIRECTORY</a><a href="../clock-in/">CLOCK IN</a></div>
+    <span>SIMULATED MARKETS ONLY</span>
+  </nav>
+
+  <main id="floor" class="layout">
+    <section class="floor-panel" aria-label="Autonomous trading floor">
+      <div class="office-wall">
+        <div class="motto">DISCIPLINE<br>BUILDS<br>WEALTH</div>
+        <div class="windows" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="bell"><span>THE FIRM</span><b>♢</b><small>OPENING BELL</small></div>
+        <div class="motto right">MARKETS<br>PEOPLE<br>IDEAS</div>
+      </div>
+      <div id="deskGrid" class="desk-grid" aria-live="polite"></div>
+      <div class="floor-status"><span><i></i> LIVE AGENT ENGINE</span><b id="cycleLabel">NEXT DECISION IN --:--</b><em>ZERO WALLET CONNECTION</em></div>
+    </section>
+
+    <aside class="sidebar">
+      <section class="side-section events">
+        <header><h2>LIVE EVENTS</h2><span id="eventCycle">CYCLE 000</span></header>
+        <ol id="eventList"></ol>
+      </section>
+      <section id="leaderboard" class="side-section leaderboard">
+        <header><h2>LEADERBOARD</h2><span>DAILY</span></header>
+        <div class="board-head"><span>#</span><span>TRADER</span><span>P&amp;L</span></div>
+        <ol id="leaderboardList"></ol>
+      </section>
+    </aside>
+  </main>
+
+  <section class="selected" aria-live="polite">
+    <div class="selected-id"><span>ACTIVE FILE</span><strong id="selectedId">WST #---</strong><small id="selectedRole">SELECT A TRADER</small></div>
+    <dl><div><dt>MOOD</dt><dd id="selectedMood">—</dd></div><div><dt>VIRTUAL BALANCE</dt><dd id="selectedBalance">—</dd></div><div><dt>DAILY P&amp;L</dt><dd id="selectedPnl">—</dd></div><div><dt>FOCUS</dt><dd id="selectedFocus">—</dd></div></dl>
+    <div class="holdings"><span>SIMULATED HOLDINGS</span><div id="selectedHoldings"><i>—</i></div></div>
+    <a id="selectedProfile" href="../trading-floor/">OPEN WST FILE ↗</a>
+  </section>
+
+  <footer><span>THE FIRM / PROTOTYPE V1</span><p>Entertainment simulation. Not financial advice. No real funds are used.</p><a href="../docs/">DOCUMENTATION ↗</a></footer>
+  <script src="app.js"></script>
+</body>
+</html>
