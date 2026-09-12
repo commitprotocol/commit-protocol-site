@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-label="Wall Street trading station overlay">
+  <defs>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#777064"/><stop offset=".38" stop-color="#514d45"/><stop offset="1" stop-color="#292a27"/></linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#484b47"/><stop offset=".5" stop-color="#171916"/><stop offset="1" stop-color="#050605"/></linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#0f2117"/><stop offset="1" stop-color="#030704"/></linearGradient>
+    <pattern id="grid" width="34" height="24" patternUnits="userSpaceOnUse"><path d="M34 0H0v24" fill="none" stroke="#eeeade" stroke-opacity=".08" stroke-width="2"/></pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000" flood-opacity=".75"/></filter>
+  </defs>
+
+  <!-- left monitor -->
+  <g filter="url(#shadow)" transform="translate(0 105)">
+    <path d="M36 390l300-48 25 271-307 15z" fill="url(#metal)" stroke="#aaa293" stroke-width="7"/>
+    <path d="M59 410l252-40 21 210-259 16z" fill="url(#screen)" stroke="#050605" stroke-width="8"/>
+    <path d="M59 410l252-40 21 210-259 16z" fill="url(#grid)"/>
+    <polyline points="78,540 117,510 151,524 191,457 226,482 265,418 309,439" fill="none" stroke="#78f29a" stroke-width="11" stroke-linejoin="round"/>
+    <g fill="#d5b66f"><rect x="91" y="445" width="12" height="58"/><rect x="130" y="468" width="12" height="39"/><rect x="169" y="427" width="12" height="62"/><rect x="208" y="455" width="12" height="31"/></g>
+    <path d="M180 620v58m-66 13h142" stroke="#777064" stroke-width="20" stroke-linecap="square"/>
+  </g>
+
+  <!-- right monitor -->
+  <g filter="url(#shadow)" transform="translate(0 105)">
+    <path d="M664 342l300 48-18 238-307-15z" fill="url(#metal)" stroke="#aaa293" stroke-width="7"/>
+    <path d="M689 370l252 40-14 186-259-16z" fill="url(#screen)" stroke="#050605" stroke-width="8"/>
+    <path d="M689 370l252 40-14 186-259-16z" fill="url(#grid)"/>
+    <polyline points="692,527 731,472 770,494 808,438 844,470 883,434 926,465" fill="none" stroke="#f06f69" stroke-width="11" stroke-linejoin="round"/>
+    <g fill="#eeeade" font-family="Courier New,monospace" font-size="23"><text x="714" y="558">ORDERS</text><text x="828" y="558" fill="#78f29a">LIVE</text></g>
+    <path d="M820 620v58m-66 13h142" stroke="#777064" stroke-width="20" stroke-linecap="square"/>
+  </g>
+
+  <!-- desk surface -->
+  <g filter="url(#shadow)">
+    <path d="M24 704l91-66h770l91 66-50 238H74z" fill="url(#wood)" stroke="#aaa293" stroke-width="7"/>
+    <path d="M24 704h952" stroke="#d5cbb7" stroke-width="11"/>
+    <path d="M83 749h834l-27 153H110z" fill="#30312e" stroke="#151614" stroke-width="6"/>
+    <path d="M111 767h778" stroke="#5b5b54" stroke-width="4"/>
+    <rect x="351" y="785" width="298" height="112" rx="5" fill="#080908" stroke="#b5aa92" stroke-width="6"/>
+    <path d="M377 812h246M377 836h246M377 860h154" stroke="#343733" stroke-width="8"/>
+  </g>
+
+  <!-- phone -->
+  <g transform="translate(111 735)">
+    <rect width="157" height="102" rx="12" fill="#0b0c0b" stroke="#a69d8b" stroke-width="6"/>
+    <path d="M27 17c31-21 73-21 104 0l-13 29c-24-12-55-12-78 0z" fill="#2b2d2b" stroke="#eeeade" stroke-width="5"/>
+    <g fill="#78f29a"><circle cx="46" cy="72" r="7"/><circle cx="79" cy="72" r="7"/><circle cx="112" cy="72" r="7"/></g>
+  </g>
+
+  <!-- papers and coffee -->
+  <g transform="translate(710 737) rotate(-4)"><rect width="141" height="91" fill="#d9d1c1" stroke="#050605" stroke-width="5"/><path d="M20 24h99M20 43h78M20 62h89" stroke="#55574f" stroke-width="6"/></g>
+  <g transform="translate(866 738)"><path d="M0 17h62v72H0z" fill="#eeeade" stroke="#050605" stroke-width="6"/><path d="M62 31h21c19 0 19 38 0 38H62" fill="none" stroke="#eeeade" stroke-width="12"/><path d="M16 5c9-17 22-17 31 0" fill="none" stroke="#d5b66f" stroke-width="5"/></g>
+
+  <!-- lower status rail -->
+  <path d="M73 929h854v43H73z" fill="#070807" stroke="#807a6d" stroke-width="5"/>
+  <circle cx="108" cy="950" r="9" fill="#78f29a"/>
+  <path d="M137 950h214m298 0h214" stroke="#343733" stroke-width="7"/>
+  <text x="500" y="958" fill="#d5b66f" font-family="Courier New,monospace" font-size="25" font-weight="700" letter-spacing="5" text-anchor="middle">WALL STREET TRADERS</text>
+</svg>
