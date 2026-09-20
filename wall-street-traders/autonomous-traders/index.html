@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Follow all 444 Wall Street Traders as they autonomously paper-trade stock tokens using their NFT traits as behavioral DNA.">
+  <title>WST Autonomous Traders — Public Beta</title>
+  <link rel="canonical" href="https://commitprotocol.org/wall-street-traders/autonomous-traders/">
+  <meta property="og:title" content="WST Autonomous Traders — Public Beta">
+  <meta property="og:description" content="444 NFTs. 444 unique trading DNAs. One autonomous paper-trading experiment.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="styles.css?v=1">
+</head>
+<body>
+  <div class="tape"><div>WST AUTONOMOUS TRADERS <i>◆</i> 444 TRADING DNAs <i>◆</i> PAPER TRADING ONLY <i>◆</i> ROBINHOOD CHAIN STOCK TOKENS <i>◆</i> PUBLIC BETA <i>◆</i> WST AUTONOMOUS TRADERS <i>◆</i> 444 TRADING DNAs</div></div>
+  <header>
+    <a class="brand" href="/wall-street-traders/"><b>WST</b><span>AUTONOMOUS TRADERS</span></a>
+    <nav><a href="/wall-street-traders/">HOME</a><a href="/wall-street-traders/trading-floor/">COLLECTION</a><a href="/wall-street-traders/docs/">DOCS</a></nav>
+    <span class="live"><i></i> BETA LIVE</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">AN AUTONOMOUS PAPER-TRADING EXPERIMENT</p>
+      <h1>EVERY NFT<br>THINKS <em>DIFFERENTLY.</em></h1>
+      <div class="hero-bottom">
+        <p>Each Wall Street Trader uses its original traits as behavioral DNA. The system evaluates real stock-token prices and independently records every virtual decision.</p>
+        <div class="market-stats"><div><b>444</b><span>TRADERS</span></div><div><b id="asset-count">—</b><span>ASSETS</span></div><div><b id="cycle-count">—</b><span>CYCLES</span></div></div>
+      </div>
+    </section>
+
+    <section class="lookup">
+      <div><span>PUBLIC TRADER TERMINAL / 01</span><h2>FIND YOUR TRADER.</h2></div>
+      <form id="search-form"><label for="token-input">NFT TOKEN ID</label><div><input id="token-input" type="number" min="1" max="444" inputmode="numeric" placeholder="1 — 444" required><button>OPEN PROFILE →</button></div><small>No wallet connection. No signature. No transaction.</small></form>
+    </section>
+
+    <p class="notice" id="status" role="status">Enter a token ID to inspect its autonomous profile.</p>
+
+    <section class="profile" id="profile" hidden>
+      <div class="identity panel">
+        <div class="image-wrap"><img id="trader-image" alt=""><span id="rarity-badge"></span></div>
+        <p id="public-file"></p><h2 id="trader-name"></h2>
+        <dl class="identity-data"><div><dt>ARCHETYPE</dt><dd id="archetype"></dd></div><div><dt>RARITY SCORE</dt><dd id="rarity-score"></dd></div><div><dt>DNA VERSION</dt><dd id="dna-version"></dd></div><div><dt>STATUS</dt><dd class="positive">ACTIVE</dd></div></dl>
+      </div>
+
+      <div class="dashboard">
+        <div class="portfolio-grid">
+          <article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">—</small></article>
+          <article><span>CASH</span><b id="cash-balance">—</b><small>AVAILABLE CAPITAL</small></article>
+          <article><span>POSITIONS</span><b id="positions-value">—</b><small id="position-count">— OPEN</small></article>
+          <article><span>TRADES</span><b id="trades-count">—</b><small id="win-loss">— W / — L</small></article>
+        </div>
+
+        <article class="panel dna-panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"></div></article>
+
+        <div class="two-columns">
+          <article class="panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list empty">NO OPEN POSITIONS</div></article>
+          <article class="panel"><div class="panel-head"><div><span>DECISION LEDGER</span><h3>LATEST ACTIONS</h3></div><b>LIVE</b></div><div id="decisions" class="data-list empty">NO DECISIONS YET</div></article>
+        </div>
+
+        <article class="panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
+      </div>
+    </section>
+
+    <section class="leaderboard panel">
+      <div class="panel-head"><div><span>BETA SEASON / LIVE TABLE</span><h3>TOP AUTONOMOUS TRADERS</h3></div><b>VIRTUAL USD</b></div>
+      <div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div>
+    </section>
+
+    <aside class="disclaimer"><b>SIMULATION NOTICE</b><p>This beta is a research and entertainment experiment. It uses virtual balances only. No real funds are deposited, invested or managed. Results are not financial advice and do not guarantee future performance.</p></aside>
+  </main>
+
+  <footer><b>WST / AUTONOMOUS</b><span>BUILT BY COMMIT PROTOCOL · 2026</span><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">FOLLOW ON X ↗</a></footer>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

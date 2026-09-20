@@ -1,0 +1,65 @@
+const API="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public";
+const STARTING_BALANCE=10000;
+const money=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2});
+const number=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});
+const $=id=>document.getElementById(id);
+
+function imageUrl(id){return `../trading-floor/traders/${id}.png`}
+function pct(value){const n=Number(value||0);return `${n>=0?"+":""}${n.toFixed(2)}%`}
+function safe(value,fallback="—"){return value===null||value===undefined||value===""?fallback:value}
+function title(value){return String(value||"").replaceAll("_"," ").replace(/\b\w/g,c=>c.toUpperCase())}
+
+async function request(params={}){
+  const url=new URL(API);Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+  const response=await fetch(url,{headers:{Accept:"application/json"}});
+  if(!response.ok)throw new Error(`Request failed (${response.status})`);
+  return response.json();
+}
+
+function renderBars(trader){
+  const labels=[["Risk tolerance","risk_tolerance"],["Discipline","discipline"],["Patience","patience"],["Adaptability","adaptability"],["Research skill","research_skill"],["Momentum bias","momentum_bias"]];
+  $("dna-bars").innerHTML=labels.map(([label,key])=>`<div class="dna-row"><header><span>${label}</span><b>${trader[key]}/100</b></header><div class="bar"><i style="width:${trader[key]}%"></i></div></div>`).join("");
+}
+
+function renderPositions(items){
+  const root=$("positions");$("positions-total").textContent=items.length;$("position-count").textContent=`${items.length} OPEN`;
+  root.classList.toggle("empty",!items.length);
+  root.innerHTML=items.length?items.map(p=>`<div class="data-row"><div><strong>${p.symbol}</strong><br><small>${number.format(p.quantity)} UNITS · AVG ${money.format(p.average_entry)}</small></div><div><strong>${money.format(p.market_value)}</strong><br><small class="${Number(p.unrealized_pnl)>=0?"buy":"sell"}">${money.format(p.unrealized_pnl)}</small></div></div>`).join(""):"NO OPEN POSITIONS";
+}
+
+function renderDecisions(items){
+  const root=$("decisions");root.classList.toggle("empty",!items.length);
+  root.innerHTML=items.length?items.map(d=>`<div class="data-row"><div><strong class="${d.action}">${String(d.action).toUpperCase()} ${safe(d.symbol,"")}</strong><br><small>${title(d.reason_code)}</small></div><div><strong>${Number(d.confidence).toFixed(1)}%</strong><br><small>${new Date(d.decided_at).toLocaleString()}</small></div></div>`).join(""):"NO DECISIONS YET";
+}
+
+function renderProfile(data){
+  const {trader,portfolio,positions=[],decisions=[]}=data;const id=trader.token_id;
+  $("profile").hidden=false;$("status").textContent=`Showing the autonomous profile for WST #${id}.`;
+  $("trader-image").src=imageUrl(id);$("trader-image").alt=trader.name;
+  $("rarity-badge").textContent=String(trader.rarity_tier).toUpperCase();$("public-file").textContent=`PUBLIC FILE / WST-${String(id).padStart(3,"0")}`;
+  $("trader-name").textContent=`TRADER #${id}`;$("archetype").textContent=title(trader.archetype);$("rarity-score").textContent=`${trader.rarity_score}/100`;$("dna-version").textContent=String(trader.dna_version).toUpperCase();$("dna-archetype").textContent=title(trader.archetype).toUpperCase();
+  const total=Number(portfolio.total_value);const ret=(total/STARTING_BALANCE-1)*100;
+  $("total-value").textContent=money.format(total);$("total-return").textContent=`${pct(ret)} SINCE START`;$("total-return").className=ret>=0?"positive":"";
+  $("cash-balance").textContent=money.format(portfolio.cash_balance);$("positions-value").textContent=money.format(portfolio.positions_value);$("trades-count").textContent=portfolio.trades_count;$("win-loss").textContent=`${portfolio.wins_count} W / ${portfolio.losses_count} L`;
+  renderBars(trader);renderPositions(positions);renderDecisions(decisions);
+  $("traits").innerHTML=Object.entries(trader.traits||{}).filter(([,v])=>v).map(([k,v])=>`<div class="trait"><span>${k.toUpperCase()}</span><b>${v}</b></div>`).join("");
+  const url=new URL(location.href);url.searchParams.set("trader",id);history.replaceState(null,"",url);$("profile").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+async function loadTrader(id){
+  $("status").textContent=`Loading WST #${id}…`;$("profile").hidden=true;
+  try{renderProfile(await request({token_id:id}))}catch(error){$("status").textContent=error.message.includes("404")?`WST #${id} was not found.`:"The trader profile could not be loaded. Please try again."}
+}
+
+function renderLeaderboard(items){
+  $("leaderboard").innerHTML=items.map((r,i)=>{const ret=(Number(r.total_value)/STARTING_BALANCE-1)*100;return `<a class="leader-row" href="?trader=${r.token_id}" data-token="${r.token_id}"><b>#${i+1}</b><img src="${imageUrl(r.token_id)}" alt="WST #${r.token_id}" loading="lazy"><div><strong>TRADER #${r.token_id}</strong><br><small>${title(r.archetype)} · ${r.trades_count} trades</small></div><strong>${money.format(r.total_value)}</strong><b class="${ret>=0?"gain":"loss"}">${pct(ret)}</b></a>`}).join("");
+  document.querySelectorAll("[data-token]").forEach(row=>row.addEventListener("click",event=>{event.preventDefault();const id=row.dataset.token;$("token-input").value=id;loadTrader(id)}));
+}
+
+async function loadOverview(){
+  try{const data=await request({overview:"1"});$("asset-count").textContent=data.assets;$("cycle-count").textContent=data.cycles;renderLeaderboard(data.leaderboard||[])}catch{$("leaderboard").innerHTML='<p class="loading">Standings temporarily unavailable.</p>'}
+}
+
+$("search-form").addEventListener("submit",event=>{event.preventDefault();const id=Number($("token-input").value);if(id>=1&&id<=444)loadTrader(id);else $("status").textContent="Enter a token ID between 1 and 444."});
+const initial=new URLSearchParams(location.search).get("trader");if(initial&&Number(initial)>=1&&Number(initial)<=444){$("token-input").value=initial;loadTrader(initial)}
+loadOverview();
