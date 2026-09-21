@@ -40,7 +40,7 @@ function renderDecisions(items){
   root.innerHTML=items.length?items.map(d=>`<div class="data-row"><div><strong class="${d.action}">${String(d.action).toUpperCase()} ${safe(d.symbol,"")}</strong><br><small>${title(d.reason_code)}</small></div><div><strong>${Number(d.confidence).toFixed(1)}%</strong><br><small>${new Date(d.decided_at).toLocaleString()}</small></div></div>`).join(""):"NO DECISIONS YET";
 }
 
-function renderProfile(data,{updateUrl=true,scroll=true}={}){
+function renderProfile(data,{updateUrl=true}={}){
   const {trader,portfolio,positions=[],decisions=[]}=data;const id=trader.token_id;
   $("profile").hidden=false;$("status").textContent=`Showing the autonomous profile for WST #${id}.`;
   $("trader-image").src=imageUrl(id);$("trader-image").alt=trader.name;
@@ -52,12 +52,11 @@ function renderProfile(data,{updateUrl=true,scroll=true}={}){
   renderBars(trader);renderPositions(positions);renderDecisions(decisions);
   $("traits").innerHTML=Object.entries(trader.traits||{}).filter(([,v])=>v).map(([k,v])=>`<div class="trait"><span>${k.toUpperCase()}</span><b>${v}</b></div>`).join("");
   if(updateUrl){const url=new URL(location.href);url.searchParams.set("trader",id);history.replaceState(null,"",url)}
-  if(scroll)$("profile").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 async function loadTrader(id,options={}){
   $("status").textContent=`Loading WST #${id}…`;if(!options.keepVisible)$("profile").hidden=true;
-  try{renderProfile(await request({token_id:id}),options)}catch(error){$("status").textContent=error.message.includes("404")?`WST #${id} was not found.`:"The trader profile could not be loaded. Please try again."}
+  try{renderProfile(await request({token_id:id}),options);return true}catch(error){$("status").textContent=error.message.includes("404")?`WST #${id} was not found.`:"The trader profile could not be loaded. Please try again.";return false}
 }
 
 function renderPriceTape(assets){
@@ -65,7 +64,7 @@ function renderPriceTape(assets){
   if(!tape||!assets.length)return;
   tape.replaceChildren();
   [...assets,...assets].forEach(asset=>{
-    const item=document.createElement("span");item.className="market-tape-item";
+    const item=document.createElement("span");item.className="tape-item";
     const symbol=document.createElement("b");symbol.textContent=safe(asset.symbol,"ASSET");
     const price=document.createElement("em");price.textContent=money.format(Number(asset.price||0));
     const separator=document.createElement("i");separator.setAttribute("aria-hidden","true");separator.textContent="◆";
@@ -86,36 +85,30 @@ async function loadPrices(){
     if(!assets.length)throw new Error("prices_unavailable");
     renderPriceTape(assets);
   }catch{
-    if(tape)tape.innerHTML='<span class="market-tape-item"><b>STOCK TOKENS</b><em>MARKET DATA TEMPORARILY UNAVAILABLE</em><i aria-hidden="true">◆</i></span>';
+    if(tape)tape.innerHTML='<span class="tape-item"><b>STOCK TOKENS</b><em>MARKET DATA TEMPORARILY UNAVAILABLE</em><i aria-hidden="true">◆</i></span>';
   }
 }
 
 function renderLeaderboard(items){
   $("leaderboard").innerHTML=items.map((r,i)=>{const ret=(Number(r.total_value)/STARTING_BALANCE-1)*100;return `<a class="leader-row" href="?trader=${r.token_id}" data-token="${r.token_id}"><b>#${i+1}</b><img src="${imageUrl(r.token_id)}" alt="WST #${r.token_id}" loading="lazy"><div><strong>TRADER #${r.token_id}</strong><br><small>${title(r.archetype)} · ${r.trades_count} trades</small></div><strong>${money.format(r.total_value)}</strong><b class="${ret>=0?"gain":"loss"}">${pct(ret)}</b></a>`}).join("");
-  document.querySelectorAll("[data-token]").forEach(row=>row.addEventListener("click",event=>{event.preventDefault();const id=row.dataset.token;$("token-input").value=id;loadTrader(id)}));
+  document.querySelectorAll("[data-token]").forEach(row=>row.addEventListener("click",async event=>{event.preventDefault();const id=row.dataset.token;$("token-input").value=id;if(await loadTrader(id))showPanel("profile")}));
 }
 
 async function loadOverview(){
   try{const data=await getOverview();$("asset-count").textContent=data.assets;$("cycle-count").textContent=data.cycles;renderLeaderboard(data.leaderboard||[])}catch{$("leaderboard").innerHTML='<p class="loading">Standings temporarily unavailable.</p>'}
 }
 
-$("search-form").addEventListener("submit",event=>{event.preventDefault();const id=Number($("token-input").value);if(id>=1&&id<=444)loadTrader(id);else $("status").textContent="Enter a token ID between 1 and 444."});
+const navButtons=[...document.querySelectorAll(".autonomous-nav button")];
+function showPanel(id){
+  document.querySelectorAll(".workspace-content>.page-panel").forEach(panel=>panel.classList.toggle("active-panel",panel.id===id));
+  navButtons.forEach(button=>button.setAttribute("aria-selected",String(button.dataset.panel===id)));
+  window.scrollTo({top:$("main-content").offsetTop,behavior:"smooth"});
+}
+navButtons.forEach(button=>button.addEventListener("click",()=>showPanel(button.dataset.panel)));
+
+$("search-form").addEventListener("submit",async event=>{event.preventDefault();const id=Number($("token-input").value);if(id>=1&&id<=444){if(await loadTrader(id))showPanel("profile")}else $("status").textContent="Enter a token ID between 1 and 444."});
 const initial=new URLSearchParams(location.search).get("trader");
-if(initial&&Number(initial)>=1&&Number(initial)<=444){$("token-input").value=initial;loadTrader(initial,{updateUrl:false,scroll:false})}
+if(initial&&Number(initial)>=1&&Number(initial)<=444){$("token-input").value=initial;loadTrader(initial,{updateUrl:false}).then(success=>{if(success)showPanel("profile")})}
 else loadTrader(DEFAULT_TRADER_ID,{updateUrl:false,scroll:false,keepVisible:true});
 loadPrices();
 loadOverview();
-
-const sectionLinks=[...document.querySelectorAll(".autonomous-nav a")];
-sectionLinks.forEach(link=>link.addEventListener("click",()=>{
-  sectionLinks.forEach(item=>item.classList.toggle("active",item===link));
-}));
-if("IntersectionObserver" in window){
-  const observed=sectionLinks.map(link=>document.querySelector(link.getAttribute("href"))).filter(Boolean);
-  const sectionObserver=new IntersectionObserver(entries=>{
-    const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-    if(!visible)return;
-    sectionLinks.forEach(link=>link.classList.toggle("active",link.getAttribute("href")===`#${visible.target.id}`));
-  },{rootMargin:"-20% 0px -65% 0px",threshold:[0,.15,.5]});
-  observed.forEach(section=>sectionObserver.observe(section));
-}
