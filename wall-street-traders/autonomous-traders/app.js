@@ -105,3 +105,17 @@ if(initial&&Number(initial)>=1&&Number(initial)<=444){$("token-input").value=ini
 else loadTrader(DEFAULT_TRADER_ID,{updateUrl:false,scroll:false,keepVisible:true});
 loadPrices();
 loadOverview();
+
+const sectionLinks=[...document.querySelectorAll(".autonomous-nav a")];
+sectionLinks.forEach(link=>link.addEventListener("click",()=>{
+  sectionLinks.forEach(item=>item.classList.toggle("active",item===link));
+}));
+if("IntersectionObserver" in window){
+  const observed=sectionLinks.map(link=>document.querySelector(link.getAttribute("href"))).filter(Boolean);
+  const sectionObserver=new IntersectionObserver(entries=>{
+    const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+    if(!visible)return;
+    sectionLinks.forEach(link=>link.classList.toggle("active",link.getAttribute("href")===`#${visible.target.id}`));
+  },{rootMargin:"-20% 0px -65% 0px",threshold:[0,.15,.5]});
+  observed.forEach(section=>sectionObserver.observe(section));
+}
