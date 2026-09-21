@@ -13,7 +13,8 @@
   align-items: center;
   min-width: max-content;
   height: 100%;
-  animation: market-ticker 52s linear infinite;
+  animation: market-ticker 52s linear infinite !important;
+  animation-play-state: running !important;
   will-change: transform;
 }
 
@@ -67,8 +68,4 @@
     padding-inline: 12px;
   }
   .leader-row strong { font-size: 11px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tape .market-tape-track { animation-play-state: paused; }
 }
