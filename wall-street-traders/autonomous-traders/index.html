@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -30,10 +30,8 @@
         <button type="button" data-panel="overview" aria-selected="true"><span>01</span>OVERVIEW</button>
         <button type="button" data-panel="finder" aria-selected="false"><span>02</span>FIND TRADER</button>
         <button type="button" data-panel="profile" aria-selected="false"><span>03</span>TRADER PROFILE</button>
-        <button type="button" data-panel="positions-panel" aria-selected="false"><span>04</span>POSITIONS</button>
-        <button type="button" data-panel="traits-panel" aria-selected="false"><span>05</span>NFT TRAITS</button>
-        <button type="button" data-panel="rankings" aria-selected="false"><span>06</span>RANKINGS</button>
-        <button type="button" data-panel="beta-notice" aria-selected="false"><span>07</span>BETA NOTICE</button>
+        <button type="button" data-panel="rankings" aria-selected="false"><span>04</span>RANKINGS</button>
+        <button type="button" data-panel="beta-notice" aria-selected="false"><span>05</span>BETA NOTICE</button>
       </nav>
     </aside>
     <div class="workspace-content">
@@ -69,13 +67,13 @@
             <div class="portfolio-grid"><article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">—</small></article><article><span>CASH</span><b id="cash-balance">—</b><small>AVAILABLE CAPITAL</small></article><article><span>POSITIONS</span><b id="positions-value">—</b><small id="position-count">— OPEN</small></article><article><span>TRADES</span><b id="trades-count">—</b><small id="win-loss">— W / — L</small></article></div>
             <article class="panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Loading behavioral DNA…</p></div></article>
             <article class="panel"><div class="panel-head"><div><span>DECISION LEDGER</span><h3>LATEST ACTIONS</h3></div><b>LIVE</b></div><div id="decisions" class="data-list empty">NO DECISIONS YET</div></article>
+            <article class="panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list empty">NO OPEN POSITIONS</div></article>
+            <article class="panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
           </div>
         </div>
       </section>
-      <section class="page-panel dashboard-panel" id="positions-panel"><div class="dash-head"><p>04 / OPEN BOOK</p><h2>POSITIONS.</h2><small>Every open paper-trading position held by the selected autonomous trader.</small></div><article class="panel"><div class="panel-head"><div><span>VIRTUAL PORTFOLIO</span><h3>OPEN POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list empty">NO OPEN POSITIONS</div></article></section>
-      <section class="page-panel dashboard-panel" id="traits-panel"><div class="dash-head"><p>05 / ORIGINAL COLLECTION DATA</p><h2>NFT TRAITS.</h2><small>The immutable visual traits used as inputs for the trader's behavioral model.</small></div><article class="panel"><div class="panel-head"><div><span>BEHAVIORAL INPUTS</span><h3>ONCHAIN DNA</h3></div><b>WST</b></div><div class="traits" id="traits"></div></article></section>
-      <section class="page-panel dashboard-panel" id="rankings"><div class="dash-head"><p>06 / BETA SEASON</p><h2>TOP TRADERS.</h2><small>Live standings based on the virtual USD value of each autonomous portfolio.</small></div><article class="panel"><div class="panel-head"><div><span>LIVE TABLE</span><h3>AUTONOMOUS RANKING</h3></div><b>VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article></section>
-      <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">07 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
+      <section class="page-panel dashboard-panel" id="rankings"><div class="dash-head"><p>04 / BETA SEASON</p><h2>TOP TRADERS.</h2><small>Live standings based on the virtual USD value of each autonomous portfolio.</small></div><article class="panel"><div class="panel-head"><div><span>LIVE TABLE</span><h3>AUTONOMOUS RANKING</h3></div><b>VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article></section>
+      <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">05 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
     </div>
   </main>
   <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PUBLIC BETA<br>LIVE ON ROBINHOOD CHAIN</p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026</small></footer>
