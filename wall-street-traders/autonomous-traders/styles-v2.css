@@ -1,18 +1,19 @@
 /* Live stock-token tape and resilient dashboard columns. */
 .market-tape {
-  height: 36px;
+  height: 32px;
   overflow: hidden;
   border-bottom: 1px solid var(--line);
-  background: #020302;
+  background: var(--paper);
+  color: #050505;
   white-space: nowrap;
 }
 
-.market-tape-track {
+.tape .market-tape-track {
   display: inline-flex;
   align-items: center;
   min-width: max-content;
   height: 100%;
-  animation: market-ticker 42s linear infinite;
+  animation: market-ticker 52s linear infinite;
   will-change: transform;
 }
 
@@ -21,13 +22,13 @@
   align-items: center;
   gap: 9px;
   padding: 0 20px;
-  font: 700 10px/36px monospace;
+  font: 700 10px/32px monospace;
   letter-spacing: 1px;
 }
 
-.market-tape-item b { color: var(--muted); }
-.market-tape-item em { color: var(--green); font-style: normal; }
-.market-tape-item i { margin-left: 8px; color: #3b3833; font-size: 7px; font-style: normal; }
+.market-tape-item b { color: #4f4a43; }
+.market-tape-item em { color: #050505; font-style: normal; }
+.market-tape-item i { margin-left: 8px; color: #777066; font-size: 7px; font-style: normal; }
 
 @keyframes market-ticker {
   to { transform: translateX(-50%); }
@@ -69,5 +70,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .market-tape-track { animation-play-state: paused; }
+  .tape .market-tape-track { animation-play-state: paused; }
 }
