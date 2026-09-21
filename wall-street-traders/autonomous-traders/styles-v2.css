@@ -1,0 +1,73 @@
+/* Live stock-token tape and resilient dashboard columns. */
+.market-tape {
+  height: 36px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background: #020302;
+  white-space: nowrap;
+}
+
+.market-tape-track {
+  display: inline-flex;
+  align-items: center;
+  min-width: max-content;
+  height: 100%;
+  animation: market-ticker 42s linear infinite;
+  will-change: transform;
+}
+
+.market-tape-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 20px;
+  font: 700 10px/36px monospace;
+  letter-spacing: 1px;
+}
+
+.market-tape-item b { color: var(--muted); }
+.market-tape-item em { color: var(--green); font-style: normal; }
+.market-tape-item i { margin-left: 8px; color: #3b3833; font-size: 7px; font-style: normal; }
+
+@keyframes market-ticker {
+  to { transform: translateX(-50%); }
+}
+
+.profile { grid-template-columns: minmax(280px, 340px) minmax(0, 1fr); }
+.dashboard,
+.portfolio-grid,
+.two-columns,
+.panel { min-width: 0; }
+.portfolio-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.portfolio-grid b { overflow-wrap: anywhere; }
+.two-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.leader-row { grid-template-columns: 50px 48px minmax(0, 1fr) minmax(110px, 130px) minmax(78px, 100px); }
+
+@media (max-width: 1180px) {
+  .profile { grid-template-columns: 300px minmax(0, 1fr); }
+  .portfolio-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .portfolio-grid article:nth-child(2) { border-right: 0; }
+  .portfolio-grid article:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+}
+
+@media (max-width: 900px) {
+  .profile { grid-template-columns: 1fr; }
+  .two-columns { grid-template-columns: 1fr; }
+  .leader-row { grid-template-columns: 35px 42px minmax(0, 1fr) minmax(88px, 110px); }
+}
+
+@media (max-width: 520px) {
+  .market-tape-item { padding: 0 14px; }
+  .portfolio-grid { grid-template-columns: 1fr; }
+  .portfolio-grid article:nth-child(-n + 3) { border-bottom: 1px solid var(--line); }
+  .leader-row {
+    grid-template-columns: 30px 40px minmax(0, 1fr) 88px;
+    gap: 9px;
+    padding-inline: 12px;
+  }
+  .leader-row strong { font-size: 11px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .market-tape-track { animation-play-state: paused; }
+}
