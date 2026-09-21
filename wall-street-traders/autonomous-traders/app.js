@@ -1,8 +1,11 @@
 const API="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public";
+const PRICE_API="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/clock-in-mainnet/prices";
 const STARTING_BALANCE=10000;
+const DEFAULT_TRADER_ID=160;
 const money=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2});
 const number=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});
 const $=id=>document.getElementById(id);
+let overviewPromise;
 
 function imageUrl(id){return `../trading-floor/traders/${id}.png`}
 function pct(value){const n=Number(value||0);return `${n>=0?"+":""}${n.toFixed(2)}%`}
@@ -14,6 +17,11 @@ async function request(params={}){
   const response=await fetch(url,{headers:{Accept:"application/json"}});
   if(!response.ok)throw new Error(`Request failed (${response.status})`);
   return response.json();
+}
+
+function getOverview(){
+  if(!overviewPromise)overviewPromise=request({overview:"1"}).catch(error=>{overviewPromise=null;throw error});
+  return overviewPromise;
 }
 
 function renderBars(trader){
@@ -32,7 +40,7 @@ function renderDecisions(items){
   root.innerHTML=items.length?items.map(d=>`<div class="data-row"><div><strong class="${d.action}">${String(d.action).toUpperCase()} ${safe(d.symbol,"")}</strong><br><small>${title(d.reason_code)}</small></div><div><strong>${Number(d.confidence).toFixed(1)}%</strong><br><small>${new Date(d.decided_at).toLocaleString()}</small></div></div>`).join(""):"NO DECISIONS YET";
 }
 
-function renderProfile(data){
+function renderProfile(data,{updateUrl=true,scroll=true}={}){
   const {trader,portfolio,positions=[],decisions=[]}=data;const id=trader.token_id;
   $("profile").hidden=false;$("status").textContent=`Showing the autonomous profile for WST #${id}.`;
   $("trader-image").src=imageUrl(id);$("trader-image").alt=trader.name;
@@ -43,12 +51,43 @@ function renderProfile(data){
   $("cash-balance").textContent=money.format(portfolio.cash_balance);$("positions-value").textContent=money.format(portfolio.positions_value);$("trades-count").textContent=portfolio.trades_count;$("win-loss").textContent=`${portfolio.wins_count} W / ${portfolio.losses_count} L`;
   renderBars(trader);renderPositions(positions);renderDecisions(decisions);
   $("traits").innerHTML=Object.entries(trader.traits||{}).filter(([,v])=>v).map(([k,v])=>`<div class="trait"><span>${k.toUpperCase()}</span><b>${v}</b></div>`).join("");
-  const url=new URL(location.href);url.searchParams.set("trader",id);history.replaceState(null,"",url);$("profile").scrollIntoView({behavior:"smooth",block:"start"});
+  if(updateUrl){const url=new URL(location.href);url.searchParams.set("trader",id);history.replaceState(null,"",url)}
+  if(scroll)$("profile").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
-async function loadTrader(id){
-  $("status").textContent=`Loading WST #${id}…`;$("profile").hidden=true;
-  try{renderProfile(await request({token_id:id}))}catch(error){$("status").textContent=error.message.includes("404")?`WST #${id} was not found.`:"The trader profile could not be loaded. Please try again."}
+async function loadTrader(id,options={}){
+  $("status").textContent=`Loading WST #${id}…`;if(!options.keepVisible)$("profile").hidden=true;
+  try{renderProfile(await request({token_id:id}),options)}catch(error){$("status").textContent=error.message.includes("404")?`WST #${id} was not found.`:"The trader profile could not be loaded. Please try again."}
+}
+
+function renderPriceTape(assets){
+  const tape=$("price-tape");
+  if(!tape||!assets.length)return;
+  tape.replaceChildren();
+  [...assets,...assets].forEach(asset=>{
+    const item=document.createElement("span");item.className="market-tape-item";
+    const symbol=document.createElement("b");symbol.textContent=safe(asset.symbol,"ASSET");
+    const price=document.createElement("em");price.textContent=money.format(Number(asset.price||0));
+    const separator=document.createElement("i");separator.setAttribute("aria-hidden","true");separator.textContent="◆";
+    item.append(symbol,price,separator);tape.append(item);
+  });
+}
+
+async function loadPrices(){
+  const tape=$("price-tape");
+  try{
+    const overview=await getOverview();
+    const publicPrices=Array.isArray(overview.prices)?overview.prices.filter(asset=>asset?.symbol&&Number.isFinite(Number(asset.price))):[];
+    if(publicPrices.length){renderPriceTape(publicPrices);return}
+    const response=await fetch(PRICE_API,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:"{}"});
+    if(!response.ok)throw new Error("price_request_failed");
+    const data=await response.json();
+    const assets=Array.isArray(data.assets)?data.assets.filter(asset=>asset?.symbol&&Number.isFinite(Number(asset.price))):[];
+    if(!assets.length)throw new Error("prices_unavailable");
+    renderPriceTape(assets);
+  }catch{
+    if(tape)tape.innerHTML='<span class="market-tape-item"><b>STOCK TOKENS</b><em>MARKET DATA TEMPORARILY UNAVAILABLE</em><i aria-hidden="true">◆</i></span>';
+  }
 }
 
 function renderLeaderboard(items){
@@ -57,9 +96,12 @@ function renderLeaderboard(items){
 }
 
 async function loadOverview(){
-  try{const data=await request({overview:"1"});$("asset-count").textContent=data.assets;$("cycle-count").textContent=data.cycles;renderLeaderboard(data.leaderboard||[])}catch{$("leaderboard").innerHTML='<p class="loading">Standings temporarily unavailable.</p>'}
+  try{const data=await getOverview();$("asset-count").textContent=data.assets;$("cycle-count").textContent=data.cycles;renderLeaderboard(data.leaderboard||[])}catch{$("leaderboard").innerHTML='<p class="loading">Standings temporarily unavailable.</p>'}
 }
 
 $("search-form").addEventListener("submit",event=>{event.preventDefault();const id=Number($("token-input").value);if(id>=1&&id<=444)loadTrader(id);else $("status").textContent="Enter a token ID between 1 and 444."});
-const initial=new URLSearchParams(location.search).get("trader");if(initial&&Number(initial)>=1&&Number(initial)<=444){$("token-input").value=initial;loadTrader(initial)}
+const initial=new URLSearchParams(location.search).get("trader");
+if(initial&&Number(initial)>=1&&Number(initial)<=444){$("token-input").value=initial;loadTrader(initial,{updateUrl:false,scroll:false})}
+else loadTrader(DEFAULT_TRADER_ID,{updateUrl:false,scroll:false,keepVisible:true});
+loadPrices();
 loadOverview();

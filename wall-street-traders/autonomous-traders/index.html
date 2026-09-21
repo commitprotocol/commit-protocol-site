@@ -11,9 +11,15 @@
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles-v2.css?v=2">
 </head>
 <body>
+  <div class="market-tape" aria-label="Live stock token prices">
+    <div class="market-tape-track" id="price-tape">
+      <span class="market-tape-item"><b>MARKET DATA</b><em>LOADING…</em><i aria-hidden="true">◆</i></span>
+    </div>
+  </div>
   <div class="tape"><div>WST AUTONOMOUS TRADERS <i>◆</i> 444 TRADING DNAs <i>◆</i> PAPER TRADING ONLY <i>◆</i> ROBINHOOD CHAIN STOCK TOKENS <i>◆</i> PUBLIC BETA <i>◆</i> WST AUTONOMOUS TRADERS <i>◆</i> 444 TRADING DNAs</div></div>
   <header>
     <a class="brand" href="/wall-street-traders/"><b>WST</b><span>AUTONOMOUS TRADERS</span></a>
@@ -36,13 +42,13 @@
       <form id="search-form"><label for="token-input">NFT TOKEN ID</label><div><input id="token-input" type="number" min="1" max="444" inputmode="numeric" placeholder="1 — 444" required><button>OPEN PROFILE →</button></div><small>No wallet connection. No signature. No transaction.</small></form>
     </section>
 
-    <p class="notice" id="status" role="status">Enter a token ID to inspect its autonomous profile.</p>
+    <p class="notice" id="status" role="status">Trader #160 is displayed as the default profile. Enter any token ID from 1 to 444 to find your trader.</p>
 
-    <section class="profile" id="profile" hidden>
+    <section class="profile" id="profile">
       <div class="identity panel">
-        <div class="image-wrap"><img id="trader-image" alt=""><span id="rarity-badge"></span></div>
-        <p id="public-file"></p><h2 id="trader-name"></h2>
-        <dl class="identity-data"><div><dt>ARCHETYPE</dt><dd id="archetype"></dd></div><div><dt>RARITY SCORE</dt><dd id="rarity-score"></dd></div><div><dt>DNA VERSION</dt><dd id="dna-version"></dd></div><div><dt>STATUS</dt><dd class="positive">ACTIVE</dd></div></dl>
+        <div class="image-wrap"><img id="trader-image" src="../trading-floor/traders/160.png" alt="Wall Street Trader #160"><span id="rarity-badge">DEFAULT</span></div>
+        <p id="public-file">PUBLIC FILE / WST-160</p><h2 id="trader-name">TRADER #160</h2>
+        <dl class="identity-data"><div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div><div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div><div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div><div><dt>STATUS</dt><dd class="positive">ACTIVE</dd></div></dl>
       </div>
 
       <div class="dashboard">
@@ -53,7 +59,7 @@
           <article><span>TRADES</span><b id="trades-count">—</b><small id="win-loss">— W / — L</small></article>
         </div>
 
-        <article class="panel dna-panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"></div></article>
+        <article class="panel dna-panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Loading behavioral DNA…</p></div></article>
 
         <div class="two-columns">
           <article class="panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list empty">NO OPEN POSITIONS</div></article>
@@ -73,6 +79,6 @@
   </main>
 
   <footer><b>WST / AUTONOMOUS</b><span>BUILT BY COMMIT PROTOCOL · 2026</span><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">FOLLOW ON X ↗</a></footer>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
