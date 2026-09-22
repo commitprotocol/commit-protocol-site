@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -31,7 +31,8 @@
         <button type="button" data-panel="finder" aria-selected="false"><span>02</span>FIND TRADER</button>
         <button type="button" data-panel="profile" aria-selected="false"><span>03</span>TRADER PROFILE</button>
         <button type="button" data-panel="rankings" aria-selected="false"><span>04</span>RANKINGS</button>
-        <button type="button" data-panel="beta-notice" aria-selected="false"><span>05</span>BETA NOTICE</button>
+        <button type="button" data-panel="activity" aria-selected="false"><span>05</span>ACTIVITY</button>
+        <button type="button" data-panel="beta-notice" aria-selected="false"><span>06</span>BETA NOTICE</button>
       </nav>
     </aside>
     <div class="workspace-content">
@@ -73,10 +74,11 @@
         </div>
       </section>
       <section class="page-panel dashboard-panel" id="rankings"><div class="dash-head"><p>04 / BETA SEASON</p><h2>TOP TRADERS.</h2><small>Live standings based on the virtual USD value of each autonomous portfolio.</small></div><article class="panel leaderboard-panel"><div class="panel-head"><div><span>LIVE TABLE</span><h3>AUTONOMOUS RANKING</h3></div><b>VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article></section>
-      <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">05 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
+      <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>05 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Recent simulated decisions across all 444 traders. Updates every 30 seconds while this page is open.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div id="activity-list" class="activity-list"><p class="loading">Loading recent decisions…</p></div></article><p class="activity-note">PAPER TRADING ONLY · HOLD IS A DECISION, NOT AN EXECUTED TRADE · TIMES SHOWN IN YOUR LOCAL TIME ZONE</p></section>
+      <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">06 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
     </div>
   </main>
   <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PUBLIC BETA<br>LIVE ON ROBINHOOD CHAIN</p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026</small></footer>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

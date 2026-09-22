@@ -98,10 +98,47 @@ async function loadOverview(){
   try{const data=await getOverview();$("asset-count").textContent=data.assets;$("cycle-count").textContent=data.cycles;renderLeaderboard(data.leaderboard||[])}catch{$("leaderboard").innerHTML='<p class="loading">Standings temporarily unavailable.</p>'}
 }
 
+let activityLoading=false;
+let activityLoaded=false;
+function renderActivity(items){
+  const root=$("activity-list");root.replaceChildren();
+  if(!items.length){const empty=document.createElement("p");empty.className="loading";empty.textContent="No decisions have been recorded yet.";root.append(empty);return}
+  for(const row of items){
+    const id=Number(row.token_id);
+    if(!Number.isInteger(id)||id<1||id>444)continue;
+    const action=String(row.action||"HOLD").toUpperCase();
+    const link=document.createElement("a");link.className="activity-row";link.href=`?trader=${id}`;
+    const portrait=document.createElement("img");portrait.src=imageUrl(id);portrait.alt=`WST #${id}`;portrait.loading="lazy";
+    const identity=document.createElement("span");identity.className="activity-trader";identity.textContent=`TRADER #${id}`;
+    const decision=document.createElement("span");decision.className=`activity-action ${["BUY","SELL","HOLD"].includes(action)?action.toLowerCase():""}`;decision.textContent=`${action} ${safe(row.symbol,"")}`.trim();
+    const reason=document.createElement("span");reason.className="activity-reason";reason.textContent=title(row.reason_code);
+    const stamp=document.createElement("time");stamp.className="activity-time";
+    const date=new Date(row.decided_at);
+    if(!Number.isNaN(date.getTime())){stamp.dateTime=date.toISOString();stamp.textContent=date.toLocaleString(undefined,{dateStyle:"short",timeStyle:"medium"})}else stamp.textContent="TIME UNAVAILABLE";
+    link.append(portrait,identity,decision,reason,stamp);
+    link.addEventListener("click",async event=>{event.preventDefault();$("token-input").value=id;if(await loadTrader(id))showPanel("profile")});
+    root.append(link);
+  }
+}
+async function loadActivity(){
+  if(activityLoading||document.hidden||!$("activity").classList.contains("active-panel"))return;
+  activityLoading=true;
+  try{
+    const data=await request({activity:"1",limit:"30"});
+    if(!Array.isArray(data.activity))throw new Error("Invalid activity response");
+    renderActivity(data.activity);activityLoaded=true;
+    $("activity-status").textContent=`UPDATED ${new Date().toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"})}`;
+  }catch{
+    $("activity-status").textContent="UPDATES UNAVAILABLE";
+    if(!activityLoaded)$("activity-list").innerHTML='<p class="loading">Activity is temporarily unavailable. Please try again later.</p>';
+  }finally{activityLoading=false}
+}
+
 const navButtons=[...document.querySelectorAll(".autonomous-nav button")];
 function showPanel(id){
   document.querySelectorAll(".workspace-content>.page-panel").forEach(panel=>panel.classList.toggle("active-panel",panel.id===id));
   navButtons.forEach(button=>button.setAttribute("aria-selected",String(button.dataset.panel===id)));
+  if(id==="activity")loadActivity();
   window.scrollTo({top:$("main-content").offsetTop,behavior:"smooth"});
 }
 navButtons.forEach(button=>button.addEventListener("click",()=>showPanel(button.dataset.panel)));
@@ -112,3 +149,5 @@ if(initial&&Number(initial)>=1&&Number(initial)<=444){$("token-input").value=ini
 else loadTrader(DEFAULT_TRADER_ID,{updateUrl:false,scroll:false,keepVisible:true});
 loadPrices();
 loadOverview();
+setInterval(loadActivity,30000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadActivity()});
