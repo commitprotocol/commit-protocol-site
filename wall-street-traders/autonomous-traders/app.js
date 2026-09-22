@@ -6,6 +6,8 @@ const money=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minim
 const number=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});
 const $=id=>document.getElementById(id);
 let overviewPromise;
+const HISTORY_PAGE_SIZE=25;
+const historyState={tokenId:null,action:"all",cursor:null,hasMore:false,loading:false,items:[]};
 
 function imageUrl(id){return `../trading-floor/traders/${id}.png`}
 function pct(value){const n=Number(value||0);return `${n>=0?"+":""}${n.toFixed(2)}%`}
@@ -37,7 +39,34 @@ function renderPositions(items){
 
 function renderDecisions(items){
   const root=$("decisions");root.classList.toggle("empty",!items.length);
-  root.innerHTML=items.length?items.map(d=>`<div class="data-row"><div><strong class="${d.action}">${String(d.action).toUpperCase()} ${safe(d.symbol,"")}</strong><br><small>${title(d.reason_code)}</small></div><div><strong>${Number(d.confidence).toFixed(1)}%</strong><br><small>${new Date(d.decided_at).toLocaleString()}</small></div></div>`).join(""):"NO DECISIONS YET";
+  root.innerHTML=items.length?items.map(d=>{const action=String(d.action||"hold").toLowerCase();return `<div class="data-row"><div><strong class="${["buy","sell"].includes(action)?action:""}">${action.toUpperCase()} ${safe(d.symbol,"")}</strong><br><small>${title(d.reason_code)}</small></div><div><strong>${Number(d.confidence).toFixed(1)}%</strong><br><small>${new Date(d.decided_at).toLocaleString()}</small></div></div>`}).join(""):"NO DECISIONS YET";
+  $("history-count").textContent=`${items.length} ${items.length===1?"DECISION":"DECISIONS"} LOADED`;
+}
+
+function setHistoryControls(){
+  document.querySelectorAll(".history-toolbar button").forEach(button=>button.classList.toggle("active",button.dataset.action===historyState.action));
+  const loadMore=$("load-more-decisions");loadMore.hidden=!historyState.hasMore;loadMore.disabled=historyState.loading;
+  loadMore.textContent=historyState.loading?"LOADING…":"LOAD MORE ↓";
+}
+
+async function loadDecisionHistory({reset=false}={}){
+  if(historyState.loading||!historyState.tokenId)return;
+  if(reset){historyState.cursor=null;historyState.hasMore=false;historyState.items=[];renderDecisions([])}
+  const requestedToken=historyState.tokenId;const requestedAction=historyState.action;
+  historyState.loading=true;$("history-status").textContent="LOADING…";setHistoryControls();
+  try{
+    const params={history:"1",token_id:String(requestedToken),action:requestedAction,limit:String(HISTORY_PAGE_SIZE)};
+    if(historyState.cursor)params.before=historyState.cursor;
+    const data=await request(params);
+    if(historyState.tokenId!==requestedToken||historyState.action!==requestedAction)return;
+    const page=Array.isArray(data.decisions)?data.decisions:[];
+    historyState.items=reset?page:[...historyState.items,...page];
+    historyState.cursor=data.next_cursor||null;historyState.hasMore=Boolean(data.has_more);
+    renderDecisions(historyState.items);$("history-status").textContent=historyState.hasMore?"MORE AVAILABLE":"COMPLETE";
+  }catch{
+    $("history-status").textContent="UNAVAILABLE";
+    if(!historyState.items.length)$("decisions").innerHTML='<p class="loading">Decision history is temporarily unavailable.</p>';
+  }finally{historyState.loading=false;setHistoryControls()}
 }
 
 function renderProfile(data,{updateUrl=true}={}){
@@ -51,6 +80,7 @@ function renderProfile(data,{updateUrl=true}={}){
   $("cash-balance").textContent=money.format(portfolio.cash_balance);$("positions-value").textContent=money.format(portfolio.positions_value);$("trades-count").textContent=portfolio.trades_count;$("win-loss").textContent=`${portfolio.wins_count} W / ${portfolio.losses_count} L`;
   renderBars(trader);renderPositions(positions);renderDecisions(decisions);
   $("traits").innerHTML=Object.entries(trader.traits||{}).filter(([,v])=>v).map(([k,v])=>`<div class="trait"><span>${k.toUpperCase()}</span><b>${v}</b></div>`).join("");
+  historyState.tokenId=id;historyState.action="all";historyState.cursor=null;historyState.hasMore=false;historyState.items=decisions;setHistoryControls();loadDecisionHistory({reset:true});
   if(updateUrl){const url=new URL(location.href);url.searchParams.set("trader",id);history.replaceState(null,"",url)}
 }
 
@@ -151,3 +181,5 @@ loadPrices();
 loadOverview();
 setInterval(loadActivity,30000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadActivity()});
+document.querySelectorAll(".history-toolbar button").forEach(button=>button.addEventListener("click",()=>{if(historyState.loading)return;historyState.action=button.dataset.action;loadDecisionHistory({reset:true})}));
+$("load-more-decisions").addEventListener("click",()=>loadDecisionHistory());

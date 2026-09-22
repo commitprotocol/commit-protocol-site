@@ -59,18 +59,23 @@
       <section class="page-panel dashboard-panel" id="profile">
         <div class="dash-head"><p>03 / AUTONOMOUS IDENTITY</p><h2>TRADER PROFILE.</h2><small>Market behavior is generated from the NFT's rarity, archetype and original collection traits.</small></div>
         <div class="profile-layout">
-          <article class="identity panel">
+          <article class="identity panel profile-identity">
             <div class="image-wrap"><img id="trader-image" src="../trading-floor/traders/160.png" alt="Wall Street Trader #160"><span id="rarity-badge">DEFAULT</span></div>
-            <p id="public-file">PUBLIC FILE / WST-160</p><h2 id="trader-name">TRADER #160</h2>
-            <dl class="identity-data"><div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div><div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div><div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div><div><dt>STATUS</dt><dd class="positive">ACTIVE</dd></div></dl>
+            <div class="identity-copy"><p id="public-file">PUBLIC FILE / WST-160</p><h2 id="trader-name">TRADER #160</h2>
+              <dl class="identity-data"><div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div><div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div><div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div><div><dt>STATUS</dt><dd class="positive">ACTIVE</dd></div></dl>
+            </div>
           </article>
-          <div class="profile-dashboard">
-            <div class="portfolio-grid"><article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">—</small></article><article><span>CASH</span><b id="cash-balance">—</b><small>AVAILABLE CAPITAL</small></article><article><span>POSITIONS</span><b id="positions-value">—</b><small id="position-count">— OPEN</small></article><article><span>TRADES</span><b id="trades-count">—</b><small id="win-loss">— W / — L</small></article></div>
+          <div class="portfolio-grid"><article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">—</small></article><article><span>CASH</span><b id="cash-balance">—</b><small>AVAILABLE CAPITAL</small></article><article><span>POSITIONS</span><b id="positions-value">—</b><small id="position-count">— OPEN</small></article><article><span>TRADES</span><b id="trades-count">—</b><small id="win-loss">— W / — L</small></article></div>
+          <div class="profile-main-grid">
             <article class="panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Loading behavioral DNA…</p></div></article>
-            <article class="panel"><div class="panel-head"><div><span>DECISION LEDGER</span><h3>LATEST ACTIONS</h3></div><b>LIVE</b></div><div id="decisions" class="data-list empty">NO DECISIONS YET</div></article>
             <article class="panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list empty">NO OPEN POSITIONS</div></article>
-            <article class="panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
           </div>
+          <article class="panel decision-history"><div class="panel-head history-head"><div><span>COMPLETE DECISION LEDGER</span><h3>DECISION HISTORY</h3></div><b id="history-status">LIVE</b></div>
+            <div class="history-toolbar" role="group" aria-label="Filter decision history"><button type="button" class="active" data-action="all">ALL</button><button type="button" data-action="buy">BUY</button><button type="button" data-action="sell">SELL</button><button type="button" data-action="hold">HOLD</button></div>
+            <div id="decisions" class="data-list history-list empty" aria-live="polite">NO DECISIONS YET</div>
+            <div class="history-footer"><span id="history-count">0 DECISIONS LOADED</span><button type="button" id="load-more-decisions" hidden>LOAD MORE ↓</button></div>
+          </article>
+          <article class="panel traits-panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
         </div>
       </section>
       <section class="page-panel dashboard-panel" id="rankings"><div class="dash-head"><p>04 / BETA SEASON</p><h2>TOP TRADERS.</h2><small>Live standings based on the virtual USD value of each autonomous portfolio.</small></div><article class="panel leaderboard-panel"><div class="panel-head"><div><span>LIVE TABLE</span><h3>AUTONOMOUS RANKING</h3></div><b>VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article></section>
@@ -79,6 +84,6 @@
     </div>
   </main>
   <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PUBLIC BETA<br>LIVE ON ROBINHOOD CHAIN</p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026</small></footer>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
