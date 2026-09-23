@@ -8,6 +8,8 @@ const $=id=>document.getElementById(id);
 let overviewPromise;
 const HISTORY_PAGE_SIZE=25;
 const historyState={tokenId:null,action:"all",cursor:null,hasMore:false,loading:false,items:[]};
+const ACTIVITY_PAGE_SIZE=25;
+const activityState={action:"all",cursor:null,hasMore:false,loading:false,items:[]};
 
 function imageUrl(id){return `../trading-floor/traders/${id}.png`}
 function pct(value){const n=Number(value||0);return `${n>=0?"+":""}${n.toFixed(2)}%`}
@@ -21,6 +23,7 @@ async function request(params={}){
   if(!response.ok)throw new Error(`Request failed (${response.status})`);
   return response.json();
 }
+
 
 function getOverview(){
   if(!overviewPromise)overviewPromise=request({overview:"1"}).catch(error=>{overviewPromise=null;throw error});
@@ -41,8 +44,9 @@ function renderPositions(items){
 function renderDecisions(items){
   const root=$("decisions");root.classList.toggle("empty",!items.length);
   root.innerHTML=items.length?items.map(d=>{
-    const action=String(d.action||"hold").toLowerCase();const proof=d.proof_data||{};const hash=String(d.proof_hash||"");
-    const proofMarkup=hash?`<details class="decision-proof"><summary>VIEW DECISION PROOF</summary><div class="proof-grid"><div><span>PRICE SNAPSHOT</span><b>${proof.price_snapshot==null?"UNAVAILABLE":money.format(Number(proof.price_snapshot))}</b></div><div><span>MARKET SIGNAL</span><b>${escapeHtml(String(safe(proof.market_signal)).toUpperCase())}</b></div><div><span>SIGNAL STRENGTH</span><b>${escapeHtml(String(safe(proof.signal_strength)).toUpperCase())}</b></div><div><span>RISK INFLUENCE</span><b>${escapeHtml(String(safe(proof.risk_influence)).toUpperCase())}</b></div><div><span>DISCIPLINE INFLUENCE</span><b>${escapeHtml(String(safe(proof.discipline_influence)).toUpperCase())}</b></div><div><span>MOMENTUM INFLUENCE</span><b>${escapeHtml(String(safe(proof.momentum_influence)).toUpperCase())}</b></div><div><span>ENGINE / DNA</span><b>${escapeHtml(String(safe(d.engine_version)).toUpperCase())} / ${escapeHtml(String(safe(d.dna_version)).toUpperCase())}</b></div><div class="proof-hash"><span>COMMITMENT HASH</span><code title="${escapeHtml(hash)}">${escapeHtml(hash.slice(0,22))}…${escapeHtml(hash.slice(-10))}</code></div></div><p>PUBLIC PROOF EXPOSES CONTEXT AND INFLUENCE LEVELS. PROPRIETARY WEIGHTS AND RAW INPUTS REMAIN PRIVATE.</p></details>`:"";
+    const action=String(d.action||"hold").toLowerCase();const proof=d.proof_data||{};const hash=String(d.proof_hash||"");const exit=d.exit_details||null;
+    const exitMarkup=exit?`<div><span>EXIT REASON</span><b>${escapeHtml(title(d.reason_code).toUpperCase())}</b></div><div><span>ENTRY PRICE</span><b>${money.format(Number(exit.entry_price))}</b></div><div><span>EXIT PRICE</span><b>${money.format(Number(exit.exit_price))}</b></div><div><span>POSITION RETURN</span><b class="${Number(exit.return_pct)>=0?"buy":"sell"}">${pct(exit.return_pct)}</b></div><div><span>REALIZED P&amp;L</span><b class="${Number(exit.realized_pnl)>=0?"buy":"sell"}">${money.format(Number(exit.realized_pnl))}</b></div><div><span>QUANTITY SOLD</span><b>${number.format(Number(exit.quantity))}</b></div><div><span>TAKE PROFIT TARGET</span><b>${exit.take_profit_pct==null?"UNAVAILABLE":`+${Number(exit.take_profit_pct).toFixed(2)}%`}</b></div><div><span>STOP LOSS LIMIT</span><b>${exit.stop_loss_pct==null?"UNAVAILABLE":`-${Number(exit.stop_loss_pct).toFixed(2)}%`}</b></div>`:"";
+    const proofMarkup=hash?`<details class="decision-proof"><summary>VIEW DECISION PROOF</summary><div class="proof-grid">${exitMarkup}<div><span>PRICE SNAPSHOT</span><b>${proof.price_snapshot==null?"UNAVAILABLE":money.format(Number(proof.price_snapshot))}</b></div><div><span>MARKET SIGNAL</span><b>${escapeHtml(String(safe(proof.market_signal)).toUpperCase())}</b></div><div><span>SIGNAL STRENGTH</span><b>${escapeHtml(String(safe(proof.signal_strength)).toUpperCase())}</b></div><div><span>RISK INFLUENCE</span><b>${escapeHtml(String(safe(proof.risk_influence)).toUpperCase())}</b></div><div><span>DISCIPLINE INFLUENCE</span><b>${escapeHtml(String(safe(proof.discipline_influence)).toUpperCase())}</b></div><div><span>MOMENTUM INFLUENCE</span><b>${escapeHtml(String(safe(proof.momentum_influence)).toUpperCase())}</b></div><div><span>ENGINE / DNA</span><b>${escapeHtml(String(safe(d.engine_version)).toUpperCase())} / ${escapeHtml(String(safe(d.dna_version)).toUpperCase())}</b></div><div class="proof-hash"><span>COMMITMENT HASH</span><code title="${escapeHtml(hash)}">${escapeHtml(hash.slice(0,22))}…${escapeHtml(hash.slice(-10))}</code></div></div><p>PUBLIC PROOF EXPOSES DECISION CONTEXT. PROPRIETARY WEIGHTS AND RAW INPUTS REMAIN PRIVATE.</p></details>`:"";
     return `<div class="data-row decision-row"><div><strong class="${["buy","sell"].includes(action)?action:""}">${escapeHtml(action.toUpperCase())} ${escapeHtml(safe(d.symbol,""))}</strong><br><small>${escapeHtml(title(d.reason_code))}</small></div><div><strong>${Number(d.confidence).toFixed(1)}%</strong><br><small>${escapeHtml(new Date(d.decided_at).toLocaleString())}</small></div>${proofMarkup}</div>`
   }).join(""):"NO DECISIONS YET";
   $("history-count").textContent=`${items.length} ${items.length===1?"DECISION":"DECISIONS"} LOADED`;
@@ -133,10 +137,9 @@ async function loadOverview(){
   try{const data=await getOverview();$("asset-count").textContent=data.assets;$("cycle-count").textContent=data.cycles;renderLeaderboard(data.leaderboard||[])}catch{$("leaderboard").innerHTML='<p class="loading">Standings temporarily unavailable.</p>'}
 }
 
-let activityLoading=false;
-let activityLoaded=false;
 function renderActivity(items){
   const root=$("activity-list");root.replaceChildren();
+  $("activity-count").textContent=`${items.length} ${items.length===1?"DECISION":"DECISIONS"} LOADED`;
   if(!items.length){const empty=document.createElement("p");empty.className="loading";empty.textContent="No decisions have been recorded yet.";root.append(empty);return}
   for(const row of items){
     const id=Number(row.token_id);
@@ -155,25 +158,31 @@ function renderActivity(items){
     root.append(link);
   }
 }
-async function loadActivity(){
-  if(activityLoading||document.hidden||!$("activity").classList.contains("active-panel"))return;
-  activityLoading=true;
+function setActivityControls(){
+  document.querySelectorAll("[data-activity-action]").forEach(button=>button.classList.toggle("active",button.dataset.activityAction===activityState.action));
+  const loadMore=$("load-more-activity");loadMore.hidden=!activityState.hasMore;loadMore.disabled=activityState.loading;loadMore.textContent=activityState.loading?"LOADING…":"LOAD MORE ↓";
+}
+async function loadActivity({reset=false}={}){
+  if(activityState.loading||document.hidden||!$("activity").classList.contains("active-panel"))return;
+  if(reset){activityState.cursor=null;activityState.hasMore=false;activityState.items=[];renderActivity([])}
+  activityState.loading=true;setActivityControls();$("activity-status").textContent="LOADING…";
   try{
-    const data=await request({activity:"1",limit:"30"});
+    const params={activity:"1",action:activityState.action,limit:String(ACTIVITY_PAGE_SIZE)};if(activityState.cursor)params.before=activityState.cursor;
+    const data=await request(params);
     if(!Array.isArray(data.activity))throw new Error("Invalid activity response");
-    renderActivity(data.activity);activityLoaded=true;
+    activityState.items=reset?data.activity:[...activityState.items,...data.activity];activityState.cursor=data.next_cursor||null;activityState.hasMore=Boolean(data.has_more);renderActivity(activityState.items);
     $("activity-status").textContent=`UPDATED ${new Date().toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"})}`;
   }catch{
     $("activity-status").textContent="UPDATES UNAVAILABLE";
-    if(!activityLoaded)$("activity-list").innerHTML='<p class="loading">Activity is temporarily unavailable. Please try again later.</p>';
-  }finally{activityLoading=false}
+    if(!activityState.items.length)$("activity-list").innerHTML='<p class="loading">Activity is temporarily unavailable. Please try again later.</p>';
+  }finally{activityState.loading=false;setActivityControls()}
 }
 
 const navButtons=[...document.querySelectorAll(".autonomous-nav button")];
 function showPanel(id){
   document.querySelectorAll(".workspace-content>.page-panel").forEach(panel=>panel.classList.toggle("active-panel",panel.id===id));
   navButtons.forEach(button=>button.setAttribute("aria-selected",String(button.dataset.panel===id)));
-  if(id==="activity")loadActivity();
+  if(id==="activity"&&!activityState.items.length)loadActivity({reset:true});
   window.scrollTo({top:$("main-content").offsetTop,behavior:"smooth"});
 }
 navButtons.forEach(button=>button.addEventListener("click",()=>showPanel(button.dataset.panel)));
@@ -184,7 +193,9 @@ if(initial&&Number(initial)>=1&&Number(initial)<=444){$("token-input").value=ini
 else loadTrader(DEFAULT_TRADER_ID,{updateUrl:false,scroll:false,keepVisible:true});
 loadPrices();
 loadOverview();
-setInterval(loadActivity,30000);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadActivity()});
-document.querySelectorAll(".history-toolbar button").forEach(button=>button.addEventListener("click",()=>{if(historyState.loading)return;historyState.action=button.dataset.action;loadDecisionHistory({reset:true})}));
+setInterval(()=>{if(activityState.items.length<=ACTIVITY_PAGE_SIZE)loadActivity({reset:true})},30000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&activityState.items.length<=ACTIVITY_PAGE_SIZE)loadActivity({reset:true})});
+document.querySelectorAll("[data-action]").forEach(button=>button.addEventListener("click",()=>{if(historyState.loading)return;historyState.action=button.dataset.action;loadDecisionHistory({reset:true})}));
 $("load-more-decisions").addEventListener("click",()=>loadDecisionHistory());
+document.querySelectorAll("[data-activity-action]").forEach(button=>button.addEventListener("click",()=>{if(activityState.loading)return;activityState.action=button.dataset.activityAction;loadActivity({reset:true})}));
+$("load-more-activity").addEventListener("click",()=>loadActivity());
