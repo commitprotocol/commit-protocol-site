@@ -560,6 +560,15 @@ function renderProfile(data,{updateUrl=true}={}){
   const total=Number(portfolio.total_value);const ret=(total/STARTING_BALANCE-1)*100;
   $("total-value").textContent=money.format(total);$("total-return").textContent=`${pct(ret)} SINCE START`;$("total-return").className=ret>=0?"positive":"negative";
   $("cash-balance").textContent=money.format(portfolio.cash_balance);$("positions-value").textContent=money.format(portfolio.positions_value);$("trades-count").textContent=portfolio.trades_count;$("win-loss").textContent=`${portfolio.wins_count} W / ${portfolio.losses_count} L`;
+  const seasonEl=$("identity-season");if(seasonEl)seasonEl.textContent="BETA-1 · PAPER";
+  const lastEv=$("last-evaluated");
+  if(lastEv){const t=new Date(portfolio.last_evaluated_at);lastEv.textContent=Number.isNaN(t.getTime())?"—":t.toLocaleString()}
+  const setPnL=(elId,raw)=>{const el=$(elId);if(!el)return;const n=Number(raw);if(!Number.isFinite(n)){el.textContent="—";el.className="";return}el.textContent=money.format(n);el.className=n>=0?"positive":"negative"};
+  setPnL("realized-pnl",portfolio.realized_pnl);setPnL("unrealized-pnl",portfolio.unrealized_pnl);
+  const winEl=$("win-rate");
+  if(winEl){const wins=Number(portfolio.wins_count||0),losses=Number(portfolio.losses_count||0),decided=wins+losses;
+    if(decided>0){const rate=(wins/decided)*100;winEl.innerHTML=`${rate.toFixed(1)}%<small>${wins}W / ${losses}L</small>`;winEl.className=rate>=50?"positive":"negative"}
+    else{winEl.textContent="N/A";winEl.className=""}}
   profileCache={tokenId:id,positions,decisions,portfolio,trader};
   renderBars(trader);renderPositions(positions,portfolio);renderDecisions(decisions);renderPortfolioChart(data);renderWatchlist();
   $("traits").innerHTML=Object.entries(trader.traits||{}).filter(([,v])=>v).map(([k,v])=>`<div class="trait"><span>${k.toUpperCase()}</span><b>${v}</b></div>`).join("");

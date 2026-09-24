@@ -218,8 +218,21 @@ body.drawer-open,body.modal-open{overflow:hidden}
 .identity-copy>p{margin:10px 0 4px}
 .identity h2{font-size:24px;margin:0 0 10px}
 .identity-data div{padding:8px 0}
+
+/* Identity card extras (season + portfolio stats) */
+.identity-extras{margin-top:auto;padding:12px 4px 4px;border-top:1px solid var(--line);flex:0 0 auto}
+.identity-season{display:inline-block;margin-bottom:12px;padding:6px 9px;border:1px solid #31513a;color:var(--green);font-size:9px;font-weight:700;letter-spacing:.12em;background:#0d130e}
+.identity-stats{margin:0}
+.identity-stats div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.identity-stats div:last-child{border-bottom:0}
+.identity-stats dt{font-size:8px;color:#777b75;letter-spacing:.08em}
+.identity-stats dd{margin:0;font-size:10px;font-weight:700;text-align:right;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.identity-stats dd.positive{color:var(--green)}
+.identity-stats dd.negative{color:var(--red)}
+.identity-stats dd small{display:block;margin-top:2px;font-size:8px;font-weight:400;color:#777b75;letter-spacing:.06em}
 @media(max-width:1099px){
   .profile-side{height:auto}
+  .identity-extras{grid-column:1/-1;margin-top:8px}
 }
 @media(max-width:640px){
   .profile-layout{gap:14px}
