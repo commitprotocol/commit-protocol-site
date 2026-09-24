@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=24">
+  <link rel="stylesheet" href="styles.css?v=25">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -73,13 +73,21 @@
           <div class="portfolio-grid"><article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">—</small></article><article><span>CASH</span><b id="cash-balance">—</b><small>AVAILABLE CAPITAL</small></article><article><span>POSITIONS</span><b id="positions-value">—</b><small id="position-count">— OPEN</small></article><article><span>TRADES</span><b id="trades-count">—</b><small id="win-loss">— W / — L</small></article></div>
           <div class="profile-top">
             <article class="identity panel profile-identity">
-              <div class="image-wrap"><img id="trader-image" src="../trading-floor/traders/160.png" alt="Wall Street Trader #160"><span id="rarity-badge">DEFAULT</span></div>
-              <div class="identity-copy"><p id="public-file">PUBLIC FILE / WST-160</p><h2 id="trader-name">TRADER #160</h2>
-                <dl class="identity-data"><div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div><div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div><div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div><div><dt>STATUS</dt><dd class="positive">ACTIVE</dd></div></dl>
+              <div class="image-wrap">
+                <img id="trader-image" src="../trading-floor/traders/160.png" alt="Wall Street Trader #160">
+                <div class="identity-badges">
+                  <span class="season-badge" id="identity-season">BETA-1 · PAPER</span>
+                  <span id="rarity-badge">DEFAULT</span>
+                </div>
               </div>
-              <div class="identity-extras" id="identity-extras">
-                <div class="identity-season" id="identity-season">BETA-1 · PAPER</div>
-                <dl class="identity-stats">
+              <div class="identity-copy">
+                <p id="public-file">PUBLIC FILE / WST-160</p>
+                <h2 id="trader-name">TRADER #160</h2>
+                <dl class="identity-data">
+                  <div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div>
+                  <div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div>
+                  <div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div>
+                  <div><dt>STATUS</dt><dd class="positive">ACTIVE</dd></div>
                   <div><dt>LAST EVALUATED</dt><dd id="last-evaluated">—</dd></div>
                   <div><dt>REALIZED P&amp;L</dt><dd id="realized-pnl">—</dd></div>
                   <div><dt>UNREALIZED P&amp;L</dt><dd id="unrealized-pnl">—</dd></div>
@@ -184,6 +192,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=24"></script>
+  <script src="app.js?v=25"></script>
 </body>
 </html>
