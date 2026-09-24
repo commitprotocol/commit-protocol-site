@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=22">
+  <link rel="stylesheet" href="styles.css?v=23">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -78,8 +78,15 @@
                 <dl class="identity-data"><div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div><div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div><div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div><div><dt>STATUS</dt><dd class="positive">ACTIVE</dd></div></dl>
               </div>
             </article>
-            <article class="panel instincts-panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Loading behavioral DNA…</p></div></article>
+            <div class="profile-side">
+              <article class="panel instincts-panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Loading behavioral DNA…</p></div></article>
+              <article class="panel traits-panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
+            </div>
           </div>
+          <article class="panel watchlist-panel" id="watchlist-panel">
+            <div class="panel-head"><div><span>LOCAL BROWSER LIST</span><h3>WATCHLIST</h3></div><b id="watchlist-count">0</b></div>
+            <div class="watchlist-strip" id="watchlist-strip"><p class="watchlist-empty">No symbols watched yet. Add from a position card or asset drawer.</p></div>
+          </article>
           <article class="panel equity-panel" id="equity-panel">
             <div class="panel-head"><div><span>PORTFOLIO PERFORMANCE</span><h3>EQUITY CURVE</h3></div><b id="equity-source">ESTIMATED</b></div>
             <div class="equity-hero" aria-live="polite">
@@ -100,16 +107,11 @@
             <p class="equity-note" id="equity-note">ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE</p>
           </article>
           <article class="panel positions-panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list positions-list empty">NO OPEN POSITIONS</div></article>
-          <article class="panel watchlist-panel" id="watchlist-panel">
-            <div class="panel-head"><div><span>LOCAL BROWSER LIST</span><h3>WATCHLIST</h3></div><b id="watchlist-count">0</b></div>
-            <div class="watchlist-strip" id="watchlist-strip"><p class="watchlist-empty">No symbols watched yet. Add from a position card or asset drawer.</p></div>
-          </article>
           <article class="panel decision-history"><div class="panel-head history-head"><div><span>COMPLETE DECISION LEDGER</span><h3>DECISION HISTORY</h3></div><b id="history-status">LIVE</b></div>
             <div class="history-toolbar" role="group" aria-label="Filter decision history"><button type="button" class="active" data-action="all">ALL</button><button type="button" data-action="buy">BUY</button><button type="button" data-action="sell">SELL</button><button type="button" data-action="hold">HOLD</button></div>
             <div id="decisions" class="data-list history-list empty" aria-live="polite">NO DECISIONS YET</div>
             <div class="history-footer"><span id="history-count">0 DECISIONS LOADED</span><button type="button" id="load-more-decisions" hidden>LOAD MORE ↓</button></div>
           </article>
-          <article class="panel traits-panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
         </div>
       </section>
       <section class="page-panel dashboard-panel" id="rankings">
@@ -173,6 +175,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=23"></script>
 </body>
 </html>
