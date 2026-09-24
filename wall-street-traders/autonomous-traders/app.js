@@ -38,7 +38,17 @@ function renderBars(trader){
 function renderPositions(items){
   const root=$("positions");$("positions-total").textContent=items.length;$("position-count").textContent=`${items.length} OPEN`;
   root.classList.toggle("empty",!items.length);
-  root.innerHTML=items.length?items.map(p=>`<div class="data-row"><div><strong>${p.symbol}</strong><br><small>${number.format(p.quantity)} UNITS · AVG ${money.format(p.average_entry)}</small></div><div><strong>${money.format(p.market_value)}</strong><br><small class="${Number(p.unrealized_pnl)>=0?"buy":"sell"}">${money.format(p.unrealized_pnl)}</small></div></div>`).join(""):"NO OPEN POSITIONS";
+  root.innerHTML=items.length?items.map(p=>{
+    const pnl=Number(p.unrealized_pnl??p.total_pnl_usd??0);
+    const cost=Number(p.average_entry||p.avg_cost||0)*Number(p.quantity||p.qty||0);
+    const totalPct=p.total_pnl_pct!=null?Number(p.total_pnl_pct):(cost?pnl/cost*100:null);
+    const dayUsd=p.day_pnl_usd??p.day_pnl??null;
+    const dayPct=p.day_pnl_pct!=null?Number(p.day_pnl_pct):null;
+    const pnlCls=pnl>=0?"buy":"sell";
+    const dayLine=dayUsd!=null?`<br><small class="${Number(dayUsd)>=0?"buy":"sell"}">${money.format(Number(dayUsd))}${dayPct!=null?` (${pct(dayPct)})`:""} DAY</small>`:"";
+    const totalLine=`<small class="${pnlCls}">${money.format(pnl)}${totalPct!=null?` (${pct(totalPct)})`:""}</small>`;
+    return `<div class="data-row"><div><strong>${escapeHtml(p.symbol)}</strong><br><small>${number.format(p.quantity??p.qty)} UNITS · AVG ${money.format(p.average_entry??p.avg_cost)}</small></div><div><strong>${money.format(p.market_value)}</strong><br>${totalLine}${dayLine}</div></div>`
+  }).join(""):"NO OPEN POSITIONS";
 }
 
 function renderDecisions(items){
@@ -78,6 +88,169 @@ async function loadDecisionHistory({reset=false}={}){
   }finally{historyState.loading=false;setHistoryControls()}
 }
 
+
+const SPAN_LABELS={"1D":"Today","1W":"Past week","1M":"Past month","3M":"Past 3 months","YTD":"Year to date","ALL":"All time"};
+const SPAN_ORDER=["1D","1W","1M","3M","YTD","ALL"];
+let equityChart=null;
+let equityState={span:"ALL",history:[],estimated:true,tokenId:null,total:STARTING_BALANCE};
+
+function mulberry32(a){return function(){let t=a+=0x6d2b79f5;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+function clamp(n,lo,hi){return Math.max(lo,Math.min(hi,n))}
+function parseTs(v){if(v==null)return NaN;if(typeof v==="number")return v<1e12?v*1000:v;const t=Date.parse(v);return Number.isNaN(t)?NaN:t}
+function normalizeHistory(raw){
+  if(!Array.isArray(raw)||!raw.length)return[];
+  return raw.map(p=>{
+    const ts=parseTs(p.ts??p.timestamp??p.t??p.time);
+    const equity=Number(p.equity_usd??p.equityUsd??p.equity??p.value??p.total_value);
+    return{ts,equityUsd:equity};
+  }).filter(p=>Number.isFinite(p.ts)&&Number.isFinite(p.equityUsd)).sort((a,b)=>a.ts-b.ts);
+}
+function extractEquityHistory(data){
+  const candidates=[data.equity_history,data.equity_snapshots,data.history_curve,data.equity,data.portfolio?.equity_history,data.portfolio?.equity_snapshots];
+  for(const c of candidates){const n=normalizeHistory(c);if(n.length)return n}
+  return[];
+}
+function buildEstimatedHistory(tokenId,total,tradesCount){
+  const now=Date.now();
+  const start=STARTING_BALANCE;
+  const end=Number(total)||start;
+  const points=Math.max(24,Math.min(120,12+Number(tradesCount||0)*4));
+  const spanMs=Math.max(3,Math.min(90,7+Number(tradesCount||0)*2))*24*3600_000;
+  const step=spanMs/Math.max(1,points-1);
+  const rng=mulberry32((Number(tokenId)||1)*997+(Number(tradesCount)||0)*131+42);
+  const series=[];
+  for(let i=0;i<points;i++){
+    const t=i/(points-1);
+    const ease=t*t*(3-2*t);
+    const wobble=(rng()-0.5)*0.018*(1-Math.abs(t-0.5)*1.4);
+    const equity=start+(end-start)*ease+start*wobble*(1-t);
+    series.push({ts:now-spanMs+i*step,equityUsd:Math.round(Math.max(100,equity)*100)/100});
+  }
+  series[0].equityUsd=Math.round(start*100)/100;
+  series[series.length-1].equityUsd=Math.round(end*100)/100;
+  return series;
+}
+function spanWindowStart(span,now=Date.now()){
+  if(span==="1D")return now-24*3600_000;
+  if(span==="1W")return now-7*24*3600_000;
+  if(span==="1M")return now-30*24*3600_000;
+  if(span==="3M")return now-90*24*3600_000;
+  if(span==="YTD")return new Date(new Date(now).getFullYear(),0,1).getTime();
+  return 0;
+}
+function seriesForSpan(history,span){
+  if(!history.length)return[];
+  const start=spanWindowStart(span);
+  let slice=history.filter(p=>p.ts>=start);
+  if(!slice.length){
+    const last=history[history.length-1];
+    const prev=history.length>1?history[history.length-2]:{ts:last.ts-3600_000,equityUsd:STARTING_BALANCE};
+    slice=[{ts:Math.max(start||prev.ts,prev.ts),equityUsd:prev.equityUsd},last];
+  }else if(slice.length===1&&history.length>1){
+    const idx=history.indexOf(slice[0]);
+    const prev=history[Math.max(0,idx-1)];
+    slice=[prev,slice[0]];
+  }
+  return slice;
+}
+function pnlFromSeries(series){
+  if(!series.length)return{usd:0,pct:0,last:0,first:0};
+  const first=series[0].equityUsd;const last=series[series.length-1].equityUsd;
+  const usd=last-first;const pctVal=first===0?0:(usd/first)*100;
+  return{usd,pct:pctVal,last,first};
+}
+function chartColor(up){return up?"#78f29a":"#ff8e8e"}
+function chartFill(up){return up?"rgba(120,242,154,0.14)":"rgba(255,142,142,0.14)"}
+function formatTipDate(ts,span){
+  const d=new Date(ts);
+  if(span==="1D"||span==="1W")return d.toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+  if(span==="1M")return d.toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+  return d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+}
+function updateSpanHeadline(pnl,span){
+  const amt=$("span-return-amt");const label=$("span-return-label");const totalRet=$("total-return");
+  if(!amt)return;
+  const usdTxt=(pnl.usd>=0?"+":"-")+money.format(Math.abs(pnl.usd));
+  amt.textContent=`${usdTxt} (${pct(pnl.pct)})`;
+  amt.className=pnl.usd>=0?"buy":"sell";
+  if(label)label.textContent=SPAN_LABELS[span]||span;
+  if(totalRet){
+    totalRet.textContent=`${pct(pnl.pct)} · ${SPAN_LABELS[span]||span}`.toUpperCase();
+    totalRet.className=pnl.usd>=0?"positive":"negative";
+  }
+}
+function renderEquityChart(span){
+  const canvas=$("equity-chart");if(!canvas||typeof Chart==="undefined")return;
+  const series=seriesForSpan(equityState.history,span);
+  const pnl=pnlFromSeries(series);
+  updateSpanHeadline(pnl,span);
+  const up=pnl.usd>=0;const color=chartColor(up);const fill=chartFill(up);
+  const labels=series.map(p=>p.ts);const data=series.map(p=>p.equityUsd);
+  const tip=$("chart-tip");const tipVal=$("tip-val");const tipDate=$("tip-date");const card=canvas.closest(".chart-card");
+  const externalTooltip=ctx=>{
+    const{tooltip}=ctx;
+    if(!tooltip||tooltip.opacity===0||!tooltip.dataPoints?.length){tip?.classList.remove("visible");return}
+    const dp=tooltip.dataPoints[0];
+    tipVal.textContent=money.format(dp.parsed.y);
+    tipDate.textContent=formatTipDate(labels[dp.dataIndex],span);
+    tip.classList.add("visible");
+    const tw=tip.offsetWidth||120;
+    tip.style.left=clamp(dp.element.x,8+tw/2,(card?.clientWidth||300)-8-tw/2)+"px";
+    tip.style.top=Math.max(28,dp.element.y)+"px";
+  };
+  if(equityChart){equityChart.destroy();equityChart=null}
+  equityChart=new Chart(canvas.getContext("2d"),{
+    type:"line",
+    data:{labels,datasets:[{data,borderColor:color,backgroundColor:fill,borderWidth:2,fill:true,tension:series.length>2?0.35:0,pointRadius:series.length<=3?3:0,pointHoverRadius:5,pointHoverBackgroundColor:color,pointHoverBorderColor:"#050605",pointHoverBorderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:260},interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{enabled:false,external:externalTooltip}},scales:{x:{display:false},y:{display:false,grace:"4%"}},layout:{padding:{top:10,bottom:4,left:0,right:0}}}
+  });
+}
+function setEquitySpan(span){
+  if(!SPAN_ORDER.includes(span))span="ALL";
+  equityState.span=span;
+  document.querySelectorAll(".equity-spans button").forEach(btn=>{
+    const on=btn.dataset.span===span;
+    btn.setAttribute("aria-pressed",String(on));
+    btn.tabIndex=on?0:-1;
+  });
+  renderEquityChart(span);
+}
+function wireEquitySpans(){
+  const tabs=[...document.querySelectorAll(".equity-spans button")];
+  if(!tabs.length||tabs[0].dataset.wired)return;
+  tabs.forEach((btn,idx)=>{
+    btn.dataset.wired="1";
+    btn.addEventListener("click",()=>setEquitySpan(btn.dataset.span));
+    btn.addEventListener("keydown",e=>{
+      let next=null;
+      if(e.key==="ArrowRight"||e.key==="ArrowDown")next=tabs[(idx+1)%tabs.length];
+      if(e.key==="ArrowLeft"||e.key==="ArrowUp")next=tabs[(idx-1+tabs.length)%tabs.length];
+      if(e.key==="Home")next=tabs[0];
+      if(e.key==="End")next=tabs[tabs.length-1];
+      if(next){e.preventDefault();next.focus();setEquitySpan(next.dataset.span)}
+    });
+  });
+}
+function renderPortfolioChart(data){
+  wireEquitySpans();
+  const id=data?.trader?.token_id??equityState.tokenId;
+  const total=Number(data?.portfolio?.total_value??equityState.total);
+  const trades=Number(data?.portfolio?.trades_count||0);
+  let history=extractEquityHistory(data||{});
+  const estimated=!history.length;
+  if(estimated)history=buildEstimatedHistory(id,total,trades);
+  else{
+    const last=history[history.length-1];
+    if(!last||Math.abs(last.equityUsd-total)>0.02)history=[...history,{ts:Date.now(),equityUsd:total}];
+  }
+  const nextSpan=estimated?"ALL":(equityState.span||"ALL");
+  equityState={span:nextSpan,history,estimated,tokenId:id,total};
+  const src=$("equity-source");const note=$("equity-note");
+  if(src)src.textContent=estimated?"ESTIMATED":"LIVE HISTORY";
+  if(note)note.textContent=estimated?"ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE":"LIVE EQUITY SNAPSHOTS · PAPER TRADING ONLY";
+  setEquitySpan(nextSpan);
+}
+
 function renderProfile(data,{updateUrl=true}={}){
   const {trader,portfolio,positions=[],decisions=[]}=data;const id=trader.token_id;
   $("profile").hidden=false;$("status").textContent=`Showing the autonomous profile for WST #${id}.`;
@@ -87,7 +260,7 @@ function renderProfile(data,{updateUrl=true}={}){
   const total=Number(portfolio.total_value);const ret=(total/STARTING_BALANCE-1)*100;
   $("total-value").textContent=money.format(total);$("total-return").textContent=`${pct(ret)} SINCE START`;$("total-return").className=ret>=0?"positive":"";
   $("cash-balance").textContent=money.format(portfolio.cash_balance);$("positions-value").textContent=money.format(portfolio.positions_value);$("trades-count").textContent=portfolio.trades_count;$("win-loss").textContent=`${portfolio.wins_count} W / ${portfolio.losses_count} L`;
-  renderBars(trader);renderPositions(positions);renderDecisions(decisions);
+  renderBars(trader);renderPositions(positions);renderDecisions(decisions);renderPortfolioChart(data);
   $("traits").innerHTML=Object.entries(trader.traits||{}).filter(([,v])=>v).map(([k,v])=>`<div class="trait"><span>${k.toUpperCase()}</span><b>${v}</b></div>`).join("");
   historyState.tokenId=id;historyState.action="all";historyState.cursor=null;historyState.hasMore=false;historyState.items=decisions;setHistoryControls();loadDecisionHistory({reset:true});
   if(updateUrl){const url=new URL(location.href);url.searchParams.set("trader",id);history.replaceState(null,"",url)}

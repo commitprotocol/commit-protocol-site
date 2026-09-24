@@ -38,3 +38,33 @@ body:before{content:"";position:fixed;inset:0;z-index:10;pointer-events:none;opa
 
 @media(max-width:900px){.activity-row{grid-template-columns:44px minmax(95px,1fr) minmax(80px,1fr) minmax(125px,1.1fr)}.activity-reason{display:none}}
 @media(max-width:640px){.activity-row{grid-template-columns:42px minmax(0,1fr) auto;gap:6px 12px;padding:12px}.activity-row img{grid-row:1/3;width:40px;height:40px}.activity-trader{grid-column:2}.activity-action{grid-column:3;grid-row:1/3;text-align:right}.activity-time{grid-column:2;grid-row:2;text-align:left;white-space:normal;font-size:9px}.activity-head h3{font-size:20px}.activity-head>b{font-size:9px}.activity-history{height:420px;min-height:420px}.proof-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.proof-grid>div:nth-child(4n){border-right:1px solid var(--line)}.proof-grid>div:nth-child(2n){border-right:0}.proof-grid .proof-hash{grid-column:1/-1}}
+
+
+/* Portfolio equity curve (Robinhood-style span chart) */
+.profile-identity{grid-row:1/4}
+.equity-panel{grid-column:2;min-width:0}
+.negative{color:var(--red)}
+.equity-hero{padding:18px 22px 0}
+.equity-span-return{font:700 16px/1.3 var(--mono);font-variant-numeric:tabular-nums;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.equity-span-return .span-label{color:#777b75;font-weight:400;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.equity-spans{display:flex;gap:6px;padding:14px 20px 8px;flex-wrap:wrap}
+.equity-spans button{flex:1;min-width:44px;border:1px solid var(--line2);background:#030403;color:#8e938c;padding:10px 8px;font:700 10px var(--mono);letter-spacing:.1em;cursor:pointer}
+.equity-spans button:hover{color:var(--paper);border-color:#4b4e4a}
+.equity-spans button[aria-pressed="true"]{border-color:var(--green);color:var(--green);background:#0d130e}
+.equity-spans button:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.chart-card{position:relative;height:220px;margin:4px 20px 8px;border:1px solid var(--line);background:#030403}
+.chart-card canvas{width:100%!important;height:100%!important}
+.chart-tooltip{position:absolute;pointer-events:none;z-index:5;background:#0a0d0a;border:1px solid var(--line2);padding:8px 10px;font-size:11px;opacity:0;transform:translate(-50%,-110%);transition:opacity .08s;white-space:nowrap;font-variant-numeric:tabular-nums;box-shadow:8px 8px #050805}
+.chart-tooltip.visible{opacity:1}
+.chart-tooltip .t-val{font-weight:700;color:var(--paper)}
+.chart-tooltip .t-date{color:#777b75;margin-top:3px;font-size:9px;letter-spacing:.06em}
+.equity-note{margin:0;padding:10px 22px 18px;color:#666b64;font-size:9px;letter-spacing:.1em}
+@media(max-width:900px){
+  .profile-identity{grid-row:auto}
+  .equity-panel{grid-column:1/-1}
+}
+@media(max-width:640px){
+  .chart-card{height:190px;margin-inline:12px}
+  .equity-spans{padding-inline:12px;overflow-x:auto;flex-wrap:nowrap}
+  .equity-spans button{min-width:52px;flex:0 0 auto}
+}
