@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="styles.css?v=20">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -50,6 +50,10 @@
           <article><span>STOCK TOKENS</span><strong id="asset-count">—</strong><small>LIVE MARKET ASSETS</small></article>
           <article><span>ENGINE CYCLES</span><strong id="cycle-count">—</strong><small>AUTONOMOUS DECISIONS</small></article>
         </div>
+        <article class="panel market-cards-panel" id="market-cards-panel">
+          <div class="panel-head"><div><span>MARKET SPOTLIGHT</span><h3>STOCK TOKENS</h3></div><b id="market-cards-status">LIVE</b></div>
+          <div class="market-cards" id="market-cards"><p class="loading">Loading market cards…</p></div>
+        </article>
       </section>
       <section class="page-panel dashboard-panel" id="finder">
         <div class="dash-head"><p>02 / PUBLIC TRADER TERMINAL</p><h2>FIND YOUR TRADER.</h2><small>Open any autonomous profile by entering a Wall Street Traders token ID from 1 to 444.</small></div>
@@ -57,7 +61,14 @@
         <p class="search-status" id="status" role="status">Trader #160 is displayed as the default profile. Enter any token ID from 1 to 444 to find your trader.</p>
       </section>
       <section class="page-panel dashboard-panel" id="profile">
-        <div class="dash-head"><p>03 / AUTONOMOUS IDENTITY</p><h2>TRADER PROFILE.</h2><small>Market behavior is generated from the NFT's rarity, archetype and original collection traits.</small></div>
+        <div class="dash-head profile-dash-head">
+          <div>
+            <p>03 / AUTONOMOUS IDENTITY</p>
+            <h2>TRADER PROFILE.</h2>
+            <small>Market behavior is generated from the NFT's rarity, archetype and original collection traits.</small>
+          </div>
+          <button type="button" class="compare-trigger" id="compare-from-profile" data-seed-current="1">COMPARE TRADERS</button>
+        </div>
         <div class="profile-layout">
           <article class="identity panel profile-identity">
             <div class="image-wrap"><img id="trader-image" src="../trading-floor/traders/160.png" alt="Wall Street Trader #160"><span id="rarity-badge">DEFAULT</span></div>
@@ -85,9 +96,13 @@
             </div>
             <p class="equity-note" id="equity-note">ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE</p>
           </article>
+          <article class="panel watchlist-panel" id="watchlist-panel">
+            <div class="panel-head"><div><span>LOCAL BROWSER LIST</span><h3>WATCHLIST</h3></div><b id="watchlist-count">0</b></div>
+            <div class="watchlist-strip" id="watchlist-strip"><p class="watchlist-empty">No symbols watched yet. Add from a position card or asset drawer.</p></div>
+          </article>
           <div class="profile-main-grid">
             <article class="panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Loading behavioral DNA…</p></div></article>
-            <article class="panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list empty">NO OPEN POSITIONS</div></article>
+            <article class="panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list positions-list empty">NO OPEN POSITIONS</div></article>
           </div>
           <article class="panel decision-history"><div class="panel-head history-head"><div><span>COMPLETE DECISION LEDGER</span><h3>DECISION HISTORY</h3></div><b id="history-status">LIVE</b></div>
             <div class="history-toolbar" role="group" aria-label="Filter decision history"><button type="button" class="active" data-action="all">ALL</button><button type="button" data-action="buy">BUY</button><button type="button" data-action="sell">SELL</button><button type="button" data-action="hold">HOLD</button></div>
@@ -97,13 +112,67 @@
           <article class="panel traits-panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
         </div>
       </section>
-      <section class="page-panel dashboard-panel" id="rankings"><div class="dash-head"><p>04 / BETA SEASON</p><h2>TOP TRADERS.</h2><small>Live standings based on the virtual USD value of each autonomous portfolio.</small></div><article class="panel leaderboard-panel"><div class="panel-head"><div><span>LIVE TABLE</span><h3>AUTONOMOUS RANKING</h3></div><b>VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article></section>
+      <section class="page-panel dashboard-panel" id="rankings">
+        <div class="dash-head profile-dash-head">
+          <div>
+            <p>04 / BETA SEASON</p>
+            <h2>TOP TRADERS.</h2>
+            <small>Live standings based on the virtual USD value of each autonomous portfolio.</small>
+          </div>
+          <button type="button" class="compare-trigger" id="compare-from-rankings">COMPARE TRADERS</button>
+        </div>
+        <article class="panel leaderboard-panel"><div class="panel-head"><div><span>LIVE TABLE</span><h3>AUTONOMOUS RANKING</h3></div><b>VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article>
+      </section>
       <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>05 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Complete simulated decision history across all 444 traders, loaded in lightweight pages.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div class="history-toolbar activity-toolbar" role="group" aria-label="Filter public activity"><button type="button" class="active" data-activity-action="all">ALL</button><button type="button" data-activity-action="buy">BUY</button><button type="button" data-activity-action="sell">SELL</button><button type="button" data-activity-action="hold">HOLD</button></div><div id="activity-list" class="activity-list activity-history"><p class="loading">Loading recent decisions…</p></div><div class="history-footer"><span id="activity-count">0 DECISIONS LOADED</span><button type="button" id="load-more-activity" hidden>LOAD MORE ↓</button></div></article><p class="activity-note">PAPER TRADING ONLY · HOLD IS A DECISION, NOT AN EXECUTED TRADE · TIMES SHOWN IN YOUR LOCAL TIME ZONE</p></section>
       <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">06 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
     </div>
   </main>
   <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PUBLIC BETA<br>LIVE ON ROBINHOOD CHAIN</p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026</small></footer>
+
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <aside class="asset-drawer" id="asset-drawer" hidden aria-hidden="true" role="dialog" aria-labelledby="drawer-symbol">
+    <header class="drawer-head">
+      <div>
+        <span class="drawer-kicker">ASSET FILE</span>
+        <h2 id="drawer-symbol">—</h2>
+        <p id="drawer-price" class="drawer-price">—</p>
+      </div>
+      <div class="drawer-actions">
+        <button type="button" class="ghost-btn" id="drawer-watch-btn">+ WATCH</button>
+        <button type="button" class="ghost-btn" id="drawer-close" aria-label="Close asset drawer">CLOSE</button>
+      </div>
+    </header>
+    <div class="drawer-spark" id="drawer-spark" aria-hidden="true"></div>
+    <div class="drawer-stats" id="drawer-stats"></div>
+    <div class="drawer-section">
+      <h3>RECENT DECISIONS</h3>
+      <div id="drawer-decisions" class="drawer-decisions"><p class="loading">No decisions for this symbol yet.</p></div>
+    </div>
+  </aside>
+
+  <div class="modal-backdrop" id="compare-backdrop" hidden></div>
+  <div class="compare-modal" id="compare-modal" hidden role="dialog" aria-modal="true" aria-labelledby="compare-title">
+    <header class="compare-head">
+      <div>
+        <span>SIDE-BY-SIDE</span>
+        <h2 id="compare-title">COMPARE TRADERS</h2>
+      </div>
+      <button type="button" class="ghost-btn" id="compare-close" aria-label="Close compare">CLOSE</button>
+    </header>
+    <form class="compare-form" id="compare-form">
+      <label>TOKEN IDS <small>(UP TO 3)</small>
+        <div class="compare-inputs">
+          <input type="number" min="1" max="444" name="a" id="compare-a" placeholder="160" required>
+          <input type="number" min="1" max="444" name="b" id="compare-b" placeholder="290">
+          <input type="number" min="1" max="444" name="c" id="compare-c" placeholder="—">
+        </div>
+      </label>
+      <button type="submit" class="solid-btn">RUN COMPARE →</button>
+    </form>
+    <div class="compare-grid" id="compare-grid"><p class="loading">Pick up to three token IDs to compare virtual books.</p></div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=20"></script>
 </body>
 </html>
