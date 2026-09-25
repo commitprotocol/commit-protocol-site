@@ -3,6 +3,8 @@ const PRICE_API="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/clock-in-
 const STARTING_BALANCE=10000;
 const DEFAULT_TRADER_ID=160;
 const WATCH_KEY="wst_autonomous_watchlist_v1";
+const FOLLOW_KEY="wst_autonomous_follow_dna_v1";
+const AGENT_CTRL_KEY="wst_autonomous_agent_controls_v1";
 const money=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2});
 const number=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});
 const $=id=>document.getElementById(id);
@@ -12,7 +14,8 @@ let profileCache={tokenId:null,positions:[],decisions:[],portfolio:null,trader:n
 const HISTORY_PAGE_SIZE=25;
 const historyState={tokenId:null,action:"all",cursor:null,hasMore:false,loading:false,items:[]};
 const ACTIVITY_PAGE_SIZE=25;
-const activityState={action:"all",cursor:null,hasMore:false,loading:false,items:[]};
+const activityState={action:"all",cursor:null,hasMore:false,loading:false,items:[],tokenId:"",symbol:"",view:"tickets"};
+const rankingsState={sort:"gainers",metric:"equity",limit:10,loading:false,items:[]};
 
 function imageUrl(id){return `../trading-floor/traders/${id}.png`}
 function pct(value){const n=Number(value||0);return `${n>=0?"+":""}${n.toFixed(2)}%`}
@@ -92,6 +95,149 @@ function renderWatchlist(){
     const chgHtml=chg!=null?`<em class="${clsPnL(chg)}">${pct(chg)}</em>`:"";
     const priceHtml=px?`<b>${money.format(px.price)}</b>`:`<b class="muted">—</b>`;
     return `<button type="button" class="watch-chip" data-open-asset="${escapeHtml(sym)}"><span>${escapeHtml(sym)}</span>${priceHtml}${chgHtml}<i data-unwatch="${escapeHtml(sym)}" title="Remove">×</i></button>`;
+  }).join("");
+}
+
+/* ── Follow DNA (localStorage) ── */
+function loadFollowDna(){
+  try{const raw=JSON.parse(localStorage.getItem(FOLLOW_KEY)||"[]");return Array.isArray(raw)?raw.map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=444):[]}catch{return[]}
+}
+function saveFollowDna(list){
+  const uniq=[...new Set(list.map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=444))].slice(0,60);
+  localStorage.setItem(FOLLOW_KEY,JSON.stringify(uniq));
+  return uniq;
+}
+function isFollowing(id){return loadFollowDna().includes(Number(id))}
+function toggleFollowDna(id){
+  const token=Number(id);if(!Number.isInteger(token)||token<1||token>444)return;
+  const list=loadFollowDna();
+  const next=list.includes(token)?list.filter(n=>n!==token):[...list,token];
+  saveFollowDna(next);updateFollowButton(token);renderFollowedStrip();
+}
+function updateFollowButton(id){
+  const btn=$("follow-dna-btn");if(!btn)return;
+  const on=isFollowing(id);
+  btn.textContent=on?"FOLLOWING":"FOLLOW DNA";
+  btn.classList.toggle("watching",on);
+  btn.dataset.tokenId=String(id||"");
+}
+function renderFollowedStrip(){
+  const root=$("followed-strip");const count=$("followed-count");if(!root)return;
+  const list=loadFollowDna();
+  if(count)count.textContent=String(list.length);
+  if(!list.length){root.innerHTML='<p class="followed-empty">No DNA followed yet. Open a trader profile and tap FOLLOW DNA.</p>';return}
+  const controls=loadAgentControls();
+  root.innerHTML=list.map(id=>{
+    const paused=!!controls[String(id)]?.paused;
+    return `<button type="button" class="follow-chip ${paused?"paused":""}" data-open-trader="${id}"><img src="${imageUrl(id)}" alt="" loading="lazy"><span>TRADER #${id}</span>${paused?"<em>PAUSED BY YOU</em>":""}<i data-unfollow="${id}" title="Unfollow">×</i></button>`;
+  }).join("");
+}
+
+/* ── Spectator agent controls (local UI only) ── */
+function loadAgentControls(){
+  try{const raw=JSON.parse(localStorage.getItem(AGENT_CTRL_KEY)||"{}");return raw&&typeof raw==="object"?raw:{}}catch{return{}}
+}
+function saveAgentControls(map){
+  localStorage.setItem(AGENT_CTRL_KEY,JSON.stringify(map||{}));
+  return map;
+}
+function isAgentPaused(id){return !!loadAgentControls()[String(id)]?.paused}
+function setAgentPaused(id,paused){
+  const token=Number(id);if(!Number.isInteger(token))return;
+  const map=loadAgentControls();
+  map[String(token)]={paused:!!paused,updatedAt:Date.now()};
+  saveAgentControls(map);
+  renderSafetyTheater(token);
+  renderFollowedStrip();
+}
+function renderSafetyTheater(tokenId){
+  const id=Number(tokenId||profileCache.tokenId);
+  const paused=isAgentPaused(id);
+  const status=$("agent-status");
+  const badge=$("safety-status-badge");
+  const pauseBtn=$("spectator-pause-btn");
+  const resumeBtn=$("spectator-resume-btn");
+  const fill=$("budget-ring-fill");
+  const val=$("budget-ring-value");
+  if(status){status.textContent=paused?"PAUSED BY YOU":"ACTIVE";status.className=paused?"negative":"positive"}
+  if(badge){badge.textContent=paused?"PAUSED BY YOU":"ACTIVE";badge.className=paused?"loss":""}
+  if(pauseBtn)pauseBtn.disabled=paused;
+  if(resumeBtn)resumeBtn.disabled=!paused;
+  const total=Number(profileCache.portfolio?.total_value||STARTING_BALANCE);
+  if(fill){
+    const pctFill=Math.max(6,Math.min(100,(total/STARTING_BALANCE)*100));
+    fill.style.width=pctFill+"%";
+    fill.className=total>=STARTING_BALANCE?"up":"down";
+  }
+  if(val)val.textContent=money.format(STARTING_BALANCE);
+}
+
+/* ── Portfolio digest (client-side) ── */
+function buildPortfolioDigest(data){
+  const trader=data?.trader||{};
+  const portfolio=data?.portfolio||{};
+  const positions=Array.isArray(data?.positions)?data.positions:[];
+  const decisions=Array.isArray(data?.decisions)?data.decisions:[];
+  const id=trader.token_id;
+  const total=Number(portfolio.total_value||STARTING_BALANCE);
+  const ret=((total/STARTING_BALANCE)-1)*100;
+  const wins=Number(portfolio.wins_count||0);
+  const losses=Number(portfolio.losses_count||0);
+  const decided=wins+losses;
+  const winRate=decided?wins/decided*100:null;
+  const movers=[...positions].sort((a,b)=>Math.abs(Number(b.unrealized_pnl||0))-Math.abs(Number(a.unrealized_pnl||0))).slice(0,3);
+  const last=decisions[0];
+  const lastAction=last?String(last.action||"hold").toUpperCase():null;
+  const lastSym=last?.symbol?String(last.symbol).toUpperCase():"";
+  const parts=[];
+  parts.push(`Trader #${id} (${title(trader.archetype)||"unknown archetype"}) holds a paper book at ${money.format(total)} (${pct(ret)} since the $10,000 start).`);
+  if(positions.length){
+    const moverTxt=movers.map(p=>{
+      const pnl=Number(p.unrealized_pnl||0);
+      return `${String(p.symbol).toUpperCase()} ${pnl>=0?"up":"down"} ${money.format(Math.abs(pnl))}`;
+    }).join("; ");
+    parts.push(`Open book: ${positions.length} position${positions.length===1?"":"s"}. Top unrealized movers — ${moverTxt}.`);
+  }else{
+    parts.push("No open positions right now; capital sits in cash.");
+  }
+  if(decided){
+    parts.push(`Closed-trade tally: ${wins}W / ${losses}L${winRate!=null?` (${winRate.toFixed(0)}% win rate)`:""}. Realized P&L ${money.format(Number(portfolio.realized_pnl||0))}.`);
+  }else{
+    parts.push("No closed trades yet in this beta season.");
+  }
+  if(lastAction){
+    const holdNote=lastAction==="HOLD"?" (condition checked · no trade)":"";
+    parts.push(`Last recorded action: ${lastAction}${lastSym?" "+lastSym:""}${holdNote}${last?.reason_code?` — ${title(last.reason_code)}`:""}.`);
+  }
+  return parts.join(" ");
+}
+function renderPortfolioDigest(data){
+  const root=$("portfolio-digest");if(!root)return;
+  const text=buildPortfolioDigest(data);
+  root.innerHTML=`<p class="digest-text">${escapeHtml(text)}</p><p class="digest-disclaimer">INFORMATIONAL · PAPER · NOT ADVICE</p>`;
+}
+
+/* ── Evaluation ledger ── */
+function renderEvalLedger(decisions){
+  const root=$("eval-ledger");if(!root)return;
+  const items=Array.isArray(decisions)?decisions.slice(0,12):[];
+  if(!items.length){root.innerHTML='<p class="loading">No evaluations yet.</p>';return}
+  root.innerHTML=items.map(d=>{
+    const action=String(d.action||"hold").toLowerCase();
+    const isHold=action==="hold";
+    const label=isHold?"CONDITION CHECKED · NO TRADE":action.toUpperCase();
+    const when=(()=>{const t=new Date(d.decided_at);return Number.isNaN(t.getTime())?"—":t.toLocaleString()})();
+    const proof=d.proof_data||{};
+    const extras=[];
+    if(proof.market_signal)extras.push(`Signal ${String(proof.market_signal).toUpperCase()}`);
+    if(proof.signal_strength)extras.push(`Strength ${String(proof.signal_strength).toUpperCase()}`);
+    if(proof.price_snapshot!=null)extras.push(`Px ${money.format(Number(proof.price_snapshot))}`);
+    return `<div class="eval-row ${action}">
+      <div class="eval-action"><strong class="${["buy","sell"].includes(action)?action:""}">${escapeHtml(label)}</strong>${d.symbol?`<button type="button" class="ticket-sym" data-open-asset="${escapeHtml(String(d.symbol).toUpperCase())}">${escapeHtml(String(d.symbol).toUpperCase())}</button>`:""}</div>
+      <div class="eval-reason">${escapeHtml(title(d.reason_code)||"—")}</div>
+      <div class="eval-meta">${escapeHtml(extras.join(" · ")||"—")}</div>
+      <time class="eval-time">${escapeHtml(when)}</time>
+    </div>`;
   }).join("");
 }
 
@@ -216,6 +362,7 @@ async function loadDecisionHistory({reset=false}={}){
     historyState.cursor=data.next_cursor||null;historyState.hasMore=Boolean(data.has_more);
     renderDecisions(historyState.items);$("history-status").textContent=historyState.hasMore?"MORE AVAILABLE":"COMPLETE";
     profileCache.decisions=historyState.items;
+    renderEvalLedger(historyState.items);
   }catch{
     $("history-status").textContent="UNAVAILABLE";
     if(!historyState.items.length)$("decisions").innerHTML='<p class="loading">Decision history is temporarily unavailable.</p>';
@@ -571,6 +718,7 @@ function renderProfile(data,{updateUrl=true}={}){
     else{winEl.textContent="N/A";winEl.className=""}}
   profileCache={tokenId:id,positions,decisions,portfolio,trader};
   renderBars(trader);renderPositions(positions,portfolio);renderDecisions(decisions);renderPortfolioChart(data);renderWatchlist();
+  renderPortfolioDigest(data);renderEvalLedger(decisions);renderSafetyTheater(id);updateFollowButton(id);
   $("traits").innerHTML=Object.entries(trader.traits||{}).filter(([,v])=>v).map(([k,v])=>`<div class="trait"><span>${k.toUpperCase()}</span><b>${v}</b></div>`).join("");
   historyState.tokenId=id;historyState.action="all";historyState.cursor=null;historyState.hasMore=false;historyState.items=decisions;setHistoryControls();loadDecisionHistory({reset:true});
   if(updateUrl){const url=new URL(location.href);url.searchParams.set("trader",id);history.replaceState(null,"",url)}
@@ -621,44 +769,157 @@ async function loadPrices(){
   }
 }
 
-function renderLeaderboard(items){
-  $("leaderboard").innerHTML=items.map((r,i)=>{
-    const ret=(Number(r.total_value)/STARTING_BALANCE-1)*100;
-    return `<a class="leader-row" href="?trader=${r.token_id}" data-token="${r.token_id}"><b>#${i+1}</b><img src="${imageUrl(r.token_id)}" alt="WST #${r.token_id}" loading="lazy"><div><strong>TRADER #${r.token_id}</strong><br><small>${title(r.archetype)} · ${r.trades_count} trades</small></div><strong>${money.format(r.total_value)}</strong><b class="${ret>=0?"gain":"loss"}">${pct(ret)}</b></a>`;
+function renderLeaderboard(items,{sort="gainers",metric="equity"}={}){
+  const root=$("leaderboard");
+  if(!root)return;
+  if(!items.length){root.innerHTML='<p class="loading">No standings for this filter.</p>';return}
+  const loserMode=sort==="losers";
+  root.innerHTML=items.map((r,i)=>{
+    const ret=r.return_pct!=null?Number(r.return_pct):(Number(r.total_value)/STARTING_BALANCE-1)*100;
+    const realized=Number(r.realized_pnl||0);
+    const primary=metric==="realized"
+      ?`<strong class="${realized>=0?"gain":"loss"}">${money.format(realized)}</strong><b class="${realized>=0?"gain":"loss"}">${pct(ret)}</b>`
+      :`<strong>${money.format(Number(r.total_value))}</strong><b class="${ret>=0?"gain":"loss"}">${pct(ret)}</b>`;
+    return `<a class="leader-row ${loserMode?"loser-row":""}" href="?trader=${r.token_id}" data-token="${r.token_id}"><b>#${i+1}</b><img src="${imageUrl(r.token_id)}" alt="WST #${r.token_id}" loading="lazy"><div><strong>TRADER #${r.token_id}</strong><br><small>${title(r.archetype)} · ${r.trades_count} trades</small></div>${primary}</a>`;
   }).join("");
   document.querySelectorAll("#leaderboard [data-token]").forEach(row=>row.addEventListener("click",async event=>{
     event.preventDefault();const id=Number(row.dataset.token);$("token-input").value=id;if(await loadTrader(id))showPanel("profile");
   }));
 }
 
+function setRankingsControls(){
+  document.querySelectorAll("[data-rank-sort]").forEach(btn=>btn.classList.toggle("active",btn.dataset.rankSort===rankingsState.sort));
+  document.querySelectorAll("[data-rank-metric]").forEach(btn=>btn.classList.toggle("active",btn.dataset.rankMetric===rankingsState.metric));
+  document.querySelectorAll("[data-rank-limit]").forEach(btn=>btn.classList.toggle("active",Number(btn.dataset.rankLimit)===rankingsState.limit));
+  const metricBar=document.querySelector(".rankings-metric");
+  if(metricBar)metricBar.style.opacity=rankingsState.sort==="active"?"0.55":"1";
+  const title=$("rankings-title");
+  if(title)title.textContent=rankingsState.sort==="gainers"?"TOP GAINERS":rankingsState.sort==="losers"?"TOP LOSERS":"MOST ACTIVE";
+  const label=$("rankings-metric-label");
+  if(label)label.textContent=rankingsState.metric==="realized"?"REALIZED P&L":"VIRTUAL USD";
+}
+
+async function loadRankings(){
+  setRankingsControls();
+  if(rankingsState.loading)return;
+  rankingsState.loading=true;
+  const root=$("leaderboard");
+  if(root&&!rankingsState.items.length)root.innerHTML='<p class="loading">Loading standings…</p>';
+  try{
+    const data=await request({
+      rankings:"1",
+      sort:rankingsState.sort,
+      metric:rankingsState.metric,
+      limit:String(rankingsState.limit)
+    });
+    rankingsState.items=Array.isArray(data.rankings)?data.rankings:[];
+    renderLeaderboard(rankingsState.items,{sort:rankingsState.sort,metric:rankingsState.metric});
+  }catch{
+    if(root)root.innerHTML='<p class="loading">Standings temporarily unavailable.</p>';
+  }finally{rankingsState.loading=false;setRankingsControls()}
+}
+
+function renderCardsStrip(overview,activityHeadline){
+  const root=$("cards-strip");if(!root)return;
+  const prices=Array.isArray(overview?.prices)?overview.prices:[];
+  const lb=Array.isArray(overview?.leaderboard)?overview.leaderboard:[];
+  let topMover=null;
+  for(const p of prices){
+    const hit=priceOf(p.symbol)||{price:Number(p.price),changePct:null};
+    const chg=hit.changePct;
+    if(chg==null)continue;
+    if(!topMover||Math.abs(chg)>Math.abs(topMover.changePct))topMover={symbol:String(p.symbol).toUpperCase(),price:Number(p.price),changePct:chg};
+  }
+  if(!topMover&&prices[0]){
+    topMover={symbol:String(prices[0].symbol).toUpperCase(),price:Number(prices[0].price),changePct:null};
+  }
+  const gainer=lb[0]||null;
+  let loser=overview?._loser||null;
+  if(!loser&&lb.length>1){
+    loser=[...lb].sort((a,b)=>Number(a.total_value)-Number(b.total_value))[0];
+  }
+  const cycles=overview?.cycles??"—";
+  const cards=[];
+  if(topMover){
+    cards.push(`<article class="pulse-card"><span>TOP MOVER</span><strong>${escapeHtml(topMover.symbol)}</strong><b>${money.format(topMover.price)}</b>${topMover.changePct!=null?`<em class="${clsPnL(topMover.changePct)}">${pct(topMover.changePct)}</em>`:`<em class="muted">SPOT</em>`}</article>`);
+  }
+  if(gainer){
+    const ret=gainer.return_pct!=null?Number(gainer.return_pct):(Number(gainer.total_value)/STARTING_BALANCE-1)*100;
+    cards.push(`<button type="button" class="pulse-card" data-open-trader="${gainer.token_id}"><span>#1 GAINER DNA</span><strong>TRADER #${gainer.token_id}</strong><b>${money.format(Number(gainer.total_value))}</b><em class="${clsPnL(ret)}">${pct(ret)}</em></button>`);
+  }
+  if(loser&&(!gainer||loser.token_id!==gainer.token_id)){
+    const ret=loser.return_pct!=null?Number(loser.return_pct):(Number(loser.total_value)/STARTING_BALANCE-1)*100;
+    cards.push(`<button type="button" class="pulse-card loser" data-open-trader="${loser.token_id}"><span>#1 LOSER DNA</span><strong>TRADER #${loser.token_id}</strong><b>${money.format(Number(loser.total_value))}</b><em class="${clsPnL(ret)}">${pct(ret)}</em></button>`);
+  }
+  cards.push(`<article class="pulse-card"><span>ENGINE CYCLES</span><strong>${escapeHtml(String(cycles))}</strong><b>COMPLETED</b><em class="muted">BETA-1</em></article>`);
+  if(activityHeadline){
+    cards.push(`<button type="button" class="pulse-card" data-panel-jump="activity"><span>LATEST ACTIVITY</span><strong>${escapeHtml(activityHeadline.action)} ${escapeHtml(activityHeadline.symbol||"")}</strong><b>TRADER #${escapeHtml(String(activityHeadline.token_id))}</b><em class="muted">${escapeHtml(title(activityHeadline.reason_code)||"")}</em></button>`);
+  }
+  root.innerHTML=cards.join("")||'<p class="loading">Snapshot unavailable.</p>';
+}
+
 async function loadOverview(){
   try{
     const data=await getOverview();
     $("asset-count").textContent=data.assets;$("cycle-count").textContent=data.cycles;
-    renderLeaderboard(data.leaderboard||[]);
     if(Array.isArray(data.prices)){ingestPrices(data.prices);renderMarketCards(data.prices)}
-  }catch{$("leaderboard").innerHTML='<p class="loading">Standings temporarily unavailable.</p>'}
+    // seed rankings from overview if still default
+    if(!rankingsState.items.length&&Array.isArray(data.leaderboard)){
+      rankingsState.items=data.leaderboard;
+      renderLeaderboard(rankingsState.items,{sort:"gainers",metric:"equity"});
+    }
+    let headline=null;
+    try{
+      const act=await request({activity:"1",limit:"1"});
+      if(Array.isArray(act.activity)&&act.activity[0])headline=act.activity[0];
+    }catch{}
+    // Prefer true #1 loser via rankings when cheap
+    try{
+      const losers=await request({rankings:"1",sort:"losers",metric:"equity",limit:"1"});
+      if(Array.isArray(losers.rankings)&&losers.rankings[0]){
+        data._loser=losers.rankings[0];
+      }
+    }catch{}
+    renderCardsStrip(data,headline?{action:String(headline.action||"").toUpperCase(),symbol:headline.symbol,token_id:headline.token_id,reason_code:headline.reason_code}:null);
+    renderFollowedStrip();
+  }catch{
+    const root=$("leaderboard");
+    if(root)root.innerHTML='<p class="loading">Standings temporarily unavailable.</p>';
+    const strip=$("cards-strip");
+    if(strip)strip.innerHTML='<p class="loading">Snapshot temporarily unavailable.</p>';
+  }
 }
 
+function sellPnLChip(row){
+  const exit=row.exit_details;
+  if(!exit||String(row.action||"").toLowerCase()!=="sell")return"";
+  const pnl=Number(exit.realized_pnl);
+  const ret=Number(exit.return_pct);
+  if(!Number.isFinite(pnl))return"";
+  const retTxt=Number.isFinite(ret)?` · ${pct(ret)}`:"";
+  return `<span class="pnl-chip ${clsPnL(pnl)}">${money.format(pnl)}${retTxt}</span>`;
+}
 function renderActivity(items){
   const root=$("activity-list");root.replaceChildren();
+  root.classList.toggle("compact-view",activityState.view==="compact");
   $("activity-count").textContent=`${items.length} ${items.length===1?"DECISION":"DECISIONS"} LOADED`;
   if(!items.length){const empty=document.createElement("p");empty.className="loading";empty.textContent="No decisions have been recorded yet.";root.append(empty);return}
   for(const row of items){
     const id=Number(row.token_id);
     if(!Number.isInteger(id)||id<1||id>444)continue;
     const action=String(row.action||"HOLD").toLowerCase();
+    const holdLabel=action==="hold"?"CONDITION CHECKED · NO TRADE":action.toUpperCase();
     const wrap=document.createElement("div");
     wrap.className="activity-ticket-row";
     wrap.innerHTML=`
       <a class="activity-row" href="?trader=${id}">
         <img src="${imageUrl(id)}" alt="WST #${id}" loading="lazy">
         <span class="activity-trader">TRADER #${id}</span>
-        <span class="activity-action ${["buy","sell","hold"].includes(action)?action:""}">${escapeHtml(action.toUpperCase())} ${escapeHtml(safe(row.symbol,""))}</span>
-        <span class="activity-reason">${escapeHtml(title(row.reason_code))}</span>
+        <span class="activity-action ${["buy","sell","hold"].includes(action)?action:""}">${escapeHtml(action==="hold"?holdLabel:action.toUpperCase())} ${escapeHtml(safe(row.symbol,""))}</span>
+        <span class="activity-reason">${escapeHtml(title(row.reason_code))}${sellPnLChip(row)}</span>
         <time class="activity-time"></time>
       </a>
-      <div class="activity-mini-ticket">${renderDecisionTicket(row,{compact:true})}</div>`;
+      ${activityState.view==="tickets"?`<div class="activity-mini-ticket">${renderDecisionTicket(row,{compact:true})}</div>`:""}`;
     const stamp=wrap.querySelector("time");
     const date=new Date(row.decided_at);
     if(!Number.isNaN(date.getTime())){stamp.dateTime=date.toISOString();stamp.textContent=date.toLocaleString(undefined,{dateStyle:"short",timeStyle:"medium"})}
@@ -671,6 +932,7 @@ function renderActivity(items){
 }
 function setActivityControls(){
   document.querySelectorAll("[data-activity-action]").forEach(button=>button.classList.toggle("active",button.dataset.activityAction===activityState.action));
+  document.querySelectorAll("[data-activity-view]").forEach(button=>button.classList.toggle("active",button.dataset.activityView===activityState.view));
   const loadMore=$("load-more-activity");loadMore.hidden=!activityState.hasMore;loadMore.disabled=activityState.loading;loadMore.textContent=activityState.loading?"LOADING…":"LOAD MORE ↓";
 }
 async function loadActivity({reset=false}={}){
@@ -678,7 +940,10 @@ async function loadActivity({reset=false}={}){
   if(reset){activityState.cursor=null;activityState.hasMore=false;activityState.items=[];renderActivity([])}
   activityState.loading=true;setActivityControls();$("activity-status").textContent="LOADING…";
   try{
-    const params={activity:"1",action:activityState.action,limit:String(ACTIVITY_PAGE_SIZE)};if(activityState.cursor)params.before=activityState.cursor;
+    const params={activity:"1",action:activityState.action,limit:String(ACTIVITY_PAGE_SIZE)};
+    if(activityState.cursor)params.before=activityState.cursor;
+    if(activityState.tokenId)params.token_id=String(activityState.tokenId);
+    if(activityState.symbol)params.symbol=String(activityState.symbol).toUpperCase();
     const data=await request(params);
     if(!Array.isArray(data.activity))throw new Error("Invalid activity response");
     activityState.items=reset?data.activity:[...activityState.items,...data.activity];activityState.cursor=data.next_cursor||null;activityState.hasMore=Boolean(data.has_more);renderActivity(activityState.items);
@@ -694,6 +959,7 @@ function showPanel(id){
   document.querySelectorAll(".workspace-content>.page-panel").forEach(panel=>panel.classList.toggle("active-panel",panel.id===id));
   navButtons.forEach(button=>button.setAttribute("aria-selected",String(button.dataset.panel===id)));
   if(id==="activity"&&!activityState.items.length)loadActivity({reset:true});
+  if(id==="rankings")loadRankings();
   window.scrollTo({top:$("main-content").offsetTop,behavior:"smooth"});
 }
 navButtons.forEach(button=>button.addEventListener("click",()=>showPanel(button.dataset.panel)));
@@ -716,6 +982,10 @@ $("load-more-activity").addEventListener("click",()=>loadActivity());
 document.addEventListener("click",async e=>{
   const unwatch=e.target.closest("[data-unwatch]");
   if(unwatch){e.preventDefault();e.stopPropagation();toggleWatch(unwatch.dataset.unwatch);return}
+  const unfollow=e.target.closest("[data-unfollow]");
+  if(unfollow){e.preventDefault();e.stopPropagation();toggleFollowDna(Number(unfollow.dataset.unfollow));return}
+  const jump=e.target.closest("[data-panel-jump]");
+  if(jump){e.preventDefault();showPanel(jump.dataset.panelJump);return}
   const watchBtn=e.target.closest("[data-watch-symbol]");
   if(watchBtn){e.preventDefault();e.stopPropagation();toggleWatch(watchBtn.dataset.watchSymbol);return}
   const openAsset=e.target.closest("[data-open-asset]");
@@ -756,3 +1026,51 @@ $("compare-form")?.addEventListener("submit",e=>{
   if(!ids.length){$("compare-grid").innerHTML='<p class="loading">Enter at least one token ID (1–444).</p>';return}
   runCompare(ids);
 });
+
+/* Wave 1+ rankings / activity / follow / spectator */
+document.querySelectorAll("[data-rank-sort]").forEach(btn=>btn.addEventListener("click",()=>{
+  if(rankingsState.loading)return;
+  rankingsState.sort=btn.dataset.rankSort;
+  loadRankings();
+}));
+document.querySelectorAll("[data-rank-metric]").forEach(btn=>btn.addEventListener("click",()=>{
+  if(rankingsState.loading)return;
+  rankingsState.metric=btn.dataset.rankMetric;
+  loadRankings();
+}));
+document.querySelectorAll("[data-rank-limit]").forEach(btn=>btn.addEventListener("click",()=>{
+  if(rankingsState.loading)return;
+  rankingsState.limit=Number(btn.dataset.rankLimit)||10;
+  loadRankings();
+}));
+document.querySelectorAll("[data-activity-view]").forEach(btn=>btn.addEventListener("click",()=>{
+  activityState.view=btn.dataset.activityView==="compact"?"compact":"tickets";
+  setActivityControls();
+  renderActivity(activityState.items);
+}));
+$("activity-apply-filters")?.addEventListener("click",()=>{
+  const tokenRaw=$("activity-token-filter")?.value?.trim()||"";
+  const symRaw=$("activity-symbol-filter")?.value?.trim()||"";
+  let tokenId="";
+  if(tokenRaw){
+    const n=Number(tokenRaw);
+    if(!Number.isInteger(n)||n<1||n>444){$("activity-status").textContent="TOKEN ID MUST BE 1–444";return}
+    tokenId=String(n);
+  }
+  const symbol=symRaw.toUpperCase().replace(/[^A-Z0-9.\-]/g,"").slice(0,16);
+  activityState.tokenId=tokenId;
+  activityState.symbol=symbol;
+  loadActivity({reset:true});
+});
+$("follow-dna-btn")?.addEventListener("click",()=>{
+  const id=Number($("follow-dna-btn").dataset.tokenId||profileCache.tokenId);
+  if(id)toggleFollowDna(id);
+});
+$("spectator-pause-btn")?.addEventListener("click",()=>{
+  const id=profileCache.tokenId;if(id)setAgentPaused(id,true);
+});
+$("spectator-resume-btn")?.addEventListener("click",()=>{
+  const id=profileCache.tokenId;if(id)setAgentPaused(id,false);
+});
+renderFollowedStrip();
+setRankingsControls();

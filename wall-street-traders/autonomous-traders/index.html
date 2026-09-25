@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=25">
+  <link rel="stylesheet" href="styles.css?v=26">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -50,6 +50,14 @@
           <article><span>STOCK TOKENS</span><strong id="asset-count">—</strong><small>LIVE MARKET ASSETS</small></article>
           <article><span>ENGINE CYCLES</span><strong id="cycle-count">—</strong><small>AUTONOMOUS DECISIONS</small></article>
         </div>
+        <article class="panel cards-strip-panel" id="cards-strip-panel">
+          <div class="panel-head"><div><span>LIVE PULSE</span><h3>SNAPSHOT CARDS</h3></div><b>BETA</b></div>
+          <div class="cards-strip" id="cards-strip" aria-label="Overview snapshot cards"><p class="loading">Loading snapshot…</p></div>
+        </article>
+        <article class="panel followed-panel" id="followed-panel">
+          <div class="panel-head"><div><span>LOCAL FOLLOW LIST</span><h3>TRADERS YOU FOLLOW</h3></div><b id="followed-count">0</b></div>
+          <div class="followed-strip" id="followed-strip"><p class="followed-empty">No DNA followed yet. Open a trader profile and tap FOLLOW DNA.</p></div>
+        </article>
         <article class="panel market-cards-panel" id="market-cards-panel">
           <div class="panel-head"><div><span>MARKET SPOTLIGHT</span><h3>STOCK TOKENS</h3></div><b id="market-cards-status">LIVE</b></div>
           <div class="market-cards" id="market-cards"><p class="loading">Loading market cards…</p></div>
@@ -67,10 +75,35 @@
             <h2>TRADER PROFILE.</h2>
             <small>Market behavior is generated from the NFT's rarity, archetype and original collection traits.</small>
           </div>
-          <button type="button" class="compare-trigger" id="compare-from-profile" data-seed-current="1">COMPARE TRADERS</button>
+          <div class="profile-head-actions">
+            <button type="button" class="ghost-btn" id="follow-dna-btn">FOLLOW DNA</button>
+            <button type="button" class="compare-trigger" id="compare-from-profile" data-seed-current="1">COMPARE TRADERS</button>
+          </div>
         </div>
         <div class="profile-layout">
           <div class="portfolio-grid"><article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">—</small></article><article><span>CASH</span><b id="cash-balance">—</b><small>AVAILABLE CAPITAL</small></article><article><span>POSITIONS</span><b id="positions-value">—</b><small id="position-count">— OPEN</small></article><article><span>TRADES</span><b id="trades-count">—</b><small id="win-loss">— W / — L</small></article></div>
+          <article class="panel safety-theater-panel" id="safety-theater-panel">
+            <div class="panel-head"><div><span>SPECTATOR CONTROLS</span><h3>PAPER BUDGET RING-FENCE</h3></div><b id="safety-status-badge">ACTIVE</b></div>
+            <div class="safety-body">
+              <div class="budget-ring" aria-label="Paper budget">
+                <div class="budget-ring-meter"><span id="budget-ring-fill"></span></div>
+                <div class="budget-ring-copy">
+                  <strong id="budget-ring-value">$10,000.00</strong>
+                  <small>STARTING PAPER BUDGET</small>
+                  <em id="budget-ring-note">Spectator control · engine remains live in beta</em>
+                </div>
+              </div>
+              <div class="spectator-controls">
+                <button type="button" class="ghost-btn" id="spectator-pause-btn">PAUSE</button>
+                <button type="button" class="ghost-btn" id="spectator-resume-btn">RESUME</button>
+                <p class="spectator-note">Local UI only. Pause sets a <b>PAUSED BY YOU</b> badge and can hide this DNA from your followed digest cards. It does not stop the live paper engine.</p>
+              </div>
+            </div>
+          </article>
+          <article class="panel digest-panel" id="digest-panel">
+            <div class="panel-head"><div><span>PORTFOLIO DIGEST</span><h3>PLAIN-ENGLISH BRIEF</h3></div><b>INFORMATIONAL · PAPER · NOT ADVICE</b></div>
+            <div class="digest-body" id="portfolio-digest"><p class="loading">Generating digest…</p></div>
+          </article>
           <div class="profile-top">
             <article class="identity panel profile-identity">
               <div class="image-wrap">
@@ -87,7 +120,7 @@
                   <div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div>
                   <div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div>
                   <div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div>
-                  <div><dt>STATUS</dt><dd class="positive">ACTIVE</dd></div>
+                  <div><dt>STATUS</dt><dd class="positive" id="agent-status">ACTIVE</dd></div>
                   <div><dt>LAST EVALUATED</dt><dd id="last-evaluated">—</dd></div>
                   <div><dt>REALIZED P&amp;L</dt><dd id="realized-pnl">—</dd></div>
                   <div><dt>UNREALIZED P&amp;L</dt><dd id="unrealized-pnl">—</dd></div>
@@ -124,6 +157,10 @@
             <p class="equity-note" id="equity-note">ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE</p>
           </article>
           <article class="panel positions-panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list positions-list empty">NO OPEN POSITIONS</div></article>
+          <article class="panel eval-ledger-panel" id="eval-ledger-panel">
+            <div class="panel-head"><div><span>CONDITION / EVALUATION</span><h3>EVALUATION LEDGER</h3></div><b>RECENT CHECKS</b></div>
+            <div id="eval-ledger" class="eval-ledger"><p class="loading">Loading evaluations…</p></div>
+          </article>
           <article class="panel decision-history"><div class="panel-head history-head"><div><span>COMPLETE DECISION LEDGER</span><h3>DECISION HISTORY</h3></div><b id="history-status">LIVE</b></div>
             <div class="history-toolbar" role="group" aria-label="Filter decision history"><button type="button" class="active" data-action="all">ALL</button><button type="button" data-action="buy">BUY</button><button type="button" data-action="sell">SELL</button><button type="button" data-action="hold">HOLD</button></div>
             <div id="decisions" class="data-list history-list empty" aria-live="polite">NO DECISIONS YET</div>
@@ -136,13 +173,29 @@
           <div>
             <p>04 / BETA SEASON</p>
             <h2>TOP TRADERS.</h2>
-            <small>Live standings based on the virtual USD value of each autonomous portfolio.</small>
+            <small>Live standings by equity return, realized P&amp;L, or trading activity — paper portfolios only.</small>
           </div>
           <button type="button" class="compare-trigger" id="compare-from-rankings">COMPARE TRADERS</button>
         </div>
-        <article class="panel leaderboard-panel"><div class="panel-head"><div><span>LIVE TABLE</span><h3>AUTONOMOUS RANKING</h3></div><b>VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article>
+        <div class="rankings-toolbar" role="group" aria-label="Rankings controls">
+          <div class="history-toolbar rankings-tabs" role="tablist" aria-label="Rankings sort">
+            <button type="button" class="active" data-rank-sort="gainers">TOP GAINERS</button>
+            <button type="button" data-rank-sort="losers">TOP LOSERS</button>
+            <button type="button" data-rank-sort="active">MOST ACTIVE</button>
+          </div>
+          <div class="history-toolbar rankings-metric" role="group" aria-label="Rankings metric">
+            <button type="button" class="active" data-rank-metric="equity">EQUITY RETURN</button>
+            <button type="button" data-rank-metric="realized">REALIZED P&amp;L</button>
+          </div>
+          <div class="history-toolbar rankings-limit" role="group" aria-label="Rankings limit">
+            <button type="button" class="active" data-rank-limit="10">10</button>
+            <button type="button" data-rank-limit="25">25</button>
+            <button type="button" data-rank-limit="50">50</button>
+          </div>
+        </div>
+        <article class="panel leaderboard-panel"><div class="panel-head"><div><span>LIVE TABLE</span><h3 id="rankings-title">TOP GAINERS</h3></div><b id="rankings-metric-label">VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article>
       </section>
-      <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>05 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Complete simulated decision history across all 444 traders, loaded in lightweight pages.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div class="history-toolbar activity-toolbar" role="group" aria-label="Filter public activity"><button type="button" class="active" data-activity-action="all">ALL</button><button type="button" data-activity-action="buy">BUY</button><button type="button" data-activity-action="sell">SELL</button><button type="button" data-activity-action="hold">HOLD</button></div><div id="activity-list" class="activity-list activity-history"><p class="loading">Loading recent decisions…</p></div><div class="history-footer"><span id="activity-count">0 DECISIONS LOADED</span><button type="button" id="load-more-activity" hidden>LOAD MORE ↓</button></div></article><p class="activity-note">PAPER TRADING ONLY · HOLD IS A DECISION, NOT AN EXECUTED TRADE · TIMES SHOWN IN YOUR LOCAL TIME ZONE</p></section>
+      <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>05 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Complete simulated decision history across all 444 traders, loaded in lightweight pages.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div class="history-toolbar activity-toolbar" role="group" aria-label="Filter public activity"><button type="button" class="active" data-activity-action="all">ALL</button><button type="button" data-activity-action="buy">BUY</button><button type="button" data-activity-action="sell">SELL</button><button type="button" data-activity-action="hold">HOLD</button></div><div class="activity-extra-filters"><label>TRADER #<input id="activity-token-filter" type="number" min="1" max="444" placeholder="1–444" inputmode="numeric"></label><label>SYMBOL<input id="activity-symbol-filter" type="text" maxlength="16" placeholder="AAPL" autocomplete="off" spellcheck="false"></label><button type="button" class="ghost-btn" id="activity-apply-filters">APPLY</button><div class="history-toolbar activity-view-toggle" role="group" aria-label="Activity view"><button type="button" data-activity-view="compact">COMPACT</button><button type="button" class="active" data-activity-view="tickets">TICKETS</button></div></div><div id="activity-list" class="activity-list activity-history"><p class="loading">Loading recent decisions…</p></div><div class="history-footer"><span id="activity-count">0 DECISIONS LOADED</span><button type="button" id="load-more-activity" hidden>LOAD MORE ↓</button></div></article><p class="activity-note">PAPER TRADING ONLY · HOLD IS A DECISION, NOT AN EXECUTED TRADE · TIMES SHOWN IN YOUR LOCAL TIME ZONE</p></section>
       <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">06 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
     </div>
   </main>
@@ -192,6 +245,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=25"></script>
+  <script src="app.js?v=26"></script>
 </body>
 </html>

@@ -232,3 +232,78 @@ body.drawer-open,body.modal-open{overflow:hidden}
   .identity{padding:8px}
   .traits{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* ── Wave 1+ v26 ── */
+.profile-head-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.rankings-toolbar{display:flex;flex-direction:column;gap:0;margin-bottom:18px;border:1px solid var(--line2);background:#030403}
+.rankings-toolbar .history-toolbar{border-bottom:1px solid var(--line)}
+.rankings-toolbar .history-toolbar:last-child{border-bottom:0}
+.leader-row.loser-row b.loss,.leader-row.loser-row .loss{color:var(--red)}
+.leader-row.loser-row{background:linear-gradient(90deg,#1a0c0c55,#0000)}
+
+.activity-extra-filters{display:flex;flex-wrap:wrap;gap:10px;align-items:end;padding:12px 20px;border-bottom:1px solid var(--line);background:#030403}
+.activity-extra-filters label{display:grid;gap:6px;color:var(--green);font-size:9px;letter-spacing:.1em}
+.activity-extra-filters input{height:40px;border:1px solid var(--line2);background:#050605;color:var(--paper);padding:0 12px;font-weight:700;outline:0;min-width:110px}
+.activity-extra-filters input:focus{border-color:var(--green)}
+.activity-view-toggle{padding:0;border:0;background:transparent}
+.pnl-chip{display:inline-block;margin-left:8px;padding:3px 7px;border:1px solid var(--line2);font-size:9px;font-weight:700;letter-spacing:.04em;vertical-align:middle}
+.pnl-chip.buy{color:var(--green);border-color:#31513a}.pnl-chip.sell{color:var(--red);border-color:#5a3030}
+.activity-list.compact-view .activity-mini-ticket{display:none}
+.activity-action.hold{color:#bdb6aa}
+
+.cards-strip-panel,.followed-panel{border:0;border-top:1px solid var(--line);background:#060806}
+.cards-strip,.followed-strip{display:flex;gap:12px;overflow-x:auto;padding:16px 22px 22px;scrollbar-color:var(--green) #111511;scrollbar-width:thin}
+.pulse-card{flex:0 0 min(220px,70vw);display:grid;gap:6px;text-align:left;border:1px solid var(--line2);background:#030403;color:inherit;padding:16px;font:inherit;cursor:default}
+button.pulse-card{cursor:pointer}
+button.pulse-card:hover{border-color:var(--green);background:#0a0d0a}
+.pulse-card.loser{border-color:#5a3030}
+.pulse-card span{font-size:9px;letter-spacing:.1em;color:#777b75}
+.pulse-card strong{font-size:13px;letter-spacing:.04em}
+.pulse-card b{font:700 18px var(--serif)}
+.pulse-card em{font-style:normal;font-size:10px}.pulse-card em.buy{color:var(--green)}.pulse-card em.sell{color:var(--red)}
+.follow-chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:#030403;color:var(--paper);padding:8px 12px;font:700 10px var(--mono);cursor:pointer}
+.follow-chip img{width:28px;height:28px;object-fit:cover;border:1px solid var(--line2)}
+.follow-chip:hover{border-color:var(--green)}
+.follow-chip.paused{border-color:#5a3030}
+.follow-chip em{font-style:normal;font-size:8px;color:var(--red);letter-spacing:.08em}
+.follow-chip i{color:#777b75;font-style:normal;padding:0 2px}
+.follow-chip i:hover{color:var(--red)}
+.followed-empty{margin:0;color:#777b75;font-size:10px;letter-spacing:.06em}
+
+.safety-theater-panel .safety-body{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;padding:18px 20px 22px}
+.budget-ring{display:flex;flex-direction:column;gap:10px}
+.budget-ring-meter{height:10px;background:#182019;border:1px solid var(--line);overflow:hidden}
+.budget-ring-meter span{display:block;height:100%;background:var(--green);width:100%;transition:width .3s}
+.budget-ring-meter span.down{background:var(--red)}
+.budget-ring-copy strong{display:block;font:700 22px var(--serif);margin-bottom:4px}
+.budget-ring-copy small{display:block;color:#777b75;font-size:9px;letter-spacing:.1em}
+.budget-ring-copy em{display:block;margin-top:8px;font-style:normal;color:#666b64;font-size:9px;letter-spacing:.06em;line-height:1.5}
+.spectator-controls{display:flex;flex-direction:column;gap:10px;align-items:stretch}
+.spectator-controls .ghost-btn:disabled{opacity:.4;cursor:not-allowed}
+.spectator-note{margin:0;color:#777b75;font-size:9px;line-height:1.6;letter-spacing:.04em}
+.spectator-note b{color:var(--paper)}
+
+.digest-panel .digest-body{padding:18px 22px 22px}
+.digest-text{margin:0;color:var(--dim);font:400 13px/1.75 var(--mono)}
+.digest-disclaimer{margin:14px 0 0;color:var(--green);font-size:9px;letter-spacing:.12em}
+
+.eval-ledger{max-height:360px;overflow-y:auto;scrollbar-color:var(--green) #111511;scrollbar-width:thin}
+.eval-row{display:grid;grid-template-columns:minmax(160px,1.1fr) minmax(120px,1fr) minmax(120px,1fr) minmax(140px,.9fr);gap:12px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);font-size:11px}
+.eval-row:last-child{border-bottom:0}
+.eval-action{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.eval-action strong.buy{color:var(--green)}.eval-action strong.sell{color:var(--red)}
+.eval-reason{color:#bdb6aa}.eval-meta,.eval-time{color:#777b75}
+.eval-time{text-align:right;white-space:nowrap}
+
+@media(max-width:900px){
+  .safety-theater-panel .safety-body{grid-template-columns:1fr}
+  .eval-row{grid-template-columns:1fr 1fr;gap:8px}
+  .eval-time{text-align:left}
+  .activity-extra-filters{padding-inline:14px}
+}
+@media(max-width:640px){
+  .profile-head-actions{width:100%}
+  .profile-head-actions .ghost-btn,.profile-head-actions .compare-trigger{flex:1}
+  .eval-row{grid-template-columns:1fr}
+  .cards-strip,.followed-strip{padding-inline:14px}
+}
