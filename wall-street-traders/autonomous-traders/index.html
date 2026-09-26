@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="styles.css?v=28">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -82,7 +82,40 @@
           </div>
         </div>
         <div class="profile-layout">
+          <article class="panel watchlist-panel" id="watchlist-panel">
+            <div class="panel-head"><div><span>LOCAL BROWSER LIST</span><h3>WATCHLIST</h3></div><b id="watchlist-count">0</b></div>
+            <div class="watchlist-strip" id="watchlist-strip"><p class="watchlist-empty">No symbols watched yet. Add from a position card or asset drawer.</p></div>
+          </article>
           <div class="portfolio-grid"><article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">—</small></article><article><span>CASH</span><b id="cash-balance">—</b><small>AVAILABLE CAPITAL</small></article><article><span>POSITIONS</span><b id="positions-value">—</b><small id="position-count">— OPEN</small></article><article><span>TRADES</span><b id="trades-count">—</b><small id="win-loss">— W / — L</small></article></div>
+          <div class="profile-top">
+            <article class="identity panel profile-identity">
+              <div class="image-wrap">
+                <img id="trader-image" src="../trading-floor/traders/160.png" alt="Wall Street Trader #160">
+                <div class="identity-badges">
+                  <span class="season-badge" id="identity-season">BETA-1 · PAPER</span>
+                  <span id="rarity-badge">DEFAULT</span>
+                </div>
+              </div>
+              <div class="identity-copy">
+                <p id="public-file">PUBLIC FILE / WST-160</p>
+                <h2 id="trader-name">TRADER #160</h2>
+                <dl class="identity-data">
+                  <div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div>
+                  <div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div>
+                  <div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div>
+                  <div><dt>STATUS</dt><dd class="positive" id="agent-status">ACTIVE</dd></div>
+                  <div><dt>LAST EVALUATED</dt><dd id="last-evaluated">—</dd></div>
+                  <div><dt>REALIZED P&amp;L</dt><dd id="realized-pnl">—</dd></div>
+                  <div><dt>UNREALIZED P&amp;L</dt><dd id="unrealized-pnl">—</dd></div>
+                  <div><dt>WIN RATE</dt><dd id="win-rate">—</dd></div>
+                </dl>
+              </div>
+            </article>
+            <div class="profile-side">
+              <article class="panel instincts-panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Loading behavioral DNA…</p></div></article>
+              <article class="panel traits-panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
+            </div>
+          </div>
           <article class="panel safety-theater-panel" id="safety-theater-panel">
             <div class="panel-head"><div><span>SPECTATOR CONTROLS</span><h3>PAPER BUDGET RING-FENCE</h3></div><b id="safety-status-badge">ACTIVE</b></div>
             <div class="safety-body">
@@ -117,39 +150,6 @@
           <article class="panel digest-panel" id="digest-panel">
             <div class="panel-head"><div><span>PORTFOLIO DIGEST</span><h3>PLAIN-ENGLISH BRIEF</h3></div><b>INFORMATIONAL · PAPER · NOT ADVICE</b></div>
             <div class="digest-body" id="portfolio-digest"><p class="loading">Generating digest…</p></div>
-          </article>
-          <div class="profile-top">
-            <article class="identity panel profile-identity">
-              <div class="image-wrap">
-                <img id="trader-image" src="../trading-floor/traders/160.png" alt="Wall Street Trader #160">
-                <div class="identity-badges">
-                  <span class="season-badge" id="identity-season">BETA-1 · PAPER</span>
-                  <span id="rarity-badge">DEFAULT</span>
-                </div>
-              </div>
-              <div class="identity-copy">
-                <p id="public-file">PUBLIC FILE / WST-160</p>
-                <h2 id="trader-name">TRADER #160</h2>
-                <dl class="identity-data">
-                  <div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div>
-                  <div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div>
-                  <div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div>
-                  <div><dt>STATUS</dt><dd class="positive" id="agent-status">ACTIVE</dd></div>
-                  <div><dt>LAST EVALUATED</dt><dd id="last-evaluated">—</dd></div>
-                  <div><dt>REALIZED P&amp;L</dt><dd id="realized-pnl">—</dd></div>
-                  <div><dt>UNREALIZED P&amp;L</dt><dd id="unrealized-pnl">—</dd></div>
-                  <div><dt>WIN RATE</dt><dd id="win-rate">—</dd></div>
-                </dl>
-              </div>
-            </article>
-            <div class="profile-side">
-              <article class="panel instincts-panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Loading behavioral DNA…</p></div></article>
-              <article class="panel traits-panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
-            </div>
-          </div>
-          <article class="panel watchlist-panel" id="watchlist-panel">
-            <div class="panel-head"><div><span>LOCAL BROWSER LIST</span><h3>WATCHLIST</h3></div><b id="watchlist-count">0</b></div>
-            <div class="watchlist-strip" id="watchlist-strip"><p class="watchlist-empty">No symbols watched yet. Add from a position card or asset drawer.</p></div>
           </article>
           <article class="panel equity-panel" id="equity-panel">
             <div class="panel-head"><div><span>PORTFOLIO PERFORMANCE</span><h3>EQUITY CURVE</h3></div><b id="equity-source">ESTIMATED</b></div>
@@ -319,6 +319,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=27"></script>
+  <script src="app.js?v=28"></script>
 </body>
 </html>
