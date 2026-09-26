@@ -14,6 +14,8 @@ let priceMap=new Map();
 let profileCache={tokenId:null,positions:[],decisions:[],portfolio:null,trader:null};
 const HISTORY_PAGE_SIZE=25;
 const historyState={tokenId:null,action:"all",cursor:null,hasMore:false,loading:false,items:[]};
+const REPLAY_PAGE_SIZE=50;
+const replayState={tokenId:null,cursor:null,hasMore:false,loading:false,items:[],summary:null};
 const ACTIVITY_PAGE_SIZE=25;
 const activityState={action:"all",cursor:null,hasMore:false,loading:false,items:[],tokenId:"",symbol:"",view:"tickets"};
 const rankingsState={sort:"gainers",metric:"equity",limit:10,loading:false,items:[]};
@@ -625,7 +627,7 @@ function renderPortfolioChart(data){
   const total=Number(data?.portfolio?.total_value??equityState.total);
   const trades=Number(data?.portfolio?.trades_count||0);
   let history=extractEquityHistory(data||{});
-  const estimated=history.length<2;
+  const estimated=history.length<1;
   if(estimated)history=buildEstimatedHistory(id,total,trades);
   else{
     const last=history[history.length-1];
@@ -635,10 +637,27 @@ function renderPortfolioChart(data){
   const priorMarkers=equityState.tokenId===id?(equityState.markerDecisions||[]):[];
   const fromProfile=Array.isArray(data?.decisions)?data.decisions:[];
   const seedMarkers=priorMarkers.length?priorMarkers:fromProfile;
-  equityState={span:nextSpan,history,estimated,tokenId:id,total,markerDecisions:seedMarkers};
-  const src=$("equity-source");const note=$("equity-note");
-  if(src)src.textContent=estimated?"ESTIMATED":"LIVE HISTORY";
-  if(note)note.textContent=estimated?"ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE":"LIVE EQUITY SNAPSHOTS · PAPER TRADING ONLY · MARKERS = DECISIONS";
+  equityState={span:nextSpan,history,estimated,tokenId:id,total,markerDecisions:seedMarkers,lastSnapTs:estimated?null:(history.length?history[history.length-1].ts:null)};
+  const src=$("equity-source");const note=$("equity-note");const warn=$("equity-warn");const snapEl=$("equity-last-snap");
+  if(src){
+    src.textContent=estimated?"ESTIMATED":"LIVE HISTORY";
+    src.className="equity-badge "+(estimated?"estimated-warn":"live-history");
+  }
+  if(note)note.textContent=estimated
+    ?"⚠ ESTIMATED CURVE · NO LIVE SNAPSHOTS IN RESPONSE · INFORMATIONAL · PAPER · NOT ADVICE"
+    :"LIVE HISTORY · ENGINE EQUITY SNAPSHOTS · PAPER TRADING ONLY · MARKERS = DECISIONS · INFORMATIONAL · NOT ADVICE";
+  if(warn){
+    warn.hidden=!estimated;
+    warn.textContent=estimated?"⚠ ESTIMATED CURVE · LIVE SNAPSHOTS NOT LOADED · INFORMATIONAL · PAPER · NOT ADVICE":"";
+  }
+  if(snapEl){
+    if(!estimated&&history.length){
+      const t=new Date(history[history.length-1].ts);
+      snapEl.textContent=Number.isNaN(t.getTime())?"LAST SNAP · —":`LAST SNAP · ${t.toLocaleString()}`;
+    }else{
+      snapEl.textContent=estimated?"NO LIVE SNAPSHOT":"—";
+    }
+  }
   setEquitySpan(nextSpan);
   loadEquityMarkers(id);
 }
@@ -824,6 +843,159 @@ async function runCompare(ids){
   }
 }
 
+/* ── Pressure test (DNA vs book) ── */
+function buildPressureTest(data){
+  const trader=data?.trader||{};
+  const portfolio=data?.portfolio||{};
+  const positions=Array.isArray(data?.positions)?data.positions:[];
+  const decisions=Array.isArray(data?.decisions)?data.decisions:[];
+  const risk=Number(trader.risk_tolerance||0);
+  const discipline=Number(trader.discipline||0);
+  const patience=Number(trader.patience||0);
+  const momentum=Number(trader.momentum_bias||0);
+  const archetype=String(trader.archetype||"").toLowerCase();
+  const cash=Number(portfolio.cash_balance||0);
+  const posVal=Number(portfolio.positions_value||0);
+  const total=Number(portfolio.total_value||STARTING_BALANCE);
+  const trades=Number(portfolio.trades_count||0);
+  const cashPct=total>0?(cash/total)*100:100;
+  const exposurePct=total>0?(posVal/total)*100:0;
+  let topSym=null,topWeight=0;
+  for(const p of positions){
+    const mv=Number(p.market_value||0);
+    const w=total>0?(mv/total)*100:0;
+    if(w>topWeight){topWeight=w;topSym=String(p.symbol||"").toUpperCase()}
+  }
+  const mix={buy:0,sell:0,hold:0};
+  for(const d of decisions){
+    const a=String(d.action||"hold").toLowerCase();
+    if(a==="buy")mix.buy++;else if(a==="sell")mix.sell++;else mix.hold++;
+  }
+  const loaded=mix.buy+mix.sell+mix.hold;
+  const flags=[];
+  let score=70;
+  if(risk>=70&&cashPct>=70){flags.push({tone:"warn",text:`High risk DNA (${risk}/100) but cash-heavy book (${cashPct.toFixed(0)}% cash).`});score-=12}
+  if(risk<=35&&exposurePct>=70){flags.push({tone:"warn",text:`Defensive/low-risk DNA (${risk}/100) yet high market exposure (${exposurePct.toFixed(0)}%).`});score-=10}
+  if((archetype.includes("defensive")||patience>=70)&&topWeight>=35){flags.push({tone:"warn",text:`Patient/defensive profile but concentrated in ${topSym||"one name"} (${topWeight.toFixed(0)}% of book).`});score-=10}
+  if(momentum>=70&&mix.buy+mix.sell===0&&loaded){flags.push({tone:"warn",text:`High momentum bias (${momentum}/100) but recent loaded set is all holds.`});score-=8}
+  if(discipline>=70&&trades===0){flags.push({tone:"info",text:`High discipline (${discipline}/100) with zero trades so far — possible over-caution in beta.`});score-=4}
+  if(risk>=60&&exposurePct>=40&&trades>0){flags.push({tone:"ok",text:`Risk DNA (${risk}/100) aligns with deployed capital (${exposurePct.toFixed(0)}% invested, ${trades} trades).`});score+=6}
+  if(cashPct>=90&&trades===0){flags.push({tone:"info",text:`Near-full cash with no trades — book still at starting posture.`});}
+  if(topWeight>=45){flags.push({tone:"warn",text:`Concentration flag: ${topSym} is ${topWeight.toFixed(0)}% of total value.`});score-=8}
+  if(!flags.length)flags.push({tone:"ok",text:`No loud mismatch between DNA (${title(archetype)||"—"}) and current paper book.`});
+  score=Math.max(15,Math.min(95,score));
+  return{score,cashPct,exposurePct,topSym,topWeight,mix,loaded,risk,discipline,patience,momentum,archetype,trades,flags};
+}
+function renderPressureTest(data){
+  const root=$("pressure-body");const badge=$("pressure-score-badge");if(!root)return;
+  const p=buildPressureTest(data);
+  if(badge)badge.textContent=`SCORE ${p.score} · HEURISTIC · PAPER`;
+  root.innerHTML=`
+    <div class="pressure-kpis">
+      <div><span>CONSISTENCY</span><b>${p.score}/100</b><small>HEURISTIC</small></div>
+      <div><span>CASH</span><b>${p.cashPct.toFixed(0)}%</b><small>OF BOOK</small></div>
+      <div><span>EXPOSURE</span><b>${p.exposurePct.toFixed(0)}%</b><small>INVESTED</small></div>
+      <div><span>TOP NAME</span><b>${escapeHtml(p.topSym||"—")}</b><small>${p.topWeight?p.topWeight.toFixed(0)+"% BOOK":"NONE"}</small></div>
+    </div>
+    <div class="pressure-dna">
+      <span>RISK ${p.risk}</span><span>DISC ${p.discipline}</span><span>PAT ${p.patience}</span><span>MOM ${p.momentum}</span>
+      <span>ARCH ${escapeHtml(title(p.archetype)||"—").toUpperCase()}</span>
+      <span>TRADES ${p.trades}</span>
+      <span>MIX B${p.mix.buy}/S${p.mix.sell}/H${p.mix.hold}</span>
+    </div>
+    <ul class="pressure-flags">${p.flags.map(f=>`<li class="${f.tone}">${escapeHtml(f.text)}</li>`).join("")}</ul>
+    <p class="pressure-disclaimer">Heuristic only · INFORMATIONAL · PAPER · NOT ADVICE · does not change the live engine</p>`;
+}
+
+/* ── Swarm expectancy ── */
+async function loadExpectancy(){
+  const root=$("expectancy-strip");if(!root)return;
+  try{
+    const d=await request({expectancy:"1"});
+    const hold=Number(d.hold_pct||0);const trade=Number(d.trade_pct||0);
+    const up=Number(d.agents_above_start||0);const down=Number(d.agents_below_start||0);
+    const avg=Number(d.avg_equity||0);const med=Number(d.median_equity||0);
+    const realized=Number(d.sum_realized||0);const avgR=Number(d.avg_realized||0);
+    const wr=d.win_rate_pct!=null?Number(d.win_rate_pct):null;
+    const by=d.by_action||{};
+    root.innerHTML=`
+      <div class="expect-card"><span>HOLD %</span><b>${hold.toFixed(1)}%</b><small>${Number(by.hold||0).toLocaleString()} HOLDS</small></div>
+      <div class="expect-card"><span>TRADE %</span><b>${trade.toFixed(1)}%</b><small>B ${Number(by.buy||0).toLocaleString()} / S ${Number(by.sell||0).toLocaleString()}</small></div>
+      <div class="expect-card"><span>AGENTS UP</span><b class="buy">${up}</b><small>ABOVE $10k</small></div>
+      <div class="expect-card"><span>AGENTS DOWN</span><b class="sell">${down}</b><small>BELOW $10k</small></div>
+      <div class="expect-card"><span>AVG EQUITY</span><b>${money.format(avg)}</b><small>MED ${money.format(med)}</small></div>
+      <div class="expect-card"><span>REALIZED Σ</span><b class="${clsPnL(realized)}">${money.format(realized)}</b><small>AVG ${money.format(avgR)}${wr!=null?` · WR ${wr.toFixed(0)}%`:""}</small></div>`;
+  }catch{
+    root.innerHTML='<p class="loading">Expectancy temporarily unavailable.</p>';
+  }
+}
+
+/* ── Replay log ── */
+function renderReplay(items,summary){
+  const root=$("replay-list");const count=$("replay-count");const sumEl=$("replay-summary");if(!root)return;
+  if(sumEl){
+    if(summary){
+      sumEl.textContent=`Loaded ${summary.loaded||items.length}: BUY ${summary.buy||0} · SELL ${summary.sell||0} · HOLD ${summary.hold||0} · TRADE ${summary.trade||0} — INFORMATIONAL · PAPER · NOT ADVICE`;
+    }else sumEl.textContent="INFORMATIONAL · PAPER · NOT ADVICE";
+  }
+  root.classList.toggle("empty",!items.length);
+  // chronological-ish: oldest first for replay feel
+  const ordered=[...items].sort((a,b)=>parseTs(a.decided_at)-parseTs(b.decided_at));
+  root.innerHTML=ordered.length?ordered.map(d=>renderDecisionTicket(d)).join(""):'<p class="loading">No replay tickets yet.</p>';
+  if(count)count.textContent=`${items.length} ${items.length===1?"TICKET":"TICKETS"}`;
+}
+function setReplayControls(){
+  const btn=$("load-more-replay");if(!btn)return;
+  btn.hidden=!replayState.hasMore;btn.disabled=replayState.loading;
+  btn.textContent=replayState.loading?"LOADING…":"LOAD MORE ↓";
+  const st=$("replay-status");
+  if(st)st.textContent=replayState.loading?"LOADING…":replayState.hasMore?"MORE AVAILABLE":(replayState.items.length?"COMPLETE":"READY");
+}
+async function loadReplay({reset=false}={}){
+  if(replayState.loading||!replayState.tokenId)return;
+  if(reset){replayState.cursor=null;replayState.hasMore=false;replayState.items=[];replayState.summary=null;renderReplay([],null)}
+  const token=replayState.tokenId;
+  replayState.loading=true;setReplayControls();
+  try{
+    const params={replay:"1",token_id:String(token),limit:String(REPLAY_PAGE_SIZE)};
+    if(replayState.cursor)params.before=replayState.cursor;
+    const data=await request(params);
+    if(replayState.tokenId!==token)return;
+    const page=Array.isArray(data.decisions)?data.decisions:[];
+    replayState.items=reset?page:[...replayState.items,...page];
+    replayState.cursor=data.next_cursor||null;
+    replayState.hasMore=Boolean(data.has_more);
+    replayState.summary=data.sequence_summary||null;
+    // merge summary counts if paginating
+    if(!reset&&data.sequence_summary){
+      const s=replayState.summary||{buy:0,sell:0,hold:0,trade:0,loaded:0};
+      const mix={buy:0,sell:0,hold:0};
+      for(const d of replayState.items){const a=String(d.action||"").toLowerCase();if(a==="buy")mix.buy++;else if(a==="sell")mix.sell++;else mix.hold++}
+      replayState.summary={loaded:replayState.items.length,...mix,trade:mix.buy+mix.sell};
+    }
+    renderReplay(replayState.items,replayState.summary);
+  }catch{
+    const st=$("replay-status");if(st)st.textContent="UNAVAILABLE";
+    if(!replayState.items.length){const root=$("replay-list");if(root)root.innerHTML='<p class="loading">Replay temporarily unavailable.</p>'}
+  }finally{replayState.loading=false;setReplayControls()}
+}
+
+/* ── Public API / MCP tools list ── */
+async function loadMcpTools(){
+  const list=$("mcp-tools-list");if(!list)return;
+  try{
+    const data=await request({mcp_tools:"1"});
+    const tools=Array.isArray(data.tools)?data.tools:[];
+    if(!tools.length){list.innerHTML="<li>No tools returned.</li>";return}
+    list.innerHTML=tools.map(t=>{
+      const q=t.query?Object.entries(t.query).map(([k,v])=>`${k}=${v}`).join(" · "):"";
+      return `<li><b>${escapeHtml(t.name||"?")}</b><small>${escapeHtml(q)}</small></li>`;
+    }).join("");
+  }catch{
+    list.innerHTML="<li>Tool list temporarily unavailable.</li>";
+  }
+}
+
 /* ── Profile ── */
 function renderProfile(data,{updateUrl=true}={}){
   const {trader,portfolio,positions=[],decisions=[]}=data;const id=trader.token_id;
@@ -845,15 +1017,41 @@ function renderProfile(data,{updateUrl=true}={}){
     else{winEl.textContent="N/A";winEl.className=""}}
   profileCache={tokenId:id,positions,decisions,portfolio,trader};
   renderBars(trader);renderPositions(positions,portfolio);renderDecisions(decisions);renderPortfolioChart(data);renderWatchlist();
-  renderPortfolioDigest(data);renderEvalLedger(decisions);renderSafetyTheater(id);updateFollowButton(id);
+  renderPortfolioDigest(data);renderPressureTest(data);renderEvalLedger(decisions);renderSafetyTheater(id);updateFollowButton(id);
+  replayState.tokenId=id;loadReplay({reset:true});
   $("traits").innerHTML=Object.entries(trader.traits||{}).filter(([,v])=>v).map(([k,v])=>`<div class="trait"><span>${k.toUpperCase()}</span><b>${v}</b></div>`).join("");
   historyState.tokenId=id;historyState.action="all";historyState.cursor=null;historyState.hasMore=false;historyState.items=decisions;setHistoryControls();loadDecisionHistory({reset:true});
   if(updateUrl){const url=new URL(location.href);url.searchParams.set("trader",id);history.replaceState(null,"",url)}
 }
 
 async function loadTrader(id,options={}){
-  $("status").textContent=`Loading WST #${id}…`;if(!options.keepVisible)$("profile").hidden=true;
-  try{renderProfile(await request({token_id:id}),options);return true}catch(error){$("status").textContent=error.message.includes("404")?`WST #${id} was not found.`:"The trader profile could not be loaded. Please try again.";return false}
+  const errBox=$("profile-error");const errText=$("profile-error-text");
+  if(errBox)errBox.hidden=true;
+  $("status").textContent=`Loading WST #${id}…`;
+  if(!options.keepVisible)$("profile").hidden=true;
+  try{
+    const data=await request({token_id:id});
+    if(!data||!data.trader||!data.portfolio)throw new Error("empty_profile");
+    renderProfile(data,options);
+    if(errBox)errBox.hidden=true;
+    return true;
+  }catch(error){
+    const msg=error.message.includes("404")
+      ?`WST #${id} was not found.`
+      :error.message.includes("empty_profile")
+        ?`WST #${id} returned an empty book. Retry or try another token.`
+        :`The trader profile could not be loaded (${error.message||"network"}). Please try again.`;
+    $("status").textContent=msg;
+    if(errBox){
+      errBox.hidden=false;
+      if(errText)errText.textContent=msg;
+      const retry=$("profile-retry-btn");
+      if(retry)retry.dataset.retryId=String(id);
+    }
+    // Never leave a silent empty book: keep profile visible with error
+    $("profile").hidden=false;
+    return false;
+  }
 }
 
 function renderPriceTape(assets){
@@ -1197,9 +1395,16 @@ navButtons.forEach(button=>button.addEventListener("click",()=>showPanel(button.
 $("search-form").addEventListener("submit",async event=>{event.preventDefault();const id=Number($("token-input").value);if(id>=1&&id<=444){if(await loadTrader(id))showPanel("profile")}else $("status").textContent="Enter a token ID between 1 and 444."});
 const initial=new URLSearchParams(location.search).get("trader");
 if(initial&&Number(initial)>=1&&Number(initial)<=444){$("token-input").value=initial;loadTrader(initial,{updateUrl:false}).then(success=>{if(success)showPanel("profile")})}
-else loadTrader(DEFAULT_TRADER_ID,{updateUrl:false,scroll:false,keepVisible:true});
+else{
+  $("token-input").value=DEFAULT_TRADER_ID;
+  loadTrader(DEFAULT_TRADER_ID,{updateUrl:false,scroll:false,keepVisible:true}).then(ok=>{
+    if(!ok){const err=$("profile-error");if(err)err.hidden=false}
+  });
+}
 loadPrices();
 loadOverview();
+loadExpectancy();
+loadMcpTools();
 renderWatchlist();
 setInterval(()=>{if(activityState.items.length<=ACTIVITY_PAGE_SIZE)loadActivity({reset:true})},30000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&activityState.items.length<=ACTIVITY_PAGE_SIZE)loadActivity({reset:true})});
@@ -1330,3 +1535,8 @@ document.querySelectorAll("[data-scan-limit]").forEach(btn=>btn.addEventListener
   setScanControls();
 }));
 $("scan-run-btn")?.addEventListener("click",()=>loadScan());
+$("load-more-replay")?.addEventListener("click",()=>loadReplay());
+$("profile-retry-btn")?.addEventListener("click",async()=>{
+  const id=Number($("profile-retry-btn").dataset.retryId||$("token-input").value||DEFAULT_TRADER_ID);
+  if(id>=1&&id<=444){await loadTrader(id,{updateUrl:false,keepVisible:true});showPanel("profile")}
+});

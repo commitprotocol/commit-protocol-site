@@ -344,3 +344,72 @@ button.pulse-card:hover{border-color:var(--green);background:#0a0d0a}
   .scan-row{grid-template-columns:1fr}
   .dca-mode-toolbar button{min-width:48%}
 }
+
+/* ── Audit v29: LIVE vs ESTIMATED, API/MCP, pressure, expectancy, replay ── */
+.equity-panel-head{align-items:flex-start;gap:12px}
+.equity-source-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:6px;text-align:right}
+.equity-badge{font:800 11px var(--mono)!important;letter-spacing:.12em;padding:8px 12px;border:1px solid transparent}
+.equity-badge.live-history{color:#050605!important;background:var(--green)!important;border-color:var(--green)!important;box-shadow:0 0 0 1px #78f29a55}
+.equity-badge.estimated-warn{color:#050605!important;background:#ffb020!important;border-color:#ffb020!important;animation:estPulse 1.6s ease-in-out infinite}
+@keyframes estPulse{0%,100%{opacity:1}50%{opacity:.72}}
+.equity-last-snap{font:600 8px var(--mono);letter-spacing:.08em;color:#777b75}
+.equity-warn{margin:0;padding:12px 22px;background:#3a2208;color:#ffb020;font:800 10px var(--mono);letter-spacing:.1em;border-bottom:1px solid #5a3a10}
+.equity-note{font-weight:700}
+
+.profile-error{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:14px 16px;border:1px solid #5a3030;background:#1a0c0c;color:#ff8e8e}
+.profile-error[hidden]{display:none!important}
+.profile-error strong{font:700 12px var(--mono);letter-spacing:.06em}
+
+.expectancy-panel{border:0;border-top:1px solid var(--line);background:#060806}
+.expectancy-strip{display:grid;grid-template-columns:repeat(6,minmax(140px,1fr));gap:12px;padding:16px 22px 22px;overflow-x:auto}
+.expect-card{border:1px solid var(--line2);background:#030403;padding:14px 12px;min-width:0}
+.expect-card span{display:block;font:700 8px var(--mono);letter-spacing:.1em;color:#777b75}
+.expect-card b{display:block;margin:8px 0 4px;font:700 20px var(--serif)}
+.expect-card b.buy{color:var(--green)}.expect-card b.sell{color:var(--red)}
+.expect-card small{display:block;font:600 9px var(--mono);color:#777b75;letter-spacing:.06em}
+
+.public-api-panel{border:0;border-top:1px solid var(--line);background:#060806}
+.public-api-body{padding:18px 22px 22px}
+.api-base-label{margin:0 0 6px;font:700 9px var(--mono);letter-spacing:.12em;color:#777b75}
+.api-base{display:block;padding:12px 14px;border:1px solid var(--line2);background:#030403;color:var(--green);font:600 11px var(--mono);word-break:break-all;margin-bottom:14px}
+.api-link-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.api-chip{border:1px solid var(--line2);background:#0d130e;color:var(--green);padding:8px 12px;font:700 9px var(--mono);letter-spacing:.08em;text-decoration:none}
+.api-chip:hover{border-color:var(--green);color:var(--paper)}
+.api-note{margin:0 0 14px;font:600 10px var(--mono);letter-spacing:.08em;color:#777b75;line-height:1.6}
+.mcp-tools-details{border:1px solid var(--line);background:#030403;padding:10px 14px}
+.mcp-tools-details summary{cursor:pointer;font:700 10px var(--mono);letter-spacing:.1em;color:var(--green)}
+.mcp-tools-details ul{list-style:none;margin:12px 0 0;padding:0}
+.mcp-tools-details li{padding:8px 0;border-top:1px solid var(--line);font-size:11px}
+.mcp-tools-details li b{display:block;color:var(--paper);font:700 11px var(--mono)}
+.mcp-tools-details li small{display:block;margin-top:4px;color:#777b75;font:600 9px var(--mono);letter-spacing:.04em}
+.footer-api-tag{display:inline-block;margin-top:8px;color:var(--green);font:700 9px var(--mono);letter-spacing:.1em}
+
+.pressure-panel .pressure-body{padding:16px 20px 20px}
+.pressure-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.pressure-kpis>div{border:1px solid var(--line2);background:#030403;padding:12px}
+.pressure-kpis span{display:block;font:700 8px var(--mono);letter-spacing:.1em;color:#777b75}
+.pressure-kpis b{display:block;margin:6px 0 2px;font:700 18px var(--serif)}
+.pressure-kpis small{font:600 8px var(--mono);color:#777b75;letter-spacing:.06em}
+.pressure-dna{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.pressure-dna span{border:1px solid var(--line2);padding:6px 10px;font:700 9px var(--mono);letter-spacing:.08em;color:#bdb6aa;background:#0a0c0a}
+.pressure-flags{list-style:none;margin:0;padding:0}
+.pressure-flags li{padding:10px 12px;border:1px solid var(--line);margin-bottom:8px;font:600 12px/1.5 var(--mono);color:#cfc9bc}
+.pressure-flags li.warn{border-color:#5a3a10;background:#1a1208;color:#ffb020}
+.pressure-flags li.ok{border-color:#1f3a24;background:#0d130e;color:var(--green)}
+.pressure-flags li.info{border-color:var(--line2);color:#9b9f98}
+.pressure-disclaimer{margin:12px 0 0;font:700 9px var(--mono);letter-spacing:.08em;color:#777b75}
+
+.replay-panel .replay-summary{margin:0;padding:12px 20px;border-bottom:1px solid var(--line);font:700 9px var(--mono);letter-spacing:.08em;color:#777b75;line-height:1.5}
+.replay-list{max-height:520px;min-height:180px;overflow-y:auto;padding:12px 16px 16px;scrollbar-color:var(--green) #111511;scrollbar-width:thin;display:flex;flex-direction:column;gap:10px}
+.replay-list .order-ticket{margin:0}
+
+@media(max-width:900px){
+  .expectancy-strip{grid-template-columns:repeat(3,minmax(140px,1fr))}
+  .pressure-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+  .expectancy-strip{grid-template-columns:repeat(2,minmax(130px,1fr));padding-inline:14px}
+  .pressure-kpis{grid-template-columns:1fr 1fr}
+  .api-base{font-size:10px}
+  .equity-source-wrap{align-items:flex-start}
+}

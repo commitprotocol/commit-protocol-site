@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=28">
+  <link rel="stylesheet" href="styles.css?v=29">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -55,6 +55,10 @@
           <div class="panel-head"><div><span>LIVE PULSE</span><h3>SNAPSHOT CARDS</h3></div><b>BETA</b></div>
           <div class="cards-strip" id="cards-strip" aria-label="Overview snapshot cards"><p class="loading">Loading snapshot…</p></div>
         </article>
+        <article class="panel expectancy-panel" id="expectancy-panel">
+          <div class="panel-head"><div><span>SWARM STATS</span><h3>SWARM EXPECTANCY</h3></div><b>PAPER · NOT ADVICE</b></div>
+          <div class="expectancy-strip" id="expectancy-strip" aria-label="Swarm expectancy"><p class="loading">Loading expectancy…</p></div>
+        </article>
         <article class="panel followed-panel" id="followed-panel">
           <div class="panel-head"><div><span>LOCAL FOLLOW LIST</span><h3>TRADERS YOU FOLLOW</h3></div><b id="followed-count">0</b></div>
           <div class="followed-strip" id="followed-strip"><p class="followed-empty">No DNA followed yet. Open a trader profile and tap FOLLOW DNA.</p></div>
@@ -63,6 +67,28 @@
           <div class="panel-head"><div><span>MARKET SPOTLIGHT</span><h3>STOCK TOKENS</h3></div><b id="market-cards-status">LIVE</b></div>
           <div class="market-cards" id="market-cards"><p class="loading">Loading market cards…</p></div>
         </article>
+        <article class="panel public-api-panel" id="public-api-panel">
+          <div class="panel-head"><div><span>DEVELOPER ACCESS</span><h3>PUBLIC API · MCP READ-ONLY</h3></div><b>NO WRITE</b></div>
+          <div class="public-api-body">
+            <p class="api-base-label">BASE URL</p>
+            <code class="api-base" id="api-base-url">https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public</code>
+            <div class="api-link-row" id="api-link-row">
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?overview=1" target="_blank" rel="noopener noreferrer">overview=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?rankings=1&amp;sort=gainers&amp;limit=10" target="_blank" rel="noopener noreferrer">rankings=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?activity=1&amp;limit=25" target="_blank" rel="noopener noreferrer">activity=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?scan=1&amp;limit=25" target="_blank" rel="noopener noreferrer">scan=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?mcp_tools=1" target="_blank" rel="noopener noreferrer">mcp_tools=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?token_id=160" target="_blank" rel="noopener noreferrer">token_id=160</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?expectancy=1" target="_blank" rel="noopener noreferrer">expectancy=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?replay=1&amp;token_id=160" target="_blank" rel="noopener noreferrer">replay=1 · #160</a>
+            </div>
+            <p class="api-note">Read-only · paper trading · no wallet · no write endpoints · INFORMATIONAL · NOT ADVICE</p>
+            <details class="mcp-tools-details" id="mcp-tools-details">
+              <summary>MCP TOOL NAMES</summary>
+              <ul id="mcp-tools-list"><li class="loading">Loading tool list…</li></ul>
+            </details>
+          </div>
+        </article>
       </section>
       <section class="page-panel dashboard-panel" id="finder">
         <div class="dash-head"><p>02 / PUBLIC TRADER TERMINAL</p><h2>FIND YOUR TRADER.</h2><small>Open any autonomous profile by entering a Wall Street Traders token ID from 1 to 444.</small></div>
@@ -70,6 +96,10 @@
         <p class="search-status" id="status" role="status">Trader #160 is displayed as the default profile. Enter any token ID from 1 to 444 to find your trader.</p>
       </section>
       <section class="page-panel dashboard-panel" id="profile">
+        <div class="profile-error" id="profile-error" hidden role="alert">
+          <strong id="profile-error-text">Profile failed to load.</strong>
+          <button type="button" class="solid-btn" id="profile-retry-btn">RETRY →</button>
+        </div>
         <div class="dash-head profile-dash-head">
           <div>
             <p>03 / AUTONOMOUS IDENTITY</p>
@@ -151,8 +181,19 @@
             <div class="panel-head"><div><span>PORTFOLIO DIGEST</span><h3>PLAIN-ENGLISH BRIEF</h3></div><b>INFORMATIONAL · PAPER · NOT ADVICE</b></div>
             <div class="digest-body" id="portfolio-digest"><p class="loading">Generating digest…</p></div>
           </article>
+          <article class="panel pressure-panel" id="pressure-panel">
+            <div class="panel-head"><div><span>DNA vs BOOK</span><h3>PRESSURE TEST</h3></div><b id="pressure-score-badge">HEURISTIC · PAPER</b></div>
+            <div class="pressure-body" id="pressure-body"><p class="loading">Load a trader to run the pressure test…</p></div>
+          </article>
           <article class="panel equity-panel" id="equity-panel">
-            <div class="panel-head"><div><span>PORTFOLIO PERFORMANCE</span><h3>EQUITY CURVE</h3></div><b id="equity-source">ESTIMATED</b></div>
+            <div class="panel-head equity-panel-head">
+              <div><span>PORTFOLIO PERFORMANCE</span><h3>EQUITY CURVE</h3></div>
+              <div class="equity-source-wrap">
+                <b id="equity-source" class="equity-badge estimated-warn">ESTIMATED</b>
+                <small id="equity-last-snap" class="equity-last-snap">—</small>
+              </div>
+            </div>
+            <div class="equity-warn" id="equity-warn" hidden role="status">⚠ ESTIMATED CURVE · LIVE SNAPSHOTS NOT LOADED · INFORMATIONAL · PAPER · NOT ADVICE</div>
             <div class="equity-hero" aria-live="polite">
               <div class="equity-span-return" id="span-return"><span id="span-return-amt">—</span> <span class="span-label" id="span-return-label">All time</span></div>
             </div>
@@ -179,6 +220,12 @@
             <p class="equity-note" id="equity-note">ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE</p>
           </article>
           <article class="panel positions-panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list positions-list empty">NO OPEN POSITIONS</div></article>
+          <article class="panel replay-panel" id="replay-panel">
+            <div class="panel-head"><div><span>DECISION SEQUENCE</span><h3>REPLAY LOG</h3></div><b id="replay-status">READY</b></div>
+            <p class="replay-summary" id="replay-summary">INFORMATIONAL · PAPER · NOT ADVICE</p>
+            <div id="replay-list" class="replay-list"><p class="loading">Open a trader profile to load replay…</p></div>
+            <div class="history-footer"><span id="replay-count">0 TICKETS</span><button type="button" id="load-more-replay" hidden>LOAD MORE ↓</button></div>
+          </article>
           <article class="panel eval-ledger-panel" id="eval-ledger-panel">
             <div class="panel-head"><div><span>CONDITION / EVALUATION</span><h3>EVALUATION LEDGER</h3></div><b>RECENT CHECKS</b></div>
             <div id="eval-ledger" class="eval-ledger"><p class="loading">Loading evaluations…</p></div>
@@ -273,7 +320,7 @@
       <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">07 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
     </div>
   </main>
-  <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PUBLIC BETA<br>LIVE ON ROBINHOOD CHAIN</p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026</small></footer>
+  <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PUBLIC BETA<br>LIVE ON ROBINHOOD CHAIN<br><span class="footer-api-tag">PUBLIC API · MCP READ-ONLY · PAPER</span></p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="#public-api-panel" data-panel-jump="overview">API / MCP ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026 · INFORMATIONAL · PAPER · NOT ADVICE</small></footer>
 
   <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
   <aside class="asset-drawer" id="asset-drawer" hidden aria-hidden="true" role="dialog" aria-labelledby="drawer-symbol">
@@ -319,6 +366,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=28"></script>
+  <script src="app.js?v=29"></script>
 </body>
 </html>
