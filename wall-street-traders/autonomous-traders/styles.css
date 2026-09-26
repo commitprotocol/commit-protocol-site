@@ -307,3 +307,40 @@ button.pulse-card:hover{border-color:var(--green);background:#0a0d0a}
   .eval-row{grid-template-columns:1fr}
   .cards-strip,.followed-strip{padding-inline:14px}
 }
+
+
+/* Wave 2 v27 — equity markers, DCA, scan */
+.equity-marker-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:4px 22px 0}
+.equity-marker-legend{display:flex;gap:14px;font:700 9px var(--mono);letter-spacing:.1em;color:#777b75}
+.equity-marker-legend .mk-buy{color:#78f29a}
+.equity-marker-legend .mk-sell{color:#ff8e8e}
+.equity-marker-legend .mk-hold{color:#6b7168}
+.show-holds-toggle{display:inline-flex;align-items:center;gap:8px;font:700 9px var(--mono);letter-spacing:.1em;color:#8e938c;cursor:pointer;user-select:none}
+.show-holds-toggle input{accent-color:var(--green);width:14px;height:14px}
+
+.dca-controls{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.dca-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.dca-head>span{font:700 9px var(--mono);letter-spacing:.12em;color:#777b75}
+.dca-badge{font:700 8px var(--mono);letter-spacing:.08em;color:var(--green);border:1px solid #1f3a24;padding:5px 8px;background:#0d130e}
+.dca-mode-toolbar{padding:0!important;border:0!important;background:transparent!important;flex-wrap:wrap}
+.dca-mode-toolbar button{flex:1;min-width:64px}
+
+.scan-toolbar{display:flex;flex-direction:column;gap:0;margin-bottom:18px;border:1px solid var(--line2);background:#030403}
+.scan-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.scan-row label{display:flex;flex-direction:column;gap:6px;font:700 9px var(--mono);letter-spacing:.1em;color:#777b75}
+.scan-row input,.scan-row select{border:1px solid var(--line2);background:#050605;color:var(--paper);padding:10px 12px;font:600 12px var(--mono)}
+.scan-row input:focus,.scan-row select:focus{outline:1px solid var(--green);border-color:var(--green)}
+.scan-toolbar .history-toolbar{border-bottom:1px solid var(--line)}
+.scan-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;flex-wrap:wrap}
+.scan-actions #scan-status{font:700 9px var(--mono);letter-spacing:.1em;color:#777b75}
+.solid-btn{border:1px solid var(--green);background:#0d130e;color:var(--green);padding:10px 16px;font:700 10px var(--mono);letter-spacing:.1em;cursor:pointer}
+.solid-btn:hover{background:#132016;color:var(--paper)}
+
+@media(max-width:900px){
+  .scan-row{grid-template-columns:1fr 1fr}
+  .equity-marker-bar{padding-inline:12px}
+}
+@media(max-width:640px){
+  .scan-row{grid-template-columns:1fr}
+  .dca-mode-toolbar button{min-width:48%}
+}

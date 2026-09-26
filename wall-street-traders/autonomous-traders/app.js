@@ -5,6 +5,7 @@ const DEFAULT_TRADER_ID=160;
 const WATCH_KEY="wst_autonomous_watchlist_v1";
 const FOLLOW_KEY="wst_autonomous_follow_dna_v1";
 const AGENT_CTRL_KEY="wst_autonomous_agent_controls_v1";
+const DCA_KEY="wst_autonomous_dca_v1";
 const money=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2});
 const number=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});
 const $=id=>document.getElementById(id);
@@ -16,6 +17,8 @@ const historyState={tokenId:null,action:"all",cursor:null,hasMore:false,loading:
 const ACTIVITY_PAGE_SIZE=25;
 const activityState={action:"all",cursor:null,hasMore:false,loading:false,items:[],tokenId:"",symbol:"",view:"tickets"};
 const rankingsState={sort:"gainers",metric:"equity",limit:10,loading:false,items:[]};
+const scanState={archetype:"",minReturn:"",maxReturn:"",minTrades:"",sort:"gainers",metric:"equity",limit:25,loading:false,items:[],matched:0,backend:true};
+let showHoldsMarkers=false;
 
 function imageUrl(id){return `../trading-floor/traders/${id}.png`}
 function pct(value){const n=Number(value||0);return `${n>=0?"+":""}${n.toFixed(2)}%`}
@@ -133,6 +136,36 @@ function renderFollowedStrip(){
   }).join("");
 }
 
+
+/* ── Spectator DCA (local paper contract only) ── */
+function loadDcaMap(){
+  try{const raw=JSON.parse(localStorage.getItem(DCA_KEY)||"{}");return raw&&typeof raw==="object"?raw:{}}catch{return{}}
+}
+function saveDcaMap(map){localStorage.setItem(DCA_KEY,JSON.stringify(map||{}));return map}
+function getDcaForToken(id){
+  const row=loadDcaMap()[String(id)]||{};
+  const mode=["off","buy","sell","both"].includes(row.mode)?row.mode:"off";
+  const slices=Number.isInteger(Number(row.slices))&&Number(row.slices)>=2&&Number(row.slices)<=12?Number(row.slices):3;
+  const interval_hint=typeof row.interval_hint==="string"&&row.interval_hint?row.interval_hint:"1h";
+  return{mode,slices,interval_hint};
+}
+function setDcaMode(id,mode){
+  const token=Number(id);if(!Number.isInteger(token)||token<1||token>444)return;
+  const nextMode=["off","buy","sell","both"].includes(mode)?mode:"off";
+  const map=loadDcaMap();
+  const prev=getDcaForToken(token);
+  map[String(token)]={mode:nextMode,slices:prev.slices,interval_hint:prev.interval_hint,updatedAt:Date.now()};
+  saveDcaMap(map);
+  renderDcaControls(token);
+}
+function renderDcaControls(tokenId){
+  const id=Number(tokenId||profileCache.tokenId);
+  const cfg=getDcaForToken(id);
+  document.querySelectorAll("[data-dca-mode]").forEach(btn=>btn.classList.toggle("active",btn.dataset.dcaMode===cfg.mode));
+  const badge=$("dca-badge");
+  if(badge)badge.textContent=cfg.mode==="off"?"SPECTATOR DCA · ENGINE SUPPORT COMING":`SPECTATOR DCA · ${cfg.mode.toUpperCase()} · ENGINE SUPPORT COMING`;
+}
+
 /* ── Spectator agent controls (local UI only) ── */
 function loadAgentControls(){
   try{const raw=JSON.parse(localStorage.getItem(AGENT_CTRL_KEY)||"{}");return raw&&typeof raw==="object"?raw:{}}catch{return{}}
@@ -170,6 +203,7 @@ function renderSafetyTheater(tokenId){
     fill.className=total>=STARTING_BALANCE?"up":"down";
   }
   if(val)val.textContent=money.format(STARTING_BALANCE);
+  renderDcaControls(id);
 }
 
 /* ── Portfolio digest (client-side) ── */
@@ -373,7 +407,7 @@ async function loadDecisionHistory({reset=false}={}){
 const SPAN_LABELS={"1D":"Today","1W":"Past week","1M":"Past month","3M":"Past 3 months","YTD":"Year to date","ALL":"All time"};
 const SPAN_ORDER=["1D","1W","1M","3M","YTD","ALL"];
 let equityChart=null;
-let equityState={span:"ALL",history:[],estimated:true,tokenId:null,total:STARTING_BALANCE};
+let equityState={span:"ALL",history:[],estimated:true,tokenId:null,total:STARTING_BALANCE,markerDecisions:[]};
 
 function mulberry32(a){return function(){let t=a+=0x6d2b79f5;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
 function clamp(n,lo,hi){return Math.max(lo,Math.min(hi,n))}
@@ -460,30 +494,103 @@ function updateSpanHeadline(pnl,span){
     totalRet.className=pnl.usd>=0?"positive":"negative";
   }
 }
+function interpolateEquity(history, ts){
+  if(!history.length)return STARTING_BALANCE;
+  if(ts<=history[0].ts)return history[0].equityUsd;
+  if(ts>=history[history.length-1].ts)return history[history.length-1].equityUsd;
+  let lo=0,hi=history.length-1;
+  while(lo+1<hi){const mid=(lo+hi)>>1;if(history[mid].ts<=ts)lo=mid;else hi=mid}
+  const a=history[lo],b=history[hi];
+  if(b.ts===a.ts)return a.equityUsd;
+  const t=(ts-a.ts)/(b.ts-a.ts);
+  return a.equityUsd+(b.equityUsd-a.equityUsd)*t;
+}
+function nearestEquityPoint(history, ts){
+  if(!history.length)return null;
+  let best=history[0],bestDist=Math.abs(history[0].ts-ts);
+  for(const p of history){
+    const d=Math.abs(p.ts-ts);
+    if(d<bestDist){best=p;bestDist=d}
+  }
+  return best;
+}
+function buildMarkerPoints(decisions, series, span){
+  const start=spanWindowStart(span);
+  const end=series.length?series[series.length-1].ts:Date.now();
+  const spanStart=series.length?series[0].ts:start;
+  const out={buy:[],sell:[],hold:[]};
+  for(const d of decisions||[]){
+    const ts=parseTs(d.decided_at);
+    if(!Number.isFinite(ts))continue;
+    if(ts<spanStart||ts>end+60_000)continue;
+    const action=String(d.action||"hold").toLowerCase();
+    const y=interpolateEquity(series,ts);
+    const point={
+      x:ts,
+      y,
+      action,
+      symbol:String(d.symbol||"").toUpperCase(),
+      reason_code:d.reason_code||"",
+      confidence:d.confidence,
+      decided_at:d.decided_at
+    };
+    if(action==="buy")out.buy.push(point);
+    else if(action==="sell")out.sell.push(point);
+    else out.hold.push(point);
+  }
+  return out;
+}
 function renderEquityChart(span){
   const canvas=$("equity-chart");if(!canvas||typeof Chart==="undefined")return;
   const series=seriesForSpan(equityState.history,span);
   const pnl=pnlFromSeries(series);
   updateSpanHeadline(pnl,span);
   const up=pnl.usd>=0;const color=chartColor(up);const fill=chartFill(up);
-  const labels=series.map(p=>p.ts);const data=series.map(p=>p.equityUsd);
+  const lineData=series.map(p=>({x:p.ts,y:p.equityUsd}));
+  const markers=buildMarkerPoints(equityState.markerDecisions||[],series,span);
   const tip=$("chart-tip");const tipVal=$("tip-val");const tipDate=$("tip-date");const card=canvas.closest(".chart-card");
   const externalTooltip=ctx=>{
     const{tooltip}=ctx;
     if(!tooltip||tooltip.opacity===0||!tooltip.dataPoints?.length){tip?.classList.remove("visible");return}
     const dp=tooltip.dataPoints[0];
-    tipVal.textContent=money.format(dp.parsed.y);
-    tipDate.textContent=formatTipDate(labels[dp.dataIndex],span);
+    const raw=dp.raw||{};
+    if(raw.action){
+      const conf=Number.isFinite(Number(raw.confidence))?` · ${Number(raw.confidence).toFixed(0)}%`:"";
+      tipVal.textContent=`${String(raw.action).toUpperCase()} ${raw.symbol||""}${conf}`.trim();
+      tipDate.textContent=`${title(raw.reason_code)||"—"} · ${formatTipDate(raw.x??dp.parsed.x,span)}`;
+    }else{
+      tipVal.textContent=money.format(dp.parsed.y);
+      tipDate.textContent=formatTipDate(dp.parsed.x,span);
+    }
     tip.classList.add("visible");
     const tw=tip.offsetWidth||120;
     tip.style.left=clamp(dp.element.x,8+tw/2,(card?.clientWidth||300)-8-tw/2)+"px";
     tip.style.top=Math.max(28,dp.element.y)+"px";
   };
+  const datasets=[
+    {type:"line",label:"Equity",data:lineData,borderColor:color,backgroundColor:fill,borderWidth:2,fill:true,tension:series.length>2?0.35:0,pointRadius:series.length<=3?3:0,pointHoverRadius:5,pointHoverBackgroundColor:color,pointHoverBorderColor:"#050605",pointHoverBorderWidth:2,order:3},
+    {type:"scatter",label:"BUY",data:markers.buy,pointStyle:"triangle",rotation:0,radius:7,hoverRadius:9,backgroundColor:"#78f29a",borderColor:"#050605",borderWidth:1,order:1},
+    {type:"scatter",label:"SELL",data:markers.sell,pointStyle:"triangle",rotation:180,radius:7,hoverRadius:9,backgroundColor:"#ff8e8e",borderColor:"#050605",borderWidth:1,order:1}
+  ];
+  if(showHoldsMarkers){
+    datasets.push({type:"scatter",label:"HOLD",data:markers.hold,pointStyle:"rectRot",rotation:0,radius:3.5,hoverRadius:5,backgroundColor:"#6b7168",borderColor:"#050605",borderWidth:1,order:2});
+  }
   if(equityChart){equityChart.destroy();equityChart=null}
   equityChart=new Chart(canvas.getContext("2d"),{
     type:"line",
-    data:{labels,datasets:[{data,borderColor:color,backgroundColor:fill,borderWidth:2,fill:true,tension:series.length>2?0.35:0,pointRadius:series.length<=3?3:0,pointHoverRadius:5,pointHoverBackgroundColor:color,pointHoverBorderColor:"#050605",pointHoverBorderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,animation:{duration:260},interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{enabled:false,external:externalTooltip}},scales:{x:{display:false},y:{display:false,grace:"4%"}},layout:{padding:{top:10,bottom:4,left:0,right:0}}}
+    data:{datasets},
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      animation:{duration:260},
+      interaction:{mode:"nearest",intersect:true},
+      plugins:{legend:{display:false},tooltip:{enabled:false,external:externalTooltip}},
+      scales:{
+        x:{type:"linear",display:false,min:series[0]?.ts,max:series[series.length-1]?.ts},
+        y:{display:false,grace:"8%"}
+      },
+      layout:{padding:{top:14,bottom:8,left:4,right:4}}
+    }
   });
 }
 function setEquitySpan(span){
@@ -525,12 +632,32 @@ function renderPortfolioChart(data){
     if(!last||Math.abs(last.equityUsd-total)>0.02)history=[...history,{ts:Date.now(),equityUsd:total}];
   }
   const nextSpan=estimated?"ALL":(equityState.span||"ALL");
-  equityState={span:nextSpan,history,estimated,tokenId:id,total};
+  const priorMarkers=equityState.tokenId===id?(equityState.markerDecisions||[]):[];
+  const fromProfile=Array.isArray(data?.decisions)?data.decisions:[];
+  const seedMarkers=priorMarkers.length?priorMarkers:fromProfile;
+  equityState={span:nextSpan,history,estimated,tokenId:id,total,markerDecisions:seedMarkers};
   const src=$("equity-source");const note=$("equity-note");
   if(src)src.textContent=estimated?"ESTIMATED":"LIVE HISTORY";
-  if(note)note.textContent=estimated?"ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE":"LIVE EQUITY SNAPSHOTS · PAPER TRADING ONLY";
+  if(note)note.textContent=estimated?"ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE":"LIVE EQUITY SNAPSHOTS · PAPER TRADING ONLY · MARKERS = DECISIONS";
   setEquitySpan(nextSpan);
+  loadEquityMarkers(id);
 }
+async function loadEquityMarkers(tokenId){
+  const id=Number(tokenId);if(!Number.isInteger(id)||id<1||id>444)return;
+  try{
+    const data=await request({history:"1",token_id:String(id),action:"all",limit:"50"});
+    if(equityState.tokenId!==id)return;
+    const page=Array.isArray(data.decisions)?data.decisions:[];
+    const merged=new Map();
+    for(const d of [...(equityState.markerDecisions||[]),...page]){
+      const key=`${d.decided_at}|${d.action}|${d.symbol}|${d.reason_code||""}`;
+      merged.set(key,d);
+    }
+    equityState.markerDecisions=[...merged.values()];
+    renderEquityChart(equityState.span||"ALL");
+  }catch{/* keep profile decisions */}
+}
+
 
 /* ── Asset drawer ── */
 function closeAssetDrawer(){
@@ -954,12 +1081,115 @@ async function loadActivity({reset=false}={}){
   }finally{activityState.loading=false;setActivityControls()}
 }
 
+
+/* ── Structured Scan of 444 ── */
+function setScanControls(){
+  document.querySelectorAll("[data-scan-sort]").forEach(btn=>btn.classList.toggle("active",btn.dataset.scanSort===scanState.sort));
+  document.querySelectorAll("[data-scan-metric]").forEach(btn=>btn.classList.toggle("active",btn.dataset.scanMetric===scanState.metric));
+  document.querySelectorAll("[data-scan-limit]").forEach(btn=>btn.classList.toggle("active",Number(btn.dataset.scanLimit)===scanState.limit));
+  const status=$("scan-status");
+  if(status&&!scanState.loading)status.textContent=scanState.items.length?`MATCHED ${scanState.matched}`:"READY";
+}
+function renderScanResults(items,{sort="gainers",metric="equity"}={}){
+  const root=$("scan-results");if(!root)return;
+  const count=$("scan-count");if(count)count.textContent=String(items.length);
+  if(!items.length){root.innerHTML='<p class="loading">No traders matched these filters.</p>';return}
+  const loserMode=sort==="losers";
+  root.innerHTML=items.map((r,i)=>{
+    const ret=r.return_pct!=null?Number(r.return_pct):(Number(r.total_value)/STARTING_BALANCE-1)*100;
+    const realized=Number(r.realized_pnl||0);
+    const primary=metric==="realized"
+      ?`<strong class="${realized>=0?"gain":"loss"}">${money.format(realized)}</strong><b class="${realized>=0?"gain":"loss"}">${pct(ret)}</b>`
+      :`<strong>${money.format(Number(r.total_value))}</strong><b class="${ret>=0?"gain":"loss"}">${pct(ret)}</b>`;
+    return `<a class="leader-row ${loserMode?"loser-row":""}" href="?trader=${r.token_id}" data-token="${r.token_id}"><b>#${i+1}</b><img src="${imageUrl(r.token_id)}" alt="WST #${r.token_id}" loading="lazy"><div><strong>TRADER #${r.token_id}</strong><br><small>${title(r.archetype)} · ${r.trades_count} trades</small></div>${primary}</a>`;
+  }).join("");
+  document.querySelectorAll("#scan-results [data-token]").forEach(row=>row.addEventListener("click",async event=>{
+    event.preventDefault();const id=Number(row.dataset.token);$("token-input").value=id;if(await loadTrader(id))showPanel("profile");
+  }));
+}
+function clientFilterRankings(rows){
+  let mapped=[...(rows||[])];
+  const arch=(scanState.archetype||"").toLowerCase();
+  if(arch)mapped=mapped.filter(r=>String(r.archetype||"").toLowerCase()===arch);
+  const minR=scanState.minReturn===""?null:Number(scanState.minReturn);
+  const maxR=scanState.maxReturn===""?null:Number(scanState.maxReturn);
+  const minT=scanState.minTrades===""?0:Number(scanState.minTrades);
+  if(Number.isFinite(minR))mapped=mapped.filter(r=>{
+    const ret=r.return_pct!=null?Number(r.return_pct):(Number(r.total_value)/STARTING_BALANCE-1)*100;
+    return ret>=minR;
+  });
+  if(Number.isFinite(maxR))mapped=mapped.filter(r=>{
+    const ret=r.return_pct!=null?Number(r.return_pct):(Number(r.total_value)/STARTING_BALANCE-1)*100;
+    return ret<=maxR;
+  });
+  if(Number.isFinite(minT)&&minT>0)mapped=mapped.filter(r=>Number(r.trades_count||0)>=minT);
+  mapped.sort((a,b)=>{
+    if(scanState.sort==="active"){
+      const ta=Number(a.trades_count||0),tb=Number(b.trades_count||0);
+      if(tb!==ta)return tb-ta;
+      return Number(b.total_value||0)-Number(a.total_value||0);
+    }
+    if(scanState.metric==="realized"){
+      const ra=Number(a.realized_pnl||0),rb=Number(b.realized_pnl||0);
+      return scanState.sort==="losers"?ra-rb:rb-ra;
+    }
+    const ea=Number(a.total_value||0),eb=Number(b.total_value||0);
+    return scanState.sort==="losers"?ea-eb:eb-ea;
+  });
+  return mapped;
+}
+async function loadScan(){
+  setScanControls();
+  if(scanState.loading)return;
+  scanState.loading=true;
+  const status=$("scan-status");
+  if(status)status.textContent="SCANNING…";
+  const root=$("scan-results");
+  if(root)root.innerHTML='<p class="loading">Scanning paper traders…</p>';
+  const archEl=$("scan-archetype");
+  const minEl=$("scan-min-return");
+  const maxEl=$("scan-max-return");
+  const tradesEl=$("scan-min-trades");
+  scanState.archetype=archEl?.value||"";
+  scanState.minReturn=minEl?.value?.trim()||"";
+  scanState.maxReturn=maxEl?.value?.trim()||"";
+  scanState.minTrades=tradesEl?.value?.trim()||"";
+  try{
+    const params={scan:"1",sort:scanState.sort,metric:scanState.metric,limit:String(scanState.limit)};
+    if(scanState.archetype)params.archetype=scanState.archetype;
+    if(scanState.minReturn!=="")params.min_return_pct=scanState.minReturn;
+    if(scanState.maxReturn!=="")params.max_return_pct=scanState.maxReturn;
+    if(scanState.minTrades!=="")params.min_trades=scanState.minTrades;
+    const data=await request(params);
+    scanState.backend=true;
+    scanState.items=Array.isArray(data.rankings)?data.rankings:[];
+    scanState.matched=Number(data.total_matched??scanState.items.length);
+    renderScanResults(scanState.items,{sort:scanState.sort,metric:scanState.metric});
+    if(status)status.textContent=`MATCHED ${scanState.matched} · SHOWING ${scanState.items.length}`;
+  }catch{
+    // Fallback: client filter on rankings=50
+    scanState.backend=false;
+    try{
+      const data=await request({rankings:"1",sort:scanState.sort,metric:scanState.metric,limit:"50"});
+      const filtered=clientFilterRankings(Array.isArray(data.rankings)?data.rankings:[]);
+      scanState.matched=filtered.length;
+      scanState.items=filtered.slice(0,scanState.limit);
+      renderScanResults(scanState.items,{sort:scanState.sort,metric:scanState.metric});
+      if(status)status.textContent=`CLIENT FILTER · ${scanState.matched} (backend scan follow-up)`;
+    }catch{
+      if(root)root.innerHTML='<p class="loading">Scan temporarily unavailable.</p>';
+      if(status)status.textContent="UNAVAILABLE";
+    }
+  }finally{scanState.loading=false;setScanControls()}
+}
+
 const navButtons=[...document.querySelectorAll(".autonomous-nav button")];
 function showPanel(id){
   document.querySelectorAll(".workspace-content>.page-panel").forEach(panel=>panel.classList.toggle("active-panel",panel.id===id));
   navButtons.forEach(button=>button.setAttribute("aria-selected",String(button.dataset.panel===id)));
   if(id==="activity"&&!activityState.items.length)loadActivity({reset:true});
   if(id==="rankings")loadRankings();
+  if(id==="scan"&&!scanState.items.length)loadScan();
   window.scrollTo({top:$("main-content").offsetTop,behavior:"smooth"});
 }
 navButtons.forEach(button=>button.addEventListener("click",()=>showPanel(button.dataset.panel)));
@@ -1074,3 +1304,29 @@ $("spectator-resume-btn")?.addEventListener("click",()=>{
 });
 renderFollowedStrip();
 setRankingsControls();
+setScanControls();
+
+/* Wave 2: chart holds toggle, DCA, scan */
+$("show-holds-toggle")?.addEventListener("change",e=>{
+  showHoldsMarkers=!!e.target.checked;
+  renderEquityChart(equityState.span||"ALL");
+});
+document.querySelectorAll("[data-dca-mode]").forEach(btn=>btn.addEventListener("click",()=>{
+  const id=profileCache.tokenId;if(id)setDcaMode(id,btn.dataset.dcaMode);
+}));
+document.querySelectorAll("[data-scan-sort]").forEach(btn=>btn.addEventListener("click",()=>{
+  if(scanState.loading)return;
+  scanState.sort=btn.dataset.scanSort;
+  setScanControls();
+}));
+document.querySelectorAll("[data-scan-metric]").forEach(btn=>btn.addEventListener("click",()=>{
+  if(scanState.loading)return;
+  scanState.metric=btn.dataset.scanMetric;
+  setScanControls();
+}));
+document.querySelectorAll("[data-scan-limit]").forEach(btn=>btn.addEventListener("click",()=>{
+  if(scanState.loading)return;
+  scanState.limit=Number(btn.dataset.scanLimit)||25;
+  setScanControls();
+}));
+$("scan-run-btn")?.addEventListener("click",()=>loadScan());

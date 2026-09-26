@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=27">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -31,8 +31,9 @@
         <button type="button" data-panel="finder" aria-selected="false"><span>02</span>FIND TRADER</button>
         <button type="button" data-panel="profile" aria-selected="false"><span>03</span>TRADER PROFILE</button>
         <button type="button" data-panel="rankings" aria-selected="false"><span>04</span>RANKINGS</button>
-        <button type="button" data-panel="activity" aria-selected="false"><span>05</span>ACTIVITY</button>
-        <button type="button" data-panel="beta-notice" aria-selected="false"><span>06</span>BETA NOTICE</button>
+        <button type="button" data-panel="scan" aria-selected="false"><span>05</span>SCAN</button>
+        <button type="button" data-panel="activity" aria-selected="false"><span>06</span>ACTIVITY</button>
+        <button type="button" data-panel="beta-notice" aria-selected="false"><span>07</span>BETA NOTICE</button>
       </nav>
     </aside>
     <div class="workspace-content">
@@ -97,6 +98,19 @@
                 <button type="button" class="ghost-btn" id="spectator-pause-btn">PAUSE</button>
                 <button type="button" class="ghost-btn" id="spectator-resume-btn">RESUME</button>
                 <p class="spectator-note">Local UI only. Pause sets a <b>PAUSED BY YOU</b> badge and can hide this DNA from your followed digest cards. It does not stop the live paper engine.</p>
+                <div class="dca-controls" id="dca-controls">
+                  <div class="dca-head">
+                    <span>DCA MODE</span>
+                    <b class="dca-badge" id="dca-badge">SPECTATOR DCA · ENGINE SUPPORT COMING</b>
+                  </div>
+                  <div class="history-toolbar dca-mode-toolbar" role="group" aria-label="DCA mode">
+                    <button type="button" class="active" data-dca-mode="off">OFF</button>
+                    <button type="button" data-dca-mode="buy">BUY DCA</button>
+                    <button type="button" data-dca-mode="sell">SELL DCA</button>
+                    <button type="button" data-dca-mode="both">BOTH</button>
+                  </div>
+                  <p class="spectator-note">Local preference only (paper contract). Does <b>not</b> change the live paper engine yet. Intended fields: mode · slices · interval_hint.</p>
+                </div>
               </div>
             </div>
           </article>
@@ -154,6 +168,14 @@
               <div class="chart-tooltip" id="chart-tip" role="tooltip"><div class="t-val" id="tip-val"></div><div class="t-date" id="tip-date"></div></div>
               <canvas id="equity-chart" aria-hidden="true"></canvas>
             </div>
+            <div class="equity-marker-bar">
+              <div class="equity-marker-legend" aria-hidden="true">
+                <span class="mk-buy">▲ BUY</span>
+                <span class="mk-sell">▼ SELL</span>
+                <span class="mk-hold">· HOLD</span>
+              </div>
+              <label class="show-holds-toggle"><input type="checkbox" id="show-holds-toggle"> SHOW HOLDS</label>
+            </div>
             <p class="equity-note" id="equity-note">ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE</p>
           </article>
           <article class="panel positions-panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list positions-list empty">NO OPEN POSITIONS</div></article>
@@ -195,8 +217,60 @@
         </div>
         <article class="panel leaderboard-panel"><div class="panel-head"><div><span>LIVE TABLE</span><h3 id="rankings-title">TOP GAINERS</h3></div><b id="rankings-metric-label">VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article>
       </section>
-      <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>05 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Complete simulated decision history across all 444 traders, loaded in lightweight pages.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div class="history-toolbar activity-toolbar" role="group" aria-label="Filter public activity"><button type="button" class="active" data-activity-action="all">ALL</button><button type="button" data-activity-action="buy">BUY</button><button type="button" data-activity-action="sell">SELL</button><button type="button" data-activity-action="hold">HOLD</button></div><div class="activity-extra-filters"><label>TRADER #<input id="activity-token-filter" type="number" min="1" max="444" placeholder="1–444" inputmode="numeric"></label><label>SYMBOL<input id="activity-symbol-filter" type="text" maxlength="16" placeholder="AAPL" autocomplete="off" spellcheck="false"></label><button type="button" class="ghost-btn" id="activity-apply-filters">APPLY</button><div class="history-toolbar activity-view-toggle" role="group" aria-label="Activity view"><button type="button" data-activity-view="compact">COMPACT</button><button type="button" class="active" data-activity-view="tickets">TICKETS</button></div></div><div id="activity-list" class="activity-list activity-history"><p class="loading">Loading recent decisions…</p></div><div class="history-footer"><span id="activity-count">0 DECISIONS LOADED</span><button type="button" id="load-more-activity" hidden>LOAD MORE ↓</button></div></article><p class="activity-note">PAPER TRADING ONLY · HOLD IS A DECISION, NOT AN EXECUTED TRADE · TIMES SHOWN IN YOUR LOCAL TIME ZONE</p></section>
-      <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">06 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
+      <section class="page-panel dashboard-panel" id="scan">
+        <div class="dash-head">
+          <p>05 / STRUCTURED FILTER</p>
+          <h2>SCAN OF 444.</h2>
+          <small>Filter paper traders by archetype, return, trades, and sort — not natural language. INFORMATIONAL · PAPER · NOT ADVICE</small>
+        </div>
+        <div class="scan-toolbar" id="scan-toolbar">
+          <div class="scan-row">
+            <label>ARCHETYPE
+              <select id="scan-archetype">
+                <option value="">ANY</option>
+                <option value="momentum">MOMENTUM</option>
+                <option value="value">VALUE</option>
+                <option value="balanced">BALANCED</option>
+                <option value="defensive">DEFENSIVE</option>
+                <option value="contrarian">CONTRARIAN</option>
+              </select>
+            </label>
+            <label>MIN RETURN %
+              <input id="scan-min-return" type="number" step="0.1" placeholder="e.g. -5">
+            </label>
+            <label>MAX RETURN %
+              <input id="scan-max-return" type="number" step="0.1" placeholder="e.g. 10">
+            </label>
+            <label>MIN TRADES
+              <input id="scan-min-trades" type="number" min="0" step="1" placeholder="0">
+            </label>
+          </div>
+          <div class="history-toolbar scan-sort" role="group" aria-label="Scan sort">
+            <button type="button" class="active" data-scan-sort="gainers">GAINERS</button>
+            <button type="button" data-scan-sort="losers">LOSERS</button>
+            <button type="button" data-scan-sort="active">ACTIVE</button>
+          </div>
+          <div class="history-toolbar scan-metric" role="group" aria-label="Scan metric">
+            <button type="button" class="active" data-scan-metric="equity">EQUITY</button>
+            <button type="button" data-scan-metric="realized">REALIZED</button>
+          </div>
+          <div class="history-toolbar scan-limit" role="group" aria-label="Scan limit">
+            <button type="button" data-scan-limit="10">10</button>
+            <button type="button" class="active" data-scan-limit="25">25</button>
+            <button type="button" data-scan-limit="50">50</button>
+          </div>
+          <div class="scan-actions">
+            <button type="button" class="solid-btn" id="scan-run-btn">RUN SCAN →</button>
+            <b id="scan-status" role="status">READY</b>
+          </div>
+        </div>
+        <article class="panel leaderboard-panel">
+          <div class="panel-head"><div><span>MATCHED TRADERS</span><h3 id="scan-title">SCAN RESULTS</h3></div><b id="scan-count">0</b></div>
+          <div id="scan-results" class="leaderboard-list"><p class="loading">Set filters and run scan.</p></div>
+        </article>
+      </section>
+      <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>06 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Complete simulated decision history across all 444 traders, loaded in lightweight pages.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div class="history-toolbar activity-toolbar" role="group" aria-label="Filter public activity"><button type="button" class="active" data-activity-action="all">ALL</button><button type="button" data-activity-action="buy">BUY</button><button type="button" data-activity-action="sell">SELL</button><button type="button" data-activity-action="hold">HOLD</button></div><div class="activity-extra-filters"><label>TRADER #<input id="activity-token-filter" type="number" min="1" max="444" placeholder="1–444" inputmode="numeric"></label><label>SYMBOL<input id="activity-symbol-filter" type="text" maxlength="16" placeholder="AAPL" autocomplete="off" spellcheck="false"></label><button type="button" class="ghost-btn" id="activity-apply-filters">APPLY</button><div class="history-toolbar activity-view-toggle" role="group" aria-label="Activity view"><button type="button" data-activity-view="compact">COMPACT</button><button type="button" class="active" data-activity-view="tickets">TICKETS</button></div></div><div id="activity-list" class="activity-list activity-history"><p class="loading">Loading recent decisions…</p></div><div class="history-footer"><span id="activity-count">0 DECISIONS LOADED</span><button type="button" id="load-more-activity" hidden>LOAD MORE ↓</button></div></article><p class="activity-note">PAPER TRADING ONLY · HOLD IS A DECISION, NOT AN EXECUTED TRADE · TIMES SHOWN IN YOUR LOCAL TIME ZONE</p></section>
+      <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">07 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
     </div>
   </main>
   <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PUBLIC BETA<br>LIVE ON ROBINHOOD CHAIN</p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026</small></footer>
@@ -245,6 +319,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=26"></script>
+  <script src="app.js?v=27"></script>
 </body>
 </html>
