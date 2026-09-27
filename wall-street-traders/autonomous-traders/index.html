@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=29">
+  <link rel="stylesheet" href="styles.css?v=30">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -180,6 +180,18 @@
           <article class="panel digest-panel" id="digest-panel">
             <div class="panel-head"><div><span>PORTFOLIO DIGEST</span><h3>PLAIN-ENGLISH BRIEF</h3></div><b>INFORMATIONAL · PAPER · NOT ADVICE</b></div>
             <div class="digest-body" id="portfolio-digest"><p class="loading">Generating digest…</p></div>
+          </article>
+          <article class="panel second-brain-panel" id="second-brain-panel">
+            <div class="panel-head"><div><span>SECOND PASS · LLM</span><h3>SECOND BRAIN · GROK</h3></div><b class="coming-soon-badge" id="second-brain-badge">COMING SOON</b></div>
+            <div class="second-brain-body">
+              <p class="second-brain-copy">DNA decides first. Grok second pass arrives when API key is connected.</p>
+              <p class="second-brain-line" id="second-brain-line" aria-live="polite">Pass 1 DNA · HOLD — Pass 2 Grok · pending</p>
+              <div class="second-brain-actions">
+                <button type="button" class="ghost-btn" id="second-brain-explain" disabled title="Requires Grok API key">Explain this decision</button>
+                <button type="button" class="ghost-btn" id="second-brain-venue" disabled title="Requires Grok API key">Venue preference</button>
+              </div>
+              <p class="second-brain-note">MOCK UI ONLY · NO xAI CALLS · INFORMATIONAL · PAPER · NOT ADVICE</p>
+            </div>
           </article>
           <article class="panel pressure-panel" id="pressure-panel">
             <div class="panel-head"><div><span>DNA vs BOOK</span><h3>PRESSURE TEST</h3></div><b id="pressure-score-badge">HEURISTIC · PAPER</b></div>
@@ -366,6 +378,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=29"></script>
+  <script src="app.js?v=30"></script>
 </body>
 </html>

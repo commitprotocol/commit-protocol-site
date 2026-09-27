@@ -413,3 +413,13 @@ button.pulse-card:hover{border-color:var(--green);background:#0a0d0a}
   .api-base{font-size:10px}
   .equity-source-wrap{align-items:flex-start}
 }
+
+/* ── v30: SECOND BRAIN · GROK mock (no xAI) ── */
+.second-brain-panel .second-brain-body{padding:18px 22px 22px;display:flex;flex-direction:column;gap:12px}
+.second-brain-copy{margin:0;color:var(--dim);font:400 13px/1.7 var(--mono)}
+.second-brain-line{margin:0;padding:12px 14px;border:1px solid var(--line2);background:#030403;color:var(--green);font:700 11px/1.5 var(--mono);letter-spacing:.04em}
+.second-brain-actions{display:flex;flex-wrap:wrap;gap:10px}
+.second-brain-actions .ghost-btn:disabled{opacity:.4;cursor:not-allowed}
+.second-brain-actions .ghost-btn:disabled:hover{background:#0d130e;color:var(--green)}
+.coming-soon-badge{color:#ffb020!important;border:1px solid #5a3a10;background:#1a1208;padding:6px 10px;font:800 9px var(--mono)!important;letter-spacing:.1em}
+.second-brain-note{margin:0;color:#777b75;font:700 9px var(--mono);letter-spacing:.1em}
