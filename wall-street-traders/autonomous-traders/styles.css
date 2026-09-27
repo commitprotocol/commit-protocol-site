@@ -423,3 +423,92 @@ button.pulse-card:hover{border-color:var(--green);background:#0a0d0a}
 .second-brain-actions .ghost-btn:disabled:hover{background:#0d130e;color:var(--green)}
 .coming-soon-badge{color:#ffb020!important;border:1px solid #5a3a10;background:#1a1208;padding:6px 10px;font:800 9px var(--mono)!important;letter-spacing:.1em}
 .second-brain-note{margin:0;color:#777b75;font:700 9px var(--mono);letter-spacing:.1em}
+
+/* ── v31: icon-rail sidebar, profile launcher subnav, terminal Second Brain, developers ── */
+.autonomous-workspace{grid-template-columns:64px minmax(0,1fr);transition:grid-template-columns .2s ease}
+.autonomous-sidebar{width:64px;padding:18px 0 24px;overflow:hidden;transition:width .2s ease;z-index:20;background:#050605}
+.autonomous-sidebar:hover,
+.autonomous-sidebar:focus-within{width:220px}
+.autonomous-workspace:has(.autonomous-sidebar:hover),
+.autonomous-workspace:has(.autonomous-sidebar:focus-within){grid-template-columns:220px minmax(0,1fr)}
+.sidebar-kicker{color:#777b75;font-size:9px;letter-spacing:.14em;margin:0 0 14px;padding:0 18px;white-space:nowrap;opacity:0;transition:opacity .15s}
+.autonomous-sidebar:hover .sidebar-kicker,
+.autonomous-sidebar:focus-within .sidebar-kicker{opacity:1}
+.autonomous-nav{display:flex;flex-direction:column;gap:10px}
+.nav-group{display:flex;flex-direction:column}
+.nav-group-label{display:block;color:#4e544d;font-size:8px;letter-spacing:.14em;text-transform:uppercase;padding:8px 18px 4px;white-space:nowrap;opacity:0;height:0;overflow:hidden;transition:opacity .15s,height .15s,padding .15s}
+.autonomous-sidebar:hover .nav-group-label,
+.autonomous-sidebar:focus-within .nav-group-label{opacity:1;height:auto;overflow:visible;padding:8px 18px 4px}
+.autonomous-nav button{display:flex;align-items:center;gap:12px;text-align:left;border:0;border-bottom:0;border-left:2px solid transparent;background:transparent;color:#8e938c;padding:12px 18px;font:600 11px var(--mono);cursor:pointer;width:100%;min-height:44px;white-space:nowrap}
+.autonomous-nav button .nav-ico{width:20px;height:20px;flex:0 0 20px;display:block}
+.autonomous-nav button .nav-label{opacity:0;max-width:0;overflow:hidden;transition:opacity .15s,max-width .2s;letter-spacing:.06em}
+.autonomous-sidebar:hover .autonomous-nav button .nav-label,
+.autonomous-sidebar:focus-within .autonomous-nav button .nav-label{opacity:1;max-width:160px}
+.autonomous-nav button:hover,
+.autonomous-nav button[aria-selected="true"]{color:var(--green);background:#0a0d0a;border-left-color:var(--green)}
+.autonomous-nav button[aria-selected="true"] .nav-label{color:var(--paper)}
+.autonomous-nav button:focus-visible{outline:2px solid var(--green);outline-offset:-2px}
+
+.overview-dev-chip-row{margin-top:22px}
+.overview-dev-chip{cursor:pointer;border:0;display:inline-block}
+
+/* Profile launcher subnav */
+.profile-subnav{display:flex;gap:0;overflow-x:auto;margin:0 0 18px;border:1px solid var(--line2);background:#030403;scrollbar-width:thin}
+.profile-subnav button{flex:1;min-width:max-content;border:0;border-right:1px solid var(--line);background:transparent;color:#8e938c;padding:14px 16px;font:700 10px var(--mono);letter-spacing:.1em;cursor:pointer;white-space:nowrap}
+.profile-subnav button:last-child{border-right:0}
+.profile-subnav button:hover{color:var(--paper);background:#0a0d0a}
+.profile-subnav button[aria-selected="true"]{color:var(--green);background:#0d130e;box-shadow:inset 0 -2px 0 var(--green)}
+.profile-subnav button:focus-visible{outline:2px solid var(--green);outline-offset:-2px}
+.profile-subpanel{display:none;flex-direction:column;gap:18px;width:100%;min-width:0}
+.profile-subpanel.active-subpanel{display:flex}
+.profile-subpanel[hidden]{display:none!important}
+.profile-layout{display:flex;flex-direction:column;gap:0}
+
+/* Developers page */
+.developers-panel .public-api-panel{border:1px solid var(--line2);background:#060806}
+
+/* Second Brain terminal restyle */
+.second-brain-panel .term-shell{padding:0;display:flex;flex-direction:column;gap:0;background:#020302;border-top:1px solid var(--line)}
+.term-chrome{display:flex;align-items:center;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line);background:#0a0d0a}
+.term-chrome i{width:8px;height:8px;border-radius:50%;background:#4e544d;display:inline-block}
+.term-chrome i:nth-child(1){background:#ff8e8e}.term-chrome i:nth-child(2){background:#ffb020}.term-chrome i:nth-child(3){background:var(--green)}
+.term-chrome span{margin-left:8px;color:#777b75;font:700 9px var(--mono);letter-spacing:.1em}
+.term-line{margin:0;padding:8px 16px;color:var(--paper);font:600 12px/1.55 var(--mono);white-space:pre-wrap;word-break:break-word}
+.term-line.term-cmd{color:var(--green);padding-top:14px}
+.term-status{color:#ffb020;font-weight:800}
+.term-prompt-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 16px 4px}
+.term-gt{color:var(--green);font:700 14px var(--mono)}
+.term-btn{border:1px dashed #31513a;background:transparent;color:#8e938c;padding:8px 12px;font:700 11px var(--mono);letter-spacing:.06em;cursor:not-allowed;opacity:.55}
+.term-btn:disabled:hover{background:transparent;color:#8e938c}
+.term-comment{color:#666b64;padding-bottom:8px}
+.second-brain-panel .second-brain-note{margin:0;padding:8px 16px 16px;color:#777b75;font:700 9px var(--mono);letter-spacing:.1em;border-top:1px solid var(--line)}
+.second-brain-panel .coming-soon-badge{color:#ffb020!important;border:1px solid #5a3a10;background:#1a1208;padding:6px 10px;font:800 9px var(--mono)!important;letter-spacing:.1em}
+
+/* Mobile: bottom icon rail */
+@media(max-width:900px){
+  .autonomous-workspace{grid-template-columns:1fr;padding-bottom:72px}
+  .autonomous-workspace:has(.autonomous-sidebar:hover),
+  .autonomous-workspace:has(.autonomous-sidebar:focus-within){grid-template-columns:1fr}
+  .autonomous-sidebar,
+  .autonomous-sidebar:hover,
+  .autonomous-sidebar:focus-within{
+    position:fixed;left:0;right:0;bottom:0;top:auto;width:100%!important;height:auto;z-index:30;
+    border-right:0;border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));
+    background:#050605;overflow-x:auto;overflow-y:hidden
+  }
+  .sidebar-kicker,.nav-group-label{display:none!important}
+  .autonomous-nav{flex-direction:row;gap:0;width:max-content;min-width:100%}
+  .nav-group{flex-direction:row}
+  .autonomous-nav button{flex-direction:column;gap:4px;min-width:68px;padding:8px 6px;border-left:0;border-bottom:2px solid transparent;justify-content:center;font-size:8px}
+  .autonomous-nav button .nav-label,
+  .autonomous-sidebar:hover .autonomous-nav button .nav-label,
+  .autonomous-sidebar:focus-within .autonomous-nav button .nav-label{opacity:1;max-width:none;overflow:visible;font-size:8px;letter-spacing:.04em}
+  .autonomous-nav button[aria-selected="true"]{border-left-color:transparent;border-bottom-color:var(--green)}
+  .profile-subnav{margin-inline:0}
+  .profile-subnav button{padding:12px 12px;font-size:9px}
+}
+@media(max-width:640px){
+  .term-line{font-size:11px;padding-inline:12px}
+  .term-prompt-row{padding-inline:12px}
+  .profile-subpanel.active-subpanel{gap:14px}
+}

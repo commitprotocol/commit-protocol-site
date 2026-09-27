@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=30">
+  <link rel="stylesheet" href="styles.css?v=31">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -24,16 +24,53 @@
     <span class="header-cta">PUBLIC BETA</span>
   </header>
   <main id="main-content" class="autonomous-workspace">
-    <aside class="autonomous-sidebar">
-      <p>CONTENTS / AUTONOMOUS</p>
-      <nav class="autonomous-nav" aria-label="Autonomous Traders sections">
-        <button type="button" data-panel="overview" aria-selected="true"><span>01</span>OVERVIEW</button>
-        <button type="button" data-panel="finder" aria-selected="false"><span>02</span>FIND TRADER</button>
-        <button type="button" data-panel="profile" aria-selected="false"><span>03</span>TRADER PROFILE</button>
-        <button type="button" data-panel="rankings" aria-selected="false"><span>04</span>RANKINGS</button>
-        <button type="button" data-panel="scan" aria-selected="false"><span>05</span>SCAN</button>
-        <button type="button" data-panel="activity" aria-selected="false"><span>06</span>ACTIVITY</button>
-        <button type="button" data-panel="beta-notice" aria-selected="false"><span>07</span>BETA NOTICE</button>
+    <aside class="autonomous-sidebar" id="autonomous-sidebar">
+      <p class="sidebar-kicker">AT / DESK</p>
+      <nav class="autonomous-nav" id="autonomous-nav" aria-label="Autonomous Traders sections">
+        <div class="nav-group" role="group" aria-label="Desk">
+          <span class="nav-group-label">Desk</span>
+          <button type="button" data-panel="overview" aria-selected="true" title="Overview">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" fill="currentColor"/><rect x="14" y="3" width="7" height="7" fill="currentColor" opacity=".55"/><rect x="3" y="14" width="7" height="7" fill="currentColor" opacity=".55"/><rect x="14" y="14" width="7" height="7" fill="currentColor"/></svg>
+            <span class="nav-label">Overview</span>
+          </button>
+          <button type="button" data-panel="finder" aria-selected="false" title="Find Trader">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 15l5 5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Find Trader</span>
+          </button>
+          <button type="button" data-panel="rankings" aria-selected="false" title="Rankings">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V10M10 18V6M16 18v-4M20 18H3" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Rankings</span>
+          </button>
+          <button type="button" data-panel="activity" aria-selected="false" title="Activity">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-6 4 12 2-6h6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Activity</span>
+          </button>
+          <button type="button" data-panel="scan" aria-selected="false" title="Scan">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 12h10M12 8v8" stroke="currentColor" stroke-width="2"/></svg>
+            <span class="nav-label">Scan</span>
+          </button>
+        </div>
+        <div class="nav-group" role="group" aria-label="Trader">
+          <span class="nav-group-label">Trader</span>
+          <button type="button" data-panel="profile" aria-selected="false" title="Trader Profile">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 20c1.5-4 4-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Trader Profile</span>
+          </button>
+        </div>
+        <div class="nav-group" role="group" aria-label="Developers">
+          <span class="nav-group-label">Developers</span>
+          <button type="button" data-panel="developers" aria-selected="false" title="Public API / MCP">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13 5l-2 14" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Public API / MCP</span>
+          </button>
+        </div>
+        <div class="nav-group" role="group" aria-label="Meta">
+          <span class="nav-group-label">Meta</span>
+          <button type="button" data-panel="beta-notice" aria-selected="false" title="Beta Notice">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="2"/></svg>
+            <span class="nav-label">Beta Notice</span>
+          </button>
+        </div>
       </nav>
     </aside>
     <div class="workspace-content">
@@ -45,6 +82,9 @@
           <p class="hero-lead">Each Wall Street Trader uses its original traits as behavioral DNA. The system evaluates real stock-token prices and independently records every virtual decision.</p>
           <div class="notice"><i></i> STATUS: PUBLIC BETA LIVE</div>
           <p class="microcopy">PAPER TRADING ONLY · NO WALLET CONNECTION · NO REAL FUNDS</p>
+          <div class="overview-dev-chip-row">
+            <button type="button" class="api-chip overview-dev-chip" data-panel-jump="developers">DEVELOPERS · API / MCP →</button>
+          </div>
         </div>
         <div class="overview-metrics">
           <article><span>TRADERS</span><strong>444</strong><small>INDEPENDENT IDENTITIES</small></article>
@@ -66,28 +106,6 @@
         <article class="panel market-cards-panel" id="market-cards-panel">
           <div class="panel-head"><div><span>MARKET SPOTLIGHT</span><h3>STOCK TOKENS</h3></div><b id="market-cards-status">LIVE</b></div>
           <div class="market-cards" id="market-cards"><p class="loading">Loading market cards…</p></div>
-        </article>
-        <article class="panel public-api-panel" id="public-api-panel">
-          <div class="panel-head"><div><span>DEVELOPER ACCESS</span><h3>PUBLIC API · MCP READ-ONLY</h3></div><b>NO WRITE</b></div>
-          <div class="public-api-body">
-            <p class="api-base-label">BASE URL</p>
-            <code class="api-base" id="api-base-url">https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public</code>
-            <div class="api-link-row" id="api-link-row">
-              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?overview=1" target="_blank" rel="noopener noreferrer">overview=1</a>
-              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?rankings=1&amp;sort=gainers&amp;limit=10" target="_blank" rel="noopener noreferrer">rankings=1</a>
-              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?activity=1&amp;limit=25" target="_blank" rel="noopener noreferrer">activity=1</a>
-              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?scan=1&amp;limit=25" target="_blank" rel="noopener noreferrer">scan=1</a>
-              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?mcp_tools=1" target="_blank" rel="noopener noreferrer">mcp_tools=1</a>
-              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?token_id=160" target="_blank" rel="noopener noreferrer">token_id=160</a>
-              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?expectancy=1" target="_blank" rel="noopener noreferrer">expectancy=1</a>
-              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?replay=1&amp;token_id=160" target="_blank" rel="noopener noreferrer">replay=1 · #160</a>
-            </div>
-            <p class="api-note">Read-only · paper trading · no wallet · no write endpoints · INFORMATIONAL · NOT ADVICE</p>
-            <details class="mcp-tools-details" id="mcp-tools-details">
-              <summary>MCP TOOL NAMES</summary>
-              <ul id="mcp-tools-list"><li class="loading">Loading tool list…</li></ul>
-            </details>
-          </div>
         </article>
       </section>
       <section class="page-panel dashboard-panel" id="finder">
@@ -111,142 +129,172 @@
             <button type="button" class="compare-trigger" id="compare-from-profile" data-seed-current="1">COMPARE TRADERS</button>
           </div>
         </div>
+        <nav class="profile-subnav" id="profile-subnav" aria-label="Trader profile sections">
+          <button type="button" data-profile-tab="overview" aria-selected="true">Overview</button>
+          <button type="button" data-profile-tab="watchlist" aria-selected="false">Watchlist</button>
+          <button type="button" data-profile-tab="decisions" aria-selected="false">Decisions</button>
+          <button type="button" data-profile-tab="risk" aria-selected="false">Risk</button>
+          <button type="button" data-profile-tab="second-brain" aria-selected="false">Second Brain</button>
+          <button type="button" data-profile-tab="digest" aria-selected="false">Digest</button>
+        </nav>
         <div class="profile-layout">
-          <article class="panel watchlist-panel" id="watchlist-panel">
-            <div class="panel-head"><div><span>LOCAL BROWSER LIST</span><h3>WATCHLIST</h3></div><b id="watchlist-count">0</b></div>
-            <div class="watchlist-strip" id="watchlist-strip"><p class="watchlist-empty">No symbols watched yet. Add from a position card or asset drawer.</p></div>
-          </article>
-          <div class="portfolio-grid"><article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">—</small></article><article><span>CASH</span><b id="cash-balance">—</b><small>AVAILABLE CAPITAL</small></article><article><span>POSITIONS</span><b id="positions-value">—</b><small id="position-count">— OPEN</small></article><article><span>TRADES</span><b id="trades-count">—</b><small id="win-loss">— W / — L</small></article></div>
-          <div class="profile-top">
-            <article class="identity panel profile-identity">
-              <div class="image-wrap">
-                <img id="trader-image" src="../trading-floor/traders/160.png" alt="Wall Street Trader #160">
-                <div class="identity-badges">
-                  <span class="season-badge" id="identity-season">BETA-1 · PAPER</span>
-                  <span id="rarity-badge">DEFAULT</span>
+          <div class="profile-subpanel active-subpanel" data-profile-panel="overview" id="profile-sub-overview">
+            <div class="portfolio-grid"><article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">—</small></article><article><span>CASH</span><b id="cash-balance">—</b><small>AVAILABLE CAPITAL</small></article><article><span>POSITIONS</span><b id="positions-value">—</b><small id="position-count">— OPEN</small></article><article><span>TRADES</span><b id="trades-count">—</b><small id="win-loss">— W / — L</small></article></div>
+            <div class="profile-top">
+              <article class="identity panel profile-identity">
+                <div class="image-wrap">
+                  <img id="trader-image" src="../trading-floor/traders/160.png" alt="Wall Street Trader #160">
+                  <div class="identity-badges">
+                    <span class="season-badge" id="identity-season">BETA-1 · PAPER</span>
+                    <span id="rarity-badge">DEFAULT</span>
+                  </div>
+                </div>
+                <div class="identity-copy">
+                  <p id="public-file">PUBLIC FILE / WST-160</p>
+                  <h2 id="trader-name">TRADER #160</h2>
+                  <dl class="identity-data">
+                    <div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div>
+                    <div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div>
+                    <div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div>
+                    <div><dt>STATUS</dt><dd class="positive" id="agent-status">ACTIVE</dd></div>
+                    <div><dt>LAST EVALUATED</dt><dd id="last-evaluated">—</dd></div>
+                    <div><dt>REALIZED P&amp;L</dt><dd id="realized-pnl">—</dd></div>
+                    <div><dt>UNREALIZED P&amp;L</dt><dd id="unrealized-pnl">—</dd></div>
+                    <div><dt>WIN RATE</dt><dd id="win-rate">—</dd></div>
+                  </dl>
+                </div>
+              </article>
+              <div class="profile-side">
+                <article class="panel instincts-panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Loading behavioral DNA…</p></div></article>
+                <article class="panel traits-panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
+              </div>
+            </div>
+            <article class="panel equity-panel" id="equity-panel">
+              <div class="panel-head equity-panel-head">
+                <div><span>PORTFOLIO PERFORMANCE</span><h3>EQUITY CURVE</h3></div>
+                <div class="equity-source-wrap">
+                  <b id="equity-source" class="equity-badge estimated-warn">ESTIMATED</b>
+                  <small id="equity-last-snap" class="equity-last-snap">—</small>
                 </div>
               </div>
-              <div class="identity-copy">
-                <p id="public-file">PUBLIC FILE / WST-160</p>
-                <h2 id="trader-name">TRADER #160</h2>
-                <dl class="identity-data">
-                  <div><dt>ARCHETYPE</dt><dd id="archetype">LOADING…</dd></div>
-                  <div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div>
-                  <div><dt>DNA VERSION</dt><dd id="dna-version">—</dd></div>
-                  <div><dt>STATUS</dt><dd class="positive" id="agent-status">ACTIVE</dd></div>
-                  <div><dt>LAST EVALUATED</dt><dd id="last-evaluated">—</dd></div>
-                  <div><dt>REALIZED P&amp;L</dt><dd id="realized-pnl">—</dd></div>
-                  <div><dt>UNREALIZED P&amp;L</dt><dd id="unrealized-pnl">—</dd></div>
-                  <div><dt>WIN RATE</dt><dd id="win-rate">—</dd></div>
-                </dl>
+              <div class="equity-warn" id="equity-warn" hidden role="status">⚠ ESTIMATED CURVE · LIVE SNAPSHOTS NOT LOADED · INFORMATIONAL · PAPER · NOT ADVICE</div>
+              <div class="equity-hero" aria-live="polite">
+                <div class="equity-span-return" id="span-return"><span id="span-return-amt">—</span> <span class="span-label" id="span-return-label">All time</span></div>
+              </div>
+              <div class="equity-spans" role="tablist" aria-label="Equity time span">
+                <button type="button" role="tab" data-span="1D" aria-pressed="false" tabindex="-1">1D</button>
+                <button type="button" role="tab" data-span="1W" aria-pressed="false" tabindex="-1">1W</button>
+                <button type="button" role="tab" data-span="1M" aria-pressed="false" tabindex="-1">1M</button>
+                <button type="button" role="tab" data-span="3M" aria-pressed="false" tabindex="-1">3M</button>
+                <button type="button" role="tab" data-span="YTD" aria-pressed="false" tabindex="-1">YTD</button>
+                <button type="button" role="tab" data-span="ALL" aria-pressed="true" tabindex="0">ALL</button>
+              </div>
+              <div class="chart-card" aria-label="Portfolio equity chart">
+                <div class="chart-tooltip" id="chart-tip" role="tooltip"><div class="t-val" id="tip-val"></div><div class="t-date" id="tip-date"></div></div>
+                <canvas id="equity-chart" aria-hidden="true"></canvas>
+              </div>
+              <div class="equity-marker-bar">
+                <div class="equity-marker-legend" aria-hidden="true">
+                  <span class="mk-buy">▲ BUY</span>
+                  <span class="mk-sell">▼ SELL</span>
+                  <span class="mk-hold">· HOLD</span>
+                </div>
+                <label class="show-holds-toggle"><input type="checkbox" id="show-holds-toggle"> SHOW HOLDS</label>
+              </div>
+              <p class="equity-note" id="equity-note">ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE</p>
+            </article>
+            <article class="panel positions-panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list positions-list empty">NO OPEN POSITIONS</div></article>
+            <article class="panel pressure-panel" id="pressure-panel">
+              <div class="panel-head"><div><span>DNA vs BOOK</span><h3>PRESSURE TEST</h3></div><b id="pressure-score-badge">HEURISTIC · PAPER</b></div>
+              <div class="pressure-body" id="pressure-body"><p class="loading">Load a trader to run the pressure test…</p></div>
+            </article>
+          </div>
+
+          <div class="profile-subpanel" data-profile-panel="watchlist" id="profile-sub-watchlist" hidden>
+            <article class="panel watchlist-panel" id="watchlist-panel">
+              <div class="panel-head"><div><span>LOCAL BROWSER LIST</span><h3>WATCHLIST</h3></div><b id="watchlist-count">0</b></div>
+              <div class="watchlist-strip" id="watchlist-strip"><p class="watchlist-empty">No symbols watched yet. Add from a position card or asset drawer.</p></div>
+            </article>
+          </div>
+
+          <div class="profile-subpanel" data-profile-panel="decisions" id="profile-sub-decisions" hidden>
+            <article class="panel replay-panel" id="replay-panel">
+              <div class="panel-head"><div><span>DECISION SEQUENCE</span><h3>REPLAY LOG</h3></div><b id="replay-status">READY</b></div>
+              <p class="replay-summary" id="replay-summary">INFORMATIONAL · PAPER · NOT ADVICE</p>
+              <div id="replay-list" class="replay-list"><p class="loading">Open a trader profile to load replay…</p></div>
+              <div class="history-footer"><span id="replay-count">0 TICKETS</span><button type="button" id="load-more-replay" hidden>LOAD MORE ↓</button></div>
+            </article>
+            <article class="panel eval-ledger-panel" id="eval-ledger-panel">
+              <div class="panel-head"><div><span>CONDITION / EVALUATION</span><h3>EVALUATION LEDGER</h3></div><b>RECENT CHECKS</b></div>
+              <div id="eval-ledger" class="eval-ledger"><p class="loading">Loading evaluations…</p></div>
+            </article>
+            <article class="panel decision-history"><div class="panel-head history-head"><div><span>COMPLETE DECISION LEDGER</span><h3>DECISION HISTORY</h3></div><b id="history-status">LIVE</b></div>
+              <div class="history-toolbar" role="group" aria-label="Filter decision history"><button type="button" class="active" data-action="all">ALL</button><button type="button" data-action="buy">BUY</button><button type="button" data-action="sell">SELL</button><button type="button" data-action="hold">HOLD</button></div>
+              <div id="decisions" class="data-list history-list empty" aria-live="polite">NO DECISIONS YET</div>
+              <div class="history-footer"><span id="history-count">0 DECISIONS LOADED</span><button type="button" id="load-more-decisions" hidden>LOAD MORE ↓</button></div>
+            </article>
+          </div>
+
+          <div class="profile-subpanel" data-profile-panel="risk" id="profile-sub-risk" hidden>
+            <article class="panel safety-theater-panel" id="safety-theater-panel">
+              <div class="panel-head"><div><span>SPECTATOR CONTROLS</span><h3>PAPER BUDGET RING-FENCE</h3></div><b id="safety-status-badge">ACTIVE</b></div>
+              <div class="safety-body">
+                <div class="budget-ring" aria-label="Paper budget">
+                  <div class="budget-ring-meter"><span id="budget-ring-fill"></span></div>
+                  <div class="budget-ring-copy">
+                    <strong id="budget-ring-value">$10,000.00</strong>
+                    <small>STARTING PAPER BUDGET</small>
+                    <em id="budget-ring-note">Spectator control · engine remains live in beta</em>
+                  </div>
+                </div>
+                <div class="spectator-controls">
+                  <button type="button" class="ghost-btn" id="spectator-pause-btn">PAUSE</button>
+                  <button type="button" class="ghost-btn" id="spectator-resume-btn">RESUME</button>
+                  <p class="spectator-note">Local UI only. Pause sets a <b>PAUSED BY YOU</b> badge and can hide this DNA from your followed digest cards. It does not stop the live paper engine.</p>
+                  <div class="dca-controls" id="dca-controls">
+                    <div class="dca-head">
+                      <span>DCA MODE</span>
+                      <b class="dca-badge" id="dca-badge">SPECTATOR DCA · ENGINE SUPPORT COMING</b>
+                    </div>
+                    <div class="history-toolbar dca-mode-toolbar" role="group" aria-label="DCA mode">
+                      <button type="button" class="active" data-dca-mode="off">OFF</button>
+                      <button type="button" data-dca-mode="buy">BUY DCA</button>
+                      <button type="button" data-dca-mode="sell">SELL DCA</button>
+                      <button type="button" data-dca-mode="both">BOTH</button>
+                    </div>
+                    <p class="spectator-note">Local preference only (paper contract). Does <b>not</b> change the live paper engine yet. Intended fields: mode · slices · interval_hint.</p>
+                  </div>
+                </div>
               </div>
             </article>
-            <div class="profile-side">
-              <article class="panel instincts-panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Loading behavioral DNA…</p></div></article>
-              <article class="panel traits-panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
-            </div>
           </div>
-          <article class="panel safety-theater-panel" id="safety-theater-panel">
-            <div class="panel-head"><div><span>SPECTATOR CONTROLS</span><h3>PAPER BUDGET RING-FENCE</h3></div><b id="safety-status-badge">ACTIVE</b></div>
-            <div class="safety-body">
-              <div class="budget-ring" aria-label="Paper budget">
-                <div class="budget-ring-meter"><span id="budget-ring-fill"></span></div>
-                <div class="budget-ring-copy">
-                  <strong id="budget-ring-value">$10,000.00</strong>
-                  <small>STARTING PAPER BUDGET</small>
-                  <em id="budget-ring-note">Spectator control · engine remains live in beta</em>
+
+          <div class="profile-subpanel" data-profile-panel="second-brain" id="profile-sub-second-brain" hidden>
+            <article class="panel second-brain-panel" id="second-brain-panel">
+              <div class="panel-head"><div><span>SECOND PASS · LLM</span><h3>SECOND BRAIN · GROK</h3></div><b class="coming-soon-badge" id="second-brain-badge">COMING_SOON</b></div>
+              <div class="second-brain-body term-shell">
+                <div class="term-chrome" aria-hidden="true"><i></i><i></i><i></i><span>wst · second-brain</span></div>
+                <pre class="term-line term-cmd">$ second-brain --layer grok</pre>
+                <pre class="term-line">status: <span class="term-status">COMING_SOON</span></pre>
+                <pre class="term-line" id="second-brain-line">pass_1: DNA · HOLD — pass_2: Grok · pending</pre>
+                <div class="term-prompt-row">
+                  <span class="term-gt" aria-hidden="true">&gt;</span>
+                  <button type="button" class="term-btn" id="second-brain-explain" disabled title="Requires Grok API key">explain</button>
+                  <span class="term-gt" aria-hidden="true">&gt;</span>
+                  <button type="button" class="term-btn" id="second-brain-venue" disabled title="Requires Grok API key">venue</button>
                 </div>
+                <pre class="term-line term-comment"># MOCK UI ONLY · NO xAI CALLS · INFORMATIONAL · PAPER · NOT ADVICE</pre>
+                <p class="second-brain-note">DNA decides first. Grok second pass arrives when API key is connected.</p>
               </div>
-              <div class="spectator-controls">
-                <button type="button" class="ghost-btn" id="spectator-pause-btn">PAUSE</button>
-                <button type="button" class="ghost-btn" id="spectator-resume-btn">RESUME</button>
-                <p class="spectator-note">Local UI only. Pause sets a <b>PAUSED BY YOU</b> badge and can hide this DNA from your followed digest cards. It does not stop the live paper engine.</p>
-                <div class="dca-controls" id="dca-controls">
-                  <div class="dca-head">
-                    <span>DCA MODE</span>
-                    <b class="dca-badge" id="dca-badge">SPECTATOR DCA · ENGINE SUPPORT COMING</b>
-                  </div>
-                  <div class="history-toolbar dca-mode-toolbar" role="group" aria-label="DCA mode">
-                    <button type="button" class="active" data-dca-mode="off">OFF</button>
-                    <button type="button" data-dca-mode="buy">BUY DCA</button>
-                    <button type="button" data-dca-mode="sell">SELL DCA</button>
-                    <button type="button" data-dca-mode="both">BOTH</button>
-                  </div>
-                  <p class="spectator-note">Local preference only (paper contract). Does <b>not</b> change the live paper engine yet. Intended fields: mode · slices · interval_hint.</p>
-                </div>
-              </div>
-            </div>
-          </article>
-          <article class="panel digest-panel" id="digest-panel">
-            <div class="panel-head"><div><span>PORTFOLIO DIGEST</span><h3>PLAIN-ENGLISH BRIEF</h3></div><b>INFORMATIONAL · PAPER · NOT ADVICE</b></div>
-            <div class="digest-body" id="portfolio-digest"><p class="loading">Generating digest…</p></div>
-          </article>
-          <article class="panel second-brain-panel" id="second-brain-panel">
-            <div class="panel-head"><div><span>SECOND PASS · LLM</span><h3>SECOND BRAIN · GROK</h3></div><b class="coming-soon-badge" id="second-brain-badge">COMING SOON</b></div>
-            <div class="second-brain-body">
-              <p class="second-brain-copy">DNA decides first. Grok second pass arrives when API key is connected.</p>
-              <p class="second-brain-line" id="second-brain-line" aria-live="polite">Pass 1 DNA · HOLD — Pass 2 Grok · pending</p>
-              <div class="second-brain-actions">
-                <button type="button" class="ghost-btn" id="second-brain-explain" disabled title="Requires Grok API key">Explain this decision</button>
-                <button type="button" class="ghost-btn" id="second-brain-venue" disabled title="Requires Grok API key">Venue preference</button>
-              </div>
-              <p class="second-brain-note">MOCK UI ONLY · NO xAI CALLS · INFORMATIONAL · PAPER · NOT ADVICE</p>
-            </div>
-          </article>
-          <article class="panel pressure-panel" id="pressure-panel">
-            <div class="panel-head"><div><span>DNA vs BOOK</span><h3>PRESSURE TEST</h3></div><b id="pressure-score-badge">HEURISTIC · PAPER</b></div>
-            <div class="pressure-body" id="pressure-body"><p class="loading">Load a trader to run the pressure test…</p></div>
-          </article>
-          <article class="panel equity-panel" id="equity-panel">
-            <div class="panel-head equity-panel-head">
-              <div><span>PORTFOLIO PERFORMANCE</span><h3>EQUITY CURVE</h3></div>
-              <div class="equity-source-wrap">
-                <b id="equity-source" class="equity-badge estimated-warn">ESTIMATED</b>
-                <small id="equity-last-snap" class="equity-last-snap">—</small>
-              </div>
-            </div>
-            <div class="equity-warn" id="equity-warn" hidden role="status">⚠ ESTIMATED CURVE · LIVE SNAPSHOTS NOT LOADED · INFORMATIONAL · PAPER · NOT ADVICE</div>
-            <div class="equity-hero" aria-live="polite">
-              <div class="equity-span-return" id="span-return"><span id="span-return-amt">—</span> <span class="span-label" id="span-return-label">All time</span></div>
-            </div>
-            <div class="equity-spans" role="tablist" aria-label="Equity time span">
-              <button type="button" role="tab" data-span="1D" aria-pressed="false" tabindex="-1">1D</button>
-              <button type="button" role="tab" data-span="1W" aria-pressed="false" tabindex="-1">1W</button>
-              <button type="button" role="tab" data-span="1M" aria-pressed="false" tabindex="-1">1M</button>
-              <button type="button" role="tab" data-span="3M" aria-pressed="false" tabindex="-1">3M</button>
-              <button type="button" role="tab" data-span="YTD" aria-pressed="false" tabindex="-1">YTD</button>
-              <button type="button" role="tab" data-span="ALL" aria-pressed="true" tabindex="0">ALL</button>
-            </div>
-            <div class="chart-card" aria-label="Portfolio equity chart">
-              <div class="chart-tooltip" id="chart-tip" role="tooltip"><div class="t-val" id="tip-val"></div><div class="t-date" id="tip-date"></div></div>
-              <canvas id="equity-chart" aria-hidden="true"></canvas>
-            </div>
-            <div class="equity-marker-bar">
-              <div class="equity-marker-legend" aria-hidden="true">
-                <span class="mk-buy">▲ BUY</span>
-                <span class="mk-sell">▼ SELL</span>
-                <span class="mk-hold">· HOLD</span>
-              </div>
-              <label class="show-holds-toggle"><input type="checkbox" id="show-holds-toggle"> SHOW HOLDS</label>
-            </div>
-            <p class="equity-note" id="equity-note">ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE</p>
-          </article>
-          <article class="panel positions-panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list positions-list empty">NO OPEN POSITIONS</div></article>
-          <article class="panel replay-panel" id="replay-panel">
-            <div class="panel-head"><div><span>DECISION SEQUENCE</span><h3>REPLAY LOG</h3></div><b id="replay-status">READY</b></div>
-            <p class="replay-summary" id="replay-summary">INFORMATIONAL · PAPER · NOT ADVICE</p>
-            <div id="replay-list" class="replay-list"><p class="loading">Open a trader profile to load replay…</p></div>
-            <div class="history-footer"><span id="replay-count">0 TICKETS</span><button type="button" id="load-more-replay" hidden>LOAD MORE ↓</button></div>
-          </article>
-          <article class="panel eval-ledger-panel" id="eval-ledger-panel">
-            <div class="panel-head"><div><span>CONDITION / EVALUATION</span><h3>EVALUATION LEDGER</h3></div><b>RECENT CHECKS</b></div>
-            <div id="eval-ledger" class="eval-ledger"><p class="loading">Loading evaluations…</p></div>
-          </article>
-          <article class="panel decision-history"><div class="panel-head history-head"><div><span>COMPLETE DECISION LEDGER</span><h3>DECISION HISTORY</h3></div><b id="history-status">LIVE</b></div>
-            <div class="history-toolbar" role="group" aria-label="Filter decision history"><button type="button" class="active" data-action="all">ALL</button><button type="button" data-action="buy">BUY</button><button type="button" data-action="sell">SELL</button><button type="button" data-action="hold">HOLD</button></div>
-            <div id="decisions" class="data-list history-list empty" aria-live="polite">NO DECISIONS YET</div>
-            <div class="history-footer"><span id="history-count">0 DECISIONS LOADED</span><button type="button" id="load-more-decisions" hidden>LOAD MORE ↓</button></div>
-          </article>
+            </article>
+          </div>
+
+          <div class="profile-subpanel" data-profile-panel="digest" id="profile-sub-digest" hidden>
+            <article class="panel digest-panel" id="digest-panel">
+              <div class="panel-head"><div><span>PORTFOLIO DIGEST</span><h3>PLAIN-ENGLISH BRIEF</h3></div><b>INFORMATIONAL · PAPER · NOT ADVICE</b></div>
+              <div class="digest-body" id="portfolio-digest"><p class="loading">Generating digest…</p></div>
+            </article>
+          </div>
         </div>
       </section>
       <section class="page-panel dashboard-panel" id="rankings">
@@ -329,10 +377,39 @@
         </article>
       </section>
       <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>06 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Complete simulated decision history across all 444 traders, loaded in lightweight pages.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div class="history-toolbar activity-toolbar" role="group" aria-label="Filter public activity"><button type="button" class="active" data-activity-action="all">ALL</button><button type="button" data-activity-action="buy">BUY</button><button type="button" data-activity-action="sell">SELL</button><button type="button" data-activity-action="hold">HOLD</button></div><div class="activity-extra-filters"><label>TRADER #<input id="activity-token-filter" type="number" min="1" max="444" placeholder="1–444" inputmode="numeric"></label><label>SYMBOL<input id="activity-symbol-filter" type="text" maxlength="16" placeholder="AAPL" autocomplete="off" spellcheck="false"></label><button type="button" class="ghost-btn" id="activity-apply-filters">APPLY</button><div class="history-toolbar activity-view-toggle" role="group" aria-label="Activity view"><button type="button" data-activity-view="compact">COMPACT</button><button type="button" class="active" data-activity-view="tickets">TICKETS</button></div></div><div id="activity-list" class="activity-list activity-history"><p class="loading">Loading recent decisions…</p></div><div class="history-footer"><span id="activity-count">0 DECISIONS LOADED</span><button type="button" id="load-more-activity" hidden>LOAD MORE ↓</button></div></article><p class="activity-note">PAPER TRADING ONLY · HOLD IS A DECISION, NOT AN EXECUTED TRADE · TIMES SHOWN IN YOUR LOCAL TIME ZONE</p></section>
+      <section class="page-panel dashboard-panel developers-panel" id="developers">
+        <div class="dash-head">
+          <p>08 / DEVELOPER ACCESS</p>
+          <h2>PUBLIC API · MCP.</h2>
+          <small>Read-only endpoints for overview, rankings, activity, scan, expectancy, replay, and MCP tool discovery. Paper trading · no wallet · no write.</small>
+        </div>
+        <article class="panel public-api-panel" id="public-api-panel">
+          <div class="panel-head"><div><span>DEVELOPER ACCESS</span><h3>PUBLIC API · MCP READ-ONLY</h3></div><b>NO WRITE</b></div>
+          <div class="public-api-body">
+            <p class="api-base-label">BASE URL</p>
+            <code class="api-base" id="api-base-url">https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public</code>
+            <div class="api-link-row" id="api-link-row">
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?overview=1" target="_blank" rel="noopener noreferrer">overview=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?rankings=1&amp;sort=gainers&amp;limit=10" target="_blank" rel="noopener noreferrer">rankings=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?activity=1&amp;limit=25" target="_blank" rel="noopener noreferrer">activity=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?scan=1&amp;limit=25" target="_blank" rel="noopener noreferrer">scan=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?mcp_tools=1" target="_blank" rel="noopener noreferrer">mcp_tools=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?token_id=160" target="_blank" rel="noopener noreferrer">token_id=160</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?expectancy=1" target="_blank" rel="noopener noreferrer">expectancy=1</a>
+              <a class="api-chip" href="https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public?replay=1&amp;token_id=160" target="_blank" rel="noopener noreferrer">replay=1 · #160</a>
+            </div>
+            <p class="api-note">Read-only · paper trading · no wallet · no write endpoints · INFORMATIONAL · NOT ADVICE</p>
+            <details class="mcp-tools-details" id="mcp-tools-details">
+              <summary>MCP TOOL NAMES</summary>
+              <ul id="mcp-tools-list"><li class="loading">Loading tool list…</li></ul>
+            </details>
+          </div>
+        </article>
+      </section>
       <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">07 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
     </div>
   </main>
-  <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PUBLIC BETA<br>LIVE ON ROBINHOOD CHAIN<br><span class="footer-api-tag">PUBLIC API · MCP READ-ONLY · PAPER</span></p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="#public-api-panel" data-panel-jump="overview">API / MCP ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026 · INFORMATIONAL · PAPER · NOT ADVICE</small></footer>
+  <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PUBLIC BETA<br>LIVE ON ROBINHOOD CHAIN<br><span class="footer-api-tag">PUBLIC API · MCP READ-ONLY · PAPER</span></p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="#developers" data-panel-jump="developers">API / MCP ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026 · INFORMATIONAL · PAPER · NOT ADVICE</small></footer>
 
   <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
   <aside class="asset-drawer" id="asset-drawer" hidden aria-hidden="true" role="dialog" aria-labelledby="drawer-symbol">
@@ -378,6 +455,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=30"></script>
+  <script src="app.js?v=31"></script>
 </body>
 </html>

@@ -1381,16 +1381,35 @@ async function loadScan(){
   }finally{scanState.loading=false;setScanControls()}
 }
 
-const navButtons=[...document.querySelectorAll(".autonomous-nav button")];
+const navButtons=[...document.querySelectorAll(".autonomous-nav button[data-panel]")];
+function showProfileTab(tab){
+  const id=tab||"overview";
+  document.querySelectorAll(".profile-subpanel").forEach(panel=>{
+    const on=panel.dataset.profilePanel===id;
+    panel.classList.toggle("active-subpanel",on);
+    if(on)panel.removeAttribute("hidden");
+    else panel.setAttribute("hidden","");
+  });
+  document.querySelectorAll("#profile-subnav [data-profile-tab]").forEach(btn=>{
+    btn.setAttribute("aria-selected",String(btn.dataset.profileTab===id));
+  });
+  const subnav=$("profile-subnav");
+  if(subnav)subnav.setAttribute("aria-expanded","true");
+}
 function showPanel(id){
   document.querySelectorAll(".workspace-content>.page-panel").forEach(panel=>panel.classList.toggle("active-panel",panel.id===id));
   navButtons.forEach(button=>button.setAttribute("aria-selected",String(button.dataset.panel===id)));
+  if(id==="profile")showProfileTab("overview");
   if(id==="activity"&&!activityState.items.length)loadActivity({reset:true});
   if(id==="rankings")loadRankings();
   if(id==="scan"&&!scanState.items.length)loadScan();
+  if(id==="developers")loadMcpTools();
   window.scrollTo({top:$("main-content").offsetTop,behavior:"smooth"});
 }
 navButtons.forEach(button=>button.addEventListener("click",()=>showPanel(button.dataset.panel)));
+document.querySelectorAll("#profile-subnav [data-profile-tab]").forEach(btn=>{
+  btn.addEventListener("click",()=>showProfileTab(btn.dataset.profileTab));
+});
 
 $("search-form").addEventListener("submit",async event=>{event.preventDefault();const id=Number($("token-input").value);if(id>=1&&id<=444){if(await loadTrader(id))showPanel("profile")}else $("status").textContent="Enter a token ID between 1 and 444."});
 const initial=new URLSearchParams(location.search).get("trader");
@@ -1540,3 +1559,15 @@ $("profile-retry-btn")?.addEventListener("click",async()=>{
   const id=Number($("profile-retry-btn").dataset.retryId||$("token-input").value||DEFAULT_TRADER_ID);
   if(id>=1&&id<=444){await loadTrader(id,{updateUrl:false,keepVisible:true});showPanel("profile")}
 });
+
+/* v31: sidebar expand a11y + profile tab keyboard */
+(function(){
+  const side=$("autonomous-sidebar");
+  if(!side)return;
+  side.setAttribute("aria-expanded","false");
+  const sync=()=>side.setAttribute("aria-expanded",String(side.matches(":hover,:focus-within")));
+  side.addEventListener("mouseenter",sync);
+  side.addEventListener("mouseleave",sync);
+  side.addEventListener("focusin",sync);
+  side.addEventListener("focusout",()=>setTimeout(sync,0));
+})();
