@@ -1,398 +1,514 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WST · Autonomous Traders MAIN</title>
-  <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — MetaMask opt-in, Arcus TESTNET placeOrder, mainnet tape. Separate from paper beta." />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — MetaMask opt-in, Arcus TESTNET placeOrder. Separate from paper beta.">
+  <title>WST Autonomous Traders — MAIN</title>
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
-  <div class="market-tape" aria-label="Market tape">
-    <div class="tape-track" id="tape-track">
-      <span class="tape-item"><b>BOOT</b><em>loading Arcus mids…</em><i>MAIN</i></span>
-    </div>
+  <div class="market-tape" aria-label="Live stock token prices">
+    <div class="tape-track" id="price-tape"><span class="tape-item"><b>MARKET DATA</b><em>LOADING…</em><i aria-hidden="true">◆</i></span></div>
   </div>
-
   <header class="site-header">
-    <a class="wordmark" href="#overview" data-nav="overview">
-      <span>WST</span>
-      <small>AUTONOMOUS TRADERS · MAIN</small>
-    </a>
+    <a class="wordmark" href="#overview" data-nav="overview"><span>WST</span><small>AUTONOMOUS TRADERS · MAIN</small></a>
     <nav aria-label="Primary">
       <a href="#overview" data-nav="overview">OVERVIEW</a>
-      <a href="#arm" data-nav="arm">ARM DESK</a>
-      <a href="#trade" data-nav="trade">TRADE</a>
-      <a href="#brain" data-nav="brain">SECOND BRAIN</a>
-      <a href="#venue" data-nav="venue">VENUE</a>
-      <a href="#developers" data-nav="developers">DEVELOPERS</a>
+      <a href="#finder" data-nav="finder">FIND</a>
+      <a href="#rankings" data-nav="rankings">RANKINGS</a>
+      <a href="#nfts" data-nav="nfts">MY NFTS</a>
+      <a href="#developers" data-nav="developers">API</a>
     </nav>
-    <button type="button" class="header-cta" id="btn-mm-header">CONNECT</button>
+    <div class="wallet-chip">
+      <button type="button" class="header-cta-btn" id="btn-mm-header">CONNECT WALLET</button>
+    </div>
   </header>
-
-  <div class="badge-bar">
-    <span class="badge"><i></i> MAINNET TEST · OPT-IN · ARCUS TESTNET ORDERS</span>
+  <div class="main-badge-bar" role="status">
+    <span class="badge"><i></i> MAIN · OPT-IN · ARCUS TESTNET ORDERS</span>
     <span class="badge warn">PRICES: ARCUS MIDS · ORDERS: TESTNET</span>
-    <span class="badge muted">Keys in sessionStorage only · never stored in Supabase</span>
+    <span class="badge muted">Paper beta is a separate URL · keys in sessionStorage only</span>
   </div>
-
-  <main id="main-content">
-    <div class="autonomous-workspace">
-      <aside class="autonomous-sidebar">
-        <p>DESK NAV</p>
-        <div class="autonomous-nav" role="tablist">
-          <button type="button" data-panel="overview" aria-selected="true"><span>01</span> Overview</button>
-          <button type="button" data-panel="arm" aria-selected="false"><span>02</span> Arm Desk</button>
-          <button type="button" data-panel="trade" aria-selected="false"><span>03</span> Trade</button>
-          <button type="button" data-panel="brain" aria-selected="false"><span>04</span> Second Brain</button>
-          <button type="button" data-panel="venue" aria-selected="false"><span>05</span> Venue Arcus</button>
-          <button type="button" data-panel="developers" aria-selected="false"><span>06</span> Developers</button>
+  <main id="main-content" class="autonomous-workspace">
+    <aside class="autonomous-sidebar" id="autonomous-sidebar">
+      <p class="sidebar-kicker">AT / MAIN</p>
+      <nav class="autonomous-nav" id="autonomous-nav" aria-label="Autonomous Traders sections">
+        <div class="nav-group" role="group" aria-label="Desk">
+          <span class="nav-group-label">Desk</span>
+          <button type="button" data-panel="overview" aria-selected="true" title="Overview">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" fill="currentColor"/><rect x="14" y="3" width="7" height="7" fill="currentColor" opacity=".55"/><rect x="3" y="14" width="7" height="7" fill="currentColor" opacity=".55"/><rect x="14" y="14" width="7" height="7" fill="currentColor"/></svg>
+            <span class="nav-label">Overview</span>
+          </button>
+          <button type="button" data-panel="finder" aria-selected="false" title="Find Trader">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 15l5 5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Find Trader</span>
+          </button>
+          <button type="button" data-panel="rankings" aria-selected="false" title="Rankings">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V10M10 18V6M16 18v-4M20 18H3" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Rankings</span>
+          </button>
+          <button type="button" data-panel="activity" aria-selected="false" title="Activity">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-6 4 12 2-6h6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Activity</span>
+          </button>
+          <button type="button" data-panel="scan" aria-selected="false" title="Scan">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 12h10M12 8v8" stroke="currentColor" stroke-width="2"/></svg>
+            <span class="nav-label">Scan</span>
+          </button>
+          <button type="button" data-panel="nfts" aria-selected="false" title="My NFTs">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="4" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <span class="nav-label">My NFTs</span>
+          </button>
         </div>
-      </aside>
-
-      <div class="workspace-content">
-        <!-- OVERVIEW -->
-        <section class="page-panel overview-panel active-panel" id="panel-overview" data-panel="overview">
-          <div class="hero-copy">
-            <p class="terminal-line"><span class="signal-dot"></span> MAINNET TEST DESK · ARCUS TESTNET ORDERS</p>
-            <p class="folio">WALL STREET TRADERS · AUTONOMOUS TRADERS</p>
-            <h1>Main desk. <span>Opt-in · testnet orders.</span></h1>
-            <p class="hero-lead">
-              Connect MetaMask, arm a trader (1–444), and place signed orders on Arcus TESTNET via Edge <code>main-order</code>.
-              Price tape uses live Arcus mids. Private API signing keys stay in browser sessionStorage only.
-            </p>
-            <div class="notice"><i></i> MAINNET TEST · OPT-IN · ARCUS TESTNET ORDERS</div>
-            <p class="microcopy">
-              Tape: <code>api.arcus.xyz/v1/mids</code> · Orders: <code>api.testnet.arcus.xyz/v1/placeOrder</code> · Project <code>binqxbofehpigwjrwksl</code>
-            </p>
-          </div>
-          <div class="overview-metrics" id="overview-metrics">
-            <article><span>ASSETS ACTIVE</span><strong id="m-assets">—</strong><small>main_assets</small></article>
-            <article><span>TRADERS</span><strong id="m-traders">—</strong><small>1–444 roster</small></article>
-            <article><span>ARMED</span><strong id="m-armed">—</strong><small>status=armed</small></article>
-            <article><span>ARCUS MIDS</span><strong id="m-mids">—</strong><small id="m-mids-note">probe</small></article>
-          </div>
-          <div class="dashboard-panel" style="border-bottom:0;padding-top:0">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <span>SPECTATOR TAPE</span>
-                  <h3>Known main_assets × Arcus</h3>
-                </div>
-                <b id="tape-captured">—</b>
-              </div>
-              <div style="overflow-x:auto">
-                <table class="tape-table" id="assets-table">
-                  <thead>
-                    <tr><th>SYMBOL</th><th>ARCUS MARKET</th><th>NAME</th><th>MID</th></tr>
-                  </thead>
-                  <tbody id="assets-tbody">
-                    <tr><td colspan="4" class="empty">Loading…</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- ARM DESK -->
-        <section class="page-panel dashboard-panel" id="panel-arm" data-panel="arm">
-          <div class="dash-head">
-            <p>02 · ARM DESK</p>
-            <h2>Opt-in activate</h2>
-            <small>
-              MetaMask fills wallet. POST <code>action=activate</code> to <code>main-public</code> arms the trader and returns an activation id for Trade.
-              Caps enforced on placeOrder. Default env = Arcus TESTNET.
-            </small>
-          </div>
-          <form class="arm-form" id="arm-form" autocomplete="off">
-            <div class="field">
-              <label for="wallet">WALLET</label>
-              <input id="wallet" name="wallet" placeholder="0x… connect MetaMask" />
-            </div>
-            <div class="field">
-              <label for="token_id">TOKEN ID (1–444)</label>
-              <input id="token_id" name="token_id" type="number" min="1" max="444" value="1" />
-            </div>
-            <div class="arm-row">
-              <div class="field">
-                <label for="max_notional">MAX NOTIONAL USD</label>
-                <input id="max_notional" name="max_notional" type="number" min="1" value="1000" />
-              </div>
-              <div class="field">
-                <label for="max_loss">MAX LOSS USD</label>
-                <input id="max_loss" name="max_loss" type="number" min="1" value="200" />
-              </div>
-            </div>
-            <div class="field">
-              <label for="venue">VENUE</label>
-              <select id="venue" name="venue">
-                <option value="arcus" selected>arcus</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>
-                <input type="checkbox" id="spot_only" name="spot_only" checked />
-                SPOT ONLY
-              </label>
-            </div>
-            <div class="arm-actions">
-              <button type="button" class="ghost-btn" id="btn-connect">CONNECT</button>
-              <button type="submit" class="solid-btn" id="btn-arm">ARM TRADER → ACTIVATE</button>
-              <button type="button" class="ghost-btn" id="btn-revoke">REVOKE</button>
-            </div>
-            <small class="arm-note">
-              Activation persists in MAIN Supabase. Signing keys are NOT sent here — paste them only in Trade → sessionStorage.
-            </small>
-            <pre class="local-state" id="arm-state">No activation yet.</pre>
-          </form>
-        </section>
-
-        <!-- TRADE -->
-        <section class="page-panel dashboard-panel" id="panel-trade" data-panel="trade">
-          <div class="dash-head">
-            <p>03 · TRADE</p>
-            <h2>Arcus TESTNET placeOrder</h2>
-            <small>
-              Browser signs with noble/ed25519. Edge <code>main-order</code> proxies to <code>api.testnet.arcus.xyz</code>.
-              Without a signing key, use Simulate.
-            </small>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <span>SESSION · ARCUS API SIGNING KEY</span>
-                <h3>sessionStorage only</h3>
-              </div>
-              <b id="key-status">NO KEY</b>
-            </div>
-            <form class="arm-form" id="key-form" style="margin:18px 22px 22px;box-shadow:none;max-width:none" autocomplete="off">
-              <div class="arm-row">
-                <div class="field">
-                  <label for="arcus_signing_key">API SIGNING KEY (HEX PRIV)</label>
-                  <input id="arcus_signing_key" type="password" placeholder="paste hex once — shown once on Arcus" />
-                </div>
-                <div class="field">
-                  <label for="arcus_account_index">ACCOUNT INDEX</label>
-                  <input id="arcus_account_index" type="number" min="0" value="0" />
-                </div>
-              </div>
-              <div class="arm-actions">
-                <button type="submit" class="solid-btn">SAVE TO SESSION</button>
-                <button type="button" class="ghost-btn" id="btn-clear-key">CLEAR KEY</button>
-              </div>
-              <small class="arm-note">
-                Generate on Arcus testnet API Keys page: connect wallet → Generate → copy Signing Key → Authorize.
-                Docs: https://docs.arcus.xyz/guides/rest-trading.md · Never POST private keys to Edge.
-              </small>
-            </form>
-          </div>
-
-          <form class="arm-form" id="trade-form" autocomplete="off">
-            <div class="field">
-              <label for="activation_id">ACTIVATION ID</label>
-              <input id="activation_id" placeholder="from Arm Desk" />
-            </div>
-            <div class="arm-row">
-              <div class="field">
-                <label for="trade_market">MARKET</label>
-                <select id="trade_market"></select>
-              </div>
-              <div class="field">
-                <label for="trade_side">SIDE</label>
-                <select id="trade_side">
-                  <option value="BUY">BUY</option>
-                  <option value="SELL">SELL</option>
-                </select>
-              </div>
-            </div>
-            <div class="arm-row">
-              <div class="field">
-                <label for="trade_qty">QUANTITY</label>
-                <input id="trade_qty" type="text" value="0.01" />
-              </div>
-              <div class="field">
-                <label for="trade_price">PRICE (LIMIT)</label>
-                <input id="trade_price" type="text" placeholder="prefill mid" />
-              </div>
-            </div>
-            <div class="arm-row">
-              <div class="field">
-                <label for="trade_tif">TIME IN FORCE</label>
-                <select id="trade_tif">
-                  <option value="GTT" selected>GTT</option>
-                  <option value="IOC">IOC</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="trade_token">TOKEN ID</label>
-                <input id="trade_token" type="number" min="1" max="444" value="1" />
-              </div>
-            </div>
-            <div class="arm-actions">
-              <button type="submit" class="solid-btn" id="btn-place">PLACE ORDER (TESTNET)</button>
-              <button type="button" class="ghost-btn" id="btn-simulate">SIMULATE (NO KEY)</button>
-              <button type="button" class="ghost-btn" id="btn-refresh-orders">REFRESH ORDERS</button>
-            </div>
-            <small class="arm-note" id="trade-mkt-meta">Market tick/step loaded from testnet /v1/markets.</small>
-            <pre class="local-state" id="trade-state">Ready.</pre>
-          </form>
-
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <span>RECENT ORDERS</span>
-                <h3>main_orders for wallet</h3>
-              </div>
-            </div>
-            <div style="overflow-x:auto">
-              <table class="tape-table">
-                <thead>
-                  <tr><th>TIME</th><th>MARKET</th><th>SIDE</th><th>QTY</th><th>PRICE</th><th>STATUS</th><th>ENV</th></tr>
-                </thead>
-                <tbody id="orders-tbody">
-                  <tr><td colspan="7" class="empty">Connect + arm to load.</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- SECOND BRAIN -->
-        <section class="page-panel dashboard-panel" id="panel-brain" data-panel="brain">
-          <div class="dash-head">
-            <p>04 · SECOND BRAIN</p>
-            <h2>Policy second pass</h2>
-            <small>
-              Local DNA stub + last mid → simulate intent. Live Grok / xAI labeled <b>COMING_SOON</b> — no API key required for this test path.
-            </small>
-          </div>
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <span>TERMINAL</span>
-                <h3>Second-pass console</h3>
-              </div>
-              <b>COMING_SOON · GROK LIVE</b>
-            </div>
-            <pre class="local-state terminal-log" id="brain-log" style="margin:0;border:0;min-height:220px">$ awaiting policy second pass…
-</pre>
-            <div class="arm-actions" style="padding:18px 22px">
-              <button type="button" class="solid-btn" id="btn-second-pass">RUN POLICY SECOND PASS</button>
-            </div>
-          </div>
-        </section>
-
-        <!-- VENUE -->
-        <section class="page-panel dashboard-panel" id="panel-venue" data-panel="venue">
-          <div class="dash-head">
-            <p>05 · VENUE</p>
-            <h2>Arcus status</h2>
-            <small>Live mid probe through Edge <code>main-prices</code>. Orders via <code>main-order</code> → testnet placeOrder.</small>
-          </div>
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <span>EDGE · MAIN-PRICES</span>
-                <h3>Feed health</h3>
-              </div>
-              <b id="venue-status">—</b>
-            </div>
-            <div class="status-grid">
-              <article>
-                <span>TAPE SOURCE</span>
-                <b id="v-source">arcus</b>
-                <small id="v-tape-src">https://api.arcus.xyz/v1/mids</small>
-              </article>
-              <article>
-                <span>ARCUS OK</span>
-                <b id="v-ok">—</b>
-                <small id="v-captured">captured_at</small>
-              </article>
-              <article>
-                <span>SNAPSHOT UPSERTS</span>
-                <b id="v-upserted">—</b>
-                <small id="v-upsert-err">service role path</small>
-              </article>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <span>POLICY</span>
-                <h3>Trading posture</h3>
-              </div>
-            </div>
-            <div class="status-grid">
-              <article>
-                <span>LIVE TRADING FLAG</span>
-                <b>ON · TESTNET</b>
-                <small>placeOrder → api.testnet.arcus.xyz</small>
-              </article>
-              <article>
-                <span>INTENTS</span>
-                <b>SIM + SUBMIT</b>
-                <small>simulate without key; signed proxy with key</small>
-              </article>
-              <article>
-                <span>PAPER BETA</span>
-                <b>SEPARATE</b>
-                <small>Different URL / Supabase project</small>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <!-- DEVELOPERS -->
-        <section class="page-panel dashboard-panel" id="panel-developers" data-panel="developers">
-          <div class="dash-head">
-            <p>06 · DEVELOPERS</p>
-            <h2>Public API chips</h2>
-            <small>
-              Project <code>binqxbofehpigwjrwksl</code> · Edge verify_jwt: false · Edge-only (no anon key in page).
-            </small>
-          </div>
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <span>ENDPOINTS</span>
-                <h3>Query / POST</h3>
-              </div>
-              <b>GET + POST</b>
-            </div>
-            <div class="api-chips" id="api-chips"></div>
-          </div>
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <span>RAW</span>
-                <h3>Last overview payload</h3>
-              </div>
-              <button type="button" class="ghost-btn" id="btn-refresh">REFRESH</button>
-            </div>
-            <pre class="local-state" id="dev-payload" style="margin:0;border:0">Loading…</pre>
-          </div>
-        </section>
+        <div class="nav-group" role="group" aria-label="Trader">
+          <span class="nav-group-label">Trader</span>
+          <button type="button" data-panel="profile" aria-selected="false" title="Trader Profile">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 20c1.5-4 4-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Trader Profile</span>
+          </button>
+          <button type="button" data-panel="arm" aria-selected="false" title="Arm Desk">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2 6h6l-5 4 2 6-5-3.5L7 19l2-6-5-4h6z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <span class="nav-label">Arm Desk</span>
+          </button>
+          <button type="button" data-panel="trade" aria-selected="false" title="Trade">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Trade</span>
+          </button>
+        </div>
+        <div class="nav-group" role="group" aria-label="Developers">
+          <span class="nav-group-label">Developers</span>
+          <button type="button" data-panel="developers" aria-selected="false" title="Public API / MCP">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13 5l-2 14" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+            <span class="nav-label">Public API / MCP</span>
+          </button>
+          <button type="button" data-panel="venue" aria-selected="false" title="Venue Arcus">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+            <span class="nav-label">Venue Arcus</span>
+          </button>
+        </div>
+        <div class="nav-group" role="group" aria-label="Meta">
+          <span class="nav-group-label">Meta</span>
+          <button type="button" data-panel="notice" aria-selected="false" title="Main Notice">
+            <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="2"/></svg>
+            <span class="nav-label">Main Notice</span>
+          </button>
+        </div>
+      </nav>
+      <div class="sidebar-social" aria-label="Community">
+        <a class="sidebar-social-link" href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer" title="X / Twitter">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.727-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+          <span class="nav-label">X</span>
+        </a>
+        <a class="sidebar-social-link" href="https://discord.gg/WEQTbg2fy9" target="_blank" rel="noopener noreferrer" title="Discord">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+          <span class="nav-label">Discord</span>
+        </a>
+        <span class="sidebar-social-mark nav-label">WST</span>
       </div>
+    </aside>
+    <div class="workspace-content">
+      <!-- OVERVIEW -->
+      <section class="page-panel overview-panel active-panel" id="overview" data-panel="overview">
+        <div class="hero-copy">
+          <p class="terminal-line"><i class="signal-dot"></i> AUTONOMOUS TRADERS / MAIN · OPT-IN</p>
+          <p class="folio">444 TRADING DNAs · ROBINHOOD CHAIN · ARCUS TESTNET ORDERS</p>
+          <h1>MAIN DESK.<br><span>WALLET → NFT → ARM.</span></h1>
+          <p class="hero-lead">Connect MetaMask, load WST NFTs you own on-chain, open a Trader Profile, arm caps on Arcus, and place TESTNET orders via Edge <code>main-order</code>. Paper beta is a separate URL and Supabase project.</p>
+          <div class="notice"><i></i> MAIN · OPT-IN · ARCUS TESTNET ORDERS</div>
+          <p class="microcopy">PRICES: api.arcus.xyz/v1/mids · ORDERS: api.testnet.arcus.xyz · PROJECT binqxbofehpigwjrwksl</p>
+          <div class="overview-dev-chip-row" style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+            <button type="button" class="api-chip overview-dev-chip" data-nav="nfts">MY NFTS →</button>
+            <button type="button" class="api-chip overview-dev-chip" data-nav="finder">FIND TRADER →</button>
+            <button type="button" class="api-chip overview-dev-chip" data-nav="developers">DEVELOPERS · API →</button>
+          </div>
+        </div>
+        <div class="overview-metrics">
+          <article><span>ASSETS ACTIVE</span><strong id="m-assets">—</strong><small>main_assets</small></article>
+          <article><span>TRADERS / ARMED</span><strong id="m-traders">—</strong><small id="m-armed-note">roster 1–444</small></article>
+          <article><span>ARCUS MIDS</span><strong id="m-mids">—</strong><small id="m-mids-note">probe</small></article>
+        </div>
+        <article class="panel" style="grid-column:1/-1;border-top:1px solid var(--line)">
+          <div class="panel-head"><div><span>SPECTATOR TAPE</span><h3>MAIN ASSETS × ARCUS</h3></div><b id="tape-captured">—</b></div>
+          <div style="overflow-x:auto">
+            <table class="tape-table"><thead><tr><th>SYMBOL</th><th>ARCUS MARKET</th><th>NAME</th><th>MID</th></tr></thead>
+            <tbody id="assets-tbody"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody></table>
+          </div>
+        </article>
+      </section>
+
+      <!-- FINDER -->
+      <section class="page-panel dashboard-panel" id="finder" data-panel="finder">
+        <div class="dash-head"><p>03 / TRADER TERMINAL</p><h2>FIND YOUR TRADER.</h2><small>Open any Main trader profile by token ID 1–444. Ownership not required to view DNA (Arm still needs your wallet).</small></div>
+        <form class="finder-form" id="search-form"><label for="token-input">NFT TOKEN ID</label><div><input id="token-input" type="number" min="1" max="444" inputmode="numeric" placeholder="1 — 444" required><button type="submit">OPEN PROFILE →</button></div><small>Main desk · activations &amp; orders stay on Main Edge.</small></form>
+        <p class="search-status" id="status" role="status">Enter a token ID to open its Main trader profile.</p>
+      </section>
+
+<!-- RANKINGS (beta IA · Main data) -->
+      <section class="page-panel dashboard-panel" id="rankings" data-panel="rankings">
+        <div class="dash-head profile-dash-head">
+          <div>
+            <p>04 / MAIN DESK</p>
+            <h2>TOP TRADERS.</h2>
+            <small>Armed / activated traders on Main. Paper beta rankings live on the separate beta URL.</small>
+          </div>
+        </div>
+        <article class="panel leaderboard-panel"><div class="panel-head"><div><span>MAIN ROSTER</span><h3 id="rankings-title">ARMED &amp; ACTIVE</h3></div><b id="rankings-metric-label">MAIN · OPT-IN</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading Main traders…</p></div></article>
+      </section>
+
+      <!-- ACTIVITY -->
+      <section class="page-panel dashboard-panel" id="activity" data-panel="activity">
+        <div class="dash-head"><p>06 / MAIN ORDER FEED</p><h2>ACTIVITY.</h2><small>Recent Main intents / orders for the connected wallet (testnet + simulate). Paper decision feed stays on beta.</small></div>
+        <article class="panel">
+          <div class="panel-head"><div><span>ORDER LEDGER</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status">READY</b></div>
+          <div style="overflow-x:auto"><table class="tape-table"><thead><tr><th>TIME</th><th>TOKEN</th><th>MARKET</th><th>SIDE</th><th>QTY</th><th>PRICE</th><th>STATUS</th><th>ENV</th></tr></thead>
+          <tbody id="activity-tbody"><tr><td colspan="8" class="empty">Connect wallet to load Main orders.</td></tr></tbody></table></div>
+        </article>
+      </section>
+
+      <!-- SCAN -->
+      <section class="page-panel dashboard-panel" id="scan" data-panel="scan">
+        <div class="dash-head">
+          <p>05 / STRUCTURED FILTER</p>
+          <h2>SCAN OF 444.</h2>
+          <small>Filter Main roster by status. Full paper scan lives on beta — this desk filters Main traders / activations.</small>
+        </div>
+        <div class="scan-toolbar" id="scan-toolbar">
+          <div class="scan-row">
+            <label>STATUS
+              <select id="scan-status">
+                <option value="">ANY</option>
+                <option value="armed">ARMED</option>
+                <option value="dormant">DORMANT</option>
+              </select>
+            </label>
+            <label>TOKEN ID
+              <input id="scan-token" type="number" min="1" max="444" placeholder="1–444">
+            </label>
+          </div>
+          <div class="scan-actions">
+            <button type="button" class="solid-btn" id="scan-run-btn">RUN SCAN →</button>
+            <b id="scan-status-label" role="status">READY</b>
+          </div>
+        </div>
+        <article class="panel leaderboard-panel">
+          <div class="panel-head"><div><span>MATCHED TRADERS</span><h3 id="scan-title">SCAN RESULTS</h3></div><b id="scan-count">0</b></div>
+          <div id="scan-results" class="leaderboard-list"><p class="loading">Set filters and run scan.</p></div>
+        </article>
+      </section>
+
+      <!-- MY NFTS -->
+      <section class="page-panel dashboard-panel" id="nfts" data-panel="nfts">
+        <div class="dash-head">
+          <p>02 / WALLET OWNERSHIP</p>
+          <h2>MY NFTS.</h2>
+          <small>On-chain ownership via WST collection contract on Robinhood Chain. Click a token to open Trader Profile (DNA + Arm / Trade).</small>
+        </div>
+        <div class="arm-actions" style="margin-bottom:18px">
+          <button type="button" class="solid-btn" id="btn-connect-nfts">CONNECT / REFRESH OWNERSHIP</button>
+          <b id="nfts-status" role="status" style="color:#8e938c;font:700 10px var(--mono);letter-spacing:.1em">WALLET NOT CONNECTED</b>
+        </div>
+        <div class="nft-grid" id="nft-grid"><p class="loading">Connect MetaMask to list WST tokens you own.</p></div>
+        <p class="arm-note" id="nft-contract-note">Contract: loading…</p>
+      </section>
+
+      
+      <!-- PROFILE -->
+      <section class="page-panel dashboard-panel" id="profile" data-panel="profile">
+        <div class="profile-error" id="profile-error" hidden role="alert">
+          <strong id="profile-error-text">Profile failed to load.</strong>
+          <button type="button" class="solid-btn" id="profile-retry-btn">RETRY →</button>
+        </div>
+        <div class="dash-head profile-dash-head">
+          <div>
+            <p>04 / AUTONOMOUS IDENTITY · MAIN</p>
+            <h2>TRADER PROFILE.</h2>
+            <small>DNA from Main when present; otherwise traits/DNA from beta public API (read-only display). Activations &amp; orders always on Main.</small>
+          </div>
+          <div class="profile-head-actions">
+            <button type="button" class="ghost-btn" id="btn-arm-from-profile">ARM THIS NFT →</button>
+            <button type="button" class="ghost-btn" id="btn-trade-from-profile">TRADE →</button>
+          </div>
+        </div>
+        <nav class="profile-subnav" id="profile-subnav" aria-label="Trader profile sections">
+          <button type="button" data-profile-tab="overview" aria-selected="true">Overview</button>
+          <button type="button" data-profile-tab="watchlist" aria-selected="false">Watchlist</button>
+          <button type="button" data-profile-tab="decisions" aria-selected="false">Decisions</button>
+          <button type="button" data-profile-tab="risk" aria-selected="false">Risk</button>
+          <button type="button" data-profile-tab="second-brain" aria-selected="false">Second Brain</button>
+          <button type="button" data-profile-tab="digest" aria-selected="false">Digest</button>
+        </nav>
+        <div class="profile-layout">
+          <div class="profile-subpanel active-subpanel" data-profile-panel="overview" id="profile-sub-overview">
+            <!-- v28/v31 order: watchlist → KPIs → NFT → ring-fence + digest → equity -->
+            <article class="panel watchlist-panel" id="watchlist-inline">
+              <div class="panel-head"><div><span>LOCAL BROWSER LIST</span><h3>WATCHLIST</h3></div><b id="watchlist-count">0</b></div>
+              <div class="watchlist-strip" id="watchlist-strip"><p class="watchlist-empty">No symbols watched yet. Add from tape or positions when available.</p></div>
+            </article>
+            <div class="portfolio-grid">
+              <article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">MAIN · NO PAPER BOOK</small></article>
+              <article><span>STATUS</span><b id="trader-status-kpi">—</b><small>main_traders</small></article>
+              <article><span>ACTIVATION</span><b id="activation-kpi">—</b><small id="activation-kpi-note">opt-in</small></article>
+              <article><span>ORDERS</span><b id="orders-kpi">—</b><small>testnet / simulate</small></article>
+            </div>
+            <div class="profile-top">
+              <article class="identity panel profile-identity">
+                <div class="image-wrap">
+                  <img id="trader-image" src="https://commitprotocol.org/wall-street-traders/trading-floor/traders/1.png" alt="Wall Street Trader">
+                  <div class="identity-badges">
+                    <span class="season-badge" id="identity-season">MAIN · OPT-IN</span>
+                    <span id="rarity-badge">—</span>
+                  </div>
+                </div>
+                <div class="identity-copy">
+                  <p id="public-file">PUBLIC FILE / WST-—</p>
+                  <h2 id="trader-name">TRADER #—</h2>
+                  <dl class="identity-data">
+                    <div><dt>ARCHETYPE</dt><dd id="archetype">—</dd></div>
+                    <div><dt>RARITY SCORE</dt><dd id="rarity-score">—</dd></div>
+                    <div><dt>DNA SOURCE</dt><dd id="dna-version">—</dd></div>
+                    <div><dt>STATUS</dt><dd class="positive" id="agent-status">—</dd></div>
+                    <div><dt>WALLET</dt><dd id="profile-wallet">—</dd></div>
+                    <div><dt>OWNED</dt><dd id="profile-owned">—</dd></div>
+                  </dl>
+                  <div class="profile-main-actions">
+                    <button type="button" class="solid-btn" id="btn-arm-inline">ARM DESK →</button>
+                    <button type="button" class="ghost-btn" id="btn-trade-inline">TRADE →</button>
+                  </div>
+                </div>
+              </article>
+              <div class="profile-side">
+                <article class="panel instincts-panel"><div class="panel-head"><div><span>BEHAVIORAL MODEL / DNA</span><h3>TRADER INSTINCTS</h3></div><b id="dna-archetype"></b></div><div class="dna-bars" id="dna-bars"><p class="loading">Select an NFT…</p></div></article>
+                <article class="panel traits-panel"><div class="panel-head"><div><span>ORIGINAL COLLECTION DATA</span><h3>NFT TRAITS</h3></div><b>ONCHAIN DNA</b></div><div class="traits" id="traits"></div></article>
+              </div>
+            </div>
+            <article class="panel safety-theater-panel" id="safety-theater-panel">
+              <div class="panel-head"><div><span>MAIN CAPS RING-FENCE</span><h3>ARM BUDGET</h3></div><b id="safety-status-badge">OPT-IN</b></div>
+              <div class="safety-body">
+                <div class="budget-ring" aria-label="Arm caps">
+                  <div class="budget-ring-meter"><span id="budget-ring-fill"></span></div>
+                  <div class="budget-ring-copy">
+                    <strong id="budget-ring-value">Caps not set</strong>
+                    <small>MAX NOTIONAL / MAX LOSS · FROM ACTIVATION</small>
+                    <em id="budget-ring-note">Arm Desk writes caps to main_activations · never stores signing keys</em>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="panel digest-panel" id="digest-inline">
+              <div class="panel-head"><div><span>PORTFOLIO DIGEST</span><h3>PLAIN-ENGLISH BRIEF</h3></div><b>INFORMATIONAL · MAIN · NOT ADVICE</b></div>
+              <div class="digest-body" id="portfolio-digest"><p class="loading">Open a trader to generate digest…</p></div>
+            </article>
+            <article class="panel equity-panel" id="equity-panel" hidden>
+              <div class="panel-head"><div><span>PORTFOLIO PERFORMANCE</span><h3>EQUITY CURVE</h3></div><b id="equity-source">NO MAIN EQUITY YET</b></div>
+              <p class="equity-note" id="equity-note">Main desk does not run paper equity yet. Shown when data exists.</p>
+            </article>
+          </div>
+
+          <div class="profile-subpanel" data-profile-panel="watchlist" id="profile-sub-watchlist" hidden>
+            <article class="panel"><div class="panel-head"><div><span>LOCAL</span><h3>WATCHLIST</h3></div><b>BROWSER</b></div>
+              <div class="watchlist-strip" id="watchlist-strip-tab"><p class="watchlist-empty">Same local list as Overview.</p></div>
+            </article>
+          </div>
+          <div class="profile-subpanel" data-profile-panel="decisions" id="profile-sub-decisions" hidden>
+            <article class="panel"><div class="panel-head"><div><span>MAIN ORDERS</span><h3>RECENT INTENTS / ORDERS</h3></div><b>TESTNET</b></div>
+              <div style="overflow-x:auto"><table class="tape-table"><thead><tr><th>TIME</th><th>MARKET</th><th>SIDE</th><th>QTY</th><th>PRICE</th><th>STATUS</th><th>ENV</th></tr></thead>
+              <tbody id="profile-orders-tbody"><tr><td colspan="7" class="empty">No orders for this wallet yet.</td></tr></tbody></table></div>
+            </article>
+          </div>
+          <div class="profile-subpanel" data-profile-panel="risk" id="profile-sub-risk" hidden>
+            <article class="panel"><div class="panel-head"><div><span>CAPS</span><h3>RISK / RING-FENCE</h3></div><b>MAIN</b></div>
+              <pre class="local-state" id="risk-caps-state">Arm a trader to persist caps.</pre>
+            </article>
+          </div>
+          <div class="profile-subpanel" data-profile-panel="second-brain" id="profile-sub-second-brain" hidden>
+            <article class="panel second-brain-panel">
+              <div class="panel-head"><div><span>SECOND PASS · LLM</span><h3>SECOND BRAIN · GROK</h3></div><b class="coming-soon-badge">COMING_SOON · LIVE GROK</b></div>
+              <div class="second-brain-body term-shell">
+                <div class="term-chrome" aria-hidden="true"><i></i><i></i><i></i><span>wst · main · second-brain</span></div>
+                <pre class="term-line term-cmd">$ second-brain --layer grok --env main</pre>
+                <pre class="term-line">status: <span class="term-status">COMING_SOON</span> · local policy simulate available</pre>
+                <pre class="term-line" id="second-brain-line">pass_1: DNA · pending — pass_2: Grok · pending</pre>
+                <div class="term-prompt-row">
+                  <span class="term-gt">&gt;</span>
+                  <button type="button" class="term-btn live" id="btn-second-pass-profile">run policy second pass</button>
+                </div>
+                <pre class="term-line term-comment"># LOCAL SIMULATE VIA main-order · NO xAI KEY REQUIRED FOR THIS PATH</pre>
+                <p class="second-brain-note">DNA decides first. Live Grok second pass arrives when API key is connected.</p>
+              </div>
+            </article>
+          </div>
+          <div class="profile-subpanel" data-profile-panel="digest" id="profile-sub-digest" hidden>
+            <article class="panel"><div class="panel-head"><div><span>DIGEST</span><h3>PLAIN-ENGLISH BRIEF</h3></div><b>MAIN</b></div>
+              <div class="digest-body" id="portfolio-digest-tab"><p class="loading">Same brief as Overview.</p></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ARM -->
+      <section class="page-panel dashboard-panel" id="arm" data-panel="arm">
+        <div class="dash-head">
+          <p>05 · ARM DESK</p>
+          <h2>Opt-in activate.</h2>
+          <small>POST action=activate to main-public. Caps enforced on placeOrder. Default env = Arcus TESTNET. Signing keys stay in browser sessionStorage.</small>
+        </div>
+        <form class="arm-form" id="arm-form" autocomplete="off">
+          <div class="field"><label for="wallet">WALLET</label><input id="wallet" name="wallet" placeholder="0x… connect MetaMask" /></div>
+          <div class="field"><label for="token_id">TOKEN ID (1–444)</label><input id="token_id" name="token_id" type="number" min="1" max="444" value="1" /></div>
+          <div class="arm-row">
+            <div class="field"><label for="max_notional">MAX NOTIONAL USD</label><input id="max_notional" type="number" min="1" value="1000" /></div>
+            <div class="field"><label for="max_loss">MAX LOSS USD</label><input id="max_loss" type="number" min="1" value="200" /></div>
+          </div>
+          <div class="field"><label for="venue">VENUE</label><select id="venue"><option value="arcus" selected>arcus</option></select></div>
+          <div class="field"><label><input type="checkbox" id="spot_only" checked /> SPOT ONLY</label></div>
+          <div class="arm-actions">
+            <button type="button" class="ghost-btn" id="btn-connect">CONNECT</button>
+            <button type="submit" class="solid-btn" id="btn-arm">ARM TRADER → ACTIVATE</button>
+            <button type="button" class="ghost-btn" id="btn-revoke">REVOKE</button>
+          </div>
+          <small class="arm-note">Activation persists in MAIN Supabase (binqxbofehpigwjrwksl). Private signing keys are NOT sent here.</small>
+          <pre class="local-state" id="arm-state">No activation yet.</pre>
+        </form>
+      </section>
+
+      <!-- TRADE -->
+      <section class="page-panel dashboard-panel" id="trade" data-panel="trade">
+        <div class="dash-head">
+          <p>06 · TRADE</p>
+          <h2>Arcus TESTNET placeOrder.</h2>
+          <small>Browser signs with noble/ed25519. Edge main-order proxies to api.testnet.arcus.xyz. Without a signing key, use Simulate.</small>
+        </div>
+        <div class="panel" style="margin-bottom:18px">
+          <div class="panel-head"><div><span>SESSION · ARCUS API SIGNING KEY</span><h3>sessionStorage only</h3></div><b id="key-status">NO KEY</b></div>
+          <form class="arm-form" id="key-form" style="margin:18px 22px 22px;box-shadow:none;max-width:none" autocomplete="off">
+            <div class="arm-row">
+              <div class="field"><label for="arcus_signing_key">API SIGNING KEY (HEX PRIV)</label><input id="arcus_signing_key" type="password" placeholder="paste hex once — shown once on Arcus" /></div>
+              <div class="field"><label for="arcus_account_index">ACCOUNT INDEX</label><input id="arcus_account_index" type="number" min="0" value="0" /></div>
+            </div>
+            <div class="arm-actions">
+              <button type="submit" class="solid-btn">SAVE TO SESSION</button>
+              <button type="button" class="ghost-btn" id="btn-clear-key">CLEAR KEY</button>
+            </div>
+            <small class="arm-note">Generate on Arcus testnet API Keys page. Never POST private keys to Edge.</small>
+          </form>
+        </div>
+        <form class="arm-form" id="trade-form" autocomplete="off">
+          <div class="field"><label for="activation_id">ACTIVATION ID</label><input id="activation_id" placeholder="from Arm Desk" /></div>
+          <div class="arm-row">
+            <div class="field"><label for="trade_market">MARKET</label><select id="trade_market"></select></div>
+            <div class="field"><label for="trade_side">SIDE</label><select id="trade_side"><option value="BUY">BUY</option><option value="SELL">SELL</option></select></div>
+          </div>
+          <div class="arm-row">
+            <div class="field"><label for="trade_qty">QUANTITY</label><input id="trade_qty" type="text" value="0.01" /></div>
+            <div class="field"><label for="trade_price">PRICE (LIMIT)</label><input id="trade_price" type="text" placeholder="prefill mid" /></div>
+          </div>
+          <div class="arm-row">
+            <div class="field"><label for="trade_tif">TIME IN FORCE</label><select id="trade_tif"><option value="GTT" selected>GTT</option><option value="IOC">IOC</option></select></div>
+            <div class="field"><label for="trade_token">TOKEN ID</label><input id="trade_token" type="number" min="1" max="444" value="1" /></div>
+          </div>
+          <div class="arm-actions">
+            <button type="submit" class="solid-btn" id="btn-place">PLACE ORDER (TESTNET)</button>
+            <button type="button" class="ghost-btn" id="btn-simulate">SIMULATE (NO KEY)</button>
+            <button type="button" class="ghost-btn" id="btn-refresh-orders">REFRESH ORDERS</button>
+          </div>
+          <small class="arm-note" id="trade-mkt-meta">Market tick/step loaded from testnet /v1/markets.</small>
+          <pre class="local-state" id="trade-state">Ready.</pre>
+        </form>
+        <div class="panel" style="margin-top:18px">
+          <div class="panel-head"><div><span>RECENT ORDERS</span><h3>main_orders for wallet</h3></div></div>
+          <div style="overflow-x:auto"><table class="tape-table"><thead><tr><th>TIME</th><th>MARKET</th><th>SIDE</th><th>QTY</th><th>PRICE</th><th>STATUS</th><th>ENV</th></tr></thead>
+          <tbody id="orders-tbody"><tr><td colspan="7" class="empty">Connect + arm to load.</td></tr></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- BRAIN -->
+      <section class="page-panel dashboard-panel" id="brain" data-panel="brain">
+        <div class="dash-head"><p>07 · SECOND BRAIN</p><h2>Policy second pass.</h2><small>Terminal mock + local simulate via main-order. Live Grok labeled COMING_SOON.</small></div>
+        <article class="panel second-brain-panel">
+          <div class="panel-head"><div><span>TERMINAL</span><h3>Second-pass console</h3></div><b class="coming-soon-badge">COMING_SOON · GROK LIVE</b></div>
+          <div class="second-brain-body term-shell">
+            <div class="term-chrome" aria-hidden="true"><i></i><i></i><i></i><span>wst · main · second-brain</span></div>
+            <pre class="term-line term-cmd" id="brain-log">$ awaiting policy second pass…
+</pre>
+            <div class="term-prompt-row">
+              <span class="term-gt">&gt;</span>
+              <button type="button" class="term-btn live" id="btn-second-pass">run policy second pass</button>
+            </div>
+            <pre class="term-line term-comment"># MOCK UI + LOCAL SIMULATE · NO xAI CALLS REQUIRED</pre>
+          </div>
+        </article>
+      </section>
+
+      <!-- VENUE -->
+      <section class="page-panel dashboard-panel" id="venue" data-panel="venue">
+        <div class="dash-head"><p>08 · VENUE</p><h2>Arcus status.</h2><small>Live mid probe through Edge main-prices. Orders via main-order → testnet placeOrder.</small></div>
+        <div class="panel">
+          <div class="panel-head"><div><span>EDGE · MAIN-PRICES</span><h3>Feed health</h3></div><b id="venue-status">—</b></div>
+          <div class="status-grid">
+            <article><span>TAPE SOURCE</span><b id="v-source">arcus</b><small id="v-tape-src">https://api.arcus.xyz/v1/mids</small></article>
+            <article><span>ARCUS OK</span><b id="v-ok">—</b><small id="v-captured">captured_at</small></article>
+            <article><span>SNAPSHOT UPSERTS</span><b id="v-upserted">—</b><small id="v-upsert-err">service role path</small></article>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:18px">
+          <div class="panel-head"><div><span>POLICY</span><h3>Trading posture</h3></div></div>
+          <div class="status-grid">
+            <article><span>LIVE TRADING FLAG</span><b>ON · TESTNET</b><small>placeOrder → api.testnet.arcus.xyz</small></article>
+            <article><span>INTENTS</span><b>SIM + SUBMIT</b><small>simulate without key; signed proxy with key</small></article>
+            <article><span>PAPER BETA</span><b>SEPARATE URL</b><small>Different Supabase project</small></article>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEVELOPERS -->
+      <section class="page-panel dashboard-panel developers-panel" id="developers" data-panel="developers">
+        <div class="dash-head">
+          <p>09 / DEVELOPER ACCESS</p>
+          <h2>MAIN PUBLIC API.</h2>
+          <small>Project binqxbofehpigwjrwksl · Edge verify_jwt: false · Edge-only (no anon key in page). Paper beta API is separate.</small>
+        </div>
+        <article class="panel public-api-panel">
+          <div class="panel-head"><div><span>DEVELOPER ACCESS</span><h3>MAIN-PUBLIC · MAIN-PRICES · MAIN-ORDER</h3></div><b>GET + POST</b></div>
+          <div class="public-api-body" style="padding:18px 22px">
+            <p class="api-base-label" style="color:#777b75;font-size:10px;letter-spacing:.12em">BASE</p>
+            <code class="api-base" id="api-base-url" style="display:block;margin:8px 0 16px;word-break:break-all">https://binqxbofehpigwjrwksl.supabase.co/functions/v1/main-public</code>
+            <div class="api-chips" id="api-chips" style="padding:0"></div>
+            <p class="api-note" style="margin-top:16px;color:#8e938c;font-size:10px">Activations &amp; orders write to Main only. Beta DNA fetch is browser read-only for display.</p>
+          </div>
+        </article>
+        <div class="panel" style="margin-top:18px">
+          <div class="panel-head"><div><span>RAW</span><h3>Last overview payload</h3></div><button type="button" class="ghost-btn" id="btn-refresh">REFRESH</button></div>
+          <pre class="local-state" id="dev-payload" style="margin:0;border:0">Loading…</pre>
+        </div>
+      </section>
+
+      <!-- NOTICE -->
+      <section class="page-panel beta-panel" id="notice" data-panel="notice">
+        <div><p class="index">10 / MAIN NOTICE</p><h2>MAIN IS OPT-IN.<br>PAPER BETA IS SEPARATE.</h2></div>
+        <div>
+          <p>This Main desk arms real Arcus TESTNET order flow for holders who opt in. It is not the paper beta swarm.</p>
+          <ul>
+            <li>MAIN · OPT-IN · ARCUS TESTNET ORDERS</li>
+            <li>Prices from Arcus mainnet mids; orders default to Arcus testnet</li>
+            <li>Private signing keys stay in sessionStorage — never stored in Supabase</li>
+            <li>Paper beta lives on a separate URL / Supabase project</li>
+            <li>Not financial advice · testnet risk remains</li>
+          </ul>
+        </div>
+      </section>
     </div>
   </main>
-
   <footer class="site-footer">
-    <p>
-      Wall Street Traders · Autonomous Traders MAIN.<br />
-      MAINNET TEST · OPT-IN · ARCUS TESTNET ORDERS. Paper beta is separate.<br />
-      Prices: Arcus mids · Orders: testnet. Cache bust <code>?v=2</code>.
-    </p>
+    <div class="footer-mark">WST<span>/MAIN</span></div>
+    <p>AUTONOMOUS TRADERS · MAIN<br>MAIN · OPT-IN · ARCUS TESTNET ORDERS<br><span class="footer-api-tag">Paper beta is a separate URL</span></p>
     <div class="footer-links">
-      <a href="#developers" data-nav="developers">API</a>
-      <a href="https://api.arcus.xyz/v1/mids" target="_blank" rel="noopener">Arcus mids</a>
-      <a href="https://api.testnet.arcus.xyz/v1/markets" target="_blank" rel="noopener">Testnet markets</a>
-      <a href="https://docs.arcus.xyz/guides/rest-trading.md" target="_blank" rel="noopener">REST trading</a>
-      <a href="https://binqxbofehpigwjrwksl.supabase.co/functions/v1/main-public?overview=1" target="_blank" rel="noopener">main-public</a>
+      <a href="#developers" data-nav="developers">API ↗</a>
+      <a href="https://api.arcus.xyz/v1/mids" target="_blank" rel="noopener">Arcus mids ↗</a>
+      <a href="https://docs.arcus.xyz/guides/rest-trading.md" target="_blank" rel="noopener">REST trading ↗</a>
+      <a href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noopener">OpenSea ↗</a>
     </div>
+    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=3 · INFORMATIONAL · NOT ADVICE</small>
   </footer>
-
-  <script type="module" src="app.js?v=2"></script>
+  <script type="module" src="app.js?v=3"></script>
 </body>
 </html>
