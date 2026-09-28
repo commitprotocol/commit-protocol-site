@@ -4,8 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — MetaMask opt-in, Arcus TESTNET placeOrder. Separate from paper beta.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://binqxbofehpigwjrwksl.supabase.co https://kgtksjxfcwnmyeqddpug.supabase.co https://api.arcus.xyz https://api.testnet.arcus.xyz https://rpc.mainnet.chain.robinhood.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
   <title>WST Autonomous Traders — MAIN</title>
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -383,6 +384,7 @@
             <button type="button" class="ghost-btn" data-trade-mode="pilot" aria-pressed="false">PILOT (TESTNET LIVE)</button>
             <b id="trade-mode-badge" style="font-size:11px;letter-spacing:.08em">OBSERVE · SIMULATE ONLY</b>
           </div>
+          <p id="pilot-xss-warn" class="pilot-xss-warn" hidden role="alert">⚠ PILOT: signing key is in page memory (sessionStorage). XSS that bypasses CSP can steal it. Prefer Observe/Simulate. Clear key when done.</p>
         </div>
         <div class="panel" style="margin-bottom:18px">
           <div class="panel-head"><div><span>SESSION · ARCUS API SIGNING KEY</span><h3>sessionStorage only</h3></div><b id="key-status">NO KEY</b></div>
@@ -415,6 +417,10 @@
           <div class="arm-row">
             <div class="field"><label for="trade_token">TOKEN ID</label><input id="trade_token" type="number" min="1" max="444" value="1" /></div>
             <div class="field"><label for="cancel_order_id">CANCEL LOCAL ORDER ID</label><input id="cancel_order_id" placeholder="uuid from orders table" /></div>
+          </div>
+          <div class="arm-row">
+            <div class="field"><label for="cancel_arcus_order_id">CANCEL ARCUS ORDER ID</label><input id="cancel_arcus_order_id" placeholder="server orderId for signed cancel" /></div>
+            <div class="field"><label for="cancel_market">CANCEL MARKET</label><input id="cancel_market" placeholder="AAPL-USD (for marketId)" /></div>
           </div>
           <div class="arm-actions">
             <button type="submit" class="solid-btn" id="btn-place" disabled>PLACE ORDER (TESTNET)</button>
@@ -488,12 +494,13 @@
           </div>
         </article>
         <article class="panel" style="margin-top:18px" id="threat-model">
-          <div class="panel-head"><div><span>SECURITY</span><h3>Threat model (harden v4)</h3></div><b>MAIN ONLY</b></div>
+          <div class="panel-head"><div><span>SECURITY</span><h3>Threat model (harden v5)</h3></div><b>MAIN ONLY</b></div>
           <div style="padding:18px 22px;font-size:13px;line-height:1.55;color:#c4c8c2">
-            <p><b>Trust boundaries.</b> Browser holds Arcus ed25519 signing keys in <code>sessionStorage</code> only — Edge rejects any private-key fields. Wallet ownership is proven via one-time <code>personal_sign</code> challenges (<code>main_auth_nonces</code>) for activate/revoke. Every placeOrder re-checks NFT <code>ownerOf</code> on Robinhood Chain and auto-revokes if transferred.</p>
-            <p><b>Caps.</b> Hard <code>max_notional_usd</code> with drip spent tracking (open/submitted/filled/simulated). Soft <code>max_loss_usd</code> until mark PnL is wired. Env forced to Arcus TESTNET unless <code>caps.allow_mainnet===true</code>.</p>
-            <p><b>Orders.</b> Short GTT (15–60 min, default 30). Idempotency keys required. Cancel without Arcus signature logs a local cancel; live Arcus cancel needs signed headers. Actor labeled <code>holder</code> vs <code>agent</code>.</p>
-            <p><b>Residual risks.</b> XSS can still steal sessionStorage keys. CORS defaults to <code>*</code> unless <code>CORS_ORIGIN_ALLOWLIST</code> is set. Soft max-loss is advisory. Unsigned cancel does not hit Arcus cancelOrder.</p>
+            <p><b>Trust boundaries.</b> Browser holds Arcus ed25519 signing keys in <code>sessionStorage</code> only — Edge rejects any private-key fields. Wallet ownership is proven via one-time <code>personal_sign</code> challenges (<code>main_auth_nonces</code>) for activate/revoke. Every placeOrder/cancel re-checks NFT <code>ownerOf</code> on Robinhood Chain and auto-revokes if transferred. Noble ed25519 is vendored locally (CSP blocks random CDNs).</p>
+            <p><b>Caps.</b> Hard <code>max_notional_usd</code> with drip spent tracking. Hard <code>max_loss_usd</code> via Arcus mainnet mids mark check (realized + unrealized + open adverse). Env forced to Arcus TESTNET unless <code>caps.allow_mainnet===true</code>.</p>
+            <p><b>Orders.</b> Short GTT (15–60 min, default 30). Idempotency keys required. Cancel requires signed op=2 payload + headers; Edge proxies to testnet <code>cancelOrder</code>. Actor labeled <code>holder</code> vs <code>agent</code>.</p>
+            <p><b>CORS.</b> Default allowlist (commitprotocol.org + localhost). Override via Edge secret <code>CORS_ORIGIN_ALLOWLIST</code> in Supabase Dashboard → Project Settings → Edge Functions → Secrets (comma-separated Origins). Never reflects <code>*</code>.</p>
+            <p><b>Residual risks (after this pass).</b> XSS that bypasses CSP can still read the signing key while Pilot/session is open (key lives in page memory / sessionStorage). Mark PnL is a rough estimate (not full exchange position reconciliation). Mainnet placeOrder still possible if an activation has <code>allow_mainnet</code>. file:// Origin <code>null</code> is optionally allowlisted.</p>
           </div>
         </article>
         <div class="panel" style="margin-top:18px">
@@ -527,8 +534,18 @@
       <a href="https://docs.arcus.xyz/guides/rest-trading.md" target="_blank" rel="noopener">REST trading ↗</a>
       <a href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noopener">OpenSea ↗</a>
     </div>
-    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=4 · INFORMATIONAL · NOT ADVICE</small>
+    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=5 · INFORMATIONAL · NOT ADVICE</small>
   </footer>
-  <script type="module" src="app.js?v=4"></script>
+  <div id="pilot-confirm-modal" class="pilot-modal" hidden>
+    <div class="pilot-modal-card" role="dialog" aria-modal="true" aria-labelledby="pilot-confirm-title">
+      <h3 id="pilot-confirm-title">Enable Pilot (TESTNET LIVE)?</h3>
+      <p class="pilot-modal-warn">You are about to enable live Arcus TESTNET orders. Your API signing key stays in this page’s memory (sessionStorage). A successful XSS that bypasses CSP can steal it. Prefer Observe/Simulate unless you need live cancels/places.</p>
+      <div class="pilot-modal-actions">
+        <button type="button" class="ghost-btn" id="pilot-confirm-cancel">Stay in Observe</button>
+        <button type="button" class="solid-btn" id="pilot-confirm-ok">I understand — enable Pilot</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="app.js?v=5"></script>
 </body>
 </html>

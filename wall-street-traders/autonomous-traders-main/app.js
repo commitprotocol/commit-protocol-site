@@ -1,4 +1,4 @@
-import * as ed from "https://esm.sh/@noble/ed25519@2.1.0";
+import * as ed from "./vendor/ed25519.js";
 
 /* ── Configurable WST NFT contract (Robinhood Chain) ── */
 const CONTRACT_ADDRESS = "0x7a5f95f898cf968cac3f9d6231f03f36c3da5b0d";
@@ -24,6 +24,7 @@ const LS_ACT = "wst_main_activation_v2";
 const WATCH_KEY = "wst_main_watchlist_v1";
 
 const OP_PLACE = 1;
+const OP_CANCEL = 2;
 const SIDE = { BUY: 0, SELL: 1 };
 const TIF = { GTT: 0, FOK: 1, IOC: 2, ALO: 3 };
 
@@ -102,6 +103,70 @@ function bytesToHex(b) {
     .map((x) => x.toString(16).padStart(2, "0"))
     .join("");
 }
+
+/* UI rate-limit (client-side; Edge also rate-limits) */
+const uiRate = { place: 0, cancel: 0, pilotSwitch: 0 };
+function uiRateOk(kind, minMs = 2500) {
+  const now = Date.now();
+  if (now - (uiRate[kind] || 0) < minMs) return false;
+  uiRate[kind] = now;
+  return true;
+}
+
+async function signCancelOrder({ wallet, accountIndex, marketMeta, orderId, privHex }) {
+  const addr = wallet.toLowerCase();
+  const timestamp = BigInt(Date.now()) * 1000000n;
+  // Canonical cancel payload (op=2): ad,ai,ct,id,m,op,v — key-sorted, no whitespace
+  const payload =
+    `{"ad":"${addr}","ai":${accountIndex},"ct":${timestamp},` +
+    `"id":"${orderId}","m":${marketMeta.marketId},"op":${OP_CANCEL},"v":1}`;
+  const priv = hexToBytes(privHex);
+  const sig = await ed.signAsync(new TextEncoder().encode(payload), priv);
+  const pub = await ed.getPublicKeyAsync(priv);
+  const apiKey = bytesToHex(pub);
+  const arcus_body = {
+    address: wallet,
+    accountIndex,
+    marketId: marketMeta.marketId,
+    kind: "orderId",
+    orderId,
+    timestamp: Number(timestamp),
+  };
+  return {
+    arcus_body,
+    headers: {
+      "X-API-Key": apiKey,
+      "X-Timestamp": String(timestamp),
+      "X-Signature": bytesToHex(sig),
+    },
+    payload,
+  };
+}
+
+function confirmPilotModal() {
+  return new Promise((resolve) => {
+    const modal = $("pilot-confirm-modal");
+    if (!modal) {
+      resolve(window.confirm("Enable Pilot (TESTNET LIVE)? Signing key stays in page memory."));
+      return;
+    }
+    modal.hidden = false;
+    const ok = $("pilot-confirm-ok");
+    const cancel = $("pilot-confirm-cancel");
+    const done = (v) => {
+      modal.hidden = true;
+      ok?.removeEventListener("click", onOk);
+      cancel?.removeEventListener("click", onCancel);
+      resolve(v);
+    };
+    const onOk = () => done(true);
+    const onCancel = () => done(false);
+    ok?.addEventListener("click", onOk);
+    cancel?.addEventListener("click", onCancel);
+  });
+}
+
+
 function toInt(value, unit) {
   const n = Number(value) / Number(unit);
   const r = Math.round(n);
@@ -1042,10 +1107,6 @@ async function signPlaceOrder({
     `"r":0,"s":${SIDE[orderSide]},"t":${TIF[timeInForce]},"v":1}`;
 
   const priv = hexToBytes(privHex);
-  if (!ed.etc?.sha512Sync) {
-    const { sha512 } = await import("https://esm.sh/@noble/hashes@1.4.0/sha512");
-    ed.etc.sha512Sync = (...msgs) => sha512(ed.etc.concatBytes(...msgs));
-  }
   const sig = await ed.signAsync(new TextEncoder().encode(payload), priv);
   const pub = await ed.getPublicKeyAsync(priv);
   const apiKey = bytesToHex(pub);
@@ -1090,6 +1151,10 @@ $("trade-form")?.addEventListener("submit", async (e) => {
     $("trade-state").textContent = "Mode is Observe/Simulate — switch to Pilot to place live TESTNET orders.";
     return;
   }
+  if (!uiRateOk("place", 3000)) {
+    $("trade-state").textContent = "Slow down — UI rate limit (3s between place attempts).";
+    return;
+  }
   if (!wallet || !activation_id) {
     $("trade-state").textContent = "Connect MetaMask and Arm Desk first.";
     return;
@@ -1097,6 +1162,13 @@ $("trade-form")?.addEventListener("submit", async (e) => {
   if (!priv) {
     $("trade-state").textContent =
       "No signing key in session. Paste API Signing Key above, or click SIMULATE.";
+    return;
+  }
+  const placeConfirm = window.confirm(
+    "PLACE live TESTNET order? Key is in page memory. XSS that bypasses CSP can steal it.",
+  );
+  if (!placeConfirm) {
+    $("trade-state").textContent = "Place canceled by user.";
     return;
   }
   let marketMeta = findMarket(market);
@@ -1405,34 +1477,112 @@ function syncTradeModeUI() {
   if (badge) badge.textContent = mode === "pilot" ? "PILOT · TESTNET LIVE" : "OBSERVE · SIMULATE ONLY";
   const place = $("btn-place");
   if (place) place.disabled = mode !== "pilot";
+  const warn = $("pilot-xss-warn");
+  if (warn) warn.hidden = mode !== "pilot";
+  const cancelBtn = $("btn-cancel-order");
+  if (cancelBtn) cancelBtn.disabled = mode !== "pilot";
 }
 document.querySelectorAll("[data-trade-mode]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    state.tradeMode = btn.getAttribute("data-trade-mode") || "observe";
+  btn.addEventListener("click", async () => {
+    const next = btn.getAttribute("data-trade-mode") || "observe";
+    if (next === "pilot" && state.tradeMode !== "pilot") {
+      if (!uiRateOk("pilotSwitch", 1500)) return;
+      const ok = await confirmPilotModal();
+      if (!ok) return;
+    }
+    state.tradeMode = next;
     localStorage.setItem("wst_main_trade_mode", state.tradeMode);
     syncTradeModeUI();
   });
 });
+
 syncTradeModeUI();
+
 
 $("btn-cancel-order")?.addEventListener("click", async () => {
   const activation_id = ($("activation_id")?.value || state.activation?.id || "").trim();
   const wallet = ($("wallet")?.value || state.wallet || "").trim();
   const local_order_id = ($("cancel_order_id")?.value || "").trim();
-  if (!activation_id || !wallet || !local_order_id) {
-    $("trade-state").textContent = "Need activation, wallet, and local order id to cancel.";
+  let arcus_order_id = ($("cancel_arcus_order_id")?.value || "").trim();
+  let market = ($("cancel_market")?.value || $("trade_market")?.value || "").trim();
+  const priv = sessionStorage.getItem(SS_KEY);
+  const accountIndex = Number(sessionStorage.getItem(SS_AI) || 0) || 0;
+
+  if ((state.tradeMode || "observe") !== "pilot") {
+    $("trade-state").textContent = "Cancel requires Pilot mode (signed Arcus cancel).";
     return;
   }
+  if (!uiRateOk("cancel", 2500)) {
+    $("trade-state").textContent = "Slow down — UI rate limit (2.5s between cancels).";
+    return;
+  }
+  if (!activation_id || !wallet) {
+    $("trade-state").textContent = "Need activation + wallet to cancel.";
+    return;
+  }
+  if (!priv) {
+    $("trade-state").textContent = "Signed cancel needs API signing key in session.";
+    return;
+  }
+  if (!arcus_order_id && !local_order_id) {
+    $("trade-state").textContent = "Provide Arcus orderId and/or local order uuid.";
+    return;
+  }
+
   try {
-    $("trade-state").textContent = "Canceling (local log; signed Arcus cancel optional)…";
+    // If only local id, fetch orders to resolve arcus id + market
+    if ((!arcus_order_id || !market) && local_order_id) {
+      const resL = await fetch(`${EP.order}?wallet=${encodeURIComponent(wallet)}`, {
+        headers: { Accept: "application/json" },
+      });
+      const dataL = await resL.json();
+      const row = (dataL.orders || []).find((o) => o.id === local_order_id);
+      if (row) {
+        if (!arcus_order_id) arcus_order_id = String(row.arcus_order_id || "");
+        if (!market) market = String(row.market || "");
+      }
+    }
+    if (!arcus_order_id) {
+      $("trade-state").textContent = "Missing Arcus orderId — cannot sign cancel (op=2).";
+      return;
+    }
+    let marketMeta = findMarket(market);
+    if (!marketMeta) {
+      await loadTestnetMarkets();
+      marketMeta = findMarket(market);
+    }
+    if (!marketMeta) {
+      $("trade-state").textContent = `Market ${market || "?"} not found — needed for cancel marketId.`;
+      return;
+    }
+
+    $("trade-state").textContent = "Signing cancel (op=2) + proxying to testnet cancelOrder…";
+    const signed = await signCancelOrder({
+      wallet,
+      accountIndex,
+      marketMeta,
+      orderId: arcus_order_id,
+      privHex: priv,
+    });
     const res = await fetch(EP.order, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ action: "cancel", activation_id, wallet, local_order_id }),
+      body: JSON.stringify({
+        action: "cancel",
+        activation_id,
+        wallet,
+        local_order_id: local_order_id || undefined,
+        orderId: arcus_order_id,
+        market,
+        arcus_body: signed.arcus_body,
+        headers: signed.headers,
+        env: "testnet",
+      }),
     });
     const data = await res.json();
     $("trade-state").textContent = JSON.stringify(data, null, 2);
     loadOrders().catch(() => {});
+    loadActivity().catch(() => {});
   } catch (err) {
     $("trade-state").textContent = String(err?.message || err);
   }
