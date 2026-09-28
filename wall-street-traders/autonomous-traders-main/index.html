@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WST · Autonomous Traders MAIN</title>
+  <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — mainnet test, opt-in, not live trading. Arcus venue. Separate from paper beta." />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <div class="market-tape" aria-label="Market tape">
+    <div class="tape-track" id="tape-track">
+      <span class="tape-item"><b>BOOT</b><em>loading Arcus mids…</em><i>MAIN</i></span>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <a class="wordmark" href="#overview" data-nav="overview">
+      <span>WST</span>
+      <small>AUTONOMOUS TRADERS · MAIN</small>
+    </a>
+    <nav aria-label="Primary">
+      <a href="#overview" data-nav="overview">OVERVIEW</a>
+      <a href="#arm" data-nav="arm">ARM DESK</a>
+      <a href="#venue" data-nav="venue">VENUE</a>
+      <a href="#developers" data-nav="developers">DEVELOPERS</a>
+    </nav>
+    <a class="header-cta" href="#arm" data-nav="arm">OPT-IN →</a>
+  </header>
+
+  <div class="badge-bar">
+    <span class="badge"><i></i> MAINNET TEST · OPT-IN · NOT LIVE TRADING</span>
+    <span class="badge warn">NO PLACEORDER · SIMULATED INTENTS ONLY</span>
+    <span class="badge muted">Paper beta is a separate URL / project — this is MAIN scaffold.</span>
+  </div>
+
+  <main id="main-content">
+    <div class="autonomous-workspace">
+      <aside class="autonomous-sidebar">
+        <p>DESK NAV</p>
+        <div class="autonomous-nav" role="tablist">
+          <button type="button" data-panel="overview" aria-selected="true"><span>01</span> Overview</button>
+          <button type="button" data-panel="arm" aria-selected="false"><span>02</span> Arm Desk</button>
+          <button type="button" data-panel="venue" aria-selected="false"><span>03</span> Venue Arcus</button>
+          <button type="button" data-panel="developers" aria-selected="false"><span>04</span> Developers</button>
+        </div>
+      </aside>
+
+      <div class="workspace-content">
+        <!-- OVERVIEW -->
+        <section class="page-panel overview-panel active-panel" id="panel-overview" data-panel="overview">
+          <div class="hero-copy">
+            <p class="terminal-line"><span class="signal-dot"></span> MAINNET TEST DESK · ARCUS FEED</p>
+            <p class="folio">WALL STREET TRADERS · AUTONOMOUS TRADERS</p>
+            <h1>Main desk. <span>Opt-in only.</span></h1>
+            <p class="hero-lead">
+              Autonomous Traders MAIN is the production-path scaffold for Arcus venue testing.
+              Caps, wallet stub, and public read APIs are wired; live order placement is intentionally off.
+              Paper beta remains a separate surface — do not confuse the two.
+            </p>
+            <div class="notice"><i></i> MAINNET TEST · OPT-IN · NOT LIVE TRADING</div>
+            <p class="microcopy">
+              Price source: Arcus <code>/v1/mids</code> via Edge <code>main-prices</code>.
+              Writes to activations/intents stay service-role only until opt-in flows are signed off.
+            </p>
+          </div>
+          <div class="overview-metrics" id="overview-metrics">
+            <article><span>ASSETS ACTIVE</span><strong id="m-assets">—</strong><small>main_assets</small></article>
+            <article><span>TRADERS</span><strong id="m-traders">—</strong><small>1–444 roster</small></article>
+            <article><span>ARMED</span><strong id="m-armed">—</strong><small>status=armed</small></article>
+            <article><span>ARCUS MIDS</span><strong id="m-mids">—</strong><small id="m-mids-note">probe</small></article>
+          </div>
+          <div class="dashboard-panel" style="border-bottom:0;padding-top:0">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <span>SPECTATOR TAPE</span>
+                  <h3>Known main_assets × Arcus</h3>
+                </div>
+                <b id="tape-captured">—</b>
+              </div>
+              <div style="overflow-x:auto">
+                <table class="tape-table" id="assets-table">
+                  <thead>
+                    <tr><th>SYMBOL</th><th>ARCUS MARKET</th><th>NAME</th><th>MID</th></tr>
+                  </thead>
+                  <tbody id="assets-tbody">
+                    <tr><td colspan="4" class="empty">Loading…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ARM DESK -->
+        <section class="page-panel dashboard-panel" id="panel-arm" data-panel="arm">
+          <div class="dash-head">
+            <p>02 · ARM DESK</p>
+            <h2>Opt-in stub</h2>
+            <small>
+              Wallet connect and caps are UI/local state only. No POST to activations yet —
+              edge service role will own writes later. Caps default: max notional $1,000 · max loss $200 · spot only.
+            </small>
+          </div>
+          <form class="arm-form" id="arm-form" autocomplete="off">
+            <div class="field">
+              <label for="wallet">WALLET (STUB)</label>
+              <input id="wallet" name="wallet" placeholder="0x… or connect later" />
+            </div>
+            <div class="field">
+              <label for="token_id">TOKEN ID (1–444)</label>
+              <input id="token_id" name="token_id" type="number" min="1" max="444" value="1" />
+            </div>
+            <div class="arm-row">
+              <div class="field">
+                <label for="max_notional">MAX NOTIONAL USD</label>
+                <input id="max_notional" name="max_notional" type="number" min="1" value="1000" />
+              </div>
+              <div class="field">
+                <label for="max_loss">MAX LOSS USD</label>
+                <input id="max_loss" name="max_loss" type="number" min="1" value="200" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="venue">VENUE</label>
+              <select id="venue" name="venue">
+                <option value="arcus" selected>arcus</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>
+                <input type="checkbox" id="spot_only" name="spot_only" checked />
+                SPOT ONLY
+              </label>
+            </div>
+            <div class="arm-actions">
+              <button type="button" class="ghost-btn" id="btn-connect">CONNECT WALLET (STUB)</button>
+              <button type="submit" class="solid-btn" id="btn-arm">SAVE LOCAL OPT-IN DRAFT</button>
+            </div>
+            <small class="arm-note">
+              This does not submit an activation and does not place orders.
+              Draft stays in browser localStorage for this MAIN scaffold.
+            </small>
+            <pre class="local-state" id="arm-state">No local draft yet.</pre>
+          </form>
+        </section>
+
+        <!-- VENUE -->
+        <section class="page-panel dashboard-panel" id="panel-venue" data-panel="venue">
+          <div class="dash-head">
+            <p>03 · VENUE</p>
+            <h2>Arcus status</h2>
+            <small>Live mid probe through Edge <code>main-prices</code>. Upserts into <code>main_price_snapshots</code> when service role is present.</small>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <span>EDGE · MAIN-PRICES</span>
+                <h3>Feed health</h3>
+              </div>
+              <b id="venue-status">—</b>
+            </div>
+            <div class="status-grid">
+              <article>
+                <span>SOURCE</span>
+                <b id="v-source">arcus</b>
+                <small>https://api.arcus.xyz/v1/mids</small>
+              </article>
+              <article>
+                <span>ARCUS OK</span>
+                <b id="v-ok">—</b>
+                <small id="v-captured">captured_at</small>
+              </article>
+              <article>
+                <span>SNAPSHOT UPSERTS</span>
+                <b id="v-upserted">—</b>
+                <small id="v-upsert-err">service role path</small>
+              </article>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <span>POLICY</span>
+                <h3>Trading posture</h3>
+              </div>
+            </div>
+            <div class="status-grid">
+              <article>
+                <span>LIVE TRADING</span>
+                <b>OFF</b>
+                <small>No placeOrder in MAIN scaffold</small>
+              </article>
+              <article>
+                <span>INTENTS</span>
+                <b>SIMULATED</b>
+                <small>main_intents.status default simulated</small>
+              </article>
+              <article>
+                <span>PAPER BETA</span>
+                <b>SEPARATE</b>
+                <small>Different URL / Supabase project</small>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- DEVELOPERS -->
+        <section class="page-panel dashboard-panel" id="panel-developers" data-panel="developers">
+          <div class="dash-head">
+            <p>04 · DEVELOPERS</p>
+            <h2>Public API chips</h2>
+            <small>
+              Project <code>binqxbofehpigwjrwksl</code> · Edge <code>main-public</code> (verify_jwt: false).
+              GET only. No write surface for anon.
+            </small>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <span>MAIN-PUBLIC</span>
+                <h3>Query params</h3>
+              </div>
+              <b>GET</b>
+            </div>
+            <div class="api-chips" id="api-chips">
+              <!-- filled by app.js -->
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <span>RAW</span>
+                <h3>Last overview payload</h3>
+              </div>
+              <button type="button" class="ghost-btn" id="btn-refresh">REFRESH</button>
+            </div>
+            <pre class="local-state" id="dev-payload" style="margin:0;border:0">Loading…</pre>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Wall Street Traders · Autonomous Traders MAIN scaffold.<br />
+      MAINNET TEST · OPT-IN · NOT LIVE TRADING. Paper beta is separate.<br />
+      Price source: Arcus. Cache bust <code>?v=1</code>.
+    </p>
+    <div class="footer-links">
+      <a href="#developers" data-nav="developers">API</a>
+      <a href="https://api.arcus.xyz/v1/mids" target="_blank" rel="noopener">Arcus mids</a>
+      <a href="https://binqxbofehpigwjrwksl.supabase.co/functions/v1/main-public?overview=1" target="_blank" rel="noopener">main-public</a>
+    </div>
+  </footer>
+
+  <script src="app.js?v=1"></script>
+</body>
+</html>
