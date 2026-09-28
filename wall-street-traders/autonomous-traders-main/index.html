@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>WST · Autonomous Traders MAIN</title>
-  <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — mainnet test, opt-in, not live trading. Arcus venue. Separate from paper beta." />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — MetaMask opt-in, Arcus TESTNET placeOrder, mainnet tape. Separate from paper beta." />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
   <div class="market-tape" aria-label="Market tape">
@@ -22,16 +22,18 @@
     <nav aria-label="Primary">
       <a href="#overview" data-nav="overview">OVERVIEW</a>
       <a href="#arm" data-nav="arm">ARM DESK</a>
+      <a href="#trade" data-nav="trade">TRADE</a>
+      <a href="#brain" data-nav="brain">SECOND BRAIN</a>
       <a href="#venue" data-nav="venue">VENUE</a>
       <a href="#developers" data-nav="developers">DEVELOPERS</a>
     </nav>
-    <a class="header-cta" href="#arm" data-nav="arm">OPT-IN →</a>
+    <button type="button" class="header-cta" id="btn-mm-header">CONNECT</button>
   </header>
 
   <div class="badge-bar">
-    <span class="badge"><i></i> MAINNET TEST · OPT-IN · NOT LIVE TRADING</span>
-    <span class="badge warn">NO PLACEORDER · SIMULATED INTENTS ONLY</span>
-    <span class="badge muted">Paper beta is a separate URL / project — this is MAIN scaffold.</span>
+    <span class="badge"><i></i> MAINNET TEST · OPT-IN · ARCUS TESTNET ORDERS</span>
+    <span class="badge warn">PRICES: ARCUS MIDS · ORDERS: TESTNET</span>
+    <span class="badge muted">Keys in sessionStorage only · never stored in Supabase</span>
   </div>
 
   <main id="main-content">
@@ -41,8 +43,10 @@
         <div class="autonomous-nav" role="tablist">
           <button type="button" data-panel="overview" aria-selected="true"><span>01</span> Overview</button>
           <button type="button" data-panel="arm" aria-selected="false"><span>02</span> Arm Desk</button>
-          <button type="button" data-panel="venue" aria-selected="false"><span>03</span> Venue Arcus</button>
-          <button type="button" data-panel="developers" aria-selected="false"><span>04</span> Developers</button>
+          <button type="button" data-panel="trade" aria-selected="false"><span>03</span> Trade</button>
+          <button type="button" data-panel="brain" aria-selected="false"><span>04</span> Second Brain</button>
+          <button type="button" data-panel="venue" aria-selected="false"><span>05</span> Venue Arcus</button>
+          <button type="button" data-panel="developers" aria-selected="false"><span>06</span> Developers</button>
         </div>
       </aside>
 
@@ -50,18 +54,16 @@
         <!-- OVERVIEW -->
         <section class="page-panel overview-panel active-panel" id="panel-overview" data-panel="overview">
           <div class="hero-copy">
-            <p class="terminal-line"><span class="signal-dot"></span> MAINNET TEST DESK · ARCUS FEED</p>
+            <p class="terminal-line"><span class="signal-dot"></span> MAINNET TEST DESK · ARCUS TESTNET ORDERS</p>
             <p class="folio">WALL STREET TRADERS · AUTONOMOUS TRADERS</p>
-            <h1>Main desk. <span>Opt-in only.</span></h1>
+            <h1>Main desk. <span>Opt-in · testnet orders.</span></h1>
             <p class="hero-lead">
-              Autonomous Traders MAIN is the production-path scaffold for Arcus venue testing.
-              Caps, wallet stub, and public read APIs are wired; live order placement is intentionally off.
-              Paper beta remains a separate surface — do not confuse the two.
+              Connect MetaMask, arm a trader (1–444), and place signed orders on Arcus TESTNET via Edge <code>main-order</code>.
+              Price tape uses live Arcus mids. Private API signing keys stay in browser sessionStorage only.
             </p>
-            <div class="notice"><i></i> MAINNET TEST · OPT-IN · NOT LIVE TRADING</div>
+            <div class="notice"><i></i> MAINNET TEST · OPT-IN · ARCUS TESTNET ORDERS</div>
             <p class="microcopy">
-              Price source: Arcus <code>/v1/mids</code> via Edge <code>main-prices</code>.
-              Writes to activations/intents stay service-role only until opt-in flows are signed off.
+              Tape: <code>api.arcus.xyz/v1/mids</code> · Orders: <code>api.testnet.arcus.xyz/v1/placeOrder</code> · Project <code>binqxbofehpigwjrwksl</code>
             </p>
           </div>
           <div class="overview-metrics" id="overview-metrics">
@@ -97,16 +99,16 @@
         <section class="page-panel dashboard-panel" id="panel-arm" data-panel="arm">
           <div class="dash-head">
             <p>02 · ARM DESK</p>
-            <h2>Opt-in stub</h2>
+            <h2>Opt-in activate</h2>
             <small>
-              Wallet connect and caps are UI/local state only. No POST to activations yet —
-              edge service role will own writes later. Caps default: max notional $1,000 · max loss $200 · spot only.
+              MetaMask fills wallet. POST <code>action=activate</code> to <code>main-public</code> arms the trader and returns an activation id for Trade.
+              Caps enforced on placeOrder. Default env = Arcus TESTNET.
             </small>
           </div>
           <form class="arm-form" id="arm-form" autocomplete="off">
             <div class="field">
-              <label for="wallet">WALLET (STUB)</label>
-              <input id="wallet" name="wallet" placeholder="0x… or connect later" />
+              <label for="wallet">WALLET</label>
+              <input id="wallet" name="wallet" placeholder="0x… connect MetaMask" />
             </div>
             <div class="field">
               <label for="token_id">TOKEN ID (1–444)</label>
@@ -135,23 +137,159 @@
               </label>
             </div>
             <div class="arm-actions">
-              <button type="button" class="ghost-btn" id="btn-connect">CONNECT WALLET (STUB)</button>
-              <button type="submit" class="solid-btn" id="btn-arm">SAVE LOCAL OPT-IN DRAFT</button>
+              <button type="button" class="ghost-btn" id="btn-connect">CONNECT</button>
+              <button type="submit" class="solid-btn" id="btn-arm">ARM TRADER → ACTIVATE</button>
+              <button type="button" class="ghost-btn" id="btn-revoke">REVOKE</button>
             </div>
             <small class="arm-note">
-              This does not submit an activation and does not place orders.
-              Draft stays in browser localStorage for this MAIN scaffold.
+              Activation persists in MAIN Supabase. Signing keys are NOT sent here — paste them only in Trade → sessionStorage.
             </small>
-            <pre class="local-state" id="arm-state">No local draft yet.</pre>
+            <pre class="local-state" id="arm-state">No activation yet.</pre>
           </form>
+        </section>
+
+        <!-- TRADE -->
+        <section class="page-panel dashboard-panel" id="panel-trade" data-panel="trade">
+          <div class="dash-head">
+            <p>03 · TRADE</p>
+            <h2>Arcus TESTNET placeOrder</h2>
+            <small>
+              Browser signs with noble/ed25519. Edge <code>main-order</code> proxies to <code>api.testnet.arcus.xyz</code>.
+              Without a signing key, use Simulate.
+            </small>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <span>SESSION · ARCUS API SIGNING KEY</span>
+                <h3>sessionStorage only</h3>
+              </div>
+              <b id="key-status">NO KEY</b>
+            </div>
+            <form class="arm-form" id="key-form" style="margin:18px 22px 22px;box-shadow:none;max-width:none" autocomplete="off">
+              <div class="arm-row">
+                <div class="field">
+                  <label for="arcus_signing_key">API SIGNING KEY (HEX PRIV)</label>
+                  <input id="arcus_signing_key" type="password" placeholder="paste hex once — shown once on Arcus" />
+                </div>
+                <div class="field">
+                  <label for="arcus_account_index">ACCOUNT INDEX</label>
+                  <input id="arcus_account_index" type="number" min="0" value="0" />
+                </div>
+              </div>
+              <div class="arm-actions">
+                <button type="submit" class="solid-btn">SAVE TO SESSION</button>
+                <button type="button" class="ghost-btn" id="btn-clear-key">CLEAR KEY</button>
+              </div>
+              <small class="arm-note">
+                Generate on Arcus testnet API Keys page: connect wallet → Generate → copy Signing Key → Authorize.
+                Docs: https://docs.arcus.xyz/guides/rest-trading.md · Never POST private keys to Edge.
+              </small>
+            </form>
+          </div>
+
+          <form class="arm-form" id="trade-form" autocomplete="off">
+            <div class="field">
+              <label for="activation_id">ACTIVATION ID</label>
+              <input id="activation_id" placeholder="from Arm Desk" />
+            </div>
+            <div class="arm-row">
+              <div class="field">
+                <label for="trade_market">MARKET</label>
+                <select id="trade_market"></select>
+              </div>
+              <div class="field">
+                <label for="trade_side">SIDE</label>
+                <select id="trade_side">
+                  <option value="BUY">BUY</option>
+                  <option value="SELL">SELL</option>
+                </select>
+              </div>
+            </div>
+            <div class="arm-row">
+              <div class="field">
+                <label for="trade_qty">QUANTITY</label>
+                <input id="trade_qty" type="text" value="0.01" />
+              </div>
+              <div class="field">
+                <label for="trade_price">PRICE (LIMIT)</label>
+                <input id="trade_price" type="text" placeholder="prefill mid" />
+              </div>
+            </div>
+            <div class="arm-row">
+              <div class="field">
+                <label for="trade_tif">TIME IN FORCE</label>
+                <select id="trade_tif">
+                  <option value="GTT" selected>GTT</option>
+                  <option value="IOC">IOC</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="trade_token">TOKEN ID</label>
+                <input id="trade_token" type="number" min="1" max="444" value="1" />
+              </div>
+            </div>
+            <div class="arm-actions">
+              <button type="submit" class="solid-btn" id="btn-place">PLACE ORDER (TESTNET)</button>
+              <button type="button" class="ghost-btn" id="btn-simulate">SIMULATE (NO KEY)</button>
+              <button type="button" class="ghost-btn" id="btn-refresh-orders">REFRESH ORDERS</button>
+            </div>
+            <small class="arm-note" id="trade-mkt-meta">Market tick/step loaded from testnet /v1/markets.</small>
+            <pre class="local-state" id="trade-state">Ready.</pre>
+          </form>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <span>RECENT ORDERS</span>
+                <h3>main_orders for wallet</h3>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="tape-table">
+                <thead>
+                  <tr><th>TIME</th><th>MARKET</th><th>SIDE</th><th>QTY</th><th>PRICE</th><th>STATUS</th><th>ENV</th></tr>
+                </thead>
+                <tbody id="orders-tbody">
+                  <tr><td colspan="7" class="empty">Connect + arm to load.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECOND BRAIN -->
+        <section class="page-panel dashboard-panel" id="panel-brain" data-panel="brain">
+          <div class="dash-head">
+            <p>04 · SECOND BRAIN</p>
+            <h2>Policy second pass</h2>
+            <small>
+              Local DNA stub + last mid → simulate intent. Live Grok / xAI labeled <b>COMING_SOON</b> — no API key required for this test path.
+            </small>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <span>TERMINAL</span>
+                <h3>Second-pass console</h3>
+              </div>
+              <b>COMING_SOON · GROK LIVE</b>
+            </div>
+            <pre class="local-state terminal-log" id="brain-log" style="margin:0;border:0;min-height:220px">$ awaiting policy second pass…
+</pre>
+            <div class="arm-actions" style="padding:18px 22px">
+              <button type="button" class="solid-btn" id="btn-second-pass">RUN POLICY SECOND PASS</button>
+            </div>
+          </div>
         </section>
 
         <!-- VENUE -->
         <section class="page-panel dashboard-panel" id="panel-venue" data-panel="venue">
           <div class="dash-head">
-            <p>03 · VENUE</p>
+            <p>05 · VENUE</p>
             <h2>Arcus status</h2>
-            <small>Live mid probe through Edge <code>main-prices</code>. Upserts into <code>main_price_snapshots</code> when service role is present.</small>
+            <small>Live mid probe through Edge <code>main-prices</code>. Orders via <code>main-order</code> → testnet placeOrder.</small>
           </div>
           <div class="panel">
             <div class="panel-head">
@@ -163,9 +301,9 @@
             </div>
             <div class="status-grid">
               <article>
-                <span>SOURCE</span>
+                <span>TAPE SOURCE</span>
                 <b id="v-source">arcus</b>
-                <small>https://api.arcus.xyz/v1/mids</small>
+                <small id="v-tape-src">https://api.arcus.xyz/v1/mids</small>
               </article>
               <article>
                 <span>ARCUS OK</span>
@@ -188,14 +326,14 @@
             </div>
             <div class="status-grid">
               <article>
-                <span>LIVE TRADING</span>
-                <b>OFF</b>
-                <small>No placeOrder in MAIN scaffold</small>
+                <span>LIVE TRADING FLAG</span>
+                <b>ON · TESTNET</b>
+                <small>placeOrder → api.testnet.arcus.xyz</small>
               </article>
               <article>
                 <span>INTENTS</span>
-                <b>SIMULATED</b>
-                <small>main_intents.status default simulated</small>
+                <b>SIM + SUBMIT</b>
+                <small>simulate without key; signed proxy with key</small>
               </article>
               <article>
                 <span>PAPER BETA</span>
@@ -209,24 +347,21 @@
         <!-- DEVELOPERS -->
         <section class="page-panel dashboard-panel" id="panel-developers" data-panel="developers">
           <div class="dash-head">
-            <p>04 · DEVELOPERS</p>
+            <p>06 · DEVELOPERS</p>
             <h2>Public API chips</h2>
             <small>
-              Project <code>binqxbofehpigwjrwksl</code> · Edge <code>main-public</code> (verify_jwt: false).
-              GET only. No write surface for anon.
+              Project <code>binqxbofehpigwjrwksl</code> · Edge verify_jwt: false · Edge-only (no anon key in page).
             </small>
           </div>
           <div class="panel">
             <div class="panel-head">
               <div>
-                <span>MAIN-PUBLIC</span>
-                <h3>Query params</h3>
+                <span>ENDPOINTS</span>
+                <h3>Query / POST</h3>
               </div>
-              <b>GET</b>
+              <b>GET + POST</b>
             </div>
-            <div class="api-chips" id="api-chips">
-              <!-- filled by app.js -->
-            </div>
+            <div class="api-chips" id="api-chips"></div>
           </div>
           <div class="panel">
             <div class="panel-head">
@@ -245,17 +380,19 @@
 
   <footer class="site-footer">
     <p>
-      Wall Street Traders · Autonomous Traders MAIN scaffold.<br />
-      MAINNET TEST · OPT-IN · NOT LIVE TRADING. Paper beta is separate.<br />
-      Price source: Arcus. Cache bust <code>?v=1</code>.
+      Wall Street Traders · Autonomous Traders MAIN.<br />
+      MAINNET TEST · OPT-IN · ARCUS TESTNET ORDERS. Paper beta is separate.<br />
+      Prices: Arcus mids · Orders: testnet. Cache bust <code>?v=2</code>.
     </p>
     <div class="footer-links">
       <a href="#developers" data-nav="developers">API</a>
       <a href="https://api.arcus.xyz/v1/mids" target="_blank" rel="noopener">Arcus mids</a>
+      <a href="https://api.testnet.arcus.xyz/v1/markets" target="_blank" rel="noopener">Testnet markets</a>
+      <a href="https://docs.arcus.xyz/guides/rest-trading.md" target="_blank" rel="noopener">REST trading</a>
       <a href="https://binqxbofehpigwjrwksl.supabase.co/functions/v1/main-public?overview=1" target="_blank" rel="noopener">main-public</a>
     </div>
   </footer>
 
-  <script src="app.js?v=1"></script>
+  <script type="module" src="app.js?v=2"></script>
 </body>
 </html>

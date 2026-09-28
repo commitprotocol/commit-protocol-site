@@ -181,3 +181,19 @@ body:before{
   .dashboard-panel{padding:38px 18px}
   .overview-metrics{grid-template-columns:1fr}
 }
+
+/* v2 */
+button.header-cta{
+  border:0;background:transparent;cursor:pointer;
+  font:700 11px/1 var(--mono);letter-spacing:.11em;
+  border-bottom:1px solid var(--green);color:var(--green);
+  justify-self:end;padding-bottom:4px
+}
+button.header-cta:hover{color:var(--paper);border-bottom-color:var(--paper)}
+.terminal-log{
+  font-family:var(--mono);font-size:11px;line-height:1.65;
+  color:var(--green);background:#020302;min-height:220px;
+  max-height:420px;overflow:auto;white-space:pre-wrap
+}
+.arm-form input[type="checkbox"]{width:auto;height:auto;margin-right:8px}
+.arm-form label:has(input[type="checkbox"]){display:flex;align-items:center;gap:4px;color:var(--paper)}
