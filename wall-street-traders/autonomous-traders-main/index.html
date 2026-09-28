@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — MetaMask opt-in, Arcus TESTNET placeOrder. Separate from paper beta.">
+  <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — Dual-venue Arm Desk: RH Chain AA + Arcus BYOS. Separate from paper beta.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://binqxbofehpigwjrwksl.supabase.co https://kgtksjxfcwnmyeqddpug.supabase.co https://api.arcus.xyz https://api.testnet.arcus.xyz https://rpc.mainnet.chain.robinhood.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
   <title>WST Autonomous Traders — MAIN</title>
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -29,7 +29,7 @@
   <div class="main-badge-bar" role="status">
     <span class="badge"><i></i> MAIN · OPT-IN · ARCUS TESTNET ORDERS</span>
     <span class="badge warn">PRICES: ARCUS MIDS · ORDERS: TESTNET</span>
-    <span class="badge muted">Paper beta is a separate URL · keys in sessionStorage only</span>
+    <span class="badge muted">Paper beta is a separate URL · BYOS · no private keys on site</span>
   </div>
   <main id="main-content" class="autonomous-workspace">
     <aside class="autonomous-sidebar" id="autonomous-sidebar">
@@ -351,57 +351,97 @@
       <section class="page-panel dashboard-panel" id="arm" data-panel="arm">
         <div class="dash-head">
           <p>05 · ARM DESK</p>
-          <h2>Opt-in activate.</h2>
-          <small>Wallet-signed activate/revoke (personal_sign challenge). Caps enforced on placeOrder. Default env = Arcus TESTNET. Arcus signing keys stay in browser sessionStorage — never POSTed to Edge.</small>
+          <h2>Dual-venue opt-in.</h2>
+          <small>Arm <b>RH Chain</b> (ZeroDev session keys / Alchemy stub) and/or <b>Arcus BYOS</b> independently with caps. Wallet-signed challenge + on-chain ownerOf. Site never stores Ed25519 private keys. Observe/Simulate works without any venue armed.</small>
         </div>
-        <form class="arm-form" id="arm-form" autocomplete="off">
+
+        <form class="arm-form" id="arm-common" autocomplete="off">
           <div class="field"><label for="wallet">WALLET</label><input id="wallet" name="wallet" placeholder="0x… connect MetaMask" /></div>
           <div class="field"><label for="token_id">TOKEN ID (1–444)</label><input id="token_id" name="token_id" type="number" min="1" max="444" value="1" /></div>
           <div class="arm-row">
             <div class="field"><label for="max_notional">MAX NOTIONAL USD</label><input id="max_notional" type="number" min="1" value="1000" /></div>
             <div class="field"><label for="max_loss">MAX LOSS USD</label><input id="max_loss" type="number" min="1" value="200" /></div>
           </div>
-          <div class="field"><label for="venue">VENUE</label><select id="venue"><option value="arcus" selected>arcus</option></select></div>
           <div class="field"><label><input type="checkbox" id="spot_only" checked /> SPOT ONLY</label></div>
           <div class="arm-actions">
             <button type="button" class="ghost-btn" id="btn-connect">CONNECT</button>
-            <button type="submit" class="solid-btn" id="btn-arm">ARM TRADER → ACTIVATE</button>
-            <button type="button" class="ghost-btn" id="btn-revoke">REVOKE</button>
+            <button type="button" class="ghost-btn" id="btn-disarm-all">DISARM ALL</button>
           </div>
-          <small class="arm-note">Activation persists in MAIN Supabase (binqxbofehpigwjrwksl). Private signing keys are NOT sent here.</small>
-          <pre class="local-state" id="arm-state">No activation yet.</pre>
         </form>
+
+        <div class="panel" style="margin-top:18px">
+          <div class="panel-head"><div><span>VENUE 1 · RH CHAIN</span><h3>Account Abstraction session keys</h3></div><b id="rh-arm-status">DISARMED</b></div>
+          <div style="padding:18px 22px">
+            <p style="font-size:13px;line-height:1.5;color:#c4c8c2">Chain ID <code>4663</code>. Prefer <b>ZeroDev Kernel</b> session keys (TTL + spend limits). Alchemy spend policies shown as labeled stub until <code>ALCHEMY_API_KEY</code> is configured. Edge stores only <code>session_pub</code> + policy metadata — never private keys. Execution = client-side UserOp.</p>
+            <div class="arm-row">
+              <div class="field"><label for="aa_provider">AA PROVIDER</label>
+                <select id="aa_provider">
+                  <option value="zerodev" selected>ZeroDev (working path)</option>
+                  <option value="alchemy">Alchemy (stub)</option>
+                </select>
+              </div>
+              <div class="field"><label for="session_pub">SESSION KEY ADDRESS (PUB)</label><input id="session_pub" placeholder="0x… session key address only" /></div>
+            </div>
+            <div class="arm-row">
+              <div class="field"><label for="session_ttl">SESSION TTL SEC</label><input id="session_ttl" type="number" min="300" value="86400" /></div>
+              <div class="field"><label for="spend_limit">SPEND LIMIT USD</label><input id="spend_limit" type="number" min="1" value="1000" /></div>
+            </div>
+            <p id="aa-config-note" class="arm-note" hidden>Configure <code>ZERODEV_PROJECT_ID</code> / <code>ALCHEMY_API_KEY</code> in frontend env placeholders for bundler RPC. Simulate + Arcus BYOS still work without them.</p>
+            <div class="arm-actions">
+              <button type="button" class="ghost-btn" id="btn-rh-guide">GUIDE · CREATE SESSION KEY</button>
+              <button type="button" class="solid-btn" id="btn-arm-rh">ARM RH CHAIN →</button>
+              <button type="button" class="ghost-btn" id="btn-disarm-rh">DISARM RH</button>
+            </div>
+            <pre class="local-state" id="rh-guide-box" hidden style="margin-top:12px"></pre>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:18px">
+          <div class="panel-head"><div><span>VENUE 2 · ARCUS</span><h3>Bring-Your-Own-Signer (BYOS)</h3></div><b id="arcus-arm-status">DISARMED</b></div>
+          <div style="padding:18px 22px">
+            <ol style="font-size:13px;line-height:1.55;color:#c4c8c2;padding-left:18px">
+              <li>Arm Arcus with caps (wallet signature + ownerOf).</li>
+              <li>Trade desk → <b>Copy intent</b> calls <code>intent_arcus</code> (unsigned payload).</li>
+              <li>Sign off-site with your ed25519 API signing key.</li>
+              <li>Paste signed headers + body → <b>Submit signed order</b> (<code>place_arcus_byos</code>).</li>
+            </ol>
+            <div class="field"><label for="arcus_api_key_pub">ARCUS API KEY PUB (OPTIONAL HEX)</label><input id="arcus_api_key_pub" placeholder="ed25519 public half only — never private" /></div>
+            <div class="field"><label for="arcus_account_index">ACCOUNT INDEX</label><input id="arcus_account_index" type="number" min="0" value="0" /></div>
+            <div class="arm-actions">
+              <button type="button" class="solid-btn" id="btn-arm-arcus">ARM ARCUS BYOS →</button>
+              <button type="button" class="ghost-btn" id="btn-disarm-arcus">DISARM ARCUS</button>
+            </div>
+            <small class="arm-note">No private-key paste UI. Private keys rejected by Edge.</small>
+          </div>
+        </div>
+
+        <pre class="local-state" id="arm-state" style="margin-top:18px">No venue armed yet. Connect wallet to arm.</pre>
+        <input type="hidden" id="activation_id" />
+        <input type="hidden" id="venue" value="arcus" />
       </section>
 
       <!-- TRADE -->
       <section class="page-panel dashboard-panel" id="trade" data-panel="trade">
         <div class="dash-head">
           <p>06 · TRADE</p>
-          <h2>Arcus TESTNET placeOrder.</h2>
-          <small>Prices: <b>Arcus mainnet mids</b> · Orders: <b>Arcus TESTNET</b>. Default mode is Observe/Simulate. Pilot enables live TESTNET placeOrder. GTT defaults to ~30 minutes.</small>
+          <h2>Simulate · BYOS · RH UserOp.</h2>
+          <small>Prices: <b>Arcus mainnet mids</b> · Orders: <b>Arcus TESTNET</b> (BYOS) or <b>RH Chain UserOp</b> (client). Default = Observe/Simulate — works with no venue armed. Place only via armed venue.</small>
           <div class="mode-toggle" style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap">
             <button type="button" class="ghost-btn" data-trade-mode="observe" aria-pressed="true">OBSERVE / SIMULATE</button>
-            <button type="button" class="ghost-btn" data-trade-mode="pilot" aria-pressed="false">PILOT (TESTNET LIVE)</button>
+            <button type="button" class="ghost-btn" data-trade-mode="live" aria-pressed="false">PLACE VIA ARMED VENUE</button>
             <b id="trade-mode-badge" style="font-size:11px;letter-spacing:.08em">OBSERVE · SIMULATE ONLY</b>
           </div>
-          <p id="pilot-xss-warn" class="pilot-xss-warn" hidden role="alert">⚠ PILOT: signing key is in page memory (sessionStorage). XSS that bypasses CSP can steal it. Prefer Observe/Simulate. Clear key when done.</p>
         </div>
-        <div class="panel" style="margin-bottom:18px">
-          <div class="panel-head"><div><span>SESSION · ARCUS API SIGNING KEY</span><h3>sessionStorage only</h3></div><b id="key-status">NO KEY</b></div>
-          <form class="arm-form" id="key-form" style="margin:18px 22px 22px;box-shadow:none;max-width:none" autocomplete="off">
-            <div class="arm-row">
-              <div class="field"><label for="arcus_signing_key">API SIGNING KEY (HEX PRIV)</label><input id="arcus_signing_key" type="password" placeholder="paste hex once — shown once on Arcus" /></div>
-              <div class="field"><label for="arcus_account_index">ACCOUNT INDEX</label><input id="arcus_account_index" type="number" min="0" value="0" /></div>
-            </div>
-            <div class="arm-actions">
-              <button type="submit" class="solid-btn">SAVE TO SESSION</button>
-              <button type="button" class="ghost-btn" id="btn-clear-key">CLEAR KEY</button>
-            </div>
-            <small class="arm-note">Generate on Arcus testnet API Keys page. Never POST private keys to Edge.</small>
-          </form>
-        </div>
+
         <form class="arm-form" id="trade-form" autocomplete="off">
-          <div class="field"><label for="activation_id">ACTIVATION ID</label><input id="activation_id" placeholder="from Arm Desk" /></div>
+          <div class="field"><label for="trade_venue">ARMED VENUE</label>
+            <select id="trade_venue">
+              <option value="auto">auto (from activation)</option>
+              <option value="arcus">arcus (BYOS)</option>
+              <option value="rh_chain">rh_chain (UserOp stub/log)</option>
+            </select>
+          </div>
+          <div class="field"><label for="activation_id_display">ACTIVATION ID</label><input id="activation_id_display" placeholder="from Arm Desk" readonly /></div>
           <div class="arm-row">
             <div class="field"><label for="trade_market">MARKET</label><select id="trade_market"></select></div>
             <div class="field"><label for="trade_side">SIDE</label><select id="trade_side"><option value="BUY">BUY</option><option value="SELL">SELL</option></select></div>
@@ -418,19 +458,29 @@
             <div class="field"><label for="trade_token">TOKEN ID</label><input id="trade_token" type="number" min="1" max="444" value="1" /></div>
             <div class="field"><label for="cancel_order_id">CANCEL LOCAL ORDER ID</label><input id="cancel_order_id" placeholder="uuid from orders table" /></div>
           </div>
-          <div class="arm-row">
-            <div class="field"><label for="cancel_arcus_order_id">CANCEL ARCUS ORDER ID</label><input id="cancel_arcus_order_id" placeholder="server orderId for signed cancel" /></div>
-            <div class="field"><label for="cancel_market">CANCEL MARKET</label><input id="cancel_market" placeholder="AAPL-USD (for marketId)" /></div>
-          </div>
           <div class="arm-actions">
-            <button type="submit" class="solid-btn" id="btn-place" disabled>PLACE ORDER (TESTNET)</button>
-            <button type="button" class="ghost-btn" id="btn-simulate">SIMULATE (NO KEY)</button>
-            <button type="button" class="ghost-btn" id="btn-cancel-order">CANCEL ORDER</button>
+            <button type="button" class="ghost-btn" id="btn-simulate">SIMULATE</button>
+            <button type="button" class="ghost-btn" id="btn-copy-intent">COPY INTENT (BYOS)</button>
+            <button type="submit" class="solid-btn" id="btn-place" disabled>PLACE VIA ARMED VENUE</button>
             <button type="button" class="ghost-btn" id="btn-refresh-orders">REFRESH ORDERS</button>
           </div>
           <small class="arm-note" id="trade-mkt-meta">Market tick/step loaded from testnet /v1/markets.</small>
-          <pre class="local-state" id="trade-state">Ready.</pre>
         </form>
+
+        <div class="panel" style="margin-top:18px" id="byos-panel">
+          <div class="panel-head"><div><span>BYOS · EXTERNAL SIGNER</span><h3>Paste signed order</h3></div><b>ARCUS</b></div>
+          <div style="padding:18px 22px">
+            <div class="field"><label for="byos_intent">UNSIGNED INTENT (from Copy Intent)</label><textarea id="byos_intent" rows="6" placeholder="JSON from intent_arcus" style="width:100%;font-family:ui-monospace,monospace;font-size:11px"></textarea></div>
+            <div class="field"><label for="byos_headers">SIGNED HEADERS JSON</label><textarea id="byos_headers" rows="4" placeholder='{"X-API-Key":"...","X-Timestamp":"...","X-Signature":"..."}' style="width:100%;font-family:ui-monospace,monospace;font-size:11px"></textarea></div>
+            <div class="field"><label for="byos_body">SIGNED ARCUS BODY JSON</label><textarea id="byos_body" rows="5" placeholder="arcus_body object" style="width:100%;font-family:ui-monospace,monospace;font-size:11px"></textarea></div>
+            <div class="arm-actions">
+              <button type="button" class="solid-btn" id="btn-submit-byos">SUBMIT SIGNED ORDER →</button>
+            </div>
+            <small class="arm-note">Never paste private keys. Headers + body only.</small>
+          </div>
+        </div>
+
+        <pre class="local-state" id="trade-state" style="margin-top:18px">Ready.</pre>
         <div class="panel" style="margin-top:18px">
           <div class="panel-head"><div><span>RECENT ORDERS</span><h3>main_orders for wallet</h3></div></div>
           <div style="overflow-x:auto"><table class="tape-table"><thead><tr><th>TIME</th><th>MARKET</th><th>SIDE</th><th>QTY</th><th>PRICE</th><th>STATUS</th><th>ACTOR</th><th>GTT</th><th>ENV</th></tr></thead>
@@ -494,13 +544,30 @@
           </div>
         </article>
         <article class="panel" style="margin-top:18px" id="threat-model">
-          <div class="panel-head"><div><span>SECURITY</span><h3>Threat model (harden v5)</h3></div><b>MAIN ONLY</b></div>
+          <div class="panel-head"><div><span>SECURITY</span><h3>Threat model (harden v6)</h3></div><b>MAIN ONLY</b></div>
           <div style="padding:18px 22px;font-size:13px;line-height:1.55;color:#c4c8c2">
-            <p><b>Trust boundaries.</b> Browser holds Arcus ed25519 signing keys in <code>sessionStorage</code> only — Edge rejects any private-key fields. Wallet ownership is proven via one-time <code>personal_sign</code> challenges (<code>main_auth_nonces</code>) for activate/revoke. Every placeOrder/cancel re-checks NFT <code>ownerOf</code> on Robinhood Chain and auto-revokes if transferred. Noble ed25519 is vendored locally (CSP blocks random CDNs).</p>
-            <p><b>Caps.</b> Hard <code>max_notional_usd</code> with drip spent tracking. Hard <code>max_loss_usd</code> via Arcus mainnet mids mark check (realized + unrealized + open adverse). Env forced to Arcus TESTNET unless <code>caps.allow_mainnet===true</code>.</p>
-            <p><b>Orders.</b> Short GTT (15–60 min, default 30). Idempotency keys required. Cancel requires signed op=2 payload + headers; Edge proxies to testnet <code>cancelOrder</code>. Actor labeled <code>holder</code> vs <code>agent</code>.</p>
-            <p><b>CORS.</b> Default allowlist (commitprotocol.org + localhost). Override via Edge secret <code>CORS_ORIGIN_ALLOWLIST</code> in Supabase Dashboard → Project Settings → Edge Functions → Secrets (comma-separated Origins). Never reflects <code>*</code>.</p>
-            <p><b>Residual risks (after this pass).</b> XSS that bypasses CSP can still read the signing key while Pilot/session is open (key lives in page memory / sessionStorage). Mark PnL is a rough estimate (not full exchange position reconciliation). Mainnet placeOrder still possible if an activation has <code>allow_mainnet</code>. file:// Origin <code>null</code> is optionally allowlisted.</p>
+            <p><b>No private keys on site.</b> Pilot key-paste UI removed. Arcus is BYOS: Edge issues unsigned intents; external signer returns headers+body; Edge rechecks ownerOf+caps and proxies to Arcus testnet. RH Chain stores session_pub + policy meta only.</p>
+            <p><b>Trust boundaries.</b> Wallet ownership via one-time <code>personal_sign</code> challenges for activate/arm/disarm/revoke. Every place path re-checks NFT <code>ownerOf</code> and auto-revokes/disarms on transfer. Actor labeled <code>holder</code> vs <code>agent</code>.</p>
+            <p><b>Caps.</b> Hard <code>max_notional_usd</code> with drip spent tracking. Hard <code>max_loss_usd</code> via Arcus mainnet mids mark check. Env forced to Arcus TESTNET unless <code>caps.allow_mainnet===true</code>. Short GTT (15–60 min).</p>
+            <p><b>CORS.</b> Default allowlist (commitprotocol.org + localhost). Override via Edge secret <code>CORS_ORIGIN_ALLOWLIST</code>. Never reflects <code>*</code>.</p>
+          </div>
+        </article>
+        <article class="panel" style="margin-top:18px" id="byos-openapi">
+          <div class="panel-head"><div><span>BYOS CONTRACT</span><h3>OpenAPI-ish notes</h3></div><b>ARCUS</b></div>
+          <div style="padding:18px 22px;font-size:12px;line-height:1.55;color:#c4c8c2;font-family:ui-monospace,monospace">
+            <p>POST /main-order { "action":"intent_arcus", activation_id, wallet, market, orderSide, quantity, price, gtt_minutes?, marketId? }</p>
+            <p>→ { unsigned.arcus_body, unsigned.headers_required, unsigned.sign_algorithm:"ed25519", next.place_arcus_byos }</p>
+            <p>POST /main-order { "action":"place_arcus_byos", activation_id, wallet, market, orderSide, quantity, price, idempotency_key, arcus_body, headers:{X-API-Key,X-Timestamp,X-Signature} }</p>
+            <p>Rejects any private_key / signing_key / mnemonic fields. Proxies to api.testnet.arcus.xyz/v1/placeOrder after ownerOf+caps.</p>
+            <p style="margin-top:12px">POST /main-public { "action":"arm_arcus_byos" | "arm_rh_chain" | "disarm", ...challenge fields }</p>
+          </div>
+        </article>
+        <article class="panel" style="margin-top:18px" id="aa-docs">
+          <div class="panel-head"><div><span>ACCOUNT ABSTRACTION</span><h3>RH Chain docs</h3></div><b>4663</b></div>
+          <div style="padding:18px 22px;font-size:13px;line-height:1.55;color:#c4c8c2">
+            <p><a href="https://docs.robinhood.com/chain/account-abstraction" target="_blank" rel="noopener">docs.robinhood.com/chain/account-abstraction</a></p>
+            <p><a href="https://docs.zerodev.app/sdk/v5_3_x/permissions/intro" target="_blank" rel="noopener">ZeroDev permissions / session keys</a></p>
+            <p>Env placeholders (frontend): <code>ZERODEV_PROJECT_ID</code>, <code>ALCHEMY_API_KEY</code>. Missing → UI shows “configure AA keys”; Simulate + BYOS still work. <code>place_rh_chain</code> logs client UserOp intent (stub) — session-key UserOp is signed client-side.</p>
           </div>
         </article>
         <div class="panel" style="margin-top:18px">
@@ -517,7 +584,7 @@
           <ul>
             <li>MAIN · OPT-IN · ARCUS TESTNET ORDERS</li>
             <li>Prices from Arcus mainnet mids; orders default to Arcus testnet</li>
-            <li>Private signing keys stay in sessionStorage — never stored in Supabase</li>
+            <li>No private keys on site or in Supabase — Arcus BYOS signs off-site; RH stores session_pub only</li>
             <li>Paper beta lives on a separate URL / Supabase project</li>
             <li>Not financial advice · testnet risk remains</li>
           </ul>
@@ -532,20 +599,12 @@
       <a href="#developers" data-nav="developers">API ↗</a>
       <a href="https://api.arcus.xyz/v1/mids" target="_blank" rel="noopener">Arcus mids ↗</a>
       <a href="https://docs.arcus.xyz/guides/rest-trading.md" target="_blank" rel="noopener">REST trading ↗</a>
+      <a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a>
+      <a href="https://discord.gg/WEQTbg2fy9" target="_blank" rel="noopener noreferrer">Discord ↗</a>
       <a href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noopener">OpenSea ↗</a>
     </div>
-    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=5 · INFORMATIONAL · NOT ADVICE</small>
+    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=6 · INFORMATIONAL · NOT ADVICE</small>
   </footer>
-  <div id="pilot-confirm-modal" class="pilot-modal" hidden>
-    <div class="pilot-modal-card" role="dialog" aria-modal="true" aria-labelledby="pilot-confirm-title">
-      <h3 id="pilot-confirm-title">Enable Pilot (TESTNET LIVE)?</h3>
-      <p class="pilot-modal-warn">You are about to enable live Arcus TESTNET orders. Your API signing key stays in this page’s memory (sessionStorage). A successful XSS that bypasses CSP can steal it. Prefer Observe/Simulate unless you need live cancels/places.</p>
-      <div class="pilot-modal-actions">
-        <button type="button" class="ghost-btn" id="pilot-confirm-cancel">Stay in Observe</button>
-        <button type="button" class="solid-btn" id="pilot-confirm-ok">I understand — enable Pilot</button>
-      </div>
-    </div>
-  </div>
-  <script type="module" src="app.js?v=5"></script>
+  <script type="module" src="app.js?v=6"></script>
 </body>
 </html>

@@ -671,3 +671,7 @@ button.pulse-card:hover{border-color:var(--green);background:#0a0d0a}
   flex-wrap: wrap;
   justify-content: flex-end;
 }
+
+.arm-form textarea,.trade-form textarea,#byos-panel textarea{border:1px solid var(--line2);background:#050605;color:var(--paper);padding:12px 14px;font-weight:600;outline:0;resize:vertical;min-height:80px}
+.arm-form textarea:focus,.trade-form textarea:focus,#byos-panel textarea:focus{border-color:var(--green)}
+.venue-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}

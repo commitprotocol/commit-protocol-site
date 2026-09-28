@@ -1,4 +1,3 @@
-import * as ed from "./vendor/ed25519.js";
 
 /* ── Configurable WST NFT contract (Robinhood Chain) ── */
 const CONTRACT_ADDRESS = "0x7a5f95f898cf968cac3f9d6231f03f36c3da5b0d";
@@ -18,9 +17,11 @@ const EP = {
 const BETA_PUB =
   "https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public";
 const ARCUS_TESTNET = "https://api.testnet.arcus.xyz";
-const SS_KEY = "wst_main_arcus_signing_key_v1";
 const SS_AI = "wst_main_arcus_account_index_v1";
-const LS_ACT = "wst_main_activation_v2";
+const LS_ACT = "wst_main_activation_v6";
+const LS_ARMS = "wst_main_venue_arms_v6";
+const ZERODEV_PROJECT_ID = (typeof window !== "undefined" && window.ZERODEV_PROJECT_ID) || "";
+const ALCHEMY_API_KEY = (typeof window !== "undefined" && window.ALCHEMY_API_KEY) || "";
 const WATCH_KEY = "wst_main_watchlist_v1";
 
 const OP_PLACE = 1;
@@ -55,9 +56,10 @@ const PANELS = [
 
 const $ = (id) => document.getElementById(id);
 const state = {
-  tradeMode: localStorage.getItem("wst_main_trade_mode") || "observe",
+  tradeMode: localStorage.getItem("wst_main_trade_mode_v6") || "observe",
   wallet: null,
   activation: null,
+  arms: { rh_chain: null, arcus: null },
   tape: [],
   markets: [],
   mids: {},
@@ -91,18 +93,6 @@ function escapeHtml(value) {
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[c])
   );
 }
-function hexToBytes(hex) {
-  const h = hex.replace(/^0x/i, "").trim();
-  if (h.length % 2) throw new Error("odd hex length");
-  const out = new Uint8Array(h.length / 2);
-  for (let i = 0; i < out.length; i++) out[i] = parseInt(h.slice(i * 2, i * 2 + 2), 16);
-  return out;
-}
-function bytesToHex(b) {
-  return Array.from(b)
-    .map((x) => x.toString(16).padStart(2, "0"))
-    .join("");
-}
 
 /* UI rate-limit (client-side; Edge also rate-limits) */
 const uiRate = { place: 0, cancel: 0, pilotSwitch: 0 };
@@ -113,58 +103,7 @@ function uiRateOk(kind, minMs = 2500) {
   return true;
 }
 
-async function signCancelOrder({ wallet, accountIndex, marketMeta, orderId, privHex }) {
-  const addr = wallet.toLowerCase();
-  const timestamp = BigInt(Date.now()) * 1000000n;
-  // Canonical cancel payload (op=2): ad,ai,ct,id,m,op,v — key-sorted, no whitespace
-  const payload =
-    `{"ad":"${addr}","ai":${accountIndex},"ct":${timestamp},` +
-    `"id":"${orderId}","m":${marketMeta.marketId},"op":${OP_CANCEL},"v":1}`;
-  const priv = hexToBytes(privHex);
-  const sig = await ed.signAsync(new TextEncoder().encode(payload), priv);
-  const pub = await ed.getPublicKeyAsync(priv);
-  const apiKey = bytesToHex(pub);
-  const arcus_body = {
-    address: wallet,
-    accountIndex,
-    marketId: marketMeta.marketId,
-    kind: "orderId",
-    orderId,
-    timestamp: Number(timestamp),
-  };
-  return {
-    arcus_body,
-    headers: {
-      "X-API-Key": apiKey,
-      "X-Timestamp": String(timestamp),
-      "X-Signature": bytesToHex(sig),
-    },
-    payload,
-  };
-}
 
-function confirmPilotModal() {
-  return new Promise((resolve) => {
-    const modal = $("pilot-confirm-modal");
-    if (!modal) {
-      resolve(window.confirm("Enable Pilot (TESTNET LIVE)? Signing key stays in page memory."));
-      return;
-    }
-    modal.hidden = false;
-    const ok = $("pilot-confirm-ok");
-    const cancel = $("pilot-confirm-cancel");
-    const done = (v) => {
-      modal.hidden = true;
-      ok?.removeEventListener("click", onOk);
-      cancel?.removeEventListener("click", onCancel);
-      resolve(v);
-    };
-    const onOk = () => done(true);
-    const onCancel = () => done(false);
-    ok?.addEventListener("click", onOk);
-    cancel?.addEventListener("click", onCancel);
-  });
-}
 
 
 function toInt(value, unit) {
@@ -277,8 +216,9 @@ function disconnectWallet() {
   state.owned = [];
   state.activation = null;
   try {
-    sessionStorage.removeItem(SS_KEY);
     sessionStorage.removeItem(SS_AI);
+    try { localStorage.removeItem(LS_ARMS); } catch {}
+    state.arms = { rh_chain: null, arcus: null };
   } catch (_) {}
   try {
     localStorage.removeItem(LS_ACT);
@@ -287,11 +227,18 @@ function disconnectWallet() {
   if ($("activation_id")) $("activation_id").value = "";
   if ($("token_id")) $("token_id").value = "1";
   if ($("trade_token")) $("trade_token").value = "1";
-  if ($("arcus_signing_key")) $("arcus_signing_key").value = "";
+  if ($("byos_headers")) $("byos_headers").value = "";
+  if ($("byos_body")) $("byos_body").value = "";
+  if ($("byos_intent")) $("byos_intent").value = "";
+  if ($("session_pub")) $("session_pub").value = "";
   if ($("arcus_account_index")) $("arcus_account_index").value = "0";
   if ($("cancel_order_id")) $("cancel_order_id").value = "";
   if ($("arm-state")) $("arm-state").textContent = "Disconnected. Connect wallet to arm.";
-  if ($("trade-state")) $("trade-state").textContent = "Disconnected. Session signing key cleared.";
+  if ($("rh-arm-status")) $("rh-arm-status").textContent = "DISARMED";
+  if ($("arcus-arm-status")) $("arcus-arm-status").textContent = "DISARMED";
+  if ($("activation_id_display")) $("activation_id_display").value = "";
+  if ($("btn-place")) $("btn-place").disabled = true;
+  if ($("trade-state")) $("trade-state").textContent = "Disconnected. Local arm UI cleared.";
   if ($("nfts-status")) $("nfts-status").textContent = "WALLET DISCONNECTED";
   if ($("orders-kpi")) $("orders-kpi").textContent = "—";
   const otb = $("orders-tbody");
@@ -817,37 +764,8 @@ function renderApiChips() {
     .join("");
 }
 
-function updateKeyStatus() {
-  const has = !!sessionStorage.getItem(SS_KEY);
-  if ($("key-status")) $("key-status").textContent = has ? "KEY IN SESSION" : "NO KEY";
-  const ai = sessionStorage.getItem(SS_AI);
-  if (ai != null && $("arcus_account_index")) $("arcus_account_index").value = ai;
-}
+function updateKeyStatus() { /* v6: no private keys in session */ }
 
-$("key-form")?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const k = $("arcus_signing_key").value.trim();
-  const ai = Number($("arcus_account_index").value) || 0;
-  if (!k || k.length < 64) {
-    $("trade-state").textContent = "Need hex API Signing Key (≥32 bytes).";
-    return;
-  }
-  sessionStorage.setItem(SS_KEY, k.replace(/^0x/i, ""));
-  sessionStorage.setItem(SS_AI, String(ai));
-  $("arcus_signing_key").value = "";
-  updateKeyStatus();
-  $("trade-state").textContent = JSON.stringify(
-    { ok: true, note: "Signing key stored in sessionStorage only", accountIndex: ai },
-    null,
-    2
-  );
-});
-$("btn-clear-key")?.addEventListener("click", () => {
-  sessionStorage.removeItem(SS_KEY);
-  sessionStorage.removeItem(SS_AI);
-  updateKeyStatus();
-  $("trade-state").textContent = "Key cleared from session.";
-});
 
 async function loadPublic() {
   const url = `${EP.pub}?overview=1&assets=1&prices=1&traders=1`;
@@ -1012,222 +930,10 @@ async function walletChallenge(purpose, extra = {}) {
   return { wallet, nonce: ch.nonce, signature, message: ch.message, expires_at: ch.expires_at };
 }
 
-$("arm-form")?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  let wallet = $("wallet").value.trim();
-  if (!wallet && window.ethereum) {
-    await connectMetaMask();
-    wallet = state.wallet || "";
-  }
-  const token_id = Number($("token_id").value) || 1;
-  $("arm-state").textContent = "Requesting wallet signature…";
-  try {
-    const proof = await walletChallenge("activate", { wallet, token_id });
-    const body = {
-      action: "activate",
-      wallet: proof.wallet,
-      token_id,
-      venue: $("venue").value || "arcus",
-      caps: {
-        max_notional_usd: Number($("max_notional").value) || 1000,
-        max_loss_usd: Number($("max_loss").value) || 200,
-        spot_only: !!$("spot_only").checked,
-        allow_mainnet: false,
-      },
-      arcus_account_index: Number(sessionStorage.getItem(SS_AI) || 0) || 0,
-      nonce: proof.nonce,
-      signature: proof.signature,
-    };
-    $("arm-state").textContent = "Activating (signed)…";
-    const res = await fetch(EP.pub, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    $("arm-state").textContent = JSON.stringify(data, null, 2);
-    if (data.activation) {
-      state.activation = data.activation;
-      localStorage.setItem(LS_ACT, JSON.stringify({ activation: data.activation }));
-      $("activation_id").value = data.activation.id;
-      $("trade_token").value = data.activation.token_id;
-      state.wallet = data.activation.wallet;
-      updateConnectButtons();
-      if (state.currentToken === data.activation.token_id)
-        openTrader(data.activation.token_id, { navigate: false });
-    }
-  } catch (err) {
-    $("arm-state").textContent = String(err?.message || err);
-  }
-});
 
-$("btn-revoke")?.addEventListener("click", async () => {
-  const activation_id = $("activation_id")?.value || state.activation?.id;
-  const wallet = $("wallet").value.trim() || state.wallet;
-  if (!activation_id || !wallet) {
-    $("arm-state").textContent = "Need activation_id + wallet to revoke.";
-    return;
-  }
-  try {
-    $("arm-state").textContent = "Requesting revoke signature…";
-    const proof = await walletChallenge("revoke", { wallet, activation_id });
-    const res = await fetch(EP.pub, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ action: "revoke", activation_id, wallet: proof.wallet, nonce: proof.nonce, signature: proof.signature }),
-    });
-    const data = await res.json();
-    $("arm-state").textContent = JSON.stringify(data, null, 2);
-  } catch (err) {
-    $("arm-state").textContent = String(err?.message || err);
-  }
-});
 
-async function signPlaceOrder({
-  wallet,
-  accountIndex,
-  marketMeta,
-  orderSide,
-  quantity,
-  price,
-  timeInForce,
-  goodTilTimeUs,
-  privHex,
-}) {
-  const addr = wallet.toLowerCase();
-  const timestamp = BigInt(Date.now()) * 1000000n;
-  const tick = marketMeta.tickSize;
-  const step = marketMeta.stepSize;
-  const p = toInt(price, tick);
-  const q = toInt(quantity, step);
-  const g = BigInt(goodTilTimeUs) * 1000n;
-  const payload =
-    `{"ad":"${addr}","ai":${accountIndex},"ct":${timestamp},"g":${g},` +
-    `"m":${marketMeta.marketId},"op":${OP_PLACE},"p":${p},"q":${q},` +
-    `"r":0,"s":${SIDE[orderSide]},"t":${TIF[timeInForce]},"v":1}`;
 
-  const priv = hexToBytes(privHex);
-  const sig = await ed.signAsync(new TextEncoder().encode(payload), priv);
-  const pub = await ed.getPublicKeyAsync(priv);
-  const apiKey = bytesToHex(pub);
-  const arcus_body = {
-    address: wallet,
-    accountIndex,
-    marketId: marketMeta.marketId,
-    orderSide,
-    orderType: "LIMIT",
-    quantity: String(quantity),
-    price: String(price),
-    timeInForce,
-    goodTilTime: String(goodTilTimeUs),
-    timestamp: Number(timestamp),
-  };
-  return {
-    arcus_body,
-    headers: {
-      "X-API-Key": apiKey,
-      "X-Timestamp": String(timestamp),
-      "X-Signature": bytesToHex(sig),
-    },
-    payload,
-    apiKey,
-  };
-}
-
-$("trade-form")?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const wallet = ($("wallet")?.value || state.wallet || "").trim();
-  const activation_id = ($("activation_id")?.value || state.activation?.id || "").trim();
-  const market = $("trade_market").value;
-  const orderSide = $("trade_side").value;
-  const quantity = $("trade_qty").value.trim();
-  const price = $("trade_price").value.trim();
-  const timeInForce = $("trade_tif").value;
-  const token_id = Number($("trade_token").value) || 1;
-  const priv = sessionStorage.getItem(SS_KEY);
-  const accountIndex = Number(sessionStorage.getItem(SS_AI) || 0) || 0;
-
-  if ((state.tradeMode || "observe") !== "pilot") {
-    $("trade-state").textContent = "Mode is Observe/Simulate — switch to Pilot to place live TESTNET orders.";
-    return;
-  }
-  if (!uiRateOk("place", 3000)) {
-    $("trade-state").textContent = "Slow down — UI rate limit (3s between place attempts).";
-    return;
-  }
-  if (!wallet || !activation_id) {
-    $("trade-state").textContent = "Connect MetaMask and Arm Desk first.";
-    return;
-  }
-  if (!priv) {
-    $("trade-state").textContent =
-      "No signing key in session. Paste API Signing Key above, or click SIMULATE.";
-    return;
-  }
-  const placeConfirm = window.confirm(
-    "PLACE live TESTNET order? Key is in page memory. XSS that bypasses CSP can steal it.",
-  );
-  if (!placeConfirm) {
-    $("trade-state").textContent = "Place canceled by user.";
-    return;
-  }
-  let marketMeta = findMarket(market);
-  if (!marketMeta) {
-    await loadTestnetMarkets();
-    marketMeta = findMarket(market);
-  }
-  if (!marketMeta) {
-    $("trade-state").textContent = `Market ${market} not found on testnet /v1/markets.`;
-    return;
-  }
-  const gttMin = Number($("trade_gtt_min")?.value) || 30;
-  const goodTilTimeUs = Date.now() * 1000 + Math.min(60, Math.max(15, gttMin)) * 60 * 1_000_000;
-  try {
-    $("trade-state").textContent = "Signing + proxying to testnet…";
-    const signed = await signPlaceOrder({
-      wallet,
-      accountIndex,
-      marketMeta,
-      orderSide,
-      quantity,
-      price,
-      timeInForce,
-      goodTilTimeUs,
-      privHex: priv,
-    });
-    const idempotency_key = crypto.randomUUID();
-    const body = {
-      env: "testnet",
-      activation_id,
-      wallet,
-      token_id,
-      market,
-      orderSide,
-      orderType: "LIMIT",
-      quantity,
-      price,
-      timeInForce,
-      goodTilTime: String(goodTilTimeUs),
-      accountIndex,
-      timestamp: signed.arcus_body.timestamp,
-      arcus_body: signed.arcus_body,
-      headers: signed.headers,
-      idempotency_key,
-      actor: "holder",
-    };
-    const res = await fetch(EP.order, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    $("trade-state").textContent = JSON.stringify(data, null, 2);
-    loadOrders().catch(() => {});
-    loadActivity().catch(() => {});
-  } catch (err) {
-    $("trade-state").textContent = String(err?.message || err);
-  }
-});
+// trade-form handler replaced in v6 block below
 
 $("btn-simulate")?.addEventListener("click", async () => {
   const wallet = ($("wallet")?.value || state.wallet || "").trim();
@@ -1467,35 +1173,19 @@ setInterval(() => {
 }, 45000);
 
 
-/* Mode: Observe/Simulate (default) vs Pilot */
+
 function syncTradeModeUI() {
-  const mode = state.tradeMode || "observe";
+  const mode = state.tradeMode === "live" || state.tradeMode === "pilot" ? "live" : "observe";
+  state.tradeMode = mode;
   document.querySelectorAll("[data-trade-mode]").forEach((el) => {
-    el.setAttribute("aria-pressed", el.getAttribute("data-trade-mode") === mode ? "true" : "false");
+    const m = el.getAttribute("data-trade-mode");
+    el.setAttribute("aria-pressed", m === mode ? "true" : "false");
   });
   const badge = $("trade-mode-badge");
-  if (badge) badge.textContent = mode === "pilot" ? "PILOT · TESTNET LIVE" : "OBSERVE · SIMULATE ONLY";
-  const place = $("btn-place");
-  if (place) place.disabled = mode !== "pilot";
-  const warn = $("pilot-xss-warn");
-  if (warn) warn.hidden = mode !== "pilot";
-  const cancelBtn = $("btn-cancel-order");
-  if (cancelBtn) cancelBtn.disabled = mode !== "pilot";
+  if (badge) badge.textContent = mode === "live" ? "LIVE · ARMED VENUE ONLY" : "OBSERVE · SIMULATE ONLY";
+  try { persistArms(); } catch {}
 }
-document.querySelectorAll("[data-trade-mode]").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    const next = btn.getAttribute("data-trade-mode") || "observe";
-    if (next === "pilot" && state.tradeMode !== "pilot") {
-      if (!uiRateOk("pilotSwitch", 1500)) return;
-      const ok = await confirmPilotModal();
-      if (!ok) return;
-    }
-    state.tradeMode = next;
-    localStorage.setItem("wst_main_trade_mode", state.tradeMode);
-    syncTradeModeUI();
-  });
-});
-
+/* v6 trade-mode clicks registered later; keep sync helper */
 syncTradeModeUI();
 
 
@@ -1505,11 +1195,9 @@ $("btn-cancel-order")?.addEventListener("click", async () => {
   const local_order_id = ($("cancel_order_id")?.value || "").trim();
   let arcus_order_id = ($("cancel_arcus_order_id")?.value || "").trim();
   let market = ($("cancel_market")?.value || $("trade_market")?.value || "").trim();
-  const priv = sessionStorage.getItem(SS_KEY);
-  const accountIndex = Number(sessionStorage.getItem(SS_AI) || 0) || 0;
 
-  if ((state.tradeMode || "observe") !== "pilot") {
-    $("trade-state").textContent = "Cancel requires Pilot mode (signed Arcus cancel).";
+  if ((state.tradeMode || "observe") !== "live") {
+    $("trade-state").textContent = "Cancel requires PLACE VIA ARMED VENUE mode + BYOS signed headers.";
     return;
   }
   if (!uiRateOk("cancel", 2500)) {
@@ -1517,73 +1205,404 @@ $("btn-cancel-order")?.addEventListener("click", async () => {
     return;
   }
   if (!activation_id || !wallet) {
-    $("trade-state").textContent = "Need activation + wallet to cancel.";
+    $("trade-state").textContent = "Need activation_id + wallet for cancel.";
     return;
   }
-  if (!priv) {
-    $("trade-state").textContent = "Signed cancel needs API signing key in session.";
+  if (!state.arms?.arcus) {
+    $("trade-state").textContent = "Arm Arcus BYOS first for signed cancel.";
     return;
   }
-  if (!arcus_order_id && !local_order_id) {
-    $("trade-state").textContent = "Provide Arcus orderId and/or local order uuid.";
-    return;
-  }
-
+  // BYOS cancel: require pre-signed headers (same as place)
+  let headers = {};
+  let cancel_body = {};
   try {
-    // If only local id, fetch orders to resolve arcus id + market
-    if ((!arcus_order_id || !market) && local_order_id) {
-      const resL = await fetch(`${EP.order}?wallet=${encodeURIComponent(wallet)}`, {
-        headers: { Accept: "application/json" },
-      });
-      const dataL = await resL.json();
-      const row = (dataL.orders || []).find((o) => o.id === local_order_id);
-      if (row) {
-        if (!arcus_order_id) arcus_order_id = String(row.arcus_order_id || "");
-        if (!market) market = String(row.market || "");
-      }
+    headers = JSON.parse($("byos_headers")?.value || "{}");
+    cancel_body = JSON.parse($("byos_body")?.value || "{}");
+  } catch {
+    $("trade-state").textContent = "Paste valid signed headers + cancel body JSON (BYOS).";
+    return;
+  }
+  const blob = JSON.stringify({ headers, cancel_body });
+  if (/private[_ ]?key|mnemonic|seed|signing_key/i.test(blob)) {
+    $("trade-state").textContent = "Rejected: remove private key fields.";
+    return;
+  }
+  if (!headers["X-API-Key"] && !headers["x-api-key"]) {
+    $("trade-state").textContent = "BYOS cancel needs signed headers from external signer.";
+    return;
+  }
+  $("trade-state").textContent = "Submitting BYOS signed cancel…";
+  try {
+    const data = await postJSON(ORDER_URL, {
+      action: "cancel",
+      activation_id,
+      wallet,
+      local_order_id: local_order_id || null,
+      arcus_order_id: arcus_order_id || null,
+      market: market || null,
+      headers,
+      arcus_body: cancel_body,
+      idempotency_key: `cancel-${Date.now()}`,
+    });
+    $("trade-state").textContent = data.ok
+      ? `Cancel submitted · ${data.arcus_order_id || local_order_id || "ok"}`
+      : (data.error || "cancel_failed");
+  } catch (err) {
+    $("trade-state").textContent = String(err?.message || err);
+  }
+});
+
+
+/* ═══════════════ MAIN v6 Dual-Venue Arm Desk ═══════════════ */
+function capsFromForm() {
+  return {
+    max_notional_usd: Number($("max_notional")?.value) || 1000,
+    max_loss_usd: Number($("max_loss")?.value) || 200,
+    spot_only: !!$("spot_only")?.checked,
+    allow_mainnet: false,
+  };
+}
+
+function persistArms() {
+  try {
+    localStorage.setItem(LS_ARMS, JSON.stringify({ arms: state.arms, activation: state.activation }));
+  } catch {}
+  const actId = state.activation?.id || state.arms?.arcus?.activation_id || state.arms?.rh_chain?.activation_id || "";
+  if ($("activation_id")) $("activation_id").value = actId;
+  if ($("activation_id_display")) $("activation_id_display").value = actId;
+  if ($("rh-arm-status"))
+    $("rh-arm-status").textContent = state.arms?.rh_chain ? "ARMED" : "DISARMED";
+  if ($("arcus-arm-status"))
+    $("arcus-arm-status").textContent = state.arms?.arcus ? "ARMED" : "DISARMED";
+  const live = (state.tradeMode || "observe") === "live";
+  const hasArm = !!(state.arms?.arcus || state.arms?.rh_chain);
+  if ($("btn-place")) $("btn-place").disabled = !(live && hasArm);
+}
+
+function restoreArms() {
+  try {
+    const raw = localStorage.getItem(LS_ARMS);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    state.arms = d.arms || { rh_chain: null, arcus: null };
+    if (d.activation) state.activation = d.activation;
+    persistArms();
+    if ($("arm-state"))
+      $("arm-state").textContent = JSON.stringify({ arms: state.arms, activation: state.activation }, null, 2);
+  } catch {}
+}
+
+function showAaConfigNote() {
+  const missing = !ZERODEV_PROJECT_ID && !ALCHEMY_API_KEY;
+  if ($("aa-config-note")) $("aa-config-note").hidden = !missing;
+}
+
+async function armVenue(action, extra = {}) {
+  let wallet = ($("wallet")?.value || state.wallet || "").trim();
+  if (!wallet && window.ethereum) {
+    await connectMetaMask();
+    wallet = state.wallet || "";
+  }
+  const token_id = Number($("token_id")?.value) || 1;
+  if ($("arm-state")) $("arm-state").textContent = `Requesting signature for ${action}…`;
+  const proof = await walletChallenge("arm", { wallet, token_id });
+  const body = {
+    action,
+    wallet: proof.wallet,
+    token_id,
+    caps: capsFromForm(),
+    nonce: proof.nonce,
+    signature: proof.signature,
+    ...extra,
+  };
+  const res = await fetch(EP.pub, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if ($("arm-state")) $("arm-state").textContent = JSON.stringify(data, null, 2);
+  if (!data.ok) throw new Error(data.error || "arm_failed");
+  if (data.activation) {
+    state.activation = data.activation;
+    localStorage.setItem(LS_ACT, JSON.stringify({ activation: data.activation }));
+  }
+  if (data.venue_arm) {
+    const v = data.venue_arm.venue;
+    state.arms[v] = data.venue_arm;
+  }
+  persistArms();
+  return data;
+}
+
+async function disarmVenue(venue) {
+  const wallet = ($("wallet")?.value || state.wallet || "").trim();
+  if (!wallet) throw new Error("Connect wallet first");
+  const token_id = Number($("token_id")?.value) || state.activation?.token_id || null;
+  if ($("arm-state")) $("arm-state").textContent = `Requesting disarm signature (${venue || "all"})…`;
+  const proof = await walletChallenge("disarm", { wallet, token_id });
+  const body = {
+    action: "disarm",
+    wallet: proof.wallet,
+    nonce: proof.nonce,
+    signature: proof.signature,
+  };
+  if (venue) body.venue = venue;
+  if (token_id) body.token_id = token_id;
+  const res = await fetch(EP.pub, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if ($("arm-state")) $("arm-state").textContent = JSON.stringify(data, null, 2);
+  if (venue) state.arms[venue] = null;
+  else state.arms = { rh_chain: null, arcus: null };
+  if (!venue) state.activation = null;
+  persistArms();
+  return data;
+}
+
+$("btn-arm-arcus")?.addEventListener("click", async () => {
+  try {
+    const pub = ($("arcus_api_key_pub")?.value || "").trim();
+    const ai = Number($("arcus_account_index")?.value) || 0;
+    sessionStorage.setItem(SS_AI, String(ai));
+    await armVenue("arm_arcus_byos", {
+      arcus_account_index: ai,
+      ...(pub ? { arcus_api_key_pub: pub } : {}),
+    });
+  } catch (err) {
+    if ($("arm-state")) $("arm-state").textContent = String(err?.message || err);
+  }
+});
+
+$("btn-arm-rh")?.addEventListener("click", async () => {
+  try {
+    const session_pub = ($("session_pub")?.value || "").trim();
+    const aa = ($("aa_provider")?.value || "zerodev");
+    await armVenue("arm_rh_chain", {
+      aa_provider: aa,
+      session_pub,
+      ttl_sec: Number($("session_ttl")?.value) || 86400,
+      spend_limit_usd: Number($("spend_limit")?.value) || 1000,
+    });
+  } catch (err) {
+    if ($("arm-state")) $("arm-state").textContent = String(err?.message || err);
+  }
+});
+
+$("btn-disarm-arcus")?.addEventListener("click", async () => {
+  try { await disarmVenue("arcus"); } catch (err) {
+    if ($("arm-state")) $("arm-state").textContent = String(err?.message || err);
+  }
+});
+$("btn-disarm-rh")?.addEventListener("click", async () => {
+  try { await disarmVenue("rh_chain"); } catch (err) {
+    if ($("arm-state")) $("arm-state").textContent = String(err?.message || err);
+  }
+});
+$("btn-disarm-all")?.addEventListener("click", async () => {
+  try { await disarmVenue(null); } catch (err) {
+    if ($("arm-state")) $("arm-state").textContent = String(err?.message || err);
+  }
+});
+
+$("btn-rh-guide")?.addEventListener("click", () => {
+  const box = $("rh-guide-box");
+  if (!box) return;
+  box.hidden = false;
+  const zd = ZERODEV_PROJECT_ID || "(set window.ZERODEV_PROJECT_ID)";
+  const al = ALCHEMY_API_KEY ? "configured" : "missing — stub only";
+  box.textContent = [
+    "RH Chain AA guide (client-side)",
+    "1. Switch MetaMask to Robinhood Chain (4663 / 0x1237).",
+    "2. ZeroDev: create Kernel account + permission/session key with TTL + spend policy.",
+    "   Docs: https://docs.zerodev.app/sdk/v5_3_x/permissions/intro",
+    "   RH AA: https://docs.robinhood.com/chain/account-abstraction",
+    `3. ZERODEV_PROJECT_ID: ${zd}`,
+    `4. ALCHEMY_API_KEY: ${al}`,
+    "5. Paste SESSION KEY ADDRESS (public) above → ARM RH CHAIN.",
+    "6. Trade: place_rh_chain logs intent; UserOp is signed/bundled in wallet/SDK (not Edge).",
+    "Vendored ZeroDev SDK not bundled under CSP — use your AA app/extension or add a vendor build later.",
+  ].join("\n");
+});
+
+/* Trade mode: observe vs live-via-armed */
+document.querySelectorAll("[data-trade-mode]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const mode = btn.getAttribute("data-trade-mode");
+    state.tradeMode = mode === "live" ? "live" : "observe";
+    localStorage.setItem("wst_main_trade_mode_v6", state.tradeMode);
+    document.querySelectorAll("[data-trade-mode]").forEach((b) => {
+      b.setAttribute("aria-pressed", b.getAttribute("data-trade-mode") === state.tradeMode ? "true" : "false");
+    });
+    if ($("trade-mode-badge")) {
+      $("trade-mode-badge").textContent =
+        state.tradeMode === "live" ? "LIVE · ARMED VENUE ONLY" : "OBSERVE · SIMULATE ONLY";
     }
-    if (!arcus_order_id) {
-      $("trade-state").textContent = "Missing Arcus orderId — cannot sign cancel (op=2).";
+    persistArms();
+  });
+});
+
+function syncActivationDisplay() {
+  const id = $("activation_id")?.value || state.activation?.id || "";
+  if ($("activation_id_display") && id) $("activation_id_display").value = id;
+}
+
+$("btn-copy-intent")?.addEventListener("click", async () => {
+  try {
+    const wallet = ($("wallet")?.value || state.wallet || "").trim();
+    const activation_id = ($("activation_id")?.value || state.activation?.id || "").trim();
+    if (!wallet || !activation_id) {
+      $("trade-state").textContent = "Arm Arcus BYOS first (need activation_id).";
       return;
     }
+    const market = $("trade_market")?.value;
     let marketMeta = findMarket(market);
     if (!marketMeta) {
       await loadTestnetMarkets();
       marketMeta = findMarket(market);
     }
-    if (!marketMeta) {
-      $("trade-state").textContent = `Market ${market || "?"} not found — needed for cancel marketId.`;
-      return;
-    }
-
-    $("trade-state").textContent = "Signing cancel (op=2) + proxying to testnet cancelOrder…";
-    const signed = await signCancelOrder({
+    const body = {
+      action: "intent_arcus",
+      activation_id,
       wallet,
-      accountIndex,
-      marketMeta,
-      orderId: arcus_order_id,
-      privHex: priv,
-    });
+      market,
+      orderSide: $("trade_side")?.value || "BUY",
+      quantity: $("trade_qty")?.value,
+      price: $("trade_price")?.value,
+      gtt_minutes: Number($("trade_gtt_min")?.value) || 30,
+      timeInForce: $("trade_tif")?.value || "GTT",
+      accountIndex: Number(sessionStorage.getItem(SS_AI) || 0) || 0,
+      marketId: marketMeta?.marketId ?? null,
+    };
+    $("trade-state").textContent = "Fetching unsigned intent…";
     const res = await fetch(EP.order, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        action: "cancel",
-        activation_id,
-        wallet,
-        local_order_id: local_order_id || undefined,
-        orderId: arcus_order_id,
-        market,
-        arcus_body: signed.arcus_body,
-        headers: signed.headers,
-        env: "testnet",
-      }),
+      body: JSON.stringify(body),
     });
     const data = await res.json();
     $("trade-state").textContent = JSON.stringify(data, null, 2);
-    loadOrders().catch(() => {});
-    loadActivity().catch(() => {});
+    if ($("byos_intent")) $("byos_intent").value = JSON.stringify(data, null, 2);
+    if (data?.unsigned?.arcus_body && $("byos_body")) {
+      $("byos_body").value = JSON.stringify(data.unsigned.arcus_body, null, 2);
+    }
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    } catch {}
   } catch (err) {
     $("trade-state").textContent = String(err?.message || err);
   }
 });
+
+$("btn-submit-byos")?.addEventListener("click", async () => {
+  try {
+    if ((state.tradeMode || "observe") !== "live") {
+      $("trade-state").textContent = "Switch to PLACE VIA ARMED VENUE to submit signed BYOS orders.";
+      return;
+    }
+    const wallet = ($("wallet")?.value || state.wallet || "").trim();
+    const activation_id = ($("activation_id")?.value || state.activation?.id || "").trim();
+    const headers = JSON.parse($("byos_headers")?.value || "{}");
+    const arcus_body = JSON.parse($("byos_body")?.value || "{}");
+    // Reject if user pasted private key fields into textareas
+    const blob = JSON.stringify({ headers, arcus_body });
+    if (/private[_ ]?key|mnemonic|seed|signing_key/i.test(blob)) {
+      $("trade-state").textContent = "Rejected: remove private key fields. Headers + body only.";
+      return;
+    }
+    const body = {
+      action: "place_arcus_byos",
+      activation_id,
+      wallet,
+      market: $("trade_market")?.value,
+      orderSide: $("trade_side")?.value || "BUY",
+      quantity: $("trade_qty")?.value,
+      price: $("trade_price")?.value,
+      idempotency_key: crypto.randomUUID(),
+      arcus_body,
+      headers,
+    };
+    $("trade-state").textContent = "Submitting BYOS signed order…";
+    const res = await fetch(EP.order, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json", "X-Idempotency-Key": body.idempotency_key },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    $("trade-state").textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    $("trade-state").textContent = String(err?.message || err);
+  }
+});
+
+$("trade-form")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if ((state.tradeMode || "observe") !== "live") {
+    $("trade-state").textContent = "Mode is Observe/Simulate — use SIMULATE, or switch to PLACE VIA ARMED VENUE.";
+    return;
+  }
+  const venueSel = $("trade_venue")?.value || "auto";
+  const venue =
+    venueSel === "auto"
+      ? (state.activation?.venue || (state.arms?.arcus ? "arcus" : state.arms?.rh_chain ? "rh_chain" : ""))
+      : venueSel;
+  if (venue === "arcus") {
+    $("trade-state").textContent =
+      "Arcus is BYOS: use COPY INTENT → external signer → SUBMIT SIGNED ORDER (no private keys on site).";
+    return;
+  }
+  if (venue === "rh_chain") {
+    try {
+      const wallet = ($("wallet")?.value || state.wallet || "").trim();
+      const activation_id = ($("activation_id")?.value || state.activation?.id || state.arms?.rh_chain?.activation_id || "").trim();
+      const body = {
+        action: "place_rh_chain",
+        activation_id,
+        wallet,
+        market: $("trade_market")?.value,
+        orderSide: $("trade_side")?.value || "BUY",
+        quantity: $("trade_qty")?.value,
+        price: $("trade_price")?.value,
+        session_pub: state.arms?.rh_chain?.session_pub || $("session_pub")?.value || null,
+        note: "ui_place_rh_chain_stub",
+      };
+      $("trade-state").textContent = "Recording RH Chain UserOp intent (client executes)…";
+      const res = await fetch(EP.order, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      $("trade-state").textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+      $("trade-state").textContent = String(err?.message || err);
+    }
+    return;
+  }
+  $("trade-state").textContent = "No armed venue. Arm RH Chain or Arcus BYOS first.";
+});
+
+// Init v6 UI bits
+showAaConfigNote();
+restoreArms();
+syncActivationDisplay();
+document.querySelectorAll("[data-trade-mode]").forEach((b) => {
+  b.setAttribute("aria-pressed", b.getAttribute("data-trade-mode") === (state.tradeMode || "observe") ? "true" : "false");
+});
+if ($("trade-mode-badge")) {
+  $("trade-mode-badge").textContent =
+    state.tradeMode === "live" ? "LIVE · ARMED VENUE ONLY" : "OBSERVE · SIMULATE ONLY";
+}
+persistArms();
+
+// Keep restoreActivation compatibility
+const _restoreActivationOrig = restoreActivation;
+restoreActivation = function () {
+  _restoreActivationOrig();
+  restoreArms();
+  syncActivationDisplay();
+};
+
