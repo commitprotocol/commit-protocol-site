@@ -54,6 +54,7 @@ const PANELS = [
 
 const $ = (id) => document.getElementById(id);
 const state = {
+  tradeMode: localStorage.getItem("wst_main_trade_mode") || "observe",
   wallet: null,
   activation: null,
   tape: [],
@@ -198,9 +199,47 @@ function updateConnectButtons() {
     el.textContent = label;
     el.classList.toggle("connected", !!state.wallet);
   });
+  const disc = $("btn-mm-disconnect");
+  if (disc) disc.hidden = !state.wallet;
   if (state.wallet && $("wallet")) $("wallet").value = state.wallet;
   if ($("profile-wallet"))
     $("profile-wallet").textContent = state.wallet ? shortAddr(state.wallet) : "—";
+}
+
+/** Clear wallet-bound UI + Arcus session key. Does not revoke MetaMask permissions (browser-owned). */
+function disconnectWallet() {
+  state.wallet = null;
+  state.owned = [];
+  state.activation = null;
+  try {
+    sessionStorage.removeItem(SS_KEY);
+    sessionStorage.removeItem(SS_AI);
+  } catch (_) {}
+  try {
+    localStorage.removeItem(LS_ACT);
+  } catch (_) {}
+  if ($("wallet")) $("wallet").value = "";
+  if ($("activation_id")) $("activation_id").value = "";
+  if ($("token_id")) $("token_id").value = "1";
+  if ($("trade_token")) $("trade_token").value = "1";
+  if ($("arcus_signing_key")) $("arcus_signing_key").value = "";
+  if ($("arcus_account_index")) $("arcus_account_index").value = "0";
+  if ($("cancel_order_id")) $("cancel_order_id").value = "";
+  if ($("arm-state")) $("arm-state").textContent = "Disconnected. Connect wallet to arm.";
+  if ($("trade-state")) $("trade-state").textContent = "Disconnected. Session signing key cleared.";
+  if ($("nfts-status")) $("nfts-status").textContent = "WALLET DISCONNECTED";
+  if ($("orders-kpi")) $("orders-kpi").textContent = "—";
+  const otb = $("orders-tbody");
+  if (otb) otb.innerHTML = `<tr><td colspan="9" class="empty">Connect wallet to load.</td></tr>`;
+  const atb = $("activity-tbody");
+  if (atb) atb.innerHTML = `<tr><td colspan="8" class="empty">Connect wallet to load Main orders.</td></tr>`;
+  const potb = $("profile-orders-tbody");
+  if (potb) potb.innerHTML = `<tr><td colspan="7" class="empty">No orders for this wallet yet.</td></tr>`;
+  if ($("profile-wallet")) $("profile-wallet").textContent = "—";
+  if ($("profile-owned")) $("profile-owned").textContent = "—";
+  updateConnectButtons();
+  updateKeyStatus();
+  try { renderNftGrid(); } catch (_) {}
 }
 
 async function switchChain() {
@@ -255,8 +294,7 @@ if (window.ethereum) {
       loadOrders().catch(() => {});
       loadActivity().catch(() => {});
     } else {
-      state.owned = [];
-      renderNftGrid();
+      disconnectWallet();
     }
   });
   window.ethereum
@@ -277,6 +315,10 @@ if (window.ethereum) {
       if ($("nfts-status")) $("nfts-status").textContent = String(e?.message || e);
     });
   });
+});
+
+$("btn-mm-disconnect")?.addEventListener("click", () => {
+  disconnectWallet();
 });
 
 /* ── On-chain ownership (ownerOf loop; not enumerable) ── */
@@ -892,6 +934,19 @@ function restoreActivation() {
   }
 }
 
+
+/** Harden v4: wallet-signed challenge via main-public (personal_sign). */
+async function walletChallenge(purpose, extra = {}) {
+  const wallet = (extra.wallet || state.wallet || $("wallet")?.value || "").trim();
+  if (!wallet) throw new Error("Connect wallet first");
+  if (!window.ethereum) throw new Error("MetaMask required for signed activate/revoke");
+  const pr = await fetch(EP.pub, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ action: "challenge", purpose, wallet, ...extra }) });
+  const ch = await pr.json();
+  if (!ch?.nonce || !ch?.message) throw new Error(ch?.error || "challenge_failed");
+  const signature = await window.ethereum.request({ method: "personal_sign", params: [ch.message, wallet] });
+  return { wallet, nonce: ch.nonce, signature, message: ch.message, expires_at: ch.expires_at };
+}
+
 $("arm-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   let wallet = $("wallet").value.trim();
@@ -900,21 +955,25 @@ $("arm-form")?.addEventListener("submit", async (e) => {
     wallet = state.wallet || "";
   }
   const token_id = Number($("token_id").value) || 1;
-  const body = {
-    action: "activate",
-    wallet,
-    token_id,
-    venue: $("venue").value || "arcus",
-    caps: {
-      max_notional_usd: Number($("max_notional").value) || 1000,
-      max_loss_usd: Number($("max_loss").value) || 200,
-      spot_only: !!$("spot_only").checked,
-      allow_mainnet: false,
-    },
-    arcus_account_index: Number(sessionStorage.getItem(SS_AI) || 0) || 0,
-  };
-  $("arm-state").textContent = "Activating…";
+  $("arm-state").textContent = "Requesting wallet signature…";
   try {
+    const proof = await walletChallenge("activate", { wallet, token_id });
+    const body = {
+      action: "activate",
+      wallet: proof.wallet,
+      token_id,
+      venue: $("venue").value || "arcus",
+      caps: {
+        max_notional_usd: Number($("max_notional").value) || 1000,
+        max_loss_usd: Number($("max_loss").value) || 200,
+        spot_only: !!$("spot_only").checked,
+        allow_mainnet: false,
+      },
+      arcus_account_index: Number(sessionStorage.getItem(SS_AI) || 0) || 0,
+      nonce: proof.nonce,
+      signature: proof.signature,
+    };
+    $("arm-state").textContent = "Activating (signed)…";
     const res = await fetch(EP.pub, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -945,10 +1004,12 @@ $("btn-revoke")?.addEventListener("click", async () => {
     return;
   }
   try {
+    $("arm-state").textContent = "Requesting revoke signature…";
+    const proof = await walletChallenge("revoke", { wallet, activation_id });
     const res = await fetch(EP.pub, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ action: "revoke", activation_id, wallet }),
+      body: JSON.stringify({ action: "revoke", activation_id, wallet: proof.wallet, nonce: proof.nonce, signature: proof.signature }),
     });
     const data = await res.json();
     $("arm-state").textContent = JSON.stringify(data, null, 2);
@@ -1025,6 +1086,10 @@ $("trade-form")?.addEventListener("submit", async (e) => {
   const priv = sessionStorage.getItem(SS_KEY);
   const accountIndex = Number(sessionStorage.getItem(SS_AI) || 0) || 0;
 
+  if ((state.tradeMode || "observe") !== "pilot") {
+    $("trade-state").textContent = "Mode is Observe/Simulate — switch to Pilot to place live TESTNET orders.";
+    return;
+  }
   if (!wallet || !activation_id) {
     $("trade-state").textContent = "Connect MetaMask and Arm Desk first.";
     return;
@@ -1043,7 +1108,8 @@ $("trade-form")?.addEventListener("submit", async (e) => {
     $("trade-state").textContent = `Market ${market} not found on testnet /v1/markets.`;
     return;
   }
-  const goodTilTimeUs = Date.now() * 1000 + 40 * 86400 * 1_000_000;
+  const gttMin = Number($("trade_gtt_min")?.value) || 30;
+  const goodTilTimeUs = Date.now() * 1000 + Math.min(60, Math.max(15, gttMin)) * 60 * 1_000_000;
   try {
     $("trade-state").textContent = "Signing + proxying to testnet…";
     const signed = await signPlaceOrder({
@@ -1057,6 +1123,7 @@ $("trade-form")?.addEventListener("submit", async (e) => {
       goodTilTimeUs,
       privHex: priv,
     });
+    const idempotency_key = crypto.randomUUID();
     const body = {
       env: "testnet",
       activation_id,
@@ -1073,6 +1140,8 @@ $("trade-form")?.addEventListener("submit", async (e) => {
       timestamp: signed.arcus_body.timestamp,
       arcus_body: signed.arcus_body,
       headers: signed.headers,
+      idempotency_key,
+      actor: "holder",
     };
     const res = await fetch(EP.order, {
       method: "POST",
@@ -1154,19 +1223,26 @@ async function loadOrders() {
     const tb = $("orders-tbody");
     if (tb) {
       if (!orders.length) {
-        tb.innerHTML = `<tr><td colspan="7" class="empty">No orders yet.</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="9" class="empty">No orders yet.</td></tr>`;
       } else {
         tb.innerHTML = orders
           .map(
-            (o) => `<tr>
+            (o) => {
+              const gtt = o.good_til_time
+                ? new Date(Number(o.good_til_time) / 1000).toLocaleString()
+                : "—";
+              return `<tr>
             <td>${o.created_at ? new Date(o.created_at).toLocaleString() : "—"}</td>
             <td>${o.market || "—"}</td>
             <td>${o.side || "—"}</td>
             <td>${o.qty ?? "—"}</td>
             <td class="mid">${o.price ?? "—"}</td>
             <td>${o.status || "—"}</td>
-            <td>${o.arcus_env || "—"}</td>
-          </tr>`
+            <td>${o.actor || "holder"}</td>
+            <td>${gtt}</td>
+            <td>${o.arcus_env || "TESTNET"}</td>
+          </tr>`;
+            }
           )
           .join("");
       }
@@ -1317,3 +1393,47 @@ setInterval(() => {
   loadPublic().catch(() => {});
   loadPricesEdge().catch(() => {});
 }, 45000);
+
+
+/* Mode: Observe/Simulate (default) vs Pilot */
+function syncTradeModeUI() {
+  const mode = state.tradeMode || "observe";
+  document.querySelectorAll("[data-trade-mode]").forEach((el) => {
+    el.setAttribute("aria-pressed", el.getAttribute("data-trade-mode") === mode ? "true" : "false");
+  });
+  const badge = $("trade-mode-badge");
+  if (badge) badge.textContent = mode === "pilot" ? "PILOT · TESTNET LIVE" : "OBSERVE · SIMULATE ONLY";
+  const place = $("btn-place");
+  if (place) place.disabled = mode !== "pilot";
+}
+document.querySelectorAll("[data-trade-mode]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    state.tradeMode = btn.getAttribute("data-trade-mode") || "observe";
+    localStorage.setItem("wst_main_trade_mode", state.tradeMode);
+    syncTradeModeUI();
+  });
+});
+syncTradeModeUI();
+
+$("btn-cancel-order")?.addEventListener("click", async () => {
+  const activation_id = ($("activation_id")?.value || state.activation?.id || "").trim();
+  const wallet = ($("wallet")?.value || state.wallet || "").trim();
+  const local_order_id = ($("cancel_order_id")?.value || "").trim();
+  if (!activation_id || !wallet || !local_order_id) {
+    $("trade-state").textContent = "Need activation, wallet, and local order id to cancel.";
+    return;
+  }
+  try {
+    $("trade-state").textContent = "Canceling (local log; signed Arcus cancel optional)…";
+    const res = await fetch(EP.order, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ action: "cancel", activation_id, wallet, local_order_id }),
+    });
+    const data = await res.json();
+    $("trade-state").textContent = JSON.stringify(data, null, 2);
+    loadOrders().catch(() => {});
+  } catch (err) {
+    $("trade-state").textContent = String(err?.message || err);
+  }
+});

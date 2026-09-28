@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — MetaMask opt-in, Arcus TESTNET placeOrder. Separate from paper beta.">
   <title>WST Autonomous Traders — MAIN</title>
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -22,6 +22,7 @@
     </nav>
     <div class="wallet-chip">
       <button type="button" class="header-cta-btn" id="btn-mm-header">CONNECT WALLET</button>
+      <button type="button" class="header-disconnect-btn" id="btn-mm-disconnect" hidden title="Disconnect wallet and clear session keys">DISCONNECT</button>
     </div>
   </header>
   <div class="main-badge-bar" role="status">
@@ -96,11 +97,11 @@
       </nav>
       <div class="sidebar-social" aria-label="Community">
         <a class="sidebar-social-link" href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer" title="X / Twitter">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.727-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+          <svg class="social-ico" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.727-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
           <span class="nav-label">X</span>
         </a>
         <a class="sidebar-social-link" href="https://discord.gg/WEQTbg2fy9" target="_blank" rel="noopener noreferrer" title="Discord">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+          <svg class="social-ico" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.1.1 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.1 16.1 0 0 0-4.8 0c-.14-.34-.37-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.02.02.05.03.08.02c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/></svg>
           <span class="nav-label">Discord</span>
         </a>
         <span class="sidebar-social-mark nav-label">WST</span>
@@ -350,7 +351,7 @@
         <div class="dash-head">
           <p>05 · ARM DESK</p>
           <h2>Opt-in activate.</h2>
-          <small>POST action=activate to main-public. Caps enforced on placeOrder. Default env = Arcus TESTNET. Signing keys stay in browser sessionStorage.</small>
+          <small>Wallet-signed activate/revoke (personal_sign challenge). Caps enforced on placeOrder. Default env = Arcus TESTNET. Arcus signing keys stay in browser sessionStorage — never POSTed to Edge.</small>
         </div>
         <form class="arm-form" id="arm-form" autocomplete="off">
           <div class="field"><label for="wallet">WALLET</label><input id="wallet" name="wallet" placeholder="0x… connect MetaMask" /></div>
@@ -376,7 +377,12 @@
         <div class="dash-head">
           <p>06 · TRADE</p>
           <h2>Arcus TESTNET placeOrder.</h2>
-          <small>Browser signs with noble/ed25519. Edge main-order proxies to api.testnet.arcus.xyz. Without a signing key, use Simulate.</small>
+          <small>Prices: <b>Arcus mainnet mids</b> · Orders: <b>Arcus TESTNET</b>. Default mode is Observe/Simulate. Pilot enables live TESTNET placeOrder. GTT defaults to ~30 minutes.</small>
+          <div class="mode-toggle" style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap">
+            <button type="button" class="ghost-btn" data-trade-mode="observe" aria-pressed="true">OBSERVE / SIMULATE</button>
+            <button type="button" class="ghost-btn" data-trade-mode="pilot" aria-pressed="false">PILOT (TESTNET LIVE)</button>
+            <b id="trade-mode-badge" style="font-size:11px;letter-spacing:.08em">OBSERVE · SIMULATE ONLY</b>
+          </div>
         </div>
         <div class="panel" style="margin-bottom:18px">
           <div class="panel-head"><div><span>SESSION · ARCUS API SIGNING KEY</span><h3>sessionStorage only</h3></div><b id="key-status">NO KEY</b></div>
@@ -404,11 +410,16 @@
           </div>
           <div class="arm-row">
             <div class="field"><label for="trade_tif">TIME IN FORCE</label><select id="trade_tif"><option value="GTT" selected>GTT</option><option value="IOC">IOC</option></select></div>
+            <div class="field"><label for="trade_gtt_min">GTT MINUTES (15–60)</label><input id="trade_gtt_min" type="number" min="15" max="60" value="30" /></div>
+          </div>
+          <div class="arm-row">
             <div class="field"><label for="trade_token">TOKEN ID</label><input id="trade_token" type="number" min="1" max="444" value="1" /></div>
+            <div class="field"><label for="cancel_order_id">CANCEL LOCAL ORDER ID</label><input id="cancel_order_id" placeholder="uuid from orders table" /></div>
           </div>
           <div class="arm-actions">
-            <button type="submit" class="solid-btn" id="btn-place">PLACE ORDER (TESTNET)</button>
+            <button type="submit" class="solid-btn" id="btn-place" disabled>PLACE ORDER (TESTNET)</button>
             <button type="button" class="ghost-btn" id="btn-simulate">SIMULATE (NO KEY)</button>
+            <button type="button" class="ghost-btn" id="btn-cancel-order">CANCEL ORDER</button>
             <button type="button" class="ghost-btn" id="btn-refresh-orders">REFRESH ORDERS</button>
           </div>
           <small class="arm-note" id="trade-mkt-meta">Market tick/step loaded from testnet /v1/markets.</small>
@@ -416,8 +427,8 @@
         </form>
         <div class="panel" style="margin-top:18px">
           <div class="panel-head"><div><span>RECENT ORDERS</span><h3>main_orders for wallet</h3></div></div>
-          <div style="overflow-x:auto"><table class="tape-table"><thead><tr><th>TIME</th><th>MARKET</th><th>SIDE</th><th>QTY</th><th>PRICE</th><th>STATUS</th><th>ENV</th></tr></thead>
-          <tbody id="orders-tbody"><tr><td colspan="7" class="empty">Connect + arm to load.</td></tr></tbody></table></div>
+          <div style="overflow-x:auto"><table class="tape-table"><thead><tr><th>TIME</th><th>MARKET</th><th>SIDE</th><th>QTY</th><th>PRICE</th><th>STATUS</th><th>ACTOR</th><th>GTT</th><th>ENV</th></tr></thead>
+          <tbody id="orders-tbody"><tr><td colspan="9" class="empty">Connect + arm to load.</td></tr></tbody></table></div>
         </div>
       </section>
 
@@ -476,6 +487,15 @@
             <p class="api-note" style="margin-top:16px;color:#8e938c;font-size:10px">Activations &amp; orders write to Main only. Beta DNA fetch is browser read-only for display.</p>
           </div>
         </article>
+        <article class="panel" style="margin-top:18px" id="threat-model">
+          <div class="panel-head"><div><span>SECURITY</span><h3>Threat model (harden v4)</h3></div><b>MAIN ONLY</b></div>
+          <div style="padding:18px 22px;font-size:13px;line-height:1.55;color:#c4c8c2">
+            <p><b>Trust boundaries.</b> Browser holds Arcus ed25519 signing keys in <code>sessionStorage</code> only — Edge rejects any private-key fields. Wallet ownership is proven via one-time <code>personal_sign</code> challenges (<code>main_auth_nonces</code>) for activate/revoke. Every placeOrder re-checks NFT <code>ownerOf</code> on Robinhood Chain and auto-revokes if transferred.</p>
+            <p><b>Caps.</b> Hard <code>max_notional_usd</code> with drip spent tracking (open/submitted/filled/simulated). Soft <code>max_loss_usd</code> until mark PnL is wired. Env forced to Arcus TESTNET unless <code>caps.allow_mainnet===true</code>.</p>
+            <p><b>Orders.</b> Short GTT (15–60 min, default 30). Idempotency keys required. Cancel without Arcus signature logs a local cancel; live Arcus cancel needs signed headers. Actor labeled <code>holder</code> vs <code>agent</code>.</p>
+            <p><b>Residual risks.</b> XSS can still steal sessionStorage keys. CORS defaults to <code>*</code> unless <code>CORS_ORIGIN_ALLOWLIST</code> is set. Soft max-loss is advisory. Unsigned cancel does not hit Arcus cancelOrder.</p>
+          </div>
+        </article>
         <div class="panel" style="margin-top:18px">
           <div class="panel-head"><div><span>RAW</span><h3>Last overview payload</h3></div><button type="button" class="ghost-btn" id="btn-refresh">REFRESH</button></div>
           <pre class="local-state" id="dev-payload" style="margin:0;border:0">Loading…</pre>
@@ -507,8 +527,8 @@
       <a href="https://docs.arcus.xyz/guides/rest-trading.md" target="_blank" rel="noopener">REST trading ↗</a>
       <a href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noopener">OpenSea ↗</a>
     </div>
-    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=3 · INFORMATIONAL · NOT ADVICE</small>
+    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=4 · INFORMATIONAL · NOT ADVICE</small>
   </footer>
-  <script type="module" src="app.js?v=3"></script>
+  <script type="module" src="app.js?v=4"></script>
 </body>
 </html>

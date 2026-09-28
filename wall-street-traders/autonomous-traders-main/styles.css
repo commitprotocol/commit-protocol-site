@@ -560,36 +560,65 @@ button.pulse-card:hover{border-color:var(--green);background:#0a0d0a}
 .profile-main-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 @media(max-width:900px){.arm-row,.status-grid{grid-template-columns:1fr}.main-badge-bar{padding:10px 20px}.wallet-chip{justify-self:end}}
 
-/* Sidebar social footer (Stonk Brokers vibe) */
+/* Sidebar social footer (Stonk Brokers vibe) — clean X/Discord in collapsed + expanded */
 .autonomous-sidebar{display:flex;flex-direction:column}
 .autonomous-nav{flex:1 1 auto;overflow-y:auto;overflow-x:hidden}
 .sidebar-social{
   margin-top:auto;
   border-top:1px solid var(--line);
-  padding:14px 10px 10px;
-  display:flex;align-items:center;gap:10px;
+  padding:14px 8px 12px;
+  display:flex;align-items:center;gap:6px;
   flex-shrink:0;
+  flex-wrap:nowrap;
+  overflow:visible;
 }
 .sidebar-social-link{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  width:28px;height:28px;color:#8e938c;border-radius:4px;transition:color .15s,background .15s;
+  box-sizing:border-box;
+  width:28px;min-width:28px;height:28px;padding:0;
+  color:#8e938c;border-radius:4px;
+  transition:color .15s,background .15s,width .15s,padding .15s,min-width .15s;
+  overflow:visible;flex:0 0 auto;text-decoration:none;
 }
 .sidebar-social-link:hover{color:var(--green);background:#0a0d0a}
-.sidebar-social-link svg{width:14px;height:14px;display:block}
+.sidebar-social-link svg.social-ico,
+.sidebar-social-link svg{
+  width:14px;height:14px;min-width:14px;min-height:14px;
+  display:block;flex:0 0 14px;overflow:visible;
+}
 .sidebar-social-link .nav-label,
 .sidebar-social-mark.nav-label{
-  display:none;opacity:0;max-width:0;overflow:hidden;white-space:nowrap;
+  display:none;
   font:700 9px var(--mono);letter-spacing:.1em;color:#6d726b;
+  white-space:nowrap;overflow:visible;max-width:none;opacity:1;
+}
+/* Expanded rail: grow links so full "X" / "Discord" labels fit */
+.autonomous-sidebar:hover .sidebar-social-link,
+.autonomous-sidebar:focus-within .sidebar-social-link{
+  width:auto;min-width:28px;padding:0 8px;justify-content:flex-start;
 }
 .autonomous-sidebar:hover .sidebar-social-link .nav-label,
 .autonomous-sidebar:focus-within .sidebar-social-link .nav-label,
 .autonomous-sidebar:hover .sidebar-social-mark.nav-label,
 .autonomous-sidebar:focus-within .sidebar-social-mark.nav-label{
-  display:inline;opacity:1;max-width:80px;
+  display:inline;
 }
-.sidebar-social-mark{margin-left:2px;font:700 9px var(--mono);letter-spacing:.12em;color:#4e544d}
+.sidebar-social-mark{
+  margin-left:auto;padding:0 4px;
+  font:700 9px var(--mono);letter-spacing:.12em;color:#4e544d;
+}
 .autonomous-sidebar:hover .sidebar-social,
-.autonomous-sidebar:focus-within .sidebar-social{padding-inline:14px}
+.autonomous-sidebar:focus-within .sidebar-social{padding-inline:12px;gap:8px}
 @media(max-width:900px){
   .sidebar-social{display:none}
 }
+
+/* Header disconnect (wallet chip) */
+.header-disconnect-btn{
+  appearance:none;border:1px solid #3a3f3a;background:transparent;color:#c4c8c2;
+  font:inherit;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:8px 12px;cursor:pointer;border-radius:2px;
+}
+.header-disconnect-btn:hover{border-color:var(--green);color:var(--green)}
+.header-disconnect-btn[hidden]{display:none!important}
+.wallet-chip{flex-wrap:wrap}
