@@ -1,4 +1,10 @@
-
+import {
+  createSessionKey as zdCreateSessionKey,
+  sendSessionUserOp as zdSendSessionUserOp,
+  clearMemSession as zdClearMemSession,
+  getMemSession as zdGetMemSession,
+  META as ZD_META,
+} from "./vendor/zerodev-rh.js";
 /* ── Configurable WST NFT contract (Robinhood Chain) ── */
 const CONTRACT_ADDRESS = "0x7a5f95f898cf968cac3f9d6231f03f36c3da5b0d";
 const CHAIN_HEX = "0x1237"; // Robinhood Chain
@@ -18,7 +24,7 @@ const BETA_PUB =
   "https://kgtksjxfcwnmyeqddpug.supabase.co/functions/v1/autonomous-public";
 const ARCUS_TESTNET = "https://api.testnet.arcus.xyz";
 const SS_AI = "wst_main_arcus_account_index_v1";
-const LS_ACT = "wst_main_activation_v6";
+const LS_ACT = "wst_main_activation_v6"; // meta schema unchanged in v7
 const LS_ARMS = "wst_main_venue_arms_v6";
 const ZERODEV_PROJECT_ID = (typeof window !== "undefined" && window.ZERODEV_PROJECT_ID) || "";
 const ALCHEMY_API_KEY = (typeof window !== "undefined" && window.ALCHEMY_API_KEY) || "";
@@ -231,6 +237,7 @@ function disconnectWallet() {
   if ($("byos_body")) $("byos_body").value = "";
   if ($("byos_intent")) $("byos_intent").value = "";
   if ($("session_pub")) $("session_pub").value = "";
+  try { zdClearMemSession(); } catch (_) {}
   if ($("arcus_account_index")) $("arcus_account_index").value = "0";
   if ($("cancel_order_id")) $("cancel_order_id").value = "";
   if ($("arm-state")) $("arm-state").textContent = "Disconnected. Connect wallet to arm.";
@@ -1293,8 +1300,16 @@ function restoreArms() {
 }
 
 function showAaConfigNote() {
-  const missing = !ZERODEV_PROJECT_ID && !ALCHEMY_API_KEY;
-  if ($("aa-config-note")) $("aa-config-note").hidden = !missing;
+  const missingZd = !ZERODEV_PROJECT_ID;
+  const missingAll = !ZERODEV_PROJECT_ID && !ALCHEMY_API_KEY;
+  if ($("aa-config-note")) $("aa-config-note").hidden = !missingAll;
+  const btn = $("btn-zd-create");
+  if (btn) {
+    btn.disabled = missingZd;
+    btn.title = missingZd
+      ? "Set window.ZERODEV_PROJECT_ID (ENV.placeholders.md)"
+      : "Create Kernel + session key via vendored ZeroDev (MetaMask)";
+  }
 }
 
 async function armVenue(action, extra = {}) {
@@ -1412,20 +1427,65 @@ $("btn-rh-guide")?.addEventListener("click", () => {
   const box = $("rh-guide-box");
   if (!box) return;
   box.hidden = false;
-  const zd = ZERODEV_PROJECT_ID || "(set window.ZERODEV_PROJECT_ID)";
-  const al = ALCHEMY_API_KEY ? "configured" : "missing — stub only";
+  const zd = ZERODEV_PROJECT_ID || "(set window.ZERODEV_PROJECT_ID before app.js)";
+  const al = ALCHEMY_API_KEY ? "configured" : "missing — Alchemy path stub only";
+  const mem = typeof zdGetMemSession === "function" ? zdGetMemSession() : null;
   box.textContent = [
-    "RH Chain AA guide (client-side)",
-    "1. Switch MetaMask to Robinhood Chain (4663 / 0x1237).",
-    "2. ZeroDev: create Kernel account + permission/session key with TTL + spend policy.",
-    "   Docs: https://docs.zerodev.app/sdk/v5_3_x/permissions/intro",
-    "   RH AA: https://docs.robinhood.com/chain/account-abstraction",
-    `3. ZERODEV_PROJECT_ID: ${zd}`,
-    `4. ALCHEMY_API_KEY: ${al}`,
-    "5. Paste SESSION KEY ADDRESS (public) above → ARM RH CHAIN.",
-    "6. Trade: place_rh_chain logs intent; UserOp is signed/bundled in wallet/SDK (not Edge).",
-    "Vendored ZeroDev SDK not bundled under CSP — use your AA app/extension or add a vendor build later.",
+    "RH Chain AA guide · MAIN v7 (ZeroDev vendored)",
+    `Vendor: ./vendor/zerodev-rh.js · ${ZD_META?.name || "wst-zerodev-rh"} · kernel ${ZD_META?.kernel || "v3.1"}`,
+    "1. Inject window.ZERODEV_PROJECT_ID (ZeroDev dashboard · RH Chain 4663).",
+    "2. Connect MetaMask · switch to Robinhood Chain (4663 / 0x1237).",
+    "3. Click CREATE SESSION KEY (ZERODEV) — Kernel + permission key (TTL + gas policy).",
+    "   Session private key stays in page memory only (cleared on disconnect/reload).",
+    "4. session_pub fills automatically → ARM RH CHAIN (wallet challenge + Edge meta).",
+    "5. Trade live · venue rh_chain → client UserOp via ZeroDev bundler, then Edge place_rh_chain log.",
+    "   Default UserOp = noop to 0x0 (pipeline proof). DEX router calldata still stub.",
+    `6. ZERODEV_PROJECT_ID: ${zd}`,
+    `7. ALCHEMY_API_KEY: ${al}`,
+    `8. In-memory session: ${mem ? mem.sessionAddress + " · kernel " + mem.kernelAddress : "(none this page load)"}`,
+    "Docs: https://docs.zerodev.app/sdk/v5_3_x/permissions/intro",
+    "RH AA: https://docs.robinhood.com/chain/account-abstraction",
   ].join("\n");
+});
+
+$("btn-zd-create")?.addEventListener("click", async () => {
+  const box = $("rh-guide-box");
+  try {
+    if (!ZERODEV_PROJECT_ID) {
+      throw new Error("Set window.ZERODEV_PROJECT_ID first (ENV.placeholders.md)");
+    }
+    if (!window.ethereum) throw new Error("MetaMask / window.ethereum required");
+    if ($("arm-state")) $("arm-state").textContent = "Creating ZeroDev Kernel + session key (MetaMask may prompt)…";
+    if (box) {
+      box.hidden = false;
+      box.textContent = "Creating session key via vendor/zerodev-rh.js…";
+    }
+    const ttl = Number($("session_ttl")?.value) || 86400;
+    const spend = Number($("spend_limit")?.value) || 1000;
+    const result = await zdCreateSessionKey({
+      projectId: ZERODEV_PROJECT_ID,
+      ethereum: window.ethereum,
+      ttlSec: ttl,
+      spendLimitUsd: spend,
+      enableOnChain: true,
+    });
+    if ($("session_pub") && result.session_pub) $("session_pub").value = result.session_pub;
+    if ($("aa_provider")) $("aa_provider").value = "zerodev";
+    if (!state.wallet && result.owner) {
+      state.wallet = result.owner;
+      updateConnectButtons();
+    }
+    const summary = JSON.stringify(result, null, 2);
+    if ($("arm-state")) $("arm-state").textContent = summary;
+    if (box) box.textContent = summary;
+  } catch (err) {
+    const msg = String(err?.message || err);
+    if ($("arm-state")) $("arm-state").textContent = "ZeroDev session create failed: " + msg;
+    if (box) {
+      box.hidden = false;
+      box.textContent = "ZeroDev session create failed:\n" + msg;
+    }
+  }
 });
 
 /* Trade mode: observe vs live-via-armed */
@@ -1558,6 +1618,29 @@ $("trade-form")?.addEventListener("submit", async (e) => {
     try {
       const wallet = ($("wallet")?.value || state.wallet || "").trim();
       const activation_id = ($("activation_id")?.value || state.activation?.id || state.arms?.rh_chain?.activation_id || "").trim();
+      let userOpResult = null;
+      const mem = typeof zdGetMemSession === "function" ? zdGetMemSession() : null;
+      if (ZERODEV_PROJECT_ID && mem?.hasApproval) {
+        $("trade-state").textContent = "Sending ZeroDev UserOp (noop pipeline proof — DEX encode still stub)…";
+        userOpResult = await zdSendSessionUserOp({
+          projectId: ZERODEV_PROJECT_ID,
+          wait: true,
+        });
+      } else if (!ZERODEV_PROJECT_ID) {
+        userOpResult = {
+          ok: false,
+          live: false,
+          skipped: true,
+          reason: "ZERODEV_PROJECT_ID missing — Edge log only",
+        };
+      } else {
+        userOpResult = {
+          ok: false,
+          live: false,
+          skipped: true,
+          reason: "No in-memory session this page load — click CREATE SESSION KEY (ZERODEV) first",
+        };
+      }
       const body = {
         action: "place_rh_chain",
         activation_id,
@@ -1566,17 +1649,18 @@ $("trade-form")?.addEventListener("submit", async (e) => {
         orderSide: $("trade_side")?.value || "BUY",
         quantity: $("trade_qty")?.value,
         price: $("trade_price")?.value,
-        session_pub: state.arms?.rh_chain?.session_pub || $("session_pub")?.value || null,
-        note: "ui_place_rh_chain_stub",
+        session_pub: state.arms?.rh_chain?.session_pub || $("session_pub")?.value || mem?.sessionAddress || null,
+        note: userOpResult?.live ? "ui_place_rh_chain_userop_live" : "ui_place_rh_chain_log_only",
+        client_userop: userOpResult,
       };
-      $("trade-state").textContent = "Recording RH Chain UserOp intent (client executes)…";
+      $("trade-state").textContent = "Logging RH Chain intent to Edge (place_rh_chain)…";
       const res = await fetch(EP.order, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      $("trade-state").textContent = JSON.stringify(data, null, 2);
+      $("trade-state").textContent = JSON.stringify({ client_userop: userOpResult, edge: data }, null, 2);
     } catch (err) {
       $("trade-state").textContent = String(err?.message || err);
     }
@@ -1585,7 +1669,7 @@ $("trade-form")?.addEventListener("submit", async (e) => {
   $("trade-state").textContent = "No armed venue. Arm RH Chain or Arcus BYOS first.";
 });
 
-// Init v6 UI bits
+// Init v7 UI bits
 showAaConfigNote();
 restoreArms();
 syncActivationDisplay();
