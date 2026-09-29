@@ -6,7 +6,7 @@
   <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — Dual-venue Arm Desk: RH Chain AA + Arcus BYOS. Separate from paper beta.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://binqxbofehpigwjrwksl.supabase.co https://kgtksjxfcwnmyeqddpug.supabase.co https://api.arcus.xyz https://api.testnet.arcus.xyz https://rpc.mainnet.chain.robinhood.com https://rpc.zerodev.app https://*.zerodev.app https://robinhood-mainnet.g.alchemy.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
   <title>WST Autonomous Traders — MAIN</title>
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -27,8 +27,8 @@
     </div>
   </header>
   <div class="main-badge-bar" role="status">
-    <span class="badge"><i></i> MAIN · DUAL VENUE · BYOS + AA (v7)</span>
-    <span class="badge warn">PRICES: ARCUS MIDS · ORDERS: TESTNET / RH USEROP</span>
+    <span class="badge"><i></i> MAIN · DUAL VENUE · BYOS + AA (v8)</span>
+    <span class="badge warn">PRICES: ARCUS MIDS · ARCUS ORDERS: TESTNET · RH CHAIN: MAINNET</span>
     <span class="badge muted">Paper beta separate · ZeroDev vendored · no private keys on site</span>
   </div>
   <main id="main-content" class="autonomous-workspace">
@@ -102,11 +102,11 @@
       <section class="page-panel overview-panel active-panel" id="overview" data-panel="overview">
         <div class="hero-copy">
           <p class="terminal-line"><i class="signal-dot"></i> AUTONOMOUS TRADERS / MAIN · OPT-IN</p>
-          <p class="folio">444 TRADING DNAs · ROBINHOOD CHAIN · ARCUS TESTNET ORDERS</p>
+          <p class="folio">444 TRADING DNAs · RH CHAIN MAINNET · ARCUS TESTNET ORDERS</p>
           <h1>MAIN DESK.<br><span>WALLET → NFT → ARM.</span></h1>
-          <p class="hero-lead">Connect MetaMask, load WST NFTs you own on-chain, open a Trader Profile, arm caps on Arcus, and place TESTNET orders via Edge <code>main-order</code>. Paper beta is a separate URL and Supabase project.</p>
-          <div class="notice"><i></i> MAIN · DUAL VENUE · BYOS + AA (v7)</div>
-          <p class="microcopy">PRICES: api.arcus.xyz/v1/mids · ORDERS: api.testnet.arcus.xyz · PROJECT binqxbofehpigwjrwksl</p>
+          <p class="hero-lead">Connect MetaMask, load WST NFTs you own on-chain, open a Trader Profile, arm caps, place <b>Arcus TESTNET</b> orders via Edge <code>main-order</code>, or <b>RH Chain MAINNET</b> DEX UserOps via ZeroDev. Paper beta is a separate URL and Supabase project.</p>
+          <div class="notice"><i></i> MAIN · DUAL VENUE · BYOS + AA (v8)</div>
+          <p class="microcopy">PRICES: api.arcus.xyz/v1/mids · ARCUS ORDERS: api.testnet.arcus.xyz · RH: chain 4663 MAINNET · PROJECT binqxbofehpigwjrwksl</p>
           <div class="overview-dev-chip-row" style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
             <button type="button" class="api-chip overview-dev-chip" data-nav="nfts">MY NFTS →</button>
             <button type="button" class="api-chip overview-dev-chip" data-nav="finder">FIND TRADER →</button>
@@ -148,7 +148,7 @@
 
       <!-- ACTIVITY -->
       <section class="page-panel dashboard-panel" id="activity" data-panel="activity">
-        <div class="dash-head"><p>06 / MAIN ORDER FEED</p><h2>ACTIVITY.</h2><small>Recent Main intents / orders for the connected wallet (testnet + simulate). Paper decision feed stays on beta.</small></div>
+        <div class="dash-head"><p>06 / MAIN ORDER FEED</p><h2>ACTIVITY.</h2><small>Recent Main intents / orders for the connected wallet (Arcus TESTNET + RH MAINNET UserOp + simulate). Paper decision feed stays on beta.</small></div>
         <article class="panel">
           <div class="panel-head"><div><span>ORDER LEDGER</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status">READY</b></div>
           <div style="overflow-x:auto"><table class="tape-table"><thead><tr><th>TIME</th><th>TOKEN</th><th>MARKET</th><th>SIDE</th><th>QTY</th><th>PRICE</th><th>STATUS</th><th>ENV</th></tr></thead>
@@ -239,7 +239,7 @@
               <article><span>TOTAL VALUE</span><b id="total-value">—</b><small id="total-return">MAIN · NO PAPER BOOK</small></article>
               <article><span>STATUS</span><b id="trader-status-kpi">—</b><small>main_traders</small></article>
               <article><span>ACTIVATION</span><b id="activation-kpi">—</b><small id="activation-kpi-note">opt-in</small></article>
-              <article><span>ORDERS</span><b id="orders-kpi">—</b><small>testnet / simulate</small></article>
+              <article><span>ORDERS</span><b id="orders-kpi">—</b><small>Arcus TESTNET / RH MAINNET / simulate</small></article>
             </div>
             <div class="profile-top">
               <article class="identity panel profile-identity">
@@ -301,7 +301,7 @@
             </article>
           </div>
           <div class="profile-subpanel" data-profile-panel="decisions" id="profile-sub-decisions" hidden>
-            <article class="panel"><div class="panel-head"><div><span>MAIN ORDERS</span><h3>RECENT INTENTS / ORDERS</h3></div><b>TESTNET</b></div>
+            <article class="panel"><div class="panel-head"><div><span>MAIN ORDERS</span><h3>RECENT INTENTS / ORDERS</h3></div><b>ARCUS TESTNET · RH MAINNET</b></div>
               <div style="overflow-x:auto"><table class="tape-table"><thead><tr><th>TIME</th><th>MARKET</th><th>SIDE</th><th>QTY</th><th>PRICE</th><th>STATUS</th><th>ENV</th></tr></thead>
               <tbody id="profile-orders-tbody"><tr><td colspan="7" class="empty">No orders for this wallet yet.</td></tr></tbody></table></div>
             </article>
@@ -341,7 +341,7 @@
         <div class="dash-head">
           <p>05 · ARM DESK</p>
           <h2>Dual-venue opt-in.</h2>
-          <small>Arm <b>RH Chain</b> (ZeroDev session keys / Alchemy stub) and/or <b>Arcus BYOS</b> independently with caps. Wallet-signed challenge + on-chain ownerOf. Site never stores Ed25519 private keys. Observe/Simulate works without any venue armed.</small>
+          <small>Arm <b>RH Chain MAINNET</b> (ZeroDev session keys + Uniswap v3 swap UserOp / Alchemy stub) and/or <b>Arcus BYOS TESTNET</b> independently with caps. Wallet-signed challenge + on-chain ownerOf. Site never stores Ed25519 private keys. Observe/Simulate works without any venue armed.</small>
         </div>
 
         <form class="arm-form" id="arm-common" autocomplete="off">
@@ -361,7 +361,7 @@
         <div class="panel" style="margin-top:18px">
           <div class="panel-head"><div><span>VENUE 1 · RH CHAIN</span><h3>Account Abstraction session keys</h3></div><b id="rh-arm-status">DISARMED</b></div>
           <div style="padding:18px 22px">
-            <p style="font-size:13px;line-height:1.5;color:#c4c8c2">Chain ID <code>4663</code>. Prefer <b>ZeroDev Kernel</b> session keys (TTL + spend limits). Alchemy spend policies shown as labeled stub until <code>ALCHEMY_API_KEY</code> is configured. Edge stores only <code>session_pub</code> + policy metadata — never private keys. Execution = client-side UserOp.</p>
+            <p style="font-size:13px;line-height:1.5;color:#c4c8c2">Chain ID <code>4663</code> <b>MAINNET</b>. Prefer <b>ZeroDev Kernel</b> session keys (TTL + spend/gas policies). Live trades encode Uniswap v3 <code>exactInputSingle</code> (approve+swap) when <code>RH_TOKEN_MAP</code> is set — loud error if missing. Alchemy spend policies labeled stub until <code>ALCHEMY_API_KEY</code>. Edge stores only <code>session_pub</code> + policy metadata — never private keys.</p>
             <div class="arm-row">
               <div class="field"><label for="aa_provider">AA PROVIDER</label>
                 <select id="aa_provider">
@@ -414,8 +414,8 @@
       <section class="page-panel dashboard-panel" id="trade" data-panel="trade">
         <div class="dash-head">
           <p>06 · TRADE</p>
-          <h2>Simulate · BYOS · RH UserOp.</h2>
-          <small>Prices: <b>Arcus mainnet mids</b> · Orders: <b>Arcus TESTNET</b> (BYOS) or <b>RH Chain UserOp</b> (client). Default = Observe/Simulate — works with no venue armed. Place only via armed venue.</small>
+          <h2>Simulate · BYOS · RH MAINNET DEX.</h2>
+          <small>Prices: <b>Arcus mainnet mids</b> · Orders: <b>Arcus TESTNET</b> (BYOS) or <b>RH Chain MAINNET</b> Uniswap v3 UserOp (client). Default = Observe/Simulate — works with no venue armed. Place only via armed venue.</small>
           <div class="mode-toggle" style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap">
             <button type="button" class="ghost-btn" data-trade-mode="observe" aria-pressed="true">OBSERVE / SIMULATE</button>
             <button type="button" class="ghost-btn" data-trade-mode="live" aria-pressed="false">PLACE VIA ARMED VENUE</button>
@@ -428,7 +428,7 @@
             <select id="trade_venue">
               <option value="auto">auto (from activation)</option>
               <option value="arcus">arcus (BYOS)</option>
-              <option value="rh_chain">rh_chain (client UserOp · ZeroDev)</option>
+              <option value="rh_chain">rh_chain (MAINNET DEX UserOp · ZeroDev)</option>
             </select>
           </div>
           <div class="field"><label for="activation_id_display">ACTIVATION ID</label><input id="activation_id_display" placeholder="from Arm Desk" readonly /></div>
@@ -454,7 +454,7 @@
             <button type="submit" class="solid-btn" id="btn-place" disabled>PLACE VIA ARMED VENUE</button>
             <button type="button" class="ghost-btn" id="btn-refresh-orders">REFRESH ORDERS</button>
           </div>
-          <small class="arm-note" id="trade-mkt-meta">Market tick/step loaded from testnet /v1/markets.</small>
+          <small class="arm-note" id="trade-mkt-meta">Market tick/step from Arcus TESTNET /v1/markets · RH DEX uses RH_TOKEN_MAP on MAINNET.</small>
         </form>
 
         <div class="panel" style="margin-top:18px" id="byos-panel">
@@ -498,7 +498,7 @@
 
       <!-- VENUE -->
       <section class="page-panel dashboard-panel" id="venue" data-panel="venue">
-        <div class="dash-head"><p>08 · VENUE</p><h2>Arcus status.</h2><small>Live mid probe through Edge main-prices. Orders via main-order → testnet placeOrder.</small></div>
+        <div class="dash-head"><p>08 · VENUE</p><h2>Arcus status.</h2><small>Live mid probe through Edge main-prices. Arcus orders via main-order → TESTNET placeOrder. RH Chain stays MAINNET.</small></div>
         <div class="panel">
           <div class="panel-head"><div><span>EDGE · MAIN-PRICES</span><h3>Feed health</h3></div><b id="venue-status">—</b></div>
           <div class="status-grid">
@@ -510,7 +510,7 @@
         <div class="panel" style="margin-top:18px">
           <div class="panel-head"><div><span>POLICY</span><h3>Trading posture</h3></div></div>
           <div class="status-grid">
-            <article><span>LIVE TRADING FLAG</span><b>ON · TESTNET</b><small>placeOrder → api.testnet.arcus.xyz</small></article>
+            <article><span>LIVE TRADING FLAG</span><b>ON · ARCUS TESTNET</b><small>placeOrder → api.testnet.arcus.xyz · RH = MAINNET DEX</small></article>
             <article><span>INTENTS</span><b>SIM + SUBMIT</b><small>simulate without key; signed proxy with key</small></article>
             <article><span>PAPER BETA</span><b>SEPARATE URL</b><small>Different Supabase project</small></article>
           </div>
@@ -534,7 +534,7 @@
           </div>
         </article>
         <article class="panel" style="margin-top:18px" id="threat-model">
-          <div class="panel-head"><div><span>SECURITY</span><h3>Threat model (harden v7)</h3></div><b>MAIN ONLY</b></div>
+          <div class="panel-head"><div><span>SECURITY</span><h3>Threat model (harden v8)</h3></div><b>MAIN ONLY</b></div>
           <div style="padding:18px 22px;font-size:13px;line-height:1.55;color:#c4c8c2">
             <p><b>No private keys on site.</b> Pilot key-paste UI removed. Arcus is BYOS: Edge issues unsigned intents; external signer returns headers+body; Edge rechecks ownerOf+caps and proxies to Arcus testnet. RH Chain stores session_pub + policy meta only.</p>
             <p><b>Trust boundaries.</b> Wallet ownership via one-time <code>personal_sign</code> challenges for activate/arm/disarm/revoke. Every place path re-checks NFT <code>ownerOf</code> and auto-revokes/disarms on transfer. Actor labeled <code>holder</code> vs <code>agent</code>.</p>
@@ -557,8 +557,9 @@
           <div style="padding:18px 22px;font-size:13px;line-height:1.55;color:#c4c8c2">
             <p><a href="https://docs.robinhood.com/chain/account-abstraction" target="_blank" rel="noopener">docs.robinhood.com/chain/account-abstraction</a></p>
             <p><a href="https://docs.zerodev.app/sdk/v5_3_x/permissions/intro" target="_blank" rel="noopener">ZeroDev permissions / session keys</a></p>
-            <p><b>ZeroDev is vendored</b> under <code>vendor/zerodev-rh.js</code> (ESM, CSP <code>script-src 'self'</code>). Set <code>window.ZERODEV_PROJECT_ID</code> → <b>Create session key</b> builds Kernel + permission key (TTL + gas policy), fills <code>session_pub</code>, then <b>Arm RH Chain</b>. Trade live on <code>rh_chain</code> sends a real UserOp (noop pipeline proof if no DEX encode) via ZeroDev bundler, then logs via Edge <code>place_rh_chain</code>. Alchemy path remains stub. DEX swap calldata still stub.</p>
-            <p>Env: <code>ZERODEV_PROJECT_ID</code>, optional <code>ALCHEMY_API_KEY</code>. Bundler: <code>https://rpc.zerodev.app/api/v3/{PROJECT_ID}/chain/4663</code>.</p>
+            <p><b>ZeroDev is vendored</b> under <code>vendor/zerodev-rh.js</code> (ESM, CSP <code>script-src 'self'</code>, META v8). Set <code>window.ZERODEV_PROJECT_ID</code> → <b>Create session key</b> builds Kernel + permission key (TTL + gas policy), fills <code>session_pub</code>, then <b>Arm RH Chain MAINNET</b>. Trade live on <code>rh_chain</code> encodes Uniswap v3 <code>SwapRouter02.exactInputSingle</code> (approve + swap) via ZeroDev UserOp, then logs via Edge <code>place_rh_chain</code>. Missing <code>RH_TOKEN_MAP</code> / router → loud UI error (never silent noop). Alchemy path remains stub.</p>
+            <p><b>Router (default):</b> Uniswap v3 SwapRouter02 <code>0xCaf681a66D020601342297493863E78C959E5cb2</code> · QuoterV2 <code>0x33e885eD0Ec9bF04EcfB19341582aADCb4c8A9E7</code> · USDG <code>0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168</code> (6dp) · WETH <code>0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73</code>. Sources: <a href="https://developers.uniswap.org/docs/protocols/v3/deployments/v3-robinhood-chain-deployments" target="_blank" rel="noopener">Uniswap RH v3 deployments</a> · <a href="https://docs.robinhood.com/chain/building-with-stock-tokens/" target="_blank" rel="noopener">RH stock tokens</a>.</p>
+            <p>Env: <code>ZERODEV_PROJECT_ID</code>, <code>RH_DEX_ROUTER</code>, <code>RH_USDG</code>, <code>RH_TOKEN_MAP</code>, <code>RH_POOL_FEE</code>, <code>RH_SLIPPAGE_BPS</code>, optional <code>ALCHEMY_API_KEY</code>. Bundler: <code>https://rpc.zerodev.app/api/v3/{PROJECT_ID}/chain/4663</code>. <b>Arcus orders stay TESTNET</b> (<code>api.testnet.arcus.xyz</code>).</p>
           </div>
         </article>
         <div class="panel" style="margin-top:18px">
@@ -571,13 +572,13 @@
       <section class="page-panel beta-panel" id="notice" data-panel="notice">
         <div><p class="index">10 / MAIN NOTICE</p><h2>MAIN IS OPT-IN.<br>PAPER BETA IS SEPARATE.</h2></div>
         <div>
-          <p>This Main desk arms real Arcus TESTNET order flow for holders who opt in. It is not the paper beta swarm.</p>
+          <p>This Main desk arms Arcus TESTNET order flow and RH Chain MAINNET DEX UserOps for holders who opt in. It is not the paper beta swarm.</p>
           <ul>
-            <li>MAIN · OPT-IN · ARCUS TESTNET ORDERS</li>
-            <li>Prices from Arcus mainnet mids; orders default to Arcus testnet</li>
+            <li>MAIN · OPT-IN · ARCUS TESTNET · RH MAINNET</li>
+            <li>Prices from Arcus mainnet mids; Arcus orders = TESTNET; RH Chain DEX = MAINNET</li>
             <li>No private keys on site or in Supabase — Arcus BYOS signs off-site; RH stores session_pub only</li>
             <li>Paper beta lives on a separate URL / Supabase project</li>
-            <li>Not financial advice · testnet risk remains</li>
+            <li>Not financial advice · Arcus TESTNET + RH MAINNET DEX risk remains</li>
           </ul>
         </div>
       </section>
@@ -585,7 +586,7 @@
   </main>
   <footer class="site-footer">
     <div class="footer-mark">WST<span>/MAIN</span></div>
-    <p>AUTONOMOUS TRADERS · MAIN<br>MAIN · OPT-IN · ARCUS TESTNET ORDERS<br><span class="footer-api-tag">Paper beta is a separate URL</span></p>
+    <p>AUTONOMOUS TRADERS · MAIN<br>MAIN · OPT-IN · ARCUS TESTNET · RH MAINNET<br><span class="footer-api-tag">Paper beta is a separate URL</span></p>
     <div class="footer-links">
       <a href="#developers" data-nav="developers">API ↗</a>
       <a href="https://api.arcus.xyz/v1/mids" target="_blank" rel="noopener">Arcus mids ↗</a>
@@ -594,8 +595,8 @@
       <a href="https://discord.gg/WEQTbg2fy9" target="_blank" rel="noopener noreferrer">Discord ↗</a>
       <a href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noopener">OpenSea ↗</a>
     </div>
-    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=7 · INFORMATIONAL · NOT ADVICE</small>
+    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=8 · INFORMATIONAL · NOT ADVICE</small>
   </footer>
-  <script type="module" src="app.js?v=7"></script>
+  <script type="module" src="app.js?v=8"></script>
 </body>
 </html>

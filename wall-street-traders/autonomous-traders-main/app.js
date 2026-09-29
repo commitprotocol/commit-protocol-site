@@ -4,6 +4,12 @@ import {
   clearMemSession as zdClearMemSession,
   getMemSession as zdGetMemSession,
   META as ZD_META,
+  buildRhDexSwapCalls as zdBuildRhDexSwapCalls,
+  parseUnitsDecimal as zdParseUnitsDecimal,
+  RH_DEFAULT_DEX_ROUTER,
+  RH_DEFAULT_USDG,
+  RH_DEFAULT_WETH,
+  RH_DEFAULT_QUOTER_V2,
 } from "./vendor/zerodev-rh.js";
 /* ── Configurable WST NFT contract (Robinhood Chain) ── */
 const CONTRACT_ADDRESS = "0x7a5f95f898cf968cac3f9d6231f03f36c3da5b0d";
@@ -28,6 +34,32 @@ const LS_ACT = "wst_main_activation_v6"; // meta schema unchanged in v7
 const LS_ARMS = "wst_main_venue_arms_v6";
 const ZERODEV_PROJECT_ID = (typeof window !== "undefined" && window.ZERODEV_PROJECT_ID) || "";
 const ALCHEMY_API_KEY = (typeof window !== "undefined" && window.ALCHEMY_API_KEY) || "";
+/** Uniswap v3 SwapRouter02 on RH Chain — official Uniswap docs (v3-robinhood-chain-deployments). Overridable. */
+const RH_DEX_ROUTER =
+  (typeof window !== "undefined" && window.RH_DEX_ROUTER) || RH_DEFAULT_DEX_ROUTER || "";
+const RH_USDG = (typeof window !== "undefined" && window.RH_USDG) || RH_DEFAULT_USDG || "";
+const RH_WETH = (typeof window !== "undefined" && window.RH_WETH) || RH_DEFAULT_WETH || "";
+const RH_QUOTER_V2 =
+  (typeof window !== "undefined" && window.RH_QUOTER_V2) || RH_DEFAULT_QUOTER_V2 || "";
+/** Map base symbol → stock-token ERC-20 address on RH Chain. Empty until operator fills. */
+const RH_TOKEN_MAP =
+  (typeof window !== "undefined" && window.RH_TOKEN_MAP && typeof window.RH_TOKEN_MAP === "object"
+    ? window.RH_TOKEN_MAP
+    : {}) || {};
+const RH_POOL_FEE = Number(
+  (typeof window !== "undefined" && window.RH_POOL_FEE) != null ? window.RH_POOL_FEE : 3000
+);
+/** Slippage bps for amountOutMinimum (default 50 = 0.50%). Arm spend/loss caps still enforced off-chain. */
+const RH_SLIPPAGE_BPS = Number(
+  (typeof window !== "undefined" && window.RH_SLIPPAGE_BPS) != null ? window.RH_SLIPPAGE_BPS : 50
+);
+/** Quote token decimals (USDG = 6 on RH Chain). Stock tokens = 18 per RH docs. */
+const RH_QUOTE_DECIMALS = Number(
+  (typeof window !== "undefined" && window.RH_QUOTE_DECIMALS) != null ? window.RH_QUOTE_DECIMALS : 6
+);
+const RH_STOCK_DECIMALS = Number(
+  (typeof window !== "undefined" && window.RH_STOCK_DECIMALS) != null ? window.RH_STOCK_DECIMALS : 18
+);
 const WATCH_KEY = "wst_main_watchlist_v1";
 
 const OP_PLACE = 1;
@@ -503,7 +535,7 @@ function renderDigest(trader) {
 DNA source: ${trader.dna_source}. Main status: ${trader.status}.
 ${owned ? "This wallet owns this NFT on-chain." : "Ownership not confirmed for the connected wallet."}
 ${act ? `Active activation ${act.id} · venue ${act.venue} · caps notional $${act.caps?.max_notional_usd ?? "—"} / max loss $${act.caps?.max_loss_usd ?? "—"}.` : "No active Main activation — use Arm Desk to opt in."}
-Orders default to Arcus TESTNET. Paper beta swarm is a separate URL.`;
+RH Chain = MAINNET UserOp/DEX · Arcus orders = TESTNET. Paper beta swarm is a separate URL.`;
   const html = `<p>${escapeHtml(text).replace(/\n/g, "<br>")}</p>`;
   ["portfolio-digest", "portfolio-digest-tab"].forEach((id) => {
     const el = $(id);
@@ -745,7 +777,7 @@ function prefillPrice() {
   }
   if (meta && $("trade-mkt-meta")) {
     $("trade-mkt-meta").textContent =
-      `${mkt} · marketId=${meta.marketId} · tick=${meta.tickSize} · step=${meta.stepSize} · type=${meta.type || "?"} · TESTNET`;
+      `${mkt} · marketId=${meta.marketId} · tick=${meta.tickSize} · step=${meta.stepSize} · type=${meta.type || "?"} · Arcus TESTNET markets (RH DEX uses RH_TOKEN_MAP)`;
   }
 }
 $("trade_market")?.addEventListener("change", prefillPrice);
@@ -1431,20 +1463,23 @@ $("btn-rh-guide")?.addEventListener("click", () => {
   const al = ALCHEMY_API_KEY ? "configured" : "missing — Alchemy path stub only";
   const mem = typeof zdGetMemSession === "function" ? zdGetMemSession() : null;
   box.textContent = [
-    "RH Chain AA guide · MAIN v7 (ZeroDev vendored)",
-    `Vendor: ./vendor/zerodev-rh.js · ${ZD_META?.name || "wst-zerodev-rh"} · kernel ${ZD_META?.kernel || "v3.1"}`,
-    "1. Inject window.ZERODEV_PROJECT_ID (ZeroDev dashboard · RH Chain 4663).",
-    "2. Connect MetaMask · switch to Robinhood Chain (4663 / 0x1237).",
-    "3. Click CREATE SESSION KEY (ZERODEV) — Kernel + permission key (TTL + gas policy).",
-    "   Session private key stays in page memory only (cleared on disconnect/reload).",
-    "4. session_pub fills automatically → ARM RH CHAIN (wallet challenge + Edge meta).",
-    "5. Trade live · venue rh_chain → client UserOp via ZeroDev bundler, then Edge place_rh_chain log.",
-    "   Default UserOp = noop to 0x0 (pipeline proof). DEX router calldata still stub.",
-    `6. ZERODEV_PROJECT_ID: ${zd}`,
-    `7. ALCHEMY_API_KEY: ${al}`,
-    `8. In-memory session: ${mem ? mem.sessionAddress + " · kernel " + mem.kernelAddress : "(none this page load)"}`,
-    "Docs: https://docs.zerodev.app/sdk/v5_3_x/permissions/intro",
+    "RH Chain AA guide · MAIN v8 (ZeroDev + Uniswap v3 SwapRouter02)",
+    `Vendor: ./vendor/zerodev-rh.js · ${ZD_META?.name || "wst-zerodev-rh"} · v${ZD_META?.version || "8"} · kernel ${ZD_META?.kernel || "v3.1"}`,
+    "1. Inject window.ZERODEV_PROJECT_ID (ZeroDev dashboard · RH Chain 4663 MAINNET).",
+    "2. Inject window.RH_TOKEN_MAP = { AAPL: '0x…', … } (stock-token addresses from RH Token Contracts).",
+    `   Router default: ${RH_DEX_ROUTER || "(set RH_DEX_ROUTER)"} · USDG: ${RH_USDG || "(set RH_USDG)"} · fee ${RH_POOL_FEE} · slip ${RH_SLIPPAGE_BPS}bps`,
+    "3. Connect MetaMask · switch to Robinhood Chain MAINNET (4663 / 0x1237).",
+    "4. CREATE SESSION KEY (ZERODEV) — Kernel + permission key (TTL + gas policy). Key stays in page memory.",
+    "5. session_pub → ARM RH CHAIN (wallet challenge + Edge meta). Spend/loss caps still on Edge.",
+    "6. Trade LIVE · venue rh_chain → encode approve+exactInputSingle → ZeroDev UserOp → Edge place_rh_chain log.",
+    "   Missing router/token map → loud UI error (never silent noop in LIVE).",
+    "7. Arcus orders remain TESTNET (api.testnet.arcus.xyz). Prices may use Arcus mainnet mids.",
+    `8. ZERODEV_PROJECT_ID: ${zd}`,
+    `9. ALCHEMY_API_KEY: ${al}`,
+    `10. In-memory session: ${mem ? mem.sessionAddress + " · kernel " + mem.kernelAddress : "(none this page load)"}`,
+    "Uniswap RH: https://developers.uniswap.org/docs/protocols/v3/deployments/v3-robinhood-chain-deployments",
     "RH AA: https://docs.robinhood.com/chain/account-abstraction",
+    "Stock tokens: https://docs.robinhood.com/chain/building-with-stock-tokens/",
   ].join("\n");
 });
 
@@ -1598,6 +1633,120 @@ $("btn-submit-byos")?.addEventListener("click", async () => {
   }
 });
 
+
+/** Parse Arcus-style market display (e.g. AAPL-USD) → base symbol for RH_TOKEN_MAP. */
+function rhBaseSymbol(market) {
+  const raw = String(market || "").trim().toUpperCase();
+  if (!raw) return "";
+  const base = raw.split(/[-_/]/)[0] || raw;
+  return base.replace(/[^A-Z0-9.]/g, "");
+}
+
+function rhResolveToken(symbol) {
+  const sym = String(symbol || "").toUpperCase();
+  if (!sym) return "";
+  const map = RH_TOKEN_MAP || {};
+  const hit =
+    map[sym] ||
+    map[sym.toLowerCase()] ||
+    (typeof window !== "undefined" && window.RH_TOKEN_MAP && (window.RH_TOKEN_MAP[sym] || window.RH_TOKEN_MAP[sym.toLowerCase()]));
+  return hit ? String(hit).trim() : "";
+}
+
+function applyBpsFloor(amountWei, bps) {
+  const a = typeof amountWei === "bigint" ? amountWei : BigInt(amountWei);
+  const b = BigInt(Math.max(0, Number(bps) || 0));
+  return a - (a * b) / 10000n;
+}
+
+/**
+ * Build Kernel calls for Uniswap v3 exactInputSingle on RH Chain.
+ * BUY: USDG → stock token (amountIn ≈ qty*price in quote decimals).
+ * SELL: stock → USDG (amountIn = qty in stock decimals).
+ * Fails loudly if router / token map / amounts missing — never silent noop in LIVE.
+ */
+function buildRhChainSwapPlan({ market, side, quantity, price, recipient, slippageBps }) {
+  const router = (RH_DEX_ROUTER || "").trim();
+  if (!router) {
+    throw new Error(
+      "RH DEX router missing. Set window.RH_DEX_ROUTER (Uniswap v3 SwapRouter02 on chain 4663)."
+    );
+  }
+  const quote = (RH_USDG || "").trim();
+  if (!quote) {
+    throw new Error("RH quote token missing. Set window.RH_USDG (USDG on Robinhood Chain).");
+  }
+  const baseSym = rhBaseSymbol(market);
+  const stock = rhResolveToken(baseSym);
+  if (!stock) {
+    throw new Error(
+      `RH stock token address missing for "${baseSym || market}". Set window.RH_TOKEN_MAP["${baseSym || "SYMBOL"}"] = "0x…". See ENV.placeholders.md + docs.robinhood.com/chain/token-contracts`
+    );
+  }
+  const qty = Number(quantity);
+  const px = Number(price);
+  if (!Number.isFinite(qty) || qty <= 0) throw new Error("Quantity must be a positive number");
+  if (!Number.isFinite(px) || px <= 0) {
+    throw new Error("Limit price required for RH DEX amount sizing (use mid prefill or enter price)");
+  }
+  if (!recipient) throw new Error("Kernel smart-account address required as swap recipient");
+  const isBuy = String(side || "BUY").toUpperCase() === "BUY";
+  const fee = Number(RH_POOL_FEE) || 3000;
+  const slip = slippageBps != null ? Number(slippageBps) : RH_SLIPPAGE_BPS;
+  let tokenIn;
+  let tokenOut;
+  let amountIn;
+  let amountOutMinimum;
+  if (isBuy) {
+    tokenIn = quote;
+    tokenOut = stock;
+    // Spend up to qty*price quote units (USDG 6dp). Min out = qty stock with slippage floor.
+    const notional = qty * px;
+    amountIn = zdParseUnitsDecimal(notional, RH_QUOTE_DECIMALS);
+    const idealOut = zdParseUnitsDecimal(qty, RH_STOCK_DECIMALS);
+    amountOutMinimum = applyBpsFloor(idealOut, slip);
+  } else {
+    tokenIn = stock;
+    tokenOut = quote;
+    amountIn = zdParseUnitsDecimal(qty, RH_STOCK_DECIMALS);
+    const idealOut = zdParseUnitsDecimal(qty * px, RH_QUOTE_DECIMALS);
+    amountOutMinimum = applyBpsFloor(idealOut, slip);
+  }
+  const built = zdBuildRhDexSwapCalls({
+    router,
+    tokenIn,
+    tokenOut,
+    fee,
+    recipient,
+    amountIn,
+    amountOutMinimum,
+    skipApprove: false,
+  });
+  return {
+    ...built,
+    meta: {
+      market,
+      baseSym,
+      side: isBuy ? "BUY" : "SELL",
+      quantity: String(quantity),
+      price: String(price),
+      slippageBps: slip,
+      poolFee: fee,
+      quoteToken: quote,
+      stockToken: stock,
+      router,
+      quoterV2: RH_QUOTER_V2 || null,
+      weth: RH_WETH || null,
+      sources: {
+        router: "https://developers.uniswap.org/docs/protocols/v3/deployments/v3-robinhood-chain-deployments",
+        stockTokens: "https://docs.robinhood.com/chain/building-with-stock-tokens/",
+        aa: "https://docs.robinhood.com/chain/account-abstraction/",
+      },
+    },
+  };
+}
+
+
 $("trade-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   if ((state.tradeMode || "observe") !== "live") {
@@ -1618,58 +1767,79 @@ $("trade-form")?.addEventListener("submit", async (e) => {
     try {
       const wallet = ($("wallet")?.value || state.wallet || "").trim();
       const activation_id = ($("activation_id")?.value || state.activation?.id || state.arms?.rh_chain?.activation_id || "").trim();
+      const market = $("trade_market")?.value;
+      const orderSide = $("trade_side")?.value || "BUY";
+      const quantity = $("trade_qty")?.value;
+      const price = $("trade_price")?.value;
       let userOpResult = null;
+      let swapPlan = null;
       const mem = typeof zdGetMemSession === "function" ? zdGetMemSession() : null;
-      if (ZERODEV_PROJECT_ID && mem?.hasApproval) {
-        $("trade-state").textContent = "Sending ZeroDev UserOp (noop pipeline proof — DEX encode still stub)…";
-        userOpResult = await zdSendSessionUserOp({
-          projectId: ZERODEV_PROJECT_ID,
-          wait: true,
-        });
-      } else if (!ZERODEV_PROJECT_ID) {
-        userOpResult = {
-          ok: false,
-          live: false,
-          skipped: true,
-          reason: "ZERODEV_PROJECT_ID missing — Edge log only",
-        };
-      } else {
-        userOpResult = {
-          ok: false,
-          live: false,
-          skipped: true,
-          reason: "No in-memory session this page load — click CREATE SESSION KEY (ZERODEV) first",
-        };
+      if (!ZERODEV_PROJECT_ID) {
+        throw new Error(
+          "LIVE rh_chain requires window.ZERODEV_PROJECT_ID. Refusing silent noop — configure ENV.placeholders.md."
+        );
       }
+      if (!mem?.hasApproval || !mem?.kernelAddress) {
+        throw new Error(
+          "No in-memory ZeroDev session this page load — click CREATE SESSION KEY (ZERODEV) first. Refusing silent noop."
+        );
+      }
+      $("trade-state").textContent = "Encoding RH Chain Uniswap v3 swap (approve + exactInputSingle)…";
+      swapPlan = buildRhChainSwapPlan({
+        market,
+        side: orderSide,
+        quantity,
+        price,
+        recipient: mem.kernelAddress,
+        slippageBps: RH_SLIPPAGE_BPS,
+      });
+      $("trade-state").textContent =
+        `Sending ZeroDev UserOp · ${swapPlan.meta.side} ${swapPlan.meta.baseSym} via SwapRouter02…`;
+      userOpResult = await zdSendSessionUserOp({
+        projectId: ZERODEV_PROJECT_ID,
+        calls: swapPlan.calls,
+        wait: true,
+      });
+      userOpResult = {
+        ...userOpResult,
+        dex: swapPlan.plan,
+        dex_meta: swapPlan.meta,
+      };
       const body = {
         action: "place_rh_chain",
         activation_id,
         wallet,
-        market: $("trade_market")?.value,
-        orderSide: $("trade_side")?.value || "BUY",
-        quantity: $("trade_qty")?.value,
-        price: $("trade_price")?.value,
+        market,
+        orderSide,
+        quantity,
+        price,
         session_pub: state.arms?.rh_chain?.session_pub || $("session_pub")?.value || mem?.sessionAddress || null,
-        note: userOpResult?.live ? "ui_place_rh_chain_userop_live" : "ui_place_rh_chain_log_only",
+        note: userOpResult?.live ? "ui_place_rh_chain_userop_dex_v8" : "ui_place_rh_chain_log_only",
         client_userop: userOpResult,
       };
-      $("trade-state").textContent = "Logging RH Chain intent to Edge (place_rh_chain)…";
+      $("trade-state").textContent = "Logging RH Chain DEX UserOp to Edge (place_rh_chain)…";
       const res = await fetch(EP.order, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      $("trade-state").textContent = JSON.stringify({ client_userop: userOpResult, edge: data }, null, 2);
+      $("trade-state").textContent = JSON.stringify(
+        { client_userop: userOpResult, edge: data, rh_chain: "MAINNET", arcus_orders: "TESTNET" },
+        null,
+        2
+      );
     } catch (err) {
-      $("trade-state").textContent = String(err?.message || err);
+      const msg = String(err?.message || err);
+      $("trade-state").textContent =
+        "RH Chain LIVE failed (no silent noop):\n" + msg;
     }
     return;
   }
   $("trade-state").textContent = "No armed venue. Arm RH Chain or Arcus BYOS first.";
 });
 
-// Init v7 UI bits
+// Init v8 UI bits
 showAaConfigNote();
 restoreArms();
 syncActivationDisplay();
