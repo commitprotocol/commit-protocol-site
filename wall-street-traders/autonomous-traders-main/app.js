@@ -33,6 +33,9 @@ const SS_AI = "wst_main_arcus_account_index_v1";
 const LS_ACT = "wst_main_activation_v6"; // meta schema unchanged in v7
 const LS_ARMS = "wst_main_venue_arms_v6";
 const ZERODEV_PROJECT_ID = (typeof window !== "undefined" && window.ZERODEV_PROJECT_ID) || "";
+function getZeroDevProjectId() {
+  return (typeof window !== "undefined" && window.ZERODEV_PROJECT_ID) || ZERODEV_PROJECT_ID || "";
+}
 const ALCHEMY_API_KEY = (typeof window !== "undefined" && window.ALCHEMY_API_KEY) || "";
 /** Uniswap v3 SwapRouter02 on RH Chain — official Uniswap docs (v3-robinhood-chain-deployments). Overridable. */
 const RH_DEX_ROUTER =
@@ -1332,8 +1335,8 @@ function restoreArms() {
 }
 
 function showAaConfigNote() {
-  const missingZd = !ZERODEV_PROJECT_ID;
-  const missingAll = !ZERODEV_PROJECT_ID && !ALCHEMY_API_KEY;
+  const missingZd = !getZeroDevProjectId();
+  const missingAll = !getZeroDevProjectId() && !ALCHEMY_API_KEY;
   if ($("aa-config-note")) $("aa-config-note").hidden = !missingAll;
   const btn = $("btn-zd-create");
   if (btn) {
@@ -1459,7 +1462,7 @@ $("btn-rh-guide")?.addEventListener("click", () => {
   const box = $("rh-guide-box");
   if (!box) return;
   box.hidden = false;
-  const zd = ZERODEV_PROJECT_ID || "(set window.ZERODEV_PROJECT_ID before app.js)";
+  const zd = getZeroDevProjectId() || "(set config.js ZERODEV_PROJECT_ID)";
   const al = ALCHEMY_API_KEY ? "configured" : "missing — Alchemy path stub only";
   const mem = typeof zdGetMemSession === "function" ? zdGetMemSession() : null;
   box.textContent = [
@@ -1486,8 +1489,8 @@ $("btn-rh-guide")?.addEventListener("click", () => {
 $("btn-zd-create")?.addEventListener("click", async () => {
   const box = $("rh-guide-box");
   try {
-    if (!ZERODEV_PROJECT_ID) {
-      throw new Error("Set window.ZERODEV_PROJECT_ID first (ENV.placeholders.md)");
+    if (!getZeroDevProjectId()) {
+      throw new Error("Set ZERODEV_PROJECT_ID in config.js (see config.example.js)");
     }
     if (!window.ethereum) throw new Error("MetaMask / window.ethereum required");
     if ($("arm-state")) $("arm-state").textContent = "Creating ZeroDev Kernel + session key (MetaMask may prompt)…";
@@ -1498,7 +1501,7 @@ $("btn-zd-create")?.addEventListener("click", async () => {
     const ttl = Number($("session_ttl")?.value) || 86400;
     const spend = Number($("spend_limit")?.value) || 1000;
     const result = await zdCreateSessionKey({
-      projectId: ZERODEV_PROJECT_ID,
+      projectId: getZeroDevProjectId(),
       ethereum: window.ethereum,
       ttlSec: ttl,
       spendLimitUsd: spend,
@@ -1774,9 +1777,9 @@ $("trade-form")?.addEventListener("submit", async (e) => {
       let userOpResult = null;
       let swapPlan = null;
       const mem = typeof zdGetMemSession === "function" ? zdGetMemSession() : null;
-      if (!ZERODEV_PROJECT_ID) {
+      if (!getZeroDevProjectId()) {
         throw new Error(
-          "LIVE rh_chain requires window.ZERODEV_PROJECT_ID. Refusing silent noop — configure ENV.placeholders.md."
+          "LIVE rh_chain requires ZERODEV_PROJECT_ID in config.js. Refusing silent noop."
         );
       }
       if (!mem?.hasApproval || !mem?.kernelAddress) {
@@ -1796,7 +1799,7 @@ $("trade-form")?.addEventListener("submit", async (e) => {
       $("trade-state").textContent =
         `Sending ZeroDev UserOp · ${swapPlan.meta.side} ${swapPlan.meta.baseSym} via SwapRouter02…`;
       userOpResult = await zdSendSessionUserOp({
-        projectId: ZERODEV_PROJECT_ID,
+        projectId: getZeroDevProjectId(),
         calls: swapPlan.calls,
         wait: true,
       });

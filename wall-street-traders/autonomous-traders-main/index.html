@@ -6,7 +6,7 @@
   <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — Dual-venue Arm Desk: RH Chain AA + Arcus BYOS. Separate from paper beta.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://binqxbofehpigwjrwksl.supabase.co https://kgtksjxfcwnmyeqddpug.supabase.co https://api.arcus.xyz https://api.testnet.arcus.xyz https://rpc.mainnet.chain.robinhood.com https://rpc.zerodev.app https://*.zerodev.app https://robinhood-mainnet.g.alchemy.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
   <title>WST Autonomous Traders — MAIN</title>
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=81">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -375,7 +375,7 @@
               <div class="field"><label for="session_ttl">SESSION TTL SEC</label><input id="session_ttl" type="number" min="300" value="86400" /></div>
               <div class="field"><label for="spend_limit">SPEND LIMIT USD</label><input id="spend_limit" type="number" min="1" value="1000" /></div>
             </div>
-            <p id="aa-config-note" class="arm-note" hidden>Set <code>window.ZERODEV_PROJECT_ID</code> (see ENV.placeholders.md) to enable <b>Create session key (ZeroDev)</b>. Alchemy stays stub until <code>ALCHEMY_API_KEY</code>. Simulate + Arcus BYOS work without AA keys.</p>
+            <p id="aa-config-note" class="arm-note" hidden>Set Project ID in <code>config.js</code> (see <code>config.example.js</code> / ENV.placeholders.md) to enable <b>Create session key (ZeroDev)</b>. Alchemy stays stub until <code>ALCHEMY_API_KEY</code>. Simulate + Arcus BYOS work without AA keys.</p>
             <div class="arm-actions">
               <button type="button" class="solid-btn" id="btn-zd-create" disabled title="Requires window.ZERODEV_PROJECT_ID">CREATE SESSION KEY (ZERODEV)</button>
               <button type="button" class="ghost-btn" id="btn-rh-guide">GUIDE · AA / SESSION KEY</button>
@@ -597,9 +597,7 @@
     </div>
     <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=8 · INFORMATIONAL · NOT ADVICE</small>
   </footer>
-  <script>
-  window.ZERODEV_PROJECT_ID = "53c866ff-b249-44f1-b2d7-b0e9a6341c4d";
-</script>
-  <script type="module" src="app.js?v=8"></script>
+  <script src="config.js"></script>
+  <script type="module" src="app.js?v=81"></script>
 </body>
 </html>
