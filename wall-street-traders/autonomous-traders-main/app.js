@@ -34,7 +34,11 @@ const LS_ACT = "wst_main_activation_v6"; // meta schema unchanged in v7
 const LS_ARMS = "wst_main_venue_arms_v6";
 const ZERODEV_PROJECT_ID = (typeof window !== "undefined" && window.ZERODEV_PROJECT_ID) || "";
 function getZeroDevProjectId() {
-  return (typeof window !== "undefined" && window.ZERODEV_PROJECT_ID) || ZERODEV_PROJECT_ID || "";
+  const raw =
+    (typeof window !== "undefined" && window.ZERODEV_PROJECT_ID) || ZERODEV_PROJECT_ID || "";
+  const id = String(raw || "").trim();
+  if (!id || /^YOUR_/i.test(id) || id === "undefined") return "";
+  return id;
 }
 const ALCHEMY_API_KEY = (typeof window !== "undefined" && window.ALCHEMY_API_KEY) || "";
 /** Uniswap v3 SwapRouter02 on RH Chain — official Uniswap docs (v3-robinhood-chain-deployments). Overridable. */
@@ -108,6 +112,11 @@ const state = {
   traders: [],
   currentToken: null,
   profile: null,
+  /* holder-simple v9 */
+  activations: [],
+  lastOrdersByToken: {},
+  busyToken: null,
+  holderMsg: "",
 };
 
 function fmt(n) {
@@ -237,11 +246,16 @@ function renderWatchlist() {
 
 /* ── Wallet ── */
 function updateConnectButtons() {
-  const label = state.wallet ? `CONNECTED ${shortAddr(state.wallet)}` : "CONNECT WALLET";
+  const label = state.wallet
+    ? `CONECTADO ${shortAddr(state.wallet)}`
+    : "CONECTAR CARTEIRA";
+  const nftsLabel = state.wallet
+    ? `ATUALIZAR · ${shortAddr(state.wallet)}`
+    : "CONECTAR / ATUALIZAR";
   ["btn-mm-header", "btn-connect", "btn-connect-nfts"].forEach((id) => {
     const el = $(id);
     if (!el) return;
-    el.textContent = label;
+    el.textContent = id === "btn-connect-nfts" ? nftsLabel : (id === "btn-connect" ? (state.wallet ? label : "CONNECT") : label);
     el.classList.toggle("connected", !!state.wallet);
   });
   const disc = $("btn-mm-disconnect");
@@ -281,7 +295,7 @@ function disconnectWallet() {
   if ($("activation_id_display")) $("activation_id_display").value = "";
   if ($("btn-place")) $("btn-place").disabled = true;
   if ($("trade-state")) $("trade-state").textContent = "Disconnected. Local arm UI cleared.";
-  if ($("nfts-status")) $("nfts-status").textContent = "WALLET DISCONNECTED";
+  if ($("nfts-status")) $("nfts-status").textContent = "CARTEIRA DESCONECTADA";
   if ($("orders-kpi")) $("orders-kpi").textContent = "—";
   const otb = $("orders-tbody");
   if (otb) otb.innerHTML = `<tr><td colspan="9" class="empty">Connect wallet to load.</td></tr>`;
@@ -416,12 +430,12 @@ async function loadOwnedNfts() {
   if (note)
     note.textContent = `Contract: ${CONTRACT_ADDRESS} · ${CHAIN_NAME} · ownerOf scan 1–${SUPPLY}`;
   if (!state.wallet) {
-    if ($("nfts-status")) $("nfts-status").textContent = "WALLET NOT CONNECTED";
+    if ($("nfts-status")) $("nfts-status").textContent = "CARTEIRA NÃO CONECTADA";
     renderNftGrid();
     return [];
   }
   if ($("nfts-status"))
-    $("nfts-status").textContent = `SCANNING OWNERSHIP ON ${CHAIN_NAME}…`;
+    $("nfts-status").textContent = `VERIFICANDO OWNERSHIP EM ${CHAIN_NAME}…`;
   const wallet = state.wallet.toLowerCase();
   const owned = [];
   const batch = 40;
@@ -440,40 +454,250 @@ async function loadOwnedNfts() {
     );
     owners.forEach((id) => id && owned.push(id));
     if ($("nfts-status"))
-      $("nfts-status").textContent = `SCANNING… ${Math.min(start + batch - 1, SUPPLY)}/${SUPPLY} · found ${owned.length}`;
+      $("nfts-status").textContent = `VERIFICANDO… ${Math.min(start + batch - 1, SUPPLY)}/${SUPPLY} · achados ${owned.length}`;
   }
   state.owned = owned;
   if ($("nfts-status"))
     $("nfts-status").textContent = owned.length
       ? `${owned.length} WST NFT${owned.length === 1 ? "" : "S"} · ${shortAddr(wallet)}`
-      : `NO WST NFTS IN ${shortAddr(wallet)}`;
+      : `NENHUM WST NFT EM ${shortAddr(wallet)}`;
+  await loadHolderStatus();
   renderNftGrid();
   return owned;
+}
+
+function isTokenRunning(tokenId) {
+  const tid = Number(tokenId);
+  const act = (state.activations || []).find(
+    (a) => Number(a.token_id) === tid && String(a.status || "").toLowerCase() !== "disarmed"
+  );
+  if (act) return true;
+  if (state.activation && Number(state.activation.token_id) === tid) {
+    const st = String(state.activation.status || "active").toLowerCase();
+    if (st !== "disarmed" && st !== "revoked") return true;
+  }
+  if (state.arms?.rh_chain && Number(state.arms.rh_chain.token_id || state.activation?.token_id) === tid)
+    return true;
+  return false;
+}
+
+function holderResultLine(tokenId) {
+  const o = state.lastOrdersByToken?.[Number(tokenId)];
+  if (!o) return "Sem movimentos ainda · DNA decide quando rodando";
+  const side = (o.side || o.order_side || "—").toString().toUpperCase();
+  const mkt = o.market || o.symbol || "—";
+  const pnl = o.pnl_usd != null ? o.pnl_usd : o.realized_pnl_usd != null ? o.realized_pnl_usd : null;
+  const px = o.price != null ? o.price : o.fill_price;
+  let line = `Último: ${side} ${mkt}`;
+  if (px != null && px !== "") line += ` @ ${fmt(px)}`;
+  if (pnl != null && Number.isFinite(Number(pnl))) {
+    const n = Number(pnl);
+    line += ` · PnL ${n >= 0 ? "+" : ""}${fmt(n)}`;
+  } else if (o.status) {
+    line += ` · ${String(o.status).toUpperCase()}`;
+  }
+  return line;
 }
 
 function renderNftGrid() {
   const host = $("nft-grid");
   if (!host) return;
   if (!state.wallet) {
-    host.innerHTML = `<p class="loading">Connect MetaMask to list WST tokens you own.</p>`;
+    host.innerHTML = `<p class="loading">Conecte MetaMask para listar seus NFTs WST.</p>`;
     return;
   }
   if (!state.owned.length) {
-    host.innerHTML = `<p class="loading">No Wall Street Traders found in this wallet on-chain.</p>`;
+    host.innerHTML = `<p class="loading">Nenhum Wall Street Trader encontrado nesta carteira on-chain.</p>`;
     return;
   }
-  host.innerHTML = state.owned
-    .map(
-      (id) => `<button type="button" class="nft-card" data-open-token="${id}">
-      <img src="${imageUrl(id)}" alt="WST #${id}" loading="lazy" />
-      <div class="nft-meta"><b>TRADER #${id}</b><small>OWNED · OPEN PROFILE</small></div>
-    </button>`
-    )
-    .join("");
+  const busy = state.busyToken;
+  const msg = state.holderMsg
+    ? `<p class="holder-toast" role="status">${escapeHtml(state.holderMsg)}</p>`
+    : "";
+  host.innerHTML =
+    msg +
+    state.owned
+      .map((id) => {
+        const running = isTokenRunning(id);
+        const statusLabel = running ? "Rodando" : "Parado";
+        const statusCls = running ? "rodando" : "parado";
+        const result = holderResultLine(id);
+        const isBusy = Number(busy) === Number(id);
+        const ligarDis = isBusy || running ? "disabled" : "";
+        const desligarDis = isBusy || !running ? "disabled" : "";
+        return `<article class="nft-card holder-card" data-token="${id}">
+      <button type="button" class="nft-card-open" data-open-token="${id}" title="Abrir perfil">
+        <img src="${imageUrl(id)}" alt="WST #${id}" loading="lazy" />
+      </button>
+      <div class="nft-meta">
+        <div class="holder-meta-top">
+          <b>TRADER #${id}</b>
+          <span class="holder-status ${statusCls}">${statusLabel}</span>
+        </div>
+        <small class="holder-result">${escapeHtml(result)}</small>
+        <div class="holder-actions-row">
+          <button type="button" class="solid-btn holder-ligar" data-ligar="${id}" ${ligarDis}>${isBusy && !running ? "Ligando…" : "Ligar meu trader"}</button>
+          <button type="button" class="ghost-btn holder-desligar" data-desligar="${id}" ${desligarDis}>${isBusy && running ? "Desligando…" : "Desligar"}</button>
+        </div>
+      </div>
+    </article>`;
+      })
+      .join("");
   host.querySelectorAll("[data-open-token]").forEach((btn) => {
     btn.addEventListener("click", () => openTrader(Number(btn.dataset.openToken)));
   });
+  host.querySelectorAll("[data-ligar]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      ligarMeuTrader(Number(btn.dataset.ligar));
+    });
+  });
+  host.querySelectorAll("[data-desligar]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      desligarMeuTrader(Number(btn.dataset.desligar));
+    });
+  });
 }
+
+async function loadHolderStatus() {
+  if (!state.wallet) {
+    state.activations = [];
+    state.lastOrdersByToken = {};
+    return;
+  }
+  try {
+    const url = `${EP.pub}?activations=1&orders=1&wallet=${encodeURIComponent(state.wallet)}`;
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    const data = await res.json();
+    state.activations = Array.isArray(data.activations) ? data.activations : [];
+    const byTok = {};
+    const orders = Array.isArray(data.orders) ? data.orders : [];
+    for (const o of orders) {
+      const tid = Number(o.token_id);
+      if (!tid) continue;
+      if (!byTok[tid]) byTok[tid] = o;
+    }
+    state.lastOrdersByToken = byTok;
+    // Sync active arm for current token if Edge returned one
+    const active = state.activations.find(
+      (a) => String(a.status || "").toLowerCase() === "active" || String(a.status || "").toLowerCase() === "armed"
+    );
+    if (active) {
+      state.activation = active;
+      if (active.venue === "rh_chain") state.arms.rh_chain = { ...active, venue: "rh_chain" };
+      if (active.venue === "arcus") state.arms.arcus = { ...active, venue: "arcus" };
+      persistArms();
+    }
+  } catch (e) {
+    console.warn("loadHolderStatus", e);
+  }
+}
+
+async function ensureZdSessionForLigar() {
+  const projectId = getZeroDevProjectId();
+  if (!projectId) {
+    return { session_pub: ($("session_pub")?.value || "").trim() || null, created: false, skipped: "no_project_id" };
+  }
+  const mem = typeof zdGetMemSession === "function" ? zdGetMemSession() : null;
+  if (mem?.sessionAddress) {
+    if ($("session_pub")) $("session_pub").value = mem.sessionAddress;
+    return { session_pub: mem.sessionAddress, created: false, skipped: "mem" };
+  }
+  if (!window.ethereum) throw new Error("MetaMask / window.ethereum necessário para Ligar");
+  const ttl = Number($("session_ttl")?.value) || 86400;
+  const spend = Number($("spend_limit")?.value) || Number($("max_notional")?.value) || 1000;
+  state.holderMsg = "Criando session key ZeroDev (MetaMask pode pedir assinatura)…";
+  renderNftGrid();
+  const result = await zdCreateSessionKey({
+    projectId,
+    ethereum: window.ethereum,
+    ttlSec: ttl,
+    spendLimitUsd: spend,
+    enableOnChain: true,
+  });
+  if ($("session_pub") && result.session_pub) $("session_pub").value = result.session_pub;
+  if ($("aa_provider")) $("aa_provider").value = "zerodev";
+  return { session_pub: result.session_pub, created: true, result };
+}
+
+async function ligarMeuTrader(tokenId) {
+  const tid = Number(tokenId);
+  if (!tid || tid < 1 || tid > SUPPLY) return;
+  if (state.busyToken) return;
+  state.busyToken = tid;
+  state.holderMsg = `Ligando trader #${tid}…`;
+  renderNftGrid();
+  try {
+    if (!state.wallet) await connectMetaMask();
+    if (!state.wallet) throw new Error("Conecte a carteira primeiro");
+    if ($("token_id")) $("token_id").value = String(tid);
+    if ($("wallet")) $("wallet").value = state.wallet;
+    if ($("trade_token")) $("trade_token").value = String(tid);
+    state.currentToken = tid;
+
+    const zd = await ensureZdSessionForLigar();
+    const session_pub = zd.session_pub || ($("session_pub")?.value || "").trim();
+    const caps = capsFromForm();
+    state.holderMsg = `Armando RH Chain MAINNET · token #${tid}…`;
+    renderNftGrid();
+    const extra = {
+      token_id: tid,
+      aa_provider: ($("aa_provider")?.value || "zerodev"),
+      ttl_sec: Number($("session_ttl")?.value) || 86400,
+      spend_limit_usd: Number($("spend_limit")?.value) || caps.max_notional_usd || 1000,
+    };
+    if (session_pub) extra.session_pub = session_pub;
+    await armVenue("arm_rh_chain", extra);
+    await loadHolderStatus();
+    state.holderMsg = getZeroDevProjectId()
+      ? `Trader #${tid} · Rodando (RH Chain + ZeroDev). DNA decide as trades.`
+      : `Trader #${tid} · Rodando (arm_rh_chain). Defina ZERODEV_PROJECT_ID em config.js para session key automática.`;
+  } catch (err) {
+    state.holderMsg = `Falha ao Ligar #${tid}: ${err?.message || err}`;
+    if ($("arm-state")) $("arm-state").textContent = String(err?.message || err);
+  } finally {
+    state.busyToken = null;
+    renderNftGrid();
+  }
+}
+
+async function desligarMeuTrader(tokenId) {
+  const tid = Number(tokenId);
+  if (!tid) return;
+  if (state.busyToken) return;
+  state.busyToken = tid;
+  state.holderMsg = `Desligando trader #${tid}…`;
+  renderNftGrid();
+  try {
+    if (!state.wallet) throw new Error("Conecte a carteira primeiro");
+    if ($("token_id")) $("token_id").value = String(tid);
+    if ($("wallet")) $("wallet").value = state.wallet;
+    await disarmVenue("rh_chain");
+    try {
+      if (state.arms?.arcus) await disarmVenue("arcus");
+    } catch (_) {}
+    if (state.activation && Number(state.activation.token_id) === tid) {
+      state.activation = null;
+      try { localStorage.removeItem(LS_ACT); } catch (_) {}
+    }
+    state.activations = (state.activations || []).filter((a) => Number(a.token_id) !== tid);
+    persistArms();
+    await loadHolderStatus();
+    state.holderMsg = `Trader #${tid} · Parado.`;
+  } catch (err) {
+    state.holderMsg = `Falha ao Desligar #${tid}: ${err?.message || err}`;
+  } finally {
+    state.busyToken = null;
+    renderNftGrid();
+  }
+}
+
+window.ligarMeuTrader = ligarMeuTrader;
+window.desligarMeuTrader = desligarMeuTrader;
+
 
 /* ── DNA / profile ── */
 function hasRichDna(dna) {
@@ -691,6 +915,16 @@ function goArmTrade(panel) {
 ["btn-trade-from-profile", "btn-trade-inline"].forEach((id) =>
   $(id)?.addEventListener("click", () => goArmTrade("trade"))
 );
+["btn-ligar-from-profile", "btn-ligar-inline"].forEach((id) =>
+  $(id)?.addEventListener("click", () => {
+    const tid = Number(state.currentToken || $("token_id")?.value || 0);
+    if (tid) ligarMeuTrader(tid);
+  })
+);
+$("btn-desligar-inline")?.addEventListener("click", () => {
+  const tid = Number(state.currentToken || $("token_id")?.value || 0);
+  if (tid) desligarMeuTrader(tid);
+});
 
 /* ── Tape / public ── */
 function renderTape(tapeItems) {
@@ -1319,6 +1553,7 @@ function persistArms() {
   const live = (state.tradeMode || "observe") === "live";
   const hasArm = !!(state.arms?.arcus || state.arms?.rh_chain);
   if ($("btn-place")) $("btn-place").disabled = !(live && hasArm);
+  try { if (state.owned?.length) renderNftGrid(); } catch (_) {}
 }
 
 function restoreArms() {
@@ -1353,7 +1588,8 @@ async function armVenue(action, extra = {}) {
     await connectMetaMask();
     wallet = state.wallet || "";
   }
-  const token_id = Number($("token_id")?.value) || 1;
+  const token_id = Number(extra.token_id || $("token_id")?.value) || 1;
+  if ($("token_id")) $("token_id").value = String(token_id);
   if ($("arm-state")) $("arm-state").textContent = `Requesting signature for ${action}…`;
   const proof = await walletChallenge("arm", { wallet, token_id });
   const body = {
@@ -1466,7 +1702,7 @@ $("btn-rh-guide")?.addEventListener("click", () => {
   const al = ALCHEMY_API_KEY ? "configured" : "missing — Alchemy path stub only";
   const mem = typeof zdGetMemSession === "function" ? zdGetMemSession() : null;
   box.textContent = [
-    "RH Chain AA guide · MAIN v8 (ZeroDev + Uniswap v3 SwapRouter02)",
+    "RH Chain AA guide · MAIN v9 holder-simple (ZeroDev + Uniswap v3 SwapRouter02)",
     `Vendor: ./vendor/zerodev-rh.js · ${ZD_META?.name || "wst-zerodev-rh"} · v${ZD_META?.version || "8"} · kernel ${ZD_META?.kernel || "v3.1"}`,
     "1. Inject window.ZERODEV_PROJECT_ID (ZeroDev dashboard · RH Chain 4663 MAINNET).",
     "2. Inject window.RH_TOKEN_MAP = { AAPL: '0x…', … } (stock-token addresses from RH Token Contracts).",

@@ -626,3 +626,23 @@ button.pulse-card:hover{border-color:var(--green);background:#0a0d0a}
 .arm-form textarea,.trade-form textarea,#byos-panel textarea{border:1px solid var(--line2);background:#050605;color:var(--paper);padding:12px 14px;font-weight:600;outline:0;resize:vertical;min-height:80px}
 .arm-form textarea:focus,.trade-form textarea:focus,#byos-panel textarea:focus{border-color:var(--green)}
 .venue-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+
+
+/* ── holder-simple v9 NFT cards ── */
+.holder-nft-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.nft-card.holder-card{display:flex;flex-direction:column;cursor:default}
+.nft-card.holder-card .nft-card-open{display:block;padding:0;border:0;background:transparent;cursor:pointer;width:100%}
+.nft-card.holder-card .nft-card-open img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.holder-meta-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.holder-status{font:700 9px var(--mono);letter-spacing:.1em;padding:3px 7px;border:1px solid var(--line2);text-transform:uppercase}
+.holder-status.rodando{color:#7dffb3;border-color:#2a6b45;background:rgba(40,120,70,.18)}
+.holder-status.parado{color:#8e938c;border-color:var(--line2);background:rgba(0,0,0,.25)}
+.holder-result{display:block;color:#9aa39a;font-size:10px;line-height:1.35;min-height:2.6em;margin-bottom:10px}
+.holder-actions-row{display:flex;flex-direction:column;gap:6px}
+.holder-actions-row .solid-btn,
+.holder-actions-row .ghost-btn{width:100%;font-size:11px;letter-spacing:.06em;padding:10px 12px}
+.holder-actions-row .solid-btn:disabled,
+.holder-actions-row .ghost-btn:disabled{opacity:.45;cursor:not-allowed}
+.holder-toast{grid-column:1/-1;border:1px solid var(--line2);background:#0a100c;color:#c8d0c8;padding:10px 14px;font:600 12px var(--mono);letter-spacing:.04em;margin:0 0 4px}
+.profile-main-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.profile-head-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}

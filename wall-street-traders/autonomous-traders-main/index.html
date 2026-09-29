@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — Dual-venue Arm Desk: RH Chain AA + Arcus BYOS. Separate from paper beta.">
+  <meta name="description" content="Wall Street Traders Autonomous Traders MAIN — holder-simple: conectar carteira, ver NFTs, Ligar / Desligar. RH Chain AA sob o capô.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://binqxbofehpigwjrwksl.supabase.co https://kgtksjxfcwnmyeqddpug.supabase.co https://api.arcus.xyz https://api.testnet.arcus.xyz https://rpc.mainnet.chain.robinhood.com https://rpc.zerodev.app https://*.zerodev.app https://robinhood-mainnet.g.alchemy.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
   <title>WST Autonomous Traders — MAIN</title>
-  <link rel="stylesheet" href="styles.css?v=81">
+  <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -18,18 +18,18 @@
       <a href="#overview" data-nav="overview">OVERVIEW</a>
       <a href="#finder" data-nav="finder">FIND</a>
       <a href="#rankings" data-nav="rankings">RANKINGS</a>
-      <a href="#nfts" data-nav="nfts">MY NFTS</a>
+      <a href="#nfts" data-nav="nfts">MEUS NFTs</a>
       <a href="#developers" data-nav="developers">API</a>
     </nav>
     <div class="wallet-chip">
-      <button type="button" class="header-cta-btn" id="btn-mm-header">CONNECT WALLET</button>
-      <button type="button" class="header-disconnect-btn" id="btn-mm-disconnect" hidden title="Disconnect wallet and clear session keys">DISCONNECT</button>
+      <button type="button" class="header-cta-btn" id="btn-mm-header">CONECTAR CARTEIRA</button>
+      <button type="button" class="header-disconnect-btn" id="btn-mm-disconnect" hidden title="Desconectar carteira e limpar session keys">DESCONECTAR</button>
     </div>
   </header>
   <div class="main-badge-bar" role="status">
-    <span class="badge"><i></i> MAIN · DUAL VENUE · BYOS + AA (v8)</span>
-    <span class="badge warn">PRICES: ARCUS MIDS · ARCUS ORDERS: TESTNET · RH CHAIN: MAINNET</span>
-    <span class="badge muted">Paper beta separate · ZeroDev vendored · no private keys on site</span>
+    <span class="badge"><i></i> MAIN · HOLDER-SIMPLE · RH AA (v9)</span>
+    <span class="badge warn">HOLDER PATH · DNA DECIDE · RH CHAIN MAINNET</span>
+    <span class="badge muted">Advanced: Arm Desk / BYOS / caps · paper beta separate</span>
   </div>
   <main id="main-content" class="autonomous-workspace">
     <aside class="autonomous-sidebar" id="autonomous-sidebar">
@@ -59,22 +59,25 @@
           </button>
           <button type="button" data-panel="nfts" aria-selected="false" title="My NFTs">
             <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="4" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-            <span class="nav-label">My NFTs</span>
+            <span class="nav-label">Meus NFTs</span>
           </button>
         </div>
         <div class="nav-group" role="group" aria-label="Trader">
           <span class="nav-group-label">Trader</span>
           <button type="button" data-panel="profile" aria-selected="false" title="Trader Profile">
             <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 20c1.5-4 4-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-            <span class="nav-label">Trader Profile</span>
+            <span class="nav-label">Perfil</span>
           </button>
-          <button type="button" data-panel="arm" aria-selected="false" title="Arm Desk">
+        </div>
+        <div class="nav-group" role="group" aria-label="Advanced">
+          <span class="nav-group-label">Advanced</span>
+          <button type="button" data-panel="arm" aria-selected="false" title="Arm Desk (Advanced)">
             <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2 6h6l-5 4 2 6-5-3.5L7 19l2-6-5-4h6z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
             <span class="nav-label">Arm Desk</span>
           </button>
-          <button type="button" data-panel="trade" aria-selected="false" title="Trade">
+          <button type="button" data-panel="trade" aria-selected="false" title="Trade / Place (Advanced)">
             <svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-            <span class="nav-label">Trade</span>
+            <span class="nav-label">Trade / Place</span>
           </button>
         </div>
         <div class="nav-group" role="group" aria-label="Developers">
@@ -101,16 +104,16 @@
       <!-- OVERVIEW -->
       <section class="page-panel overview-panel active-panel" id="overview" data-panel="overview">
         <div class="hero-copy">
-          <p class="terminal-line"><i class="signal-dot"></i> AUTONOMOUS TRADERS / MAIN · OPT-IN</p>
-          <p class="folio">444 TRADING DNAs · RH CHAIN MAINNET · ARCUS TESTNET ORDERS</p>
-          <h1>MAIN DESK.<br><span>WALLET → NFT → ARM.</span></h1>
-          <p class="hero-lead">Connect MetaMask, load WST NFTs you own on-chain, open a Trader Profile, arm caps, place <b>Arcus TESTNET</b> orders via Edge <code>main-order</code>, or <b>RH Chain MAINNET</b> DEX UserOps via ZeroDev. Paper beta is a separate URL and Supabase project.</p>
-          <div class="notice"><i></i> MAIN · DUAL VENUE · BYOS + AA (v8)</div>
-          <p class="microcopy">PRICES: api.arcus.xyz/v1/mids · ARCUS ORDERS: api.testnet.arcus.xyz · RH: chain 4663 MAINNET · PROJECT binqxbofehpigwjrwksl</p>
+          <p class="terminal-line"><i class="signal-dot"></i> AUTONOMOUS TRADERS / MAIN · HOLDER-SIMPLE</p>
+          <p class="folio">444 TRADING DNAs · CONECTAR → VER NFTs → LIGAR</p>
+          <h1>SEU TRADER.<br><span>LIGA. DESLIGA. PRONTO.</span></h1>
+          <p class="hero-lead">Conecte a carteira, veja seus NFTs WST e use <b>Ligar meu trader</b> / <b>Desligar</b>. Quem decide compra/venda é o <b>DNA do NFT</b> (Grok depois). Sem Place manual no caminho feliz. Arm Desk, ZeroDev e BYOS ficam em <b>Advanced</b>.</p>
+          <div class="notice"><i></i> MAIN · HOLDER-SIMPLE · RH AA (v9)</div>
+          <p class="microcopy">RH Chain MAINNET · ZeroDev sob o capô ao Ligar · Arcus TESTNET só em Advanced · paper beta URL separada</p>
           <div class="overview-dev-chip-row" style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
-            <button type="button" class="api-chip overview-dev-chip" data-nav="nfts">MY NFTS →</button>
-            <button type="button" class="api-chip overview-dev-chip" data-nav="finder">FIND TRADER →</button>
-            <button type="button" class="api-chip overview-dev-chip" data-nav="developers">DEVELOPERS · API →</button>
+            <button type="button" class="api-chip overview-dev-chip" data-nav="nfts">MEUS NFTs →</button>
+            <button type="button" class="api-chip overview-dev-chip" data-nav="finder">ENCONTRAR →</button>
+            <button type="button" class="api-chip overview-dev-chip" data-nav="arm">ADVANCED →</button>
           </div>
         </div>
         <div class="overview-metrics">
@@ -187,18 +190,18 @@
         </article>
       </section>
 
-      <!-- MY NFTS -->
+      <!-- MY NFTS · holder-simple primary path -->
       <section class="page-panel dashboard-panel" id="nfts" data-panel="nfts">
         <div class="dash-head">
-          <p>02 / WALLET OWNERSHIP</p>
-          <h2>MY NFTS.</h2>
-          <small>On-chain ownership via WST collection contract on Robinhood Chain. Click a token to open Trader Profile (DNA + Arm / Trade).</small>
+          <p>02 / HOLDER · CAMINHO SIMPLES</p>
+          <h2>MEUS NFTs.</h2>
+          <small>Conecte a carteira · veja seus WST on-chain · <b>Ligar meu trader</b> / <b>Desligar</b>. Status: <b>Rodando</b> / <b>Parado</b>. DNA decide as trades — sem Place manual aqui. Caps / ZeroDev / BYOS → Advanced.</small>
         </div>
-        <div class="arm-actions" style="margin-bottom:18px">
-          <button type="button" class="solid-btn" id="btn-connect-nfts">CONNECT / REFRESH OWNERSHIP</button>
-          <b id="nfts-status" role="status" style="color:#8e938c;font:700 10px var(--mono);letter-spacing:.1em">WALLET NOT CONNECTED</b>
+        <div class="arm-actions holder-actions" style="margin-bottom:18px">
+          <button type="button" class="solid-btn" id="btn-connect-nfts">CONECTAR / ATUALIZAR</button>
+          <b id="nfts-status" role="status" style="color:#8e938c;font:700 10px var(--mono);letter-spacing:.1em">CARTEIRA NÃO CONECTADA</b>
         </div>
-        <div class="nft-grid" id="nft-grid"><p class="loading">Connect MetaMask to list WST tokens you own.</p></div>
+        <div class="nft-grid holder-nft-grid" id="nft-grid"><p class="loading">Conecte MetaMask para listar seus NFTs WST.</p></div>
         <p class="arm-note" id="nft-contract-note">Contract: loading…</p>
       </section>
 
@@ -216,8 +219,9 @@
             <small>DNA from Main when present; otherwise traits/DNA from beta public API (read-only display). Activations &amp; orders always on Main.</small>
           </div>
           <div class="profile-head-actions">
-            <button type="button" class="ghost-btn" id="btn-arm-from-profile">ARM THIS NFT →</button>
-            <button type="button" class="ghost-btn" id="btn-trade-from-profile">TRADE →</button>
+            <button type="button" class="solid-btn" id="btn-ligar-from-profile">LIGAR MEU TRADER</button>
+            <button type="button" class="ghost-btn" id="btn-arm-from-profile">ADVANCED · ARM →</button>
+            <button type="button" class="ghost-btn" id="btn-trade-from-profile">ADVANCED · TRADE →</button>
           </div>
         </div>
         <nav class="profile-subnav" id="profile-subnav" aria-label="Trader profile sections">
@@ -262,8 +266,10 @@
                     <div><dt>OWNED</dt><dd id="profile-owned">—</dd></div>
                   </dl>
                   <div class="profile-main-actions">
-                    <button type="button" class="solid-btn" id="btn-arm-inline">ARM DESK →</button>
-                    <button type="button" class="ghost-btn" id="btn-trade-inline">TRADE →</button>
+                    <button type="button" class="solid-btn" id="btn-ligar-inline">LIGAR MEU TRADER</button>
+                    <button type="button" class="ghost-btn" id="btn-desligar-inline">DESLIGAR</button>
+                    <button type="button" class="ghost-btn" id="btn-arm-inline">ADVANCED · ARM →</button>
+                    <button type="button" class="ghost-btn" id="btn-trade-inline">ADVANCED · TRADE →</button>
                   </div>
                 </div>
               </article>
@@ -336,13 +342,14 @@
         </div>
       </section>
 
-      <!-- ARM -->
+      <!-- ARM · Advanced -->
       <section class="page-panel dashboard-panel" id="arm" data-panel="arm">
         <div class="dash-head">
-          <p>05 · ARM DESK</p>
-          <h2>Dual-venue opt-in.</h2>
-          <small>Arm <b>RH Chain MAINNET</b> (ZeroDev session keys + Uniswap v3 swap UserOp / Alchemy stub) and/or <b>Arcus BYOS TESTNET</b> independently with caps. Wallet-signed challenge + on-chain ownerOf. Site never stores Ed25519 private keys. Observe/Simulate works without any venue armed.</small>
+          <p>05 · ADVANCED · ARM DESK</p>
+          <h2>Advanced · Dual-venue opt-in.</h2>
+          <small><b>Não é o caminho feliz do holder.</b> Prefer <b>Meus NFTs → Ligar meu trader</b>. Aqui: Arm <b>RH Chain MAINNET</b> (ZeroDev) e/ou <b>Arcus BYOS TESTNET</b> com caps manuais. Sem private keys no site.</small>
         </div>
+        <div class="notice" style="margin-bottom:14px"><i></i> ADVANCED · Caps / ZeroDev / BYOS · holder path = Ligar em Meus NFTs</div>
 
         <form class="arm-form" id="arm-common" autocomplete="off">
           <div class="field"><label for="wallet">WALLET</label><input id="wallet" name="wallet" placeholder="0x… connect MetaMask" /></div>
@@ -410,12 +417,13 @@
         <input type="hidden" id="venue" value="arcus" />
       </section>
 
-      <!-- TRADE -->
+      <!-- TRADE · Advanced (no Place on holder happy path) -->
       <section class="page-panel dashboard-panel" id="trade" data-panel="trade">
         <div class="dash-head">
-          <p>06 · TRADE</p>
-          <h2>Simulate · BYOS · RH MAINNET DEX.</h2>
-          <small>Prices: <b>Arcus mainnet mids</b> · Orders: <b>Arcus TESTNET</b> (BYOS) or <b>RH Chain MAINNET</b> Uniswap v3 UserOp (client). Default = Observe/Simulate — works with no venue armed. Place only via armed venue.</small>
+          <p>06 · ADVANCED · TRADE / PLACE</p>
+          <h2>Advanced · Simulate · BYOS · RH DEX.</h2>
+          <small><b>Place manual não faz parte do caminho feliz.</b> DNA (+ Grok) decide. Este painel é Advanced: Observe/Simulate, BYOS TESTNET, ou RH MAINNET UserOp.</small>
+          <div class="notice" style="margin:10px 0 0"><i></i> ADVANCED · sem Place no holder-simple</div>
           <div class="mode-toggle" style="display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap">
             <button type="button" class="ghost-btn" data-trade-mode="observe" aria-pressed="true">OBSERVE / SIMULATE</button>
             <button type="button" class="ghost-btn" data-trade-mode="live" aria-pressed="false">PLACE VIA ARMED VENUE</button>
@@ -586,7 +594,7 @@
   </main>
   <footer class="site-footer">
     <div class="footer-mark">WST<span>/MAIN</span></div>
-    <p>AUTONOMOUS TRADERS · MAIN<br>MAIN · OPT-IN · ARCUS TESTNET · RH MAINNET<br><span class="footer-api-tag">Paper beta is a separate URL</span></p>
+    <p>AUTONOMOUS TRADERS · MAIN · HOLDER-SIMPLE<br>LIGAR / DESLIGAR · RH MAINNET AA<br><span class="footer-api-tag">Advanced: Arm Desk · BYOS · paper beta URL separada</span></p>
     <div class="footer-links">
       <a href="#developers" data-nav="developers">API ↗</a>
       <a href="https://api.arcus.xyz/v1/mids" target="_blank" rel="noopener">Arcus mids ↗</a>
@@ -595,9 +603,9 @@
       <a href="https://discord.gg/WEQTbg2fy9" target="_blank" rel="noopener noreferrer">Discord ↗</a>
       <a href="https://opensea.io/collection/wall-street-traders-bycommitprotocol/overview" target="_blank" rel="noopener">OpenSea ↗</a>
     </div>
-    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=8 · INFORMATIONAL · NOT ADVICE</small>
+    <small>BUILT BY COMMIT PROTOCOL · 2026 · CACHE ?v=9 · INFORMATIONAL · NOT ADVICE</small>
   </footer>
   <script src="config.js"></script>
-  <script type="module" src="app.js?v=81"></script>
+  <script type="module" src="app.js?v=9"></script>
 </body>
 </html>
