@@ -165,7 +165,7 @@ function renderDcaControls(tokenId){
   const cfg=getDcaForToken(id);
   document.querySelectorAll("[data-dca-mode]").forEach(btn=>btn.classList.toggle("active",btn.dataset.dcaMode===cfg.mode));
   const badge=$("dca-badge");
-  if(badge)badge.textContent=cfg.mode==="off"?"SPECTATOR DCA · ENGINE SUPPORT COMING":`SPECTATOR DCA · ${cfg.mode.toUpperCase()} · ENGINE SUPPORT COMING`;
+  if(badge)badge.textContent=cfg.mode==="off"?"ENGINE DCA · 3 ADDS · 90 MIN APART · BUTTONS LOCAL ONLY":`LOCAL ${cfg.mode.toUpperCase()} · ENGINE DCA IS DNA-DRIVEN · NOT THESE BUTTONS`;
 }
 
 /* ── Spectator agent controls (local UI only) ── */
@@ -308,13 +308,16 @@ function renderPositions(items,portfolio){
     const weight=book?mv/book*100:0;
     const sym=String(p.symbol||"").toUpperCase();
     const watched=isWatched(sym);
+    const inst=String(p.instrument||"spot").toUpperCase();
+    const side=String(p.side||"long").toUpperCase();
+    const lev=Number(p.leverage||1);
     return `<button type="button" class="position-card" data-open-asset="${escapeHtml(sym)}">
-      <header><strong>${escapeHtml(sym)}</strong><span class="weight">${weight.toFixed(1)}% BOOK</span></header>
+      <header><strong>${escapeHtml(sym)}</strong><span class="weight">${escapeHtml(inst)} · ${escapeHtml(side)}${inst==="PERP"?` · ${lev.toFixed(2)}x`:""}</span></header>
       <div class="pos-grid">
         <div><span>QTY</span><b>${number.format(qty)}</b></div>
         <div><span>AVG</span><b>${money.format(avg)}</b></div>
         <div><span>LAST</span><b>${money.format(last)}</b></div>
-        <div><span>MKT VALUE</span><b>${money.format(mv)}</b></div>
+        <div><span>UNREALIZED</span><b class="${clsPnL(pnl)}">${money.format(pnl)}</b></div>
       </div>
       <footer>
         <span class="${clsPnL(pnl)}">${money.format(pnl)} (${pct(totalPct)})</span>
@@ -328,11 +331,27 @@ function renderPositions(items,portfolio){
 function ticketKind(d){
   const reason=String(d.reason_code||"").toLowerCase();
   const exit=d.exit_details||{};
+  if(reason.includes("liquidat"))return "LIQUIDATION";
+  if(reason.includes("trail"))return "TRAIL";
+  if(reason.includes("dca"))return "DCA";
   if(reason.includes("stop")||exit.stop_hit||exit.stop_triggered)return "STOP";
   if(reason.includes("take_profit")||reason.includes("take-profit")||exit.take_profit_hit)return "LIMIT / TP";
   if(String(d.action||"").toLowerCase()==="sell"&&d.exit_details)return "MARKET";
   if(String(d.action||"").toLowerCase()==="buy")return "MARKET";
   return "SIGNAL";
+}
+function ledgerLine(row){
+  const inst=row?.instrument?String(row.instrument).toUpperCase():(row?.exit_details?.instrument?String(row.exit_details.instrument).toUpperCase():"");
+  const side=row?.side?String(row.side).toUpperCase():(row?.exit_details?.side?String(row.exit_details.side).toUpperCase():"");
+  const levRaw=row?.leverage??row?.exit_details?.leverage;
+  const lev=levRaw!=null&&levRaw!==""?`${Number(levRaw).toFixed(2)}x`:"";
+  const realized=row?.realized_pnl??row?.exit_details?.realized_pnl;
+  const unreal=row?.unrealized_pnl??row?.exit_details?.unrealized_pnl;
+  const bits=[];
+  if(inst||side||lev)bits.push([inst||"PAPER", side, lev].filter(Boolean).join(" · "));
+  if(realized!=null&&realized!==""&&Number.isFinite(Number(realized)))bits.push(`REALIZED ${money.format(Number(realized))}`);
+  if(unreal!=null&&unreal!==""&&Number.isFinite(Number(unreal)))bits.push(`UNREALIZED ${money.format(Number(unreal))}`);
+  return bits.length?`<p class="ticket-reason">${escapeHtml(bits.join(" · "))}</p>`:"";
 }
 function renderDecisionTicket(d,{compact=false}={}){
   const action=String(d.action||"hold").toLowerCase();
@@ -366,6 +385,7 @@ function renderDecisionTicket(d,{compact=false}={}){
       <div class="ticket-meta"><b>${escapeHtml(confTxt)}</b><small>CONF</small></div>
     </div>
     <p class="ticket-reason">${escapeHtml(title(d.reason_code))}</p>
+    ${ledgerLine(d)}
     <p class="ticket-time">${escapeHtml(when)}</p>
     ${fill}
     ${proofMarkup}
@@ -1241,7 +1261,7 @@ function renderActivity(items){
         <img src="${imageUrl(id)}" alt="WST #${id}" loading="lazy">
         <span class="activity-trader">TRADER #${id}</span>
         <span class="activity-action ${["buy","sell","hold"].includes(action)?action:""}">${escapeHtml(action==="hold"?holdLabel:action.toUpperCase())} ${escapeHtml(safe(row.symbol,""))}</span>
-        <span class="activity-reason">${escapeHtml(title(row.reason_code))}${sellPnLChip(row)}</span>
+        <span class="activity-reason">${escapeHtml(title(row.reason_code))}${sellPnLChip(row)} ${ledgerLine(row)}</span>
         <time class="activity-time"></time>
       </a>
       ${activityState.view==="tickets"?`<div class="activity-mini-ticket">${renderDecisionTicket(row,{compact:true})}</div>`:""}`;
