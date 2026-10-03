@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Follow all 444 Wall Street Traders as they autonomously paper-trade stock tokens using their NFT traits as behavioral DNA.">
+  <meta name="description" content="Follow all 444 Wall Street Traders as they paper-trade stock tokens and crypto from their NFT DNA. Token mids only. No live orders.">
   <title>WST Autonomous Traders — Public Beta</title>
   <link rel="canonical" href="https://commitprotocol.org/wall-street-traders/autonomous-traders/">
   <meta property="og:title" content="WST Autonomous Traders — Public Beta">
@@ -12,10 +12,10 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=33">
+  <link rel="stylesheet" href="styles.css?v=34">
 </head>
 <body>
-  <div class="market-tape" aria-label="Live stock token prices">
+  <div class="market-tape" aria-label="Paper beta token mids, stocks and crypto">
     <div class="tape-track" id="price-tape"><span class="tape-item"><b>MARKET DATA</b><em>LOADING…</em><i aria-hidden="true">◆</i></span></div>
   </div>
   <header class="site-header">
@@ -79,16 +79,16 @@
           <p class="terminal-line"><i class="signal-dot"></i> AUTONOMOUS TRADERS / PUBLIC BETA</p>
           <p class="folio">444 TRADING DNAs · ROBINHOOD CHAIN · 2026</p>
           <h1>EVERY NFT<br>THINKS <span>DIFFERENTLY.</span></h1>
-          <p class="hero-lead">Each Wall Street Trader uses its original traits as behavioral DNA. Paper beta now trades stock-token perps, long or short, with DNA-scaled size. No live orders.</p>
-          <div class="notice"><i></i> STATUS: PUBLIC BETA LIVE</div>
-          <p class="microcopy">PAPER ONLY · PERPS LONG/SHORT · LEV CAP 3x · MAX 12 POSITIONS · NO LIVE ORDERS</p>
+          <p class="hero-lead">Each Wall Street Trader uses its original traits as behavioral DNA. The paper book covers stock tokens and crypto, spot or perp, long or short. The DNA sets the leverage. Prices on this desk are live token mids. No live orders.</p>
+          <div class="notice"><i></i> STATUS: PAPER BETA</div>
+          <p class="microcopy">PAPER ONLY · STOCKS + CRYPTO · SPOT &amp; PERP · LONG/SHORT · DNA SETS LEVERAGE · TOKEN MIDS · NO LIVE ORDERS</p>
           <div class="overview-dev-chip-row">
             <button type="button" class="api-chip overview-dev-chip" data-panel-jump="developers">DEVELOPERS · API / MCP →</button>
           </div>
         </div>
         <div class="overview-metrics">
           <article><span>TRADERS</span><strong>444</strong><small>INDEPENDENT IDENTITIES</small></article>
-          <article><span>STOCK TOKENS</span><strong id="asset-count">—</strong><small>LIVE MARKET ASSETS</small></article>
+          <article><span>MARKETS</span><strong id="asset-count">—</strong><small>TOKEN MIDS ON THE TAPE</small></article>
           <article><span>ENGINE CYCLES</span><strong id="cycle-count">—</strong><small>AUTONOMOUS DECISIONS</small></article>
         </div>
         <article class="panel cards-strip-panel" id="cards-strip-panel">
@@ -104,8 +104,9 @@
           <div class="followed-strip" id="followed-strip"><p class="followed-empty">No DNA followed yet. Open a trader profile and tap FOLLOW DNA.</p></div>
         </article>
         <article class="panel market-cards-panel" id="market-cards-panel">
-          <div class="panel-head"><div><span>MARKET SPOTLIGHT</span><h3>STOCK TOKENS</h3></div><b id="market-cards-status">LIVE</b></div>
-          <div class="market-cards" id="market-cards"><p class="loading">Loading market cards…</p></div>
+          <div class="panel-head"><div><span>TOKEN MIDS</span><h3>MARKETS</h3></div><b id="market-cards-status">MIDS</b></div>
+          <p class="fees-note">Value DNA can lean long on crypto when yesterday&apos;s protocol fees rise (DefiLlama, prior closed day). No fee number on this screen unless the public feed sends a direction.</p>
+          <div class="market-cards" id="market-cards"><p class="loading">Loading token mids…</p></div>
         </article>
       </section>
       <section class="page-panel dashboard-panel" id="finder">
@@ -203,7 +204,7 @@
               </div>
               <p class="equity-note" id="equity-note">ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE</p>
             </article>
-            <article class="panel positions-panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list positions-list empty">FLAT</div></article>
+            <article class="panel positions-panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><p class="fees-note">Value DNA reads yesterday&apos;s crypto protocol fees (DefiLlama, prior closed day). A direction chip appears only if the public feed sends one.</p><div id="positions" class="data-list positions-list empty">FLAT</div></article>
             <article class="panel pressure-panel" id="pressure-panel">
               <div class="panel-head"><div><span>DNA vs BOOK</span><h3>PRESSURE TEST</h3></div><b id="pressure-score-badge">HEURISTIC · PAPER</b></div>
               <div class="pressure-body" id="pressure-body"><p class="loading">Load a trader to run the pressure test…</p></div>
@@ -228,7 +229,7 @@
               <div class="panel-head"><div><span>CONDITION / EVALUATION</span><h3>EVALUATION LEDGER</h3></div><b>RECENT CHECKS</b></div>
               <div id="eval-ledger" class="eval-ledger"><p class="loading">Loading evaluations…</p></div>
             </article>
-            <article class="panel decision-history"><div class="panel-head history-head"><div><span>COMPLETE DECISION LEDGER</span><h3>DECISION HISTORY</h3></div><b id="history-status">LIVE</b></div>
+            <article class="panel decision-history"><div class="panel-head history-head"><div><span>COMPLETE DECISION LEDGER</span><h3>DECISION HISTORY</h3></div><b id="history-status">PAPER</b></div>
               <div class="history-toolbar" role="group" aria-label="Filter decision history"><button type="button" class="active" data-action="all">ALL</button><button type="button" data-action="buy">BUY</button><button type="button" data-action="sell">SELL</button><button type="button" data-action="hold">HOLD</button></div>
               <div id="decisions" class="data-list history-list empty" aria-live="polite">NO DECISIONS YET</div>
               <div class="history-footer"><span id="history-count">0 DECISIONS LOADED</span><button type="button" id="load-more-decisions" hidden>LOAD MORE ↓</button></div>
@@ -254,7 +255,7 @@
                   <div class="dca-controls" id="dca-controls">
                     <div class="dca-head">
                       <span>DCA MODE</span>
-                      <b class="dca-badge" id="dca-badge">ENGINE DCA LIVE · 3 ADDS · 90 MIN · BUTTONS ARE LOCAL ONLY</b>
+                      <b class="dca-badge" id="dca-badge">ENGINE DCA · PAPER · 3 ADDS · 90 MIN · BUTTONS ARE LOCAL ONLY</b>
                     </div>
                     <div class="history-toolbar dca-mode-toolbar" role="group" aria-label="DCA mode">
                       <button type="button" class="active" data-dca-mode="off">OFF</button>
@@ -302,7 +303,7 @@
           <div>
             <p>04 / BETA SEASON</p>
             <h2>TOP TRADERS.</h2>
-            <small>Live standings by equity return, realized P&amp;L, or trading activity — paper portfolios only.</small>
+            <small>Paper standings by equity return, realized P&amp;L, or activity. Stock tokens and crypto sit in the same book. No live orders.</small>
           </div>
           <button type="button" class="compare-trigger" id="compare-from-rankings">COMPARE TRADERS</button>
         </div>
@@ -322,7 +323,7 @@
             <button type="button" data-rank-limit="50">50</button>
           </div>
         </div>
-        <article class="panel leaderboard-panel"><div class="panel-head"><div><span>LIVE TABLE</span><h3 id="rankings-title">TOP GAINERS</h3></div><b id="rankings-metric-label">VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article>
+        <article class="panel leaderboard-panel"><div class="panel-head"><div><span>PAPER TABLE</span><h3 id="rankings-title">TOP GAINERS</h3></div><b id="rankings-metric-label">VIRTUAL USD</b></div><div id="leaderboard" class="leaderboard-list"><p class="loading">Loading standings…</p></div></article>
       </section>
       <section class="page-panel dashboard-panel" id="scan">
         <div class="dash-head">
@@ -376,7 +377,7 @@
           <div id="scan-results" class="leaderboard-list"><p class="loading">Set filters and run scan.</p></div>
         </article>
       </section>
-      <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>06 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Complete simulated decision history across all 444 traders, loaded in lightweight pages.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div class="history-toolbar activity-toolbar" role="group" aria-label="Filter public activity"><button type="button" class="active" data-activity-action="all">ALL</button><button type="button" data-activity-action="buy">BUY</button><button type="button" data-activity-action="sell">SELL</button><button type="button" data-activity-action="hold">HOLD</button><button type="button" data-activity-action="long">LONG</button><button type="button" data-activity-action="short">SHORT</button></div><div class="activity-extra-filters"><label>TRADER #<input id="activity-token-filter" type="number" min="1" max="444" placeholder="1–444" inputmode="numeric"></label><label>SYMBOL<input id="activity-symbol-filter" type="text" maxlength="16" placeholder="AAPL" autocomplete="off" spellcheck="false"></label><button type="button" class="ghost-btn" id="activity-apply-filters">APPLY</button><div class="history-toolbar activity-view-toggle" role="group" aria-label="Activity view"><button type="button" data-activity-view="compact">COMPACT</button><button type="button" class="active" data-activity-view="tickets">TICKETS</button></div></div><div id="activity-list" class="activity-list activity-history"><p class="loading">Loading recent decisions…</p></div><div class="history-footer"><span id="activity-count">0 DECISIONS LOADED</span><button type="button" id="load-more-activity" hidden>LOAD MORE ↓</button></div></article><p class="activity-note">PAPER TRADING ONLY · HOLD IS A DECISION, NOT AN EXECUTED TRADE · TIMES SHOWN IN YOUR LOCAL TIME ZONE</p></section>
+      <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>06 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Simulated decisions for all 444 traders. Long, short, spot, perp, and the leverage the engine actually wrote. Loaded in pages.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div class="history-toolbar activity-toolbar" role="group" aria-label="Filter public activity"><button type="button" class="active" data-activity-action="all">ALL</button><button type="button" data-activity-action="buy">BUY</button><button type="button" data-activity-action="sell">SELL</button><button type="button" data-activity-action="hold">HOLD</button><button type="button" data-activity-action="long">LONG</button><button type="button" data-activity-action="short">SHORT</button></div><div class="activity-extra-filters"><label>TRADER #<input id="activity-token-filter" type="number" min="1" max="444" placeholder="1–444" inputmode="numeric"></label><label>SYMBOL<input id="activity-symbol-filter" type="text" maxlength="16" placeholder="BTC" autocomplete="off" spellcheck="false"></label><button type="button" class="ghost-btn" id="activity-apply-filters">APPLY</button><div class="history-toolbar activity-view-toggle" role="group" aria-label="Activity view"><button type="button" data-activity-view="compact">COMPACT</button><button type="button" class="active" data-activity-view="tickets">TICKETS</button></div></div><div id="activity-list" class="activity-list activity-history"><p class="loading">Loading recent decisions…</p></div><div class="history-footer"><span id="activity-count">0 DECISIONS LOADED</span><button type="button" id="load-more-activity" hidden>LOAD MORE ↓</button></div></article><p class="activity-note">PAPER ONLY · LEVERAGE IS THE ENGINE VALUE, NOT ROUNDED TO 1x · HOLD IS A DECISION, NOT A FILL · TIMES IN YOUR LOCAL ZONE</p></section>
       <section class="page-panel dashboard-panel developers-panel" id="developers">
         <div class="dash-head">
           <p>08 / DEVELOPER ACCESS</p>
@@ -406,10 +407,10 @@
           </div>
         </article>
       </section>
-      <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">07 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment designed to test autonomous market behavior derived from NFT traits.</p><ul><li>Virtual balances only</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
+      <section class="page-panel beta-panel" id="beta-notice"><div><p class="index">07 / SIMULATION NOTICE</p><h2>RESEARCH FIRST.<br>REAL FUNDS NEVER.</h2></div><div><p>This public beta is a research and entertainment experiment. NFT traits drive a paper book across stock tokens and crypto.</p><ul><li>Virtual balances only. No live orders and no brokerage account</li><li>No real funds are deposited, invested or managed</li><li>No wallet connection, signature or transaction</li><li>Prices are token mids from the public feed, not a claim that stocks trade 24/7</li><li>DNA sets leverage. The desk prints the figure the engine stored</li><li>Results are not financial advice</li><li>Past simulated performance does not guarantee future results</li></ul></div></section>
     </div>
   </main>
-  <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PUBLIC BETA<br>LIVE ON ROBINHOOD CHAIN<br><span class="footer-api-tag">PUBLIC API · MCP READ-ONLY · PAPER</span></p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="#developers" data-panel-jump="developers">API / MCP ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026 · INFORMATIONAL · PAPER · NOT ADVICE</small></footer>
+  <footer class="site-footer"><div class="footer-mark">WST<span>/04</span></div><p>AUTONOMOUS TRADERS · PAPER BETA<br>TOKEN MIDS · ROBINHOOD CHAIN<br><span class="footer-api-tag">PUBLIC API · MCP READ-ONLY · PAPER</span></p><div class="footer-links"><a href="../trading-floor/">TRADING FLOOR ↗</a><a href="../docs/">DOCS ↗</a><a href="#developers" data-panel-jump="developers">API / MCP ↗</a><a href="https://x.com/WSTbyCommit" target="_blank" rel="noopener noreferrer">X ↗</a></div><small>BUILT BY COMMIT PROTOCOL · 2026 · INFORMATIONAL · PAPER · NOT ADVICE</small></footer>
 
   <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
   <aside class="asset-drawer" id="asset-drawer" hidden aria-hidden="true" role="dialog" aria-labelledby="drawer-symbol">
@@ -455,6 +456,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=33"></script>
+  <script src="app.js?v=34"></script>
 </body>
 </html>

@@ -26,6 +26,46 @@ function imageUrl(id){return `../trading-floor/traders/${id}.png`}
 function pct(value){const n=Number(value||0);return `${n>=0?"+":""}${n.toFixed(2)}%`}
 function safe(value,fallback="—"){return value===null||value===undefined||value===""?fallback:value}
 function title(value){return String(value||"").replaceAll("_"," ").replace(/\b\w/g,c=>c.toUpperCase())}
+const REASON_PLAIN={
+  reward_below_risk:"Reward below risk",
+  regime_chop:"Choppy tape, no trade",
+  short_against_trend:"Short against the trend",
+  short_not_a_bounce:"Short is not a bounce",
+  fees_up_lean_long:"Fees up, value leans long",
+  fees_down_no_chase:"Fees down, no chase",
+  signal_below_threshold:"Signal below threshold"
+};
+function reasonLabel(code){
+  const key=String(code||"").toLowerCase();
+  return REASON_PLAIN[key]||title(code);
+}
+function formatPx(value){
+  const n=Number(value);
+  if(!Number.isFinite(n))return "—";
+  const abs=Math.abs(n);
+  const digits=abs>=1?2:abs>=0.01?4:6;
+  return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:Math.min(2,digits),maximumFractionDigits:digits}).format(n);
+}
+const TAPE_LEAD=["BTC","ETH","SOL","SPY"];
+function orderMarkets(assets){
+  const list=(Array.isArray(assets)?assets:[]).filter(a=>a?.symbol&&Number.isFinite(Number(a.price)));
+  const rank=sym=>{const i=TAPE_LEAD.indexOf(String(sym||"").toUpperCase());return i===-1?TAPE_LEAD.length:i};
+  return [...list].sort((a,b)=>{
+    const d=rank(a.symbol)-rank(b.symbol);
+    return d||String(a.symbol).toUpperCase().localeCompare(String(b.symbol).toUpperCase());
+  });
+}
+function feeDirection(source){
+  if(!source||typeof source!=="object")return "";
+  const proof=source.proof_data&&typeof source.proof_data==="object"?source.proof_data:{};
+  const raw=source.fee_direction??source.fees_direction??source.protocol_fee_direction??source.fees_bias??proof.fee_direction??proof.fees_direction??proof.protocol_fee_direction??proof.fees_bias;
+  if(raw==null||raw==="")return "";
+  return String(raw).replaceAll("_"," ").toUpperCase();
+}
+function feeChip(source){
+  const text=feeDirection(source);
+  return text?`<span class="fee-chip">${escapeHtml(text)}</span>`:"";
+}
 function escapeHtml(value){return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]))}
 function clsPnL(n){return Number(n)>=0?"buy":"sell"}
 
@@ -98,7 +138,7 @@ function renderWatchlist(){
     const px=priceOf(sym);
     const chg=px?.changePct;
     const chgHtml=chg!=null?`<em class="${clsPnL(chg)}">${pct(chg)}</em>`:"";
-    const priceHtml=px?`<b>${money.format(px.price)}</b>`:`<b class="muted">—</b>`;
+    const priceHtml=px?`<b>${formatPx(px.price)}</b>`:`<b class="muted">—</b>`;
     return `<button type="button" class="watch-chip" data-open-asset="${escapeHtml(sym)}"><span>${escapeHtml(sym)}</span>${priceHtml}${chgHtml}<i data-unwatch="${escapeHtml(sym)}" title="Remove">×</i></button>`;
   }).join("");
 }
@@ -243,7 +283,7 @@ function buildPortfolioDigest(data){
   }
   if(lastAction){
     const holdNote=lastAction==="HOLD"?" (condition checked · no trade)":"";
-    parts.push(`Last recorded action: ${lastAction}${lastSym?" "+lastSym:""}${holdNote}${last?.reason_code?` — ${title(last.reason_code)}`:""}.`);
+    parts.push(`Last recorded action: ${lastAction}${lastSym?" "+lastSym:""}${holdNote}${last?.reason_code?` — ${reasonLabel(last.reason_code)}`:""}.`);
   }
   return parts.join(" ");
 }
@@ -267,10 +307,10 @@ function renderEvalLedger(decisions){
     const extras=[];
     if(proof.market_signal)extras.push(`Signal ${String(proof.market_signal).toUpperCase()}`);
     if(proof.signal_strength)extras.push(`Strength ${String(proof.signal_strength).toUpperCase()}`);
-    if(proof.price_snapshot!=null)extras.push(`Px ${money.format(Number(proof.price_snapshot))}`);
+    if(proof.price_snapshot!=null)extras.push(`Px ${formatPx(proof.price_snapshot)}`);
     return `<div class="eval-row ${action}">
       <div class="eval-action"><strong class="${["buy","sell"].includes(action)?action:""}">${escapeHtml(label)}</strong>${d.symbol?`<button type="button" class="ticket-sym" data-open-asset="${escapeHtml(String(d.symbol).toUpperCase())}">${escapeHtml(String(d.symbol).toUpperCase())}</button>`:""}</div>
-      <div class="eval-reason">${escapeHtml(title(d.reason_code)||"—")}</div>
+      <div class="eval-reason">${escapeHtml(reasonLabel(d.reason_code)||"—")}</div>
       <div class="eval-meta">${escapeHtml(extras.join(" · ")||"—")}</div>
       <time class="eval-time">${escapeHtml(when)}</time>
     </div>`;
@@ -296,9 +336,7 @@ function positionLastPrice(p){
 function formatLev(value){
   const v=Number(value);
   if(!Number.isFinite(v)||v<=0)return "—";
-  const rounded=Math.round(v*100)/100;
-  const txt=Number.isInteger(rounded)?String(rounded):rounded.toFixed(2);
-  return `${txt}x`;
+  return `${v.toFixed(2)}x`;
 }
 function renderPositions(items,portfolio){
   const root=$("positions");$("positions-total").textContent=items.length;$("position-count").textContent=`${items.length} OPEN`;
@@ -321,8 +359,8 @@ function renderPositions(items,portfolio){
       <td><span class="side-badge ${side}">${side.toUpperCase()}</span></td>
       <td class="num">${escapeHtml(formatLev(p.leverage))}</td>
       <td class="num">${number.format(qty)}</td>
-      <td class="num">${money.format(entry)}</td>
-      <td class="num">${money.format(mark)}</td>
+      <td class="num">${formatPx(entry)}</td>
+      <td class="num">${formatPx(mark)}</td>
       <td class="num ${clsPnL(pnl)}">${money.format(pnl)}</td>
       <td class="num">${marginTxt}</td>
     </tr>`;
@@ -347,7 +385,7 @@ function ledgerLine(row){
   const inst=row?.instrument?String(row.instrument).toUpperCase():(row?.exit_details?.instrument?String(row.exit_details.instrument).toUpperCase():"");
   const side=row?.side?String(row.side).toUpperCase():(row?.exit_details?.side?String(row.exit_details.side).toUpperCase():"");
   const levRaw=row?.leverage??row?.exit_details?.leverage;
-  const lev=levRaw!=null&&levRaw!==""?`${Number(levRaw).toFixed(2)}x`:"";
+  const lev=levRaw!=null&&levRaw!==""&&Number.isFinite(Number(levRaw))?formatLev(levRaw):"";
   const realized=row?.realized_pnl??row?.exit_details?.realized_pnl;
   const unreal=row?.unrealized_pnl??row?.exit_details?.unrealized_pnl;
   const bits=[];
@@ -370,8 +408,8 @@ function renderDecisionTicket(d,{compact=false}={}){
     const pnl=Number(exit.realized_pnl);
     const ret=Number(exit.return_pct);
     fill=`<div class="ticket-fill">
-      <div><span>ENTRY</span><b>${money.format(Number(exit.entry_price))}</b></div>
-      <div><span>EXIT</span><b>${money.format(Number(exit.exit_price))}</b></div>
+      <div><span>ENTRY</span><b>${formatPx(exit.entry_price)}</b></div>
+      <div><span>EXIT</span><b>${formatPx(exit.exit_price)}</b></div>
       <div><span>REALIZED</span><b class="${clsPnL(pnl)}">${money.format(pnl)}</b></div>
       <div><span>RETURN</span><b class="${clsPnL(ret)}">${pct(ret)}</b></div>
       ${exit.stop_loss_pct!=null?`<div><span>STOP</span><b>−${Number(exit.stop_loss_pct).toFixed(2)}%</b></div>`:""}
@@ -379,15 +417,15 @@ function renderDecisionTicket(d,{compact=false}={}){
       ${exit.quantity!=null?`<div><span>QTY</span><b>${number.format(Number(exit.quantity))}</b></div>`:""}
     </div>`;
   }
-  const exitMarkup=exit?`<div><span>EXIT REASON</span><b>${escapeHtml(title(d.reason_code).toUpperCase())}</b></div><div><span>ENTRY PRICE</span><b>${money.format(Number(exit.entry_price))}</b></div><div><span>EXIT PRICE</span><b>${money.format(Number(exit.exit_price))}</b></div><div><span>POSITION RETURN</span><b class="${clsPnL(exit.return_pct)}">${pct(exit.return_pct)}</b></div><div><span>REALIZED P&amp;L</span><b class="${clsPnL(exit.realized_pnl)}">${money.format(Number(exit.realized_pnl))}</b></div><div><span>QUANTITY SOLD</span><b>${number.format(Number(exit.quantity))}</b></div><div><span>TAKE PROFIT TARGET</span><b>${exit.take_profit_pct==null?"UNAVAILABLE":`+${Number(exit.take_profit_pct).toFixed(2)}%`}</b></div><div><span>STOP LOSS LIMIT</span><b>${exit.stop_loss_pct==null?"UNAVAILABLE":`-${Number(exit.stop_loss_pct).toFixed(2)}%`}</b></div>`:"";
-  const proofMarkup=hash?`<details class="decision-proof"><summary>VIEW DECISION PROOF</summary><div class="proof-grid">${exitMarkup}<div><span>PRICE SNAPSHOT</span><b>${proof.price_snapshot==null?"UNAVAILABLE":money.format(Number(proof.price_snapshot))}</b></div><div><span>MARKET SIGNAL</span><b>${escapeHtml(String(safe(proof.market_signal)).toUpperCase())}</b></div><div><span>SIGNAL STRENGTH</span><b>${escapeHtml(String(safe(proof.signal_strength)).toUpperCase())}</b></div><div><span>RISK INFLUENCE</span><b>${escapeHtml(String(safe(proof.risk_influence)).toUpperCase())}</b></div><div><span>DISCIPLINE INFLUENCE</span><b>${escapeHtml(String(safe(proof.discipline_influence)).toUpperCase())}</b></div><div><span>MOMENTUM INFLUENCE</span><b>${escapeHtml(String(safe(proof.momentum_influence)).toUpperCase())}</b></div><div><span>ENGINE / DNA</span><b>${escapeHtml(String(safe(d.engine_version)).toUpperCase())} / ${escapeHtml(String(safe(d.dna_version)).toUpperCase())}</b></div><div class="proof-hash"><span>COMMITMENT HASH</span><code title="${escapeHtml(hash)}">${escapeHtml(hash.slice(0,22))}…${escapeHtml(hash.slice(-10))}</code></div></div><p>PUBLIC PROOF EXPOSES DECISION CONTEXT. PROPRIETARY WEIGHTS AND RAW INPUTS REMAIN PRIVATE.</p></details>`:"";
+  const exitMarkup=exit?`<div><span>EXIT REASON</span><b>${escapeHtml(reasonLabel(d.reason_code).toUpperCase())}</b></div><div><span>ENTRY PRICE</span><b>${formatPx(exit.entry_price)}</b></div><div><span>EXIT PRICE</span><b>${formatPx(exit.exit_price)}</b></div><div><span>POSITION RETURN</span><b class="${clsPnL(exit.return_pct)}">${pct(exit.return_pct)}</b></div><div><span>REALIZED P&amp;L</span><b class="${clsPnL(exit.realized_pnl)}">${money.format(Number(exit.realized_pnl))}</b></div><div><span>QUANTITY SOLD</span><b>${number.format(Number(exit.quantity))}</b></div><div><span>TAKE PROFIT TARGET</span><b>${exit.take_profit_pct==null?"UNAVAILABLE":`+${Number(exit.take_profit_pct).toFixed(2)}%`}</b></div><div><span>STOP LOSS LIMIT</span><b>${exit.stop_loss_pct==null?"UNAVAILABLE":`-${Number(exit.stop_loss_pct).toFixed(2)}%`}</b></div>`:"";
+  const proofMarkup=hash?`<details class="decision-proof"><summary>VIEW DECISION PROOF</summary><div class="proof-grid">${exitMarkup}<div><span>PRICE SNAPSHOT</span><b>${proof.price_snapshot==null?"UNAVAILABLE":formatPx(proof.price_snapshot)}</b></div><div><span>MARKET SIGNAL</span><b>${escapeHtml(String(safe(proof.market_signal)).toUpperCase())}</b></div><div><span>SIGNAL STRENGTH</span><b>${escapeHtml(String(safe(proof.signal_strength)).toUpperCase())}</b></div><div><span>RISK INFLUENCE</span><b>${escapeHtml(String(safe(proof.risk_influence)).toUpperCase())}</b></div><div><span>DISCIPLINE INFLUENCE</span><b>${escapeHtml(String(safe(proof.discipline_influence)).toUpperCase())}</b></div><div><span>MOMENTUM INFLUENCE</span><b>${escapeHtml(String(safe(proof.momentum_influence)).toUpperCase())}</b></div><div><span>ENGINE / DNA</span><b>${escapeHtml(String(safe(d.engine_version)).toUpperCase())} / ${escapeHtml(String(safe(d.dna_version)).toUpperCase())}</b></div><div class="proof-hash"><span>COMMITMENT HASH</span><code title="${escapeHtml(hash)}">${escapeHtml(hash.slice(0,22))}…${escapeHtml(hash.slice(-10))}</code></div></div><p>PUBLIC PROOF EXPOSES DECISION CONTEXT. PROPRIETARY WEIGHTS AND RAW INPUTS REMAIN PRIVATE.</p></details>`:"";
   const symBtn=d.symbol?`<button type="button" class="ticket-sym" data-open-asset="${escapeHtml(String(d.symbol).toUpperCase())}">${escapeHtml(String(d.symbol).toUpperCase())}</button>`:"";
   return `<article class="order-ticket ${action} ${compact?"compact":""}">
     <div class="ticket-top">
       <div class="ticket-action"><strong class="${["buy","sell"].includes(action)?action:""}">${escapeHtml(action.toUpperCase())}</strong>${symBtn}<em class="ticket-kind">${escapeHtml(kind)}</em></div>
       <div class="ticket-meta"><b>${escapeHtml(confTxt)}</b><small>CONF</small></div>
     </div>
-    <p class="ticket-reason">${escapeHtml(title(d.reason_code))}</p>
+    <p class="ticket-reason">${escapeHtml(reasonLabel(d.reason_code))}${feeChip(d)}</p>
     ${ledgerLine(d)}
     <p class="ticket-time">${escapeHtml(when)}</p>
     ${fill}
@@ -582,7 +620,7 @@ function renderEquityChart(span){
     if(raw.action){
       const conf=Number.isFinite(Number(raw.confidence))?` · ${Number(raw.confidence).toFixed(0)}%`:"";
       tipVal.textContent=`${String(raw.action).toUpperCase()} ${raw.symbol||""}${conf}`.trim();
-      tipDate.textContent=`${title(raw.reason_code)||"—"} · ${formatTipDate(raw.x??dp.parsed.x,span)}`;
+      tipDate.textContent=`${reasonLabel(raw.reason_code)||"—"} · ${formatTipDate(raw.x??dp.parsed.x,span)}`;
     }else{
       tipVal.textContent=money.format(dp.parsed.y);
       tipDate.textContent=formatTipDate(dp.parsed.x,span);
@@ -663,22 +701,22 @@ function renderPortfolioChart(data){
   equityState={span:nextSpan,history,estimated,tokenId:id,total,markerDecisions:seedMarkers,lastSnapTs:estimated?null:(history.length?history[history.length-1].ts:null)};
   const src=$("equity-source");const note=$("equity-note");const warn=$("equity-warn");const snapEl=$("equity-last-snap");
   if(src){
-    src.textContent=estimated?"ESTIMATED":"LIVE HISTORY";
+    src.textContent=estimated?"ESTIMATED":"SNAPSHOTS";
     src.className="equity-badge "+(estimated?"estimated-warn":"live-history");
   }
   if(note)note.textContent=estimated
-    ?"⚠ ESTIMATED CURVE · NO LIVE SNAPSHOTS IN RESPONSE · INFORMATIONAL · PAPER · NOT ADVICE"
-    :"LIVE HISTORY · ENGINE EQUITY SNAPSHOTS · PAPER TRADING ONLY · MARKERS = DECISIONS · INFORMATIONAL · NOT ADVICE";
+    ?"⚠ ESTIMATED CURVE · NO ENGINE SNAPSHOTS IN THE RESPONSE · INFORMATIONAL · PAPER · NOT ADVICE"
+    :"ENGINE SNAPSHOTS · PAPER BOOK · MARKERS = DECISIONS · INFORMATIONAL · NOT ADVICE";
   if(warn){
     warn.hidden=!estimated;
-    warn.textContent=estimated?"⚠ ESTIMATED CURVE · LIVE SNAPSHOTS NOT LOADED · INFORMATIONAL · PAPER · NOT ADVICE":"";
+    warn.textContent=estimated?"⚠ ESTIMATED CURVE · ENGINE SNAPSHOTS NOT LOADED · INFORMATIONAL · PAPER · NOT ADVICE":"";
   }
   if(snapEl){
     if(!estimated&&history.length){
       const t=new Date(history[history.length-1].ts);
       snapEl.textContent=Number.isNaN(t.getTime())?"LAST SNAP · —":`LAST SNAP · ${t.toLocaleString()}`;
     }else{
-      snapEl.textContent=estimated?"NO LIVE SNAPSHOT":"—";
+      snapEl.textContent=estimated?"NO ENGINE SNAPSHOT":"—";
     }
   }
   setEquitySpan(nextSpan);
@@ -720,8 +758,8 @@ function openAssetDrawer(symbol){
   const last=pos?positionLastPrice(pos):(px?.price??null);
   const chg=px?.changePct;
   $("drawer-price").innerHTML=last!=null
-    ?`${money.format(last)}${chg!=null?` <em class="${clsPnL(chg)}">${pct(chg)}</em>`:""}`
-    :"PRICE UNAVAILABLE";
+    ?`${formatPx(last)}${chg!=null?` <em class="${clsPnL(chg)}">${pct(chg)}</em>`:" <em class=\"muted\">MID</em>"}`
+    :"MID UNAVAILABLE";
   const watchBtn=$("drawer-watch-btn");
   watchBtn.dataset.symbol=sym;
   const on=isWatched(sym);
@@ -730,23 +768,7 @@ function openAssetDrawer(symbol){
 
   const spark=$("drawer-spark");
   if(spark){
-    const seed=sym.split("").reduce((a,c)=>a+c.charCodeAt(0),0);
-    const rng=mulberry32(seed*17+91);
-    const base=last||100;
-    const pts=Array.from({length:24},(_,i)=>{
-      const wobble=(rng()-0.5)*0.04;
-      return Math.max(1,base*(1+wobble*(i/23)));
-    });
-    if(last)pts[pts.length-1]=last;
-    const min=Math.min(...pts),max=Math.max(...pts),span=max-min||1;
-    const w=280,h=64;
-    const path=pts.map((v,i)=>{
-      const x=(i/(pts.length-1))*w;
-      const y=h-((v-min)/span)*(h-8)-4;
-      return `${i?"L":"M"}${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(" ");
-    const up=(pts[pts.length-1]??0)>=(pts[0]??0);
-    spark.innerHTML=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" fill="none" stroke="${up?"#78f29a":"#ff8e8e"}" stroke-width="2"/></svg><small>PRICE SPARK · ILLUSTRATIVE</small>`;
+    spark.innerHTML='<small>LAST PUBLIC MID ONLY · NO PATH IN THE FEED</small>';
   }
 
   const stats=$("drawer-stats");
@@ -761,13 +783,13 @@ function openAssetDrawer(symbol){
     const weight=book?mv/book*100:0;
     stats.innerHTML=`
       <div><span>QTY</span><b>${number.format(qty)}</b></div>
-      <div><span>AVG ENTRY</span><b>${money.format(avg)}</b></div>
-      <div><span>LAST</span><b>${money.format(last||0)}</b></div>
+      <div><span>AVG ENTRY</span><b>${formatPx(avg)}</b></div>
+      <div><span>LAST</span><b>${formatPx(last||0)}</b></div>
       <div><span>MKT VALUE</span><b>${money.format(mv)}</b></div>
       <div><span>UNREALIZED</span><b class="${clsPnL(pnl)}">${money.format(pnl)} (${pct(totalPct)})</b></div>
       <div><span>BOOK WEIGHT</span><b>${weight.toFixed(1)}%</b></div>`;
   }else{
-    stats.innerHTML=`<div><span>POSITION</span><b>NOT HELD</b></div><div><span>LAST</span><b>${last!=null?money.format(last):"—"}</b></div>`;
+    stats.innerHTML=`<div><span>POSITION</span><b>NOT HELD</b></div><div><span>LAST</span><b>${last!=null?formatPx(last):"—"}</b></div>`;
   }
 
   const pool=[...(historyState.items||[]),...(profileCache.decisions||[])];
@@ -786,30 +808,15 @@ function openAssetDrawer(symbol){
 /* ── Market cards (overview) ── */
 function renderMarketCards(prices){
   const root=$("market-cards");const status=$("market-cards-status");if(!root)return;
-  const list=Array.isArray(prices)?prices.filter(p=>p?.symbol&&Number.isFinite(Number(p.price))):[];
-  if(!list.length){root.innerHTML='<p class="loading">Market cards temporarily unavailable.</p>';if(status)status.textContent="UNAVAILABLE";return}
-  const withChg=list.map(p=>{
-    const hit=priceOf(p.symbol)||{price:Number(p.price),changePct:null};
-    return{symbol:String(p.symbol).toUpperCase(),price:Number(p.price),changePct:hit.changePct};
-  });
-  const hasMoves=withChg.some(p=>p.changePct!=null);
-  let cards;
-  if(hasMoves){
-    const sorted=[...withChg].sort((a,b)=>Math.abs(b.changePct||0)-Math.abs(a.changePct||0));
-    cards=sorted.slice(0,8);
-    if(status)status.textContent="TOP MOVERS";
-  }else{
-    const byPrice=[...withChg].sort((a,b)=>b.price-a.price);
-    const high=byPrice.slice(0,4);
-    const low=byPrice.slice(-4).reverse();
-    const seen=new Set();
-    cards=[];
-    for(const c of [...high,...low]){if(seen.has(c.symbol))continue;seen.add(c.symbol);cards.push(c);if(cards.length>=8)break}
-    if(status)status.textContent="SPOTLIGHT";
-  }
-  root.innerHTML=cards.map(c=>{
-    const chg=c.changePct!=null?`<em class="${clsPnL(c.changePct)}">${pct(c.changePct)}</em>`:`<em class="muted">SPOT</em>`;
-    return `<button type="button" class="market-card" data-market-symbol="${escapeHtml(c.symbol)}"><span>${escapeHtml(c.symbol)}</span><b>${money.format(c.price)}</b>${chg}</button>`;
+  const list=orderMarkets(prices);
+  if(!list.length){root.innerHTML='<p class="loading">No token mids in the public feed.</p>';if(status)status.textContent="UNAVAILABLE";return}
+  if(status)status.textContent=`${list.length} MIDS`;
+  root.innerHTML=list.map(p=>{
+    const symbol=String(p.symbol).toUpperCase();
+    const hit=priceOf(symbol)||{price:Number(p.price),changePct:null};
+    const chg=hit.changePct!=null?`<em class="${clsPnL(hit.changePct)}">${pct(hit.changePct)}</em>`:`<em class="muted">MID</em>`;
+    const chip=feeChip(p);
+    return `<button type="button" class="market-card" data-market-symbol="${escapeHtml(symbol)}"><span>${escapeHtml(symbol)}</span><b>${formatPx(p.price)}</b>${chg}${chip}</button>`;
   }).join("");
 }
 
@@ -1079,14 +1086,23 @@ async function loadTrader(id,options={}){
 
 function renderPriceTape(assets){
   const tape=$("price-tape");
-  if(!tape||!assets.length)return;
+  const ordered=orderMarkets(assets);
+  if(!tape||!ordered.length)return;
   tape.replaceChildren();
-  [...assets,...assets].forEach(asset=>{
+  [...ordered,...ordered].forEach(asset=>{
     const item=document.createElement("span");item.className="tape-item";
     const symbol=document.createElement("b");symbol.textContent=safe(asset.symbol,"ASSET");
-    const price=document.createElement("em");price.textContent=money.format(Number(asset.price||0));
+    const price=document.createElement("em");price.textContent=formatPx(asset.price);
     const separator=document.createElement("i");separator.setAttribute("aria-hidden","true");separator.textContent="◆";
-    item.append(symbol,price,separator);tape.append(item);
+    item.append(symbol,price,separator);
+    const dir=feeDirection(asset);
+    if(dir){
+      const chip=document.createElement("small");
+      chip.className="fee-chip";
+      chip.textContent=dir;
+      item.append(chip);
+    }
+    tape.append(item);
   });
 }
 
@@ -1112,7 +1128,7 @@ async function loadPrices(){
     renderMarketCards(assets);
     renderWatchlist();
   }catch{
-    if(tape)tape.innerHTML='<span class="tape-item"><b>STOCK TOKENS</b><em>MARKET DATA TEMPORARILY UNAVAILABLE</em><i aria-hidden="true">◆</i></span>';
+    if(tape)tape.innerHTML='<span class="tape-item"><b>TOKEN MIDS</b><em>MARKET DATA TEMPORARILY UNAVAILABLE</em><i aria-hidden="true">◆</i></span>';
     renderMarketCards([]);
   }
 }
@@ -1189,7 +1205,7 @@ function renderCardsStrip(overview,activityHeadline){
   const cycles=overview?.cycles??"—";
   const cards=[];
   if(topMover){
-    cards.push(`<article class="pulse-card"><span>TOP MOVER</span><strong>${escapeHtml(topMover.symbol)}</strong><b>${money.format(topMover.price)}</b>${topMover.changePct!=null?`<em class="${clsPnL(topMover.changePct)}">${pct(topMover.changePct)}</em>`:`<em class="muted">SPOT</em>`}</article>`);
+    cards.push(`<article class="pulse-card"><span>TOP MID</span><strong>${escapeHtml(topMover.symbol)}</strong><b>${formatPx(topMover.price)}</b>${topMover.changePct!=null?`<em class="${clsPnL(topMover.changePct)}">${pct(topMover.changePct)}</em>`:`<em class="muted">MID</em>`}</article>`);
   }
   if(gainer){
     const ret=gainer.return_pct!=null?Number(gainer.return_pct):(Number(gainer.total_value)/STARTING_BALANCE-1)*100;
@@ -1201,7 +1217,7 @@ function renderCardsStrip(overview,activityHeadline){
   }
   cards.push(`<article class="pulse-card"><span>ENGINE CYCLES</span><strong>${escapeHtml(String(cycles))}</strong><b>COMPLETED</b><em class="muted">BETA-1</em></article>`);
   if(activityHeadline){
-    cards.push(`<button type="button" class="pulse-card" data-panel-jump="activity"><span>LATEST ACTIVITY</span><strong>${escapeHtml(activityHeadline.action)} ${escapeHtml(activityHeadline.symbol||"")}</strong><b>TRADER #${escapeHtml(String(activityHeadline.token_id))}</b><em class="muted">${escapeHtml(title(activityHeadline.reason_code)||"")}</em></button>`);
+    cards.push(`<button type="button" class="pulse-card" data-panel-jump="activity"><span>LATEST ACTIVITY</span><strong>${escapeHtml(activityHeadline.action)} ${escapeHtml(activityHeadline.symbol||"")}</strong><b>TRADER #${escapeHtml(String(activityHeadline.token_id))}</b><em class="muted">${escapeHtml(reasonLabel(activityHeadline.reason_code)||"")}</em></button>`);
   }
   root.innerHTML=cards.join("")||'<p class="loading">Snapshot unavailable.</p>';
 }
@@ -1275,7 +1291,7 @@ function renderActivity(items){
   const root=$("activity-list");root.replaceChildren();
   root.classList.toggle("compact-view",activityState.view==="compact");
   $("activity-count").textContent=`${items.length} ${items.length===1?"DECISION":"DECISIONS"} LOADED`;
-  if(!items.length){const empty=document.createElement("p");empty.className="loading";empty.textContent=activityState.action==="all"?"No decisions have been recorded yet.":"No matching decisions in the loaded pages.";root.append(empty);return}
+  if(!items.length){const empty=document.createElement("p");empty.className="loading";empty.textContent=activityState.action==="all"?"No decisions in the public feed yet.":"No matching decisions in the loaded pages.";root.append(empty);return}
   for(const row of items){
     const id=Number(row.token_id);
     if(!Number.isInteger(id)||id<1||id>444)continue;
@@ -1286,7 +1302,7 @@ function renderActivity(items){
         <img src="${imageUrl(id)}" alt="WST #${id}" loading="lazy">
         <span class="activity-trader">TRADER #${id}</span>
         ${activityBadge(row)}
-        <span class="activity-reason">${escapeHtml(title(row.reason_code))}${sellPnLChip(row)} ${ledgerLine(row)}</span>
+        <span class="activity-reason">${escapeHtml(reasonLabel(row.reason_code))}${feeChip(row)}${sellPnLChip(row)} ${ledgerLine(row)}</span>
         <time class="activity-time"></time>
       </a>
       ${activityState.view==="tickets"?`<div class="activity-mini-ticket">${renderDecisionTicket(row,{compact:true})}</div>`:""}`;
