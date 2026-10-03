@@ -293,38 +293,41 @@ function positionLastPrice(p){
   const mv=Number(p.market_value||0);
   return qty?mv/qty:Number(p.average_entry||p.avg_cost||0);
 }
+function formatLev(value){
+  const v=Number(value);
+  if(!Number.isFinite(v)||v<=0)return "—";
+  const rounded=Math.round(v*100)/100;
+  const txt=Number.isInteger(rounded)?String(rounded):rounded.toFixed(2);
+  return `${txt}x`;
+}
 function renderPositions(items,portfolio){
   const root=$("positions");$("positions-total").textContent=items.length;$("position-count").textContent=`${items.length} OPEN`;
   root.classList.toggle("empty",!items.length);
-  const book=Number(portfolio?.total_value||0)||items.reduce((s,p)=>s+Number(p.market_value||0),0);
-  root.innerHTML=items.length?items.map(p=>{
-    const qty=Number(p.quantity??p.qty??0);
-    const avg=Number(p.average_entry||p.avg_cost||0);
-    const last=positionLastPrice(p);
-    const mv=Number(p.market_value??(qty*last)??0);
-    const pnl=Number(p.unrealized_pnl??p.total_pnl_usd??(mv-avg*qty)??0);
-    const cost=avg*qty;
-    const totalPct=p.total_pnl_pct!=null?Number(p.total_pnl_pct):(cost?pnl/cost*100:0);
-    const weight=book?mv/book*100:0;
+  if(!items.length){root.textContent="FLAT";return}
+  const rows=items.map(p=>{
     const sym=String(p.symbol||"").toUpperCase();
-    const watched=isWatched(sym);
-    const inst=String(p.instrument||"spot").toUpperCase();
-    const side=String(p.side||"long").toUpperCase();
-    const lev=Number(p.leverage||1);
-    return `<button type="button" class="position-card" data-open-asset="${escapeHtml(sym)}">
-      <header><strong>${escapeHtml(sym)}</strong><span class="weight">${escapeHtml(inst)} · ${escapeHtml(side)}${inst==="PERP"?` · ${lev.toFixed(2)}x`:""}</span></header>
-      <div class="pos-grid">
-        <div><span>QTY</span><b>${number.format(qty)}</b></div>
-        <div><span>AVG</span><b>${money.format(avg)}</b></div>
-        <div><span>LAST</span><b>${money.format(last)}</b></div>
-        <div><span>UNREALIZED</span><b class="${clsPnL(pnl)}">${money.format(pnl)}</b></div>
-      </div>
-      <footer>
-        <span class="${clsPnL(pnl)}">${money.format(pnl)} (${pct(totalPct)})</span>
-        <span class="watch-inline ${watched?"watching":""}" data-watch-symbol="${escapeHtml(sym)}" role="button" tabindex="0">${watched?"★ WATCHING":"+ WATCH"}</span>
-      </footer>
-    </button>`;
-  }).join(""):"NO OPEN POSITIONS";
+    const inst=String(p.instrument||"spot").toLowerCase();
+    const instLabel=inst==="perp"?"PERP":"SPOT";
+    const side=String(p.side||"long").toLowerCase()==="short"?"short":"long";
+    const qty=Number(p.quantity??p.qty??0);
+    const entry=Number(p.average_entry||0);
+    const markRaw=p.current_price;
+    const mark=Number.isFinite(Number(markRaw))?Number(markRaw):positionLastPrice(p);
+    const pnl=Number(p.unrealized_pnl??0);
+    const margin=Number(p.margin_usd??0);
+    const marginTxt=(inst!=="perp"&&(!Number.isFinite(margin)||margin===0))?"—":money.format(margin);
+    return `<tr>
+      <td class="pos-market-cell"><button type="button" class="pos-market" data-open-asset="${escapeHtml(sym)}">${escapeHtml(sym)}<small>${instLabel}</small></button></td>
+      <td><span class="side-badge ${side}">${side.toUpperCase()}</span></td>
+      <td class="num">${escapeHtml(formatLev(p.leverage))}</td>
+      <td class="num">${number.format(qty)}</td>
+      <td class="num">${money.format(entry)}</td>
+      <td class="num">${money.format(mark)}</td>
+      <td class="num ${clsPnL(pnl)}">${money.format(pnl)}</td>
+      <td class="num">${marginTxt}</td>
+    </tr>`;
+  }).join("");
+  root.innerHTML=`<table class="positions-table"><thead><tr><th>MARKET</th><th>SIDE</th><th class="num">LEV</th><th class="num">SIZE</th><th class="num">ENTRY</th><th class="num">MARK</th><th class="num">UPNL</th><th class="num">MARGIN</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 /* ── Order tickets (decisions) ── */
@@ -1244,23 +1247,45 @@ function sellPnLChip(row){
   const retTxt=Number.isFinite(ret)?` · ${pct(ret)}`:"";
   return `<span class="pnl-chip ${clsPnL(pnl)}">${money.format(pnl)}${retTxt}</span>`;
 }
+function activitySide(row){
+  const side=String(row?.side||row?.exit_details?.side||"").toLowerCase();
+  return side==="long"||side==="short"?side:"";
+}
+function activityMatches(row){
+  const filter=activityState.action;
+  if(filter==="long"||filter==="short")return activitySide(row)===filter;
+  if(filter==="all")return true;
+  return String(row?.action||"").toLowerCase()===filter;
+}
+function activityBadge(row){
+  const action=String(row.action||"hold").toLowerCase();
+  const side=activitySide(row);
+  const instRaw=String(row?.instrument||row?.exit_details?.instrument||"").toLowerCase();
+  const inst=instRaw==="perp"?"PERP":instRaw==="spot"?"SPOT":"";
+  const levRaw=row?.leverage??row?.exit_details?.leverage;
+  const lev=levRaw!=null&&levRaw!==""&&Number.isFinite(Number(levRaw))?formatLev(levRaw):"";
+  const symbol=escapeHtml(safe(row.symbol,""));
+  const meta=[symbol, inst?`<span class="inst-tag">${inst}</span>`:"", lev?`<span class="lev-tag">${escapeHtml(lev)}</span>`:""].filter(Boolean).join(" ");
+  if(side)return `<span class="activity-action ${side}"><span class="side-badge ${side}">${side.toUpperCase()}</span> ${meta}</span>`;
+  const verb=action==="hold"?"CONDITION CHECKED · NO TRADE":action.toUpperCase();
+  const klass=["buy","sell","hold"].includes(action)?action:"";
+  return `<span class="activity-action ${klass}">${escapeHtml(verb)} ${meta}</span>`;
+}
 function renderActivity(items){
   const root=$("activity-list");root.replaceChildren();
   root.classList.toggle("compact-view",activityState.view==="compact");
   $("activity-count").textContent=`${items.length} ${items.length===1?"DECISION":"DECISIONS"} LOADED`;
-  if(!items.length){const empty=document.createElement("p");empty.className="loading";empty.textContent="No decisions have been recorded yet.";root.append(empty);return}
+  if(!items.length){const empty=document.createElement("p");empty.className="loading";empty.textContent=activityState.action==="all"?"No decisions have been recorded yet.":"No matching decisions in the loaded pages.";root.append(empty);return}
   for(const row of items){
     const id=Number(row.token_id);
     if(!Number.isInteger(id)||id<1||id>444)continue;
-    const action=String(row.action||"HOLD").toLowerCase();
-    const holdLabel=action==="hold"?"CONDITION CHECKED · NO TRADE":action.toUpperCase();
     const wrap=document.createElement("div");
     wrap.className="activity-ticket-row";
     wrap.innerHTML=`
       <a class="activity-row" href="?trader=${id}">
         <img src="${imageUrl(id)}" alt="WST #${id}" loading="lazy">
         <span class="activity-trader">TRADER #${id}</span>
-        <span class="activity-action ${["buy","sell","hold"].includes(action)?action:""}">${escapeHtml(action==="hold"?holdLabel:action.toUpperCase())} ${escapeHtml(safe(row.symbol,""))}</span>
+        ${activityBadge(row)}
         <span class="activity-reason">${escapeHtml(title(row.reason_code))}${sellPnLChip(row)} ${ledgerLine(row)}</span>
         <time class="activity-time"></time>
       </a>
@@ -1280,18 +1305,32 @@ function setActivityControls(){
   document.querySelectorAll("[data-activity-view]").forEach(button=>button.classList.toggle("active",button.dataset.activityView===activityState.view));
   const loadMore=$("load-more-activity");loadMore.hidden=!activityState.hasMore;loadMore.disabled=activityState.loading;loadMore.textContent=activityState.loading?"LOADING…":"LOAD MORE ↓";
 }
+function visibleActivity(){return activityState.items.filter(activityMatches)}
 async function loadActivity({reset=false}={}){
   if(activityState.loading||document.hidden||!$("activity").classList.contains("active-panel"))return;
   if(reset){activityState.cursor=null;activityState.hasMore=false;activityState.items=[];renderActivity([])}
   activityState.loading=true;setActivityControls();$("activity-status").textContent="LOADING…";
+  const sideFilter=activityState.action==="long"||activityState.action==="short";
+  const beforeMatches=visibleActivity().length;
+  let extraPages=0;
   try{
-    const params={activity:"1",action:activityState.action,limit:String(ACTIVITY_PAGE_SIZE)};
-    if(activityState.cursor)params.before=activityState.cursor;
-    if(activityState.tokenId)params.token_id=String(activityState.tokenId);
-    if(activityState.symbol)params.symbol=String(activityState.symbol).toUpperCase();
-    const data=await request(params);
-    if(!Array.isArray(data.activity))throw new Error("Invalid activity response");
-    activityState.items=reset?data.activity:[...activityState.items,...data.activity];activityState.cursor=data.next_cursor||null;activityState.hasMore=Boolean(data.has_more);renderActivity(activityState.items);
+    do{
+      const params={activity:"1",action:sideFilter?"all":activityState.action,limit:String(ACTIVITY_PAGE_SIZE)};
+      if(activityState.cursor)params.before=activityState.cursor;
+      if(activityState.tokenId)params.token_id=String(activityState.tokenId);
+      if(activityState.symbol)params.symbol=String(activityState.symbol).toUpperCase();
+      const data=await request(params);
+      if(!Array.isArray(data.activity))throw new Error("Invalid activity response");
+      activityState.items=[...activityState.items,...data.activity];
+      activityState.cursor=data.next_cursor||null;
+      activityState.hasMore=Boolean(data.has_more);
+      const shown=visibleActivity();
+      renderActivity(shown);
+      if(!sideFilter)break;
+      if(shown.length>beforeMatches)break;
+      if(!activityState.hasMore)break;
+      extraPages+=1;
+    }while(extraPages<=8);
     $("activity-status").textContent=`UPDATED ${new Date().toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"})}`;
   }catch{
     $("activity-status").textContent="UPDATES UNAVAILABLE";
@@ -1520,7 +1559,7 @@ document.querySelectorAll("[data-rank-limit]").forEach(btn=>btn.addEventListener
 document.querySelectorAll("[data-activity-view]").forEach(btn=>btn.addEventListener("click",()=>{
   activityState.view=btn.dataset.activityView==="compact"?"compact":"tickets";
   setActivityControls();
-  renderActivity(activityState.items);
+  renderActivity(visibleActivity());
 }));
 $("activity-apply-filters")?.addEventListener("click",()=>{
   const tokenRaw=$("activity-token-filter")?.value?.trim()||"";

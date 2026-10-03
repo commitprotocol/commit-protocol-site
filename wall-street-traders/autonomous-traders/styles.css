@@ -512,3 +512,22 @@ button.pulse-card:hover{border-color:var(--green);background:#0a0d0a}
   .term-prompt-row{padding-inline:12px}
   .profile-subpanel.active-subpanel{gap:14px}
 }
+
+/* v33 long/short desk */
+.side-badge{display:inline-block;padding:2px 6px;border:1px solid;font-size:9px;font-weight:800;letter-spacing:.08em;line-height:1.4;vertical-align:middle}
+.side-badge.long{color:var(--green);border-color:#31513a;background:#0d130e}
+.side-badge.short{color:var(--red);border-color:#5a3030;background:#160b0b}
+.inst-tag,.lev-tag{margin-left:6px;font-size:9px;font-weight:700;letter-spacing:.08em;color:#bdb6aa}
+.activity-action.long{color:var(--green)}
+.activity-action.short{color:var(--red)}
+.positions-list:not(.empty){display:block;padding:0;overflow-x:auto}
+.positions-table{width:100%;border-collapse:collapse;font-size:11px;min-width:720px}
+.positions-table th{text-align:left;font-size:9px;letter-spacing:.12em;color:#777b75;font-weight:700;padding:10px 14px;border-bottom:1px solid var(--line);background:#030403;white-space:nowrap}
+.positions-table td{padding:12px 14px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;vertical-align:middle;white-space:nowrap}
+.positions-table th.num,.positions-table td.num{text-align:right}
+.positions-table tbody tr:hover td{background:#0a0d0a}
+.positions-table td.buy{color:var(--green)}
+.positions-table td.sell{color:var(--red)}
+.pos-market{display:inline-flex;flex-direction:column;align-items:flex-start;gap:3px;border:0;background:transparent;color:inherit;padding:0;cursor:pointer;font:700 12px var(--mono);letter-spacing:.04em;text-align:left}
+.pos-market small{color:#777b75;font-size:9px;letter-spacing:.1em;font-weight:700}
+.pos-market:hover{color:var(--green)}

@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://commitprotocol.org/wall-street-traders/og.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="icon" href="/favicon.ico">
-  <link rel="stylesheet" href="styles.css?v=32">
+  <link rel="stylesheet" href="styles.css?v=33">
 </head>
 <body>
   <div class="market-tape" aria-label="Live stock token prices">
@@ -203,7 +203,7 @@
               </div>
               <p class="equity-note" id="equity-note">ESTIMATED CURVE · FULL HISTORY COMING FROM ENGINE</p>
             </article>
-            <article class="panel positions-panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list positions-list empty">NO OPEN POSITIONS</div></article>
+            <article class="panel positions-panel"><div class="panel-head"><div><span>OPEN BOOK</span><h3>POSITIONS</h3></div><b id="positions-total">0</b></div><div id="positions" class="data-list positions-list empty">FLAT</div></article>
             <article class="panel pressure-panel" id="pressure-panel">
               <div class="panel-head"><div><span>DNA vs BOOK</span><h3>PRESSURE TEST</h3></div><b id="pressure-score-badge">HEURISTIC · PAPER</b></div>
               <div class="pressure-body" id="pressure-body"><p class="loading">Load a trader to run the pressure test…</p></div>
@@ -376,7 +376,7 @@
           <div id="scan-results" class="leaderboard-list"><p class="loading">Set filters and run scan.</p></div>
         </article>
       </section>
-      <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>06 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Complete simulated decision history across all 444 traders, loaded in lightweight pages.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div class="history-toolbar activity-toolbar" role="group" aria-label="Filter public activity"><button type="button" class="active" data-activity-action="all">ALL</button><button type="button" data-activity-action="buy">BUY</button><button type="button" data-activity-action="sell">SELL</button><button type="button" data-activity-action="hold">HOLD</button></div><div class="activity-extra-filters"><label>TRADER #<input id="activity-token-filter" type="number" min="1" max="444" placeholder="1–444" inputmode="numeric"></label><label>SYMBOL<input id="activity-symbol-filter" type="text" maxlength="16" placeholder="AAPL" autocomplete="off" spellcheck="false"></label><button type="button" class="ghost-btn" id="activity-apply-filters">APPLY</button><div class="history-toolbar activity-view-toggle" role="group" aria-label="Activity view"><button type="button" data-activity-view="compact">COMPACT</button><button type="button" class="active" data-activity-view="tickets">TICKETS</button></div></div><div id="activity-list" class="activity-list activity-history"><p class="loading">Loading recent decisions…</p></div><div class="history-footer"><span id="activity-count">0 DECISIONS LOADED</span><button type="button" id="load-more-activity" hidden>LOAD MORE ↓</button></div></article><p class="activity-note">PAPER TRADING ONLY · HOLD IS A DECISION, NOT AN EXECUTED TRADE · TIMES SHOWN IN YOUR LOCAL TIME ZONE</p></section>
+      <section class="page-panel dashboard-panel" id="activity"><div class="dash-head"><p>06 / PUBLIC DECISION FEED</p><h2>ACTIVITY.</h2><small>Complete simulated decision history across all 444 traders, loaded in lightweight pages.</small></div><article class="panel"><div class="panel-head activity-head"><div><span>DECISION LEDGER / ALL TRADERS</span><h3>RECENT ACTIVITY</h3></div><b id="activity-status" role="status">LOADING…</b></div><div class="history-toolbar activity-toolbar" role="group" aria-label="Filter public activity"><button type="button" class="active" data-activity-action="all">ALL</button><button type="button" data-activity-action="buy">BUY</button><button type="button" data-activity-action="sell">SELL</button><button type="button" data-activity-action="hold">HOLD</button><button type="button" data-activity-action="long">LONG</button><button type="button" data-activity-action="short">SHORT</button></div><div class="activity-extra-filters"><label>TRADER #<input id="activity-token-filter" type="number" min="1" max="444" placeholder="1–444" inputmode="numeric"></label><label>SYMBOL<input id="activity-symbol-filter" type="text" maxlength="16" placeholder="AAPL" autocomplete="off" spellcheck="false"></label><button type="button" class="ghost-btn" id="activity-apply-filters">APPLY</button><div class="history-toolbar activity-view-toggle" role="group" aria-label="Activity view"><button type="button" data-activity-view="compact">COMPACT</button><button type="button" class="active" data-activity-view="tickets">TICKETS</button></div></div><div id="activity-list" class="activity-list activity-history"><p class="loading">Loading recent decisions…</p></div><div class="history-footer"><span id="activity-count">0 DECISIONS LOADED</span><button type="button" id="load-more-activity" hidden>LOAD MORE ↓</button></div></article><p class="activity-note">PAPER TRADING ONLY · HOLD IS A DECISION, NOT AN EXECUTED TRADE · TIMES SHOWN IN YOUR LOCAL TIME ZONE</p></section>
       <section class="page-panel dashboard-panel developers-panel" id="developers">
         <div class="dash-head">
           <p>08 / DEVELOPER ACCESS</p>
@@ -455,6 +455,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <script src="app.js?v=32"></script>
+  <script src="app.js?v=33"></script>
 </body>
 </html>
