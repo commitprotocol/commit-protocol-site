@@ -39,6 +39,23 @@ function reasonLabel(code){
   const key=String(code||"").toLowerCase();
   return REASON_PLAIN[key]||title(code);
 }
+const PUBLIC_DNA="dna-v2-perps";
+function publicDnaLabel(raw){
+  const s=String(raw??"").trim();
+  const n=s.toLowerCase().replace(/[\s_]+/g,"-");
+  if(!s||s==="—"||/(^|[^a-z0-9])v1([^a-z0-9]|$)/.test(n)||n==="beta-1")return PUBLIC_DNA;
+  return s;
+}
+function engineDnaLine(engine,dna){
+  const a=publicDnaLabel(engine);
+  const b=publicDnaLabel(dna);
+  return a===b?a:`${a} / ${b}`;
+}
+function actionWord(action){
+  const a=String(action||"").toLowerCase();
+  if(a==="hold")return "NO TRADE";
+  return a?a.toUpperCase():"";
+}
 function formatPx(value){
   const n=Number(value);
   if(!Number.isFinite(n))return "—";
@@ -263,10 +280,10 @@ function buildPortfolioDigest(data){
   const winRate=decided?wins/decided*100:null;
   const movers=[...positions].sort((a,b)=>Math.abs(Number(b.unrealized_pnl||0))-Math.abs(Number(a.unrealized_pnl||0))).slice(0,3);
   const last=decisions[0];
-  const lastAction=last?String(last.action||"hold").toUpperCase():null;
+  const lastAction=last?actionWord(last.action||"hold"):null;
   const lastSym=last?.symbol?String(last.symbol).toUpperCase():"";
   const parts=[];
-  parts.push(`Trader #${id} (${title(trader.archetype)||"unknown archetype"}) holds a paper book at ${money.format(total)} (${pct(ret)} since the $10,000 start).`);
+  parts.push(`Trader #${id} (${title(trader.archetype)||"unknown archetype"}) runs a paper book at ${money.format(total)} (${pct(ret)} since the $10,000 start). Engine ${PUBLIC_DNA}.`);
   if(positions.length){
     const moverTxt=movers.map(p=>{
       const pnl=Number(p.unrealized_pnl||0);
@@ -282,7 +299,7 @@ function buildPortfolioDigest(data){
     parts.push("No closed trades yet in this beta season.");
   }
   if(lastAction){
-    const holdNote=lastAction==="HOLD"?" (condition checked · no trade)":"";
+    const holdNote=lastAction==="NO TRADE"?" (checked, not a fill)":"";
     parts.push(`Last recorded action: ${lastAction}${lastSym?" "+lastSym:""}${holdNote}${last?.reason_code?` — ${reasonLabel(last.reason_code)}`:""}.`);
   }
   return parts.join(" ");
@@ -418,11 +435,11 @@ function renderDecisionTicket(d,{compact=false}={}){
     </div>`;
   }
   const exitMarkup=exit?`<div><span>EXIT REASON</span><b>${escapeHtml(reasonLabel(d.reason_code).toUpperCase())}</b></div><div><span>ENTRY PRICE</span><b>${formatPx(exit.entry_price)}</b></div><div><span>EXIT PRICE</span><b>${formatPx(exit.exit_price)}</b></div><div><span>POSITION RETURN</span><b class="${clsPnL(exit.return_pct)}">${pct(exit.return_pct)}</b></div><div><span>REALIZED P&amp;L</span><b class="${clsPnL(exit.realized_pnl)}">${money.format(Number(exit.realized_pnl))}</b></div><div><span>QUANTITY SOLD</span><b>${number.format(Number(exit.quantity))}</b></div><div><span>TAKE PROFIT TARGET</span><b>${exit.take_profit_pct==null?"UNAVAILABLE":`+${Number(exit.take_profit_pct).toFixed(2)}%`}</b></div><div><span>STOP LOSS LIMIT</span><b>${exit.stop_loss_pct==null?"UNAVAILABLE":`-${Number(exit.stop_loss_pct).toFixed(2)}%`}</b></div>`:"";
-  const proofMarkup=hash?`<details class="decision-proof"><summary>VIEW DECISION PROOF</summary><div class="proof-grid">${exitMarkup}<div><span>PRICE SNAPSHOT</span><b>${proof.price_snapshot==null?"UNAVAILABLE":formatPx(proof.price_snapshot)}</b></div><div><span>MARKET SIGNAL</span><b>${escapeHtml(String(safe(proof.market_signal)).toUpperCase())}</b></div><div><span>SIGNAL STRENGTH</span><b>${escapeHtml(String(safe(proof.signal_strength)).toUpperCase())}</b></div><div><span>RISK INFLUENCE</span><b>${escapeHtml(String(safe(proof.risk_influence)).toUpperCase())}</b></div><div><span>DISCIPLINE INFLUENCE</span><b>${escapeHtml(String(safe(proof.discipline_influence)).toUpperCase())}</b></div><div><span>MOMENTUM INFLUENCE</span><b>${escapeHtml(String(safe(proof.momentum_influence)).toUpperCase())}</b></div><div><span>ENGINE / DNA</span><b>${escapeHtml(String(safe(d.engine_version)).toUpperCase())} / ${escapeHtml(String(safe(d.dna_version)).toUpperCase())}</b></div><div class="proof-hash"><span>COMMITMENT HASH</span><code title="${escapeHtml(hash)}">${escapeHtml(hash.slice(0,22))}…${escapeHtml(hash.slice(-10))}</code></div></div><p>PUBLIC PROOF EXPOSES DECISION CONTEXT. PROPRIETARY WEIGHTS AND RAW INPUTS REMAIN PRIVATE.</p></details>`:"";
+  const proofMarkup=hash?`<details class="decision-proof"><summary>VIEW DECISION PROOF</summary><div class="proof-grid">${exitMarkup}<div><span>PRICE SNAPSHOT</span><b>${proof.price_snapshot==null?"UNAVAILABLE":formatPx(proof.price_snapshot)}</b></div><div><span>MARKET SIGNAL</span><b>${escapeHtml(String(safe(proof.market_signal)).toUpperCase())}</b></div><div><span>SIGNAL STRENGTH</span><b>${escapeHtml(String(safe(proof.signal_strength)).toUpperCase())}</b></div><div><span>RISK INFLUENCE</span><b>${escapeHtml(String(safe(proof.risk_influence)).toUpperCase())}</b></div><div><span>DISCIPLINE INFLUENCE</span><b>${escapeHtml(String(safe(proof.discipline_influence)).toUpperCase())}</b></div><div><span>MOMENTUM INFLUENCE</span><b>${escapeHtml(String(safe(proof.momentum_influence)).toUpperCase())}</b></div><div><span>ENGINE / DNA</span><b>${escapeHtml(engineDnaLine(d.engine_version,d.dna_version))}</b></div><div class="proof-hash"><span>COMMITMENT HASH</span><code title="${escapeHtml(hash)}">${escapeHtml(hash.slice(0,22))}…${escapeHtml(hash.slice(-10))}</code></div></div><p>PUBLIC PROOF EXPOSES DECISION CONTEXT. PROPRIETARY WEIGHTS AND RAW INPUTS REMAIN PRIVATE.</p></details>`:"";
   const symBtn=d.symbol?`<button type="button" class="ticket-sym" data-open-asset="${escapeHtml(String(d.symbol).toUpperCase())}">${escapeHtml(String(d.symbol).toUpperCase())}</button>`:"";
   return `<article class="order-ticket ${action} ${compact?"compact":""}">
     <div class="ticket-top">
-      <div class="ticket-action"><strong class="${["buy","sell"].includes(action)?action:""}">${escapeHtml(action.toUpperCase())}</strong>${symBtn}<em class="ticket-kind">${escapeHtml(kind)}</em></div>
+      <div class="ticket-action"><strong class="${["buy","sell"].includes(action)?action:""}">${escapeHtml(actionWord(action))}</strong>${symBtn}<em class="ticket-kind">${escapeHtml(action==="hold"?"CHECK":kind)}</em></div>
       <div class="ticket-meta"><b>${escapeHtml(confTxt)}</b><small>CONF</small></div>
     </div>
     <p class="ticket-reason">${escapeHtml(reasonLabel(d.reason_code))}${feeChip(d)}</p>
@@ -619,7 +636,7 @@ function renderEquityChart(span){
     const raw=dp.raw||{};
     if(raw.action){
       const conf=Number.isFinite(Number(raw.confidence))?` · ${Number(raw.confidence).toFixed(0)}%`:"";
-      tipVal.textContent=`${String(raw.action).toUpperCase()} ${raw.symbol||""}${conf}`.trim();
+      tipVal.textContent=`${actionWord(raw.action)} ${raw.symbol||""}${conf}`.trim();
       tipDate.textContent=`${reasonLabel(raw.reason_code)||"—"} · ${formatTipDate(raw.x??dp.parsed.x,span)}`;
     }else{
       tipVal.textContent=money.format(dp.parsed.y);
@@ -636,7 +653,7 @@ function renderEquityChart(span){
     {type:"scatter",label:"SELL",data:markers.sell,pointStyle:"triangle",rotation:180,radius:7,hoverRadius:9,backgroundColor:"#ff8e8e",borderColor:"#050605",borderWidth:1,order:1}
   ];
   if(showHoldsMarkers){
-    datasets.push({type:"scatter",label:"HOLD",data:markers.hold,pointStyle:"rectRot",rotation:0,radius:3.5,hoverRadius:5,backgroundColor:"#6b7168",borderColor:"#050605",borderWidth:1,order:2});
+    datasets.push({type:"scatter",label:"NO TRADE",data:markers.hold,pointStyle:"rectRot",rotation:0,radius:3.5,hoverRadius:5,backgroundColor:"#6b7168",borderColor:"#050605",borderWidth:1,order:2});
   }
   if(equityChart){equityChart.destroy();equityChart=null}
   equityChart=new Chart(canvas.getContext("2d"),{
@@ -907,7 +924,7 @@ function buildPressureTest(data){
   if(risk>=70&&cashPct>=70){flags.push({tone:"warn",text:`High risk DNA (${risk}/100) but cash-heavy book (${cashPct.toFixed(0)}% cash).`});score-=12}
   if(risk<=35&&exposurePct>=70){flags.push({tone:"warn",text:`Defensive/low-risk DNA (${risk}/100) yet high market exposure (${exposurePct.toFixed(0)}%).`});score-=10}
   if((archetype.includes("defensive")||patience>=70)&&topWeight>=35){flags.push({tone:"warn",text:`Patient/defensive profile but concentrated in ${topSym||"one name"} (${topWeight.toFixed(0)}% of book).`});score-=10}
-  if(momentum>=70&&mix.buy+mix.sell===0&&loaded){flags.push({tone:"warn",text:`High momentum bias (${momentum}/100) but recent loaded set is all holds.`});score-=8}
+  if(momentum>=70&&mix.buy+mix.sell===0&&loaded){flags.push({tone:"warn",text:`High momentum bias (${momentum}/100) but the recent loaded set is all no-trade checks.`});score-=8}
   if(discipline>=70&&trades===0){flags.push({tone:"info",text:`High discipline (${discipline}/100) with zero trades so far — possible over-caution in beta.`});score-=4}
   if(risk>=60&&exposurePct>=40&&trades>0){flags.push({tone:"ok",text:`Risk DNA (${risk}/100) aligns with deployed capital (${exposurePct.toFixed(0)}% invested, ${trades} trades).`});score+=6}
   if(cashPct>=90&&trades===0){flags.push({tone:"info",text:`Near-full cash with no trades — book still at starting posture.`});}
@@ -934,7 +951,7 @@ function renderPressureTest(data){
       <span>MIX B${p.mix.buy}/S${p.mix.sell}/H${p.mix.hold}</span>
     </div>
     <ul class="pressure-flags">${p.flags.map(f=>`<li class="${f.tone}">${escapeHtml(f.text)}</li>`).join("")}</ul>
-    <p class="pressure-disclaimer">Heuristic only · INFORMATIONAL · PAPER · NOT ADVICE · does not change the live engine</p>`;
+    <p class="pressure-disclaimer">Heuristic only · INFORMATIONAL · PAPER · NOT ADVICE · does not change the paper engine</p>`;
 }
 
 /* ── Swarm expectancy ── */
@@ -949,7 +966,7 @@ async function loadExpectancy(){
     const wr=d.win_rate_pct!=null?Number(d.win_rate_pct):null;
     const by=d.by_action||{};
     root.innerHTML=`
-      <div class="expect-card"><span>HOLD %</span><b>${hold.toFixed(1)}%</b><small>${Number(by.hold||0).toLocaleString()} HOLDS</small></div>
+      <div class="expect-card"><span>NO TRADE</span><b>${hold.toFixed(1)}%</b><small>${Number(by.hold||0).toLocaleString()} CHECKS</small></div>
       <div class="expect-card"><span>TRADE %</span><b>${trade.toFixed(1)}%</b><small>B ${Number(by.buy||0).toLocaleString()} / S ${Number(by.sell||0).toLocaleString()}</small></div>
       <div class="expect-card"><span>AGENTS UP</span><b class="buy">${up}</b><small>ABOVE $10k</small></div>
       <div class="expect-card"><span>AGENTS DOWN</span><b class="sell">${down}</b><small>BELOW $10k</small></div>
@@ -965,7 +982,7 @@ function renderReplay(items,summary){
   const root=$("replay-list");const count=$("replay-count");const sumEl=$("replay-summary");if(!root)return;
   if(sumEl){
     if(summary){
-      sumEl.textContent=`Loaded ${summary.loaded||items.length}: BUY ${summary.buy||0} · SELL ${summary.sell||0} · HOLD ${summary.hold||0} · TRADE ${summary.trade||0} — INFORMATIONAL · PAPER · NOT ADVICE`;
+      sumEl.textContent=`Loaded ${summary.loaded||items.length}: BUY ${summary.buy||0} · SELL ${summary.sell||0} · NO TRADE ${summary.hold||0} · TRADE ${summary.trade||0} — INFORMATIONAL · PAPER · NOT ADVICE`;
     }else sumEl.textContent="INFORMATIONAL · PAPER · NOT ADVICE";
   }
   root.classList.toggle("empty",!items.length);
@@ -1032,11 +1049,11 @@ function renderProfile(data,{updateUrl=true}={}){
   $("profile").hidden=false;$("status").textContent=`Showing the autonomous profile for WST #${id}.`;
   $("trader-image").src=imageUrl(id);$("trader-image").alt=trader.name;
   $("rarity-badge").textContent=String(trader.rarity_tier).toUpperCase();$("public-file").textContent=`PUBLIC FILE / WST-${String(id).padStart(3,"0")}`;
-  $("trader-name").textContent=`TRADER #${id}`;$("archetype").textContent=title(trader.archetype);$("rarity-score").textContent=`${trader.rarity_score}/100`;$("dna-version").textContent=String(trader.dna_version).toUpperCase();$("dna-archetype").textContent=title(trader.archetype).toUpperCase();
+  $("trader-name").textContent=`TRADER #${id}`;$("archetype").textContent=title(trader.archetype);$("rarity-score").textContent=`${trader.rarity_score}/100`;$("dna-version").textContent=publicDnaLabel(trader.dna_version);$("dna-archetype").textContent=title(trader.archetype).toUpperCase();
   const total=Number(portfolio.total_value);const ret=(total/STARTING_BALANCE-1)*100;
   $("total-value").textContent=money.format(total);$("total-return").textContent=`${pct(ret)} SINCE START`;$("total-return").className=ret>=0?"positive":"negative";
   $("cash-balance").textContent=money.format(portfolio.cash_balance);$("positions-value").textContent=money.format(portfolio.positions_value);$("trades-count").textContent=portfolio.trades_count;$("win-loss").textContent=`${portfolio.wins_count} W / ${portfolio.losses_count} L`;
-  const seasonEl=$("identity-season");if(seasonEl)seasonEl.textContent="BETA-1 · PAPER";
+  const seasonEl=$("identity-season");if(seasonEl)seasonEl.textContent=`${PUBLIC_DNA} · PAPER`;
   const lastEv=$("last-evaluated");
   if(lastEv){const t=new Date(portfolio.last_evaluated_at);lastEv.textContent=Number.isNaN(t.getTime())?"—":t.toLocaleString()}
   const setPnL=(elId,raw)=>{const el=$(elId);if(!el)return;const n=Number(raw);if(!Number.isFinite(n)){el.textContent="—";el.className="";return}el.textContent=money.format(n);el.className=n>=0?"positive":"negative"};
@@ -1215,7 +1232,7 @@ function renderCardsStrip(overview,activityHeadline){
     const ret=loser.return_pct!=null?Number(loser.return_pct):(Number(loser.total_value)/STARTING_BALANCE-1)*100;
     cards.push(`<button type="button" class="pulse-card loser" data-open-trader="${loser.token_id}"><span>#1 LOSER DNA</span><strong>TRADER #${loser.token_id}</strong><b>${money.format(Number(loser.total_value))}</b><em class="${clsPnL(ret)}">${pct(ret)}</em></button>`);
   }
-  cards.push(`<article class="pulse-card"><span>ENGINE CYCLES</span><strong>${escapeHtml(String(cycles))}</strong><b>COMPLETED</b><em class="muted">BETA-1</em></article>`);
+  cards.push(`<article class="pulse-card"><span>ENGINE CYCLES</span><strong>${escapeHtml(String(cycles))}</strong><b>MINUTE</b><em class="muted">${escapeHtml(PUBLIC_DNA)}</em></article>`);
   if(activityHeadline){
     cards.push(`<button type="button" class="pulse-card" data-panel-jump="activity"><span>LATEST ACTIVITY</span><strong>${escapeHtml(activityHeadline.action)} ${escapeHtml(activityHeadline.symbol||"")}</strong><b>TRADER #${escapeHtml(String(activityHeadline.token_id))}</b><em class="muted">${escapeHtml(reasonLabel(activityHeadline.reason_code)||"")}</em></button>`);
   }
@@ -1244,7 +1261,7 @@ async function loadOverview(){
         data._loser=losers.rankings[0];
       }
     }catch{}
-    renderCardsStrip(data,headline?{action:String(headline.action||"").toUpperCase(),symbol:headline.symbol,token_id:headline.token_id,reason_code:headline.reason_code}:null);
+    renderCardsStrip(data,headline?{action:actionWord(headline.action),symbol:headline.symbol,token_id:headline.token_id,reason_code:headline.reason_code}:null);
     renderFollowedStrip();
   }catch{
     const root=$("leaderboard");
@@ -1282,8 +1299,8 @@ function activityBadge(row){
   const lev=levRaw!=null&&levRaw!==""&&Number.isFinite(Number(levRaw))?formatLev(levRaw):"";
   const symbol=escapeHtml(safe(row.symbol,""));
   const meta=[symbol, inst?`<span class="inst-tag">${inst}</span>`:"", lev?`<span class="lev-tag">${escapeHtml(lev)}</span>`:""].filter(Boolean).join(" ");
-  if(side)return `<span class="activity-action ${side}"><span class="side-badge ${side}">${side.toUpperCase()}</span> ${meta}</span>`;
-  const verb=action==="hold"?"CONDITION CHECKED · NO TRADE":action.toUpperCase();
+  const verb=actionWord(action);
+  if(side)return `<span class="activity-action ${side}">${escapeHtml(verb)} <span class="side-badge ${side}">${side.toUpperCase()}</span> ${meta}</span>`;
   const klass=["buy","sell","hold"].includes(action)?action:"";
   return `<span class="activity-action ${klass}">${escapeHtml(verb)} ${meta}</span>`;
 }
